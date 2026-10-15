@@ -24,12 +24,14 @@ from pitlens.style import FALLBACK_TEAM_COLOR
 from pitlens.undercut.analysis import pit_battles, pit_loss, pit_stops
 
 FIRST_SEASON = 2018  # first season with full timing data in FastF1
+SESSIONS = {"R": "Race", "S": "Sprint"}  # the sessions the pit wall replays
 
 
 @dataclass
 class RaceData:
     name: str
     event_name: str
+    session_name: str  # "Race" or "Sprint"
     year: int
     round_number: int
     location: str
@@ -69,18 +71,18 @@ def completed_races(year: int) -> pd.DataFrame:
     schedule = fastf1.get_event_schedule(year, include_testing=False)
     race_start = pd.to_datetime(schedule["Session5DateUtc"], utc=True)
     done = schedule[race_start + pd.Timedelta(hours=3) < pd.Timestamp.now(tz="UTC")]
-    return done[["RoundNumber", "EventName", "Location", "EventDate"]].reset_index(drop=True)
+    return done[["RoundNumber", "EventName", "Location", "EventDate", "EventFormat"]].reset_index(drop=True)
 
 
-def _fastf1_parts(year: int, round_number: int) -> dict:
-    session = load_session(year, round_number, "R")
+def _fastf1_parts(year: int, round_number: int, kind: str = "R") -> dict:
+    session = load_session(year, round_number, kind)
     try:
         radio = team_radio(session)
     except Exception:  # radio is a nice-to-have; the archive may not have it for every session
-        radio = _openf1_radio(year, session)
+        radio = _openf1_radio(year, session, SESSIONS[kind])
     return {
         "laps": pd.DataFrame(session.laps),
-        "stationary": _stationary(year, session),
+        "stationary": _stationary(year, session, SESSIONS[kind]),
         "results": pd.DataFrame(session.results),
         "messages": pd.DataFrame(session.race_control_messages),
         "weather": pd.DataFrame(session.weather_data),
@@ -95,17 +97,17 @@ def _fastf1_parts(year: int, round_number: int) -> dict:
     }
 
 
-def _openf1_radio(year: int, session) -> pd.DataFrame:
+def _openf1_radio(year: int, session, session_name: str = "Race") -> pd.DataFrame:
     """Radio clips from OpenF1, placed on laps by F1's session clock, when the archive won't serve them."""
     empty = pd.DataFrame(columns=["Driver", "Lap", "SessionTime", "Utc", "Url"])
     if year < openf1.FIRST_SEASON:
         return empty
     numbers = dict(zip(pd.to_numeric(session.results["DriverNumber"], errors="coerce"), session.results["Abbreviation"]))
     try:
-        clips = openf1.team_radio(year, session.date, numbers)
+        clips = openf1.team_radio(year, session.date, numbers, session_name)
         laps = pd.DataFrame(session.laps)
         # Session clock zero in UTC: OpenF1's lap start (UTC) minus the archive's (session clock), lap by lap.
-        starts = openf1.lap_starts(year, session.date)
+        starts = openf1.lap_starts(year, session.date, session_name)
         matched = laps.merge(starts, on=["DriverNumber", "LapNumber"])
         zero = (matched["Utc"] - matched["LapStartTime"]).median()
         clips["SessionTime"] = clips["Utc"].dt.tz_convert(None) - zero
@@ -115,45 +117,48 @@ def _openf1_radio(year: int, session) -> pd.DataFrame:
     return clips[["Driver", "Lap", "SessionTime", "Utc", "Url"]].sort_values("SessionTime").reset_index(drop=True)
 
 
-def _stationary(year: int, session) -> pd.DataFrame | None:
+def _stationary(year: int, session, session_name: str = "Race") -> pd.DataFrame | None:
     """Stationary pit stop times from OpenF1 (F1's archive doesn't carry them; OpenF1 starts in 2023)."""
     if year < openf1.FIRST_SEASON:
         return None
     numbers = dict(zip(pd.to_numeric(session.results["DriverNumber"], errors="coerce"), session.results["Abbreviation"]))
     try:
-        return openf1.stationary_times(year, session.date, numbers)
+        return openf1.stationary_times(year, session.date, numbers, session_name)
     except Exception:  # optional extra: offline, rate-limited, or OpenF1 doesn't have the race
         return None
 
 
-def _openf1_parts(year: int, round_number: int) -> dict:
+def _openf1_parts(year: int, round_number: int, kind: str = "R") -> dict:
     enable_cache()
     event = fastf1.get_event_schedule(year, include_testing=False).get_event_by_round(round_number)
-    parts = openf1.race_parts(year, event["Session5DateUtc"])
+    start = event.get_session_date(SESSIONS[kind], utc=True)
+    parts = openf1.race_parts(year, start, SESSIONS[kind])
     parts["event_name"] = event["EventName"]
     parts["location"] = event["Location"]
     parts["date"] = event["EventDate"]
     parts["radio"]["Lap"] = assign_laps(parts["radio"], parts["laps"])
-    parts["race_utc"] = event["Session5DateUtc"]
+    parts["race_utc"] = start
     return parts
 
 
-def load_race(year: int, round_number: int) -> RaceData:
-    """One race from F1's archive, or from OpenF1 when the archive won't serve it."""
-    key = f"{year}-{round_number}-R"
+def load_race(year: int, round_number: int, kind: str = "R") -> RaceData:
+    """One race (or, with kind="S", the sprint) from F1's archive, or from OpenF1 when the archive
+    won't serve it."""
+    key = f"{year}-{round_number}-{kind}"
     archive_error = TimingUnavailable(f"F1's live-timing archive refused {year} round {round_number} recently.")
     parts = None
     if not refused_recently(key):
         try:
-            parts = _fastf1_parts(year, round_number)
+            parts = _fastf1_parts(year, round_number, kind)
         except TimingUnavailable as exc:
             archive_error = exc
             remember_refusal(key)
     if parts is None:
         try:
-            parts = _openf1_parts(year, round_number)
+            parts = _openf1_parts(year, round_number, kind)
         except openf1.OpenF1Error as exc:
             raise TimingUnavailable(f"{archive_error} OpenF1 couldn't provide it either: {exc}") from None
+    parts["session_name"] = SESSIONS[kind]
     return build_race(year, round_number, parts)
 
 
@@ -174,8 +179,9 @@ def build_race(year: int, round_number: int, parts: dict) -> RaceData:
     started = results[~non_starters(results)]  # a car that never took the start isn't in the running order
     entrants = pd.DataFrame({"Driver": started["Abbreviation"], "Team": started["TeamName"]}).dropna(subset=["Driver"])
     return RaceData(
-        name=f"{year} {parts['event_name']}",
+        name=f"{year} {parts['event_name']}" + (" Sprint" if parts.get("session_name") == "Sprint" else ""),
         event_name=parts["event_name"],
+        session_name=parts.get("session_name", "Race"),
         year=year,
         round_number=round_number,
         location=parts["location"],
@@ -233,6 +239,7 @@ def lap_clock(race: "RaceData", lap: int) -> pd.Timestamp | None:
 
 def _track(year: int, parts: dict) -> dict | None:
     try:
-        return openf1.track_outline(year, parts.get("race_utc"), parts.get("circuit_key"))
+        return openf1.track_outline(year, parts.get("race_utc"), parts.get("circuit_key"),
+                                    parts.get("session_name", "Race"))
     except Exception:  # the map is optional; never let it stop a race from loading
         return None

@@ -179,9 +179,9 @@ def merge_continuing_stints(stints: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-def race_parts(year: int, race_date_utc) -> dict:
-    """Everything `pitwall.data` needs for one race, from OpenF1."""
-    session = find_session(year, race_date_utc)
+def race_parts(year: int, race_date_utc, session_name: str = "Race") -> dict:
+    """Everything `pitwall.data` needs for one race (or sprint), from OpenF1."""
+    session = find_session(year, race_date_utc, session_name)
     sk = session["session_key"]
     t0 = pd.Timestamp(session["date_start"]).tz_convert(None)
 
@@ -377,10 +377,10 @@ def stationary_from(pits: pd.DataFrame, abbr: dict, stints: pd.DataFrame | None 
     return out.drop_duplicates(["Driver", "Lap"]).reset_index(drop=True)
 
 
-def team_radio(year: int, race_date_utc, numbers: dict[int, str]) -> pd.DataFrame:
+def team_radio(year: int, race_date_utc, numbers: dict[int, str], session_name: str = "Race") -> pd.DataFrame:
     """A race's team radio clips (Driver, DriverNumber, Utc, Url), for races whose laps came from F1's
     archive when the archive won't serve the radio stream. `numbers` maps car number to driver code."""
-    session = find_session(year, race_date_utc)
+    session = find_session(year, race_date_utc, session_name)
     radio = pd.DataFrame(get("team_radio", session_key=session["session_key"]))
     if radio.empty:
         return pd.DataFrame(columns=["Driver", "DriverNumber", "Utc", "Url"])
@@ -394,9 +394,9 @@ def team_radio(year: int, race_date_utc, numbers: dict[int, str]) -> pd.DataFram
     ).dropna(subset=["Driver", "Url"])
 
 
-def lap_starts(year: int, race_date_utc) -> pd.DataFrame:
+def lap_starts(year: int, race_date_utc, session_name: str = "Race") -> pd.DataFrame:
     """When each lap of the race started, in UTC: DriverNumber (str), LapNumber (float), Utc (naive)."""
-    session = find_session(year, race_date_utc)
+    session = find_session(year, race_date_utc, session_name)
     laps = pd.DataFrame(get("laps", session_key=session["session_key"]))
     if laps.empty:
         return pd.DataFrame(columns=["DriverNumber", "LapNumber", "Utc"])
@@ -409,12 +409,12 @@ def lap_starts(year: int, race_date_utc) -> pd.DataFrame:
     ).dropna()
 
 
-def stationary_times(year: int, race_date_utc, numbers: dict[int, str]) -> pd.DataFrame:
+def stationary_times(year: int, race_date_utc, numbers: dict[int, str], session_name: str = "Race") -> pd.DataFrame:
     """Stationary times for a race whose laps came from F1's archive (which doesn't carry them).
 
     `numbers` maps car number to driver code.
     """
-    session = find_session(year, race_date_utc)
+    session = find_session(year, race_date_utc, session_name)
     pits = pd.DataFrame(get("pit", session_key=session["session_key"]))
     stints = pd.DataFrame(get("stints", session_key=session["session_key"]))
     return stationary_from(pits, numbers, stints)
@@ -528,7 +528,7 @@ def circuit_info(circuit_key: int, year: int) -> tuple[pd.DataFrame, float]:
     return corners, float(data.get("rotation", 0))
 
 
-def track_outline(year: int, race_date_utc, circuit_key: int | None) -> dict | None:
+def track_outline(year: int, race_date_utc, circuit_key: int | None, session_name: str = "Race") -> dict | None:
     """The circuit as a line split into the three timing sectors.
 
     From 2023 (OpenF1's coverage) it's the race's fastest lap as actually
@@ -544,7 +544,7 @@ def track_outline(year: int, race_date_utc, circuit_key: int | None) -> dict | N
         circuit = {}
 
     try:
-        session = find_session(year, race_date_utc)
+        session = find_session(year, race_date_utc, session_name)
         laps = session_laps(session["session_key"])
         laps = laps.dropna(subset=["duration_sector_1", "duration_sector_2", "duration_sector_3"])
         median = laps["lap_duration"].median()

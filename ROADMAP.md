@@ -39,6 +39,7 @@ pace, tyres and strategy as the race unfolds. It is built in layers, each useful
 - [x] Timing tower, race trace, positions, tyre stints, degradation so far and clean-lap pace
 - [x] Race-control messages, track status and weather alongside the charts
 - [x] Mark safety car and VSC periods on the race trace
+- [x] Replay sprints as well as Grands Prix
 
 ## 5. `radio` (done)
 

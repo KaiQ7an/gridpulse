@@ -27,11 +27,11 @@ def cached_races(year: int) -> pd.DataFrame:
 
 
 @st.cache_resource(show_spinner=False, max_entries=6)
-def cached_race(year: int, round_number: int) -> RaceData:
-    return load_race(year, round_number)
+def cached_race(year: int, round_number: int, kind: str = "R") -> RaceData:
+    return load_race(year, round_number, kind)
 
 
-def choose_race() -> tuple[int, int]:
+def choose_race() -> tuple[int, int, str]:
     this_year = pd.Timestamp.now().year
     year = st.sidebar.selectbox("Season", range(this_year, FIRST_SEASON - 1, -1), key="race_year")
     races = cached_races(year)
@@ -40,7 +40,12 @@ def choose_race() -> tuple[int, int]:
         st.stop()
     labels = [f"R{r.RoundNumber} · {r.EventName}" for r in races.itertuples()]
     i = st.sidebar.selectbox("Grand Prix", range(len(races)), index=len(races) - 1, format_func=lambda i: labels[i])
-    return year, int(races.loc[i, "RoundNumber"])
+    kind = "R"
+    if "sprint" in str(races.loc[i, "EventFormat"]):  # sprint weekends have a second race to replay
+        session = st.sidebar.segmented_control("Session", ["Race", "Sprint"], key="race_session", default="Race",
+                                               required=True)
+        kind = "S" if session == "Sprint" else "R"
+    return year, int(races.loc[i, "RoundNumber"]), kind
 
 
 def reset_for_new_race(key, race: RaceData) -> None:
@@ -266,10 +271,10 @@ def race_page() -> None:
     ss.setdefault("view", VIEWS[0])
 
     ui.sidebar_brand("Race replay, lap by lap")
-    year, round_number = choose_race()
+    year, round_number, kind = choose_race()
     with st.spinner("Loading race data. The first load of a race takes up to a minute; after that it's cached."):
         try:
-            race = cached_race(year, round_number)
+            race = cached_race(year, round_number, kind)
         except TimingUnavailable as exc:
             st.warning(str(exc), icon=":material/cloud_off:")
             st.stop()
@@ -277,17 +282,19 @@ def race_page() -> None:
             st.error(f"Couldn't load this race: {exc}")
             st.stop()
 
-    reset_for_new_race((year, round_number), race)
+    reset_for_new_race((year, round_number, kind), race)
     options = ui.driver_order(race.entrants, race.finish_order)
     st.sidebar.multiselect("Focus drivers", options, key="focus", max_selections=6,
                            help="Highlighted in the tower and drawn in team colours on the charts")
     ui.team_colored_picker("Focus drivers", options, race.team_colors, dict(zip(race.entrants["Driver"], race.entrants["Team"])))
     ui.sidebar_footer()
 
+    sprint = race.session_name == "Sprint"
+    day = race.start_utc if race.start_utc is not None else race.date
     ui.header(
-        f"{race.year} · Round {race.round_number} · {race.location}",
-        race.event_name,
-        f"{race.date:%-d %B %Y} · {race.total_laps} laps · data: {race.source} · press Play to replay it lap by lap",
+        f"{race.year} · Round {race.round_number} · {race.location}" + (" · Sprint" if sprint else ""),
+        race.event_name + (" Sprint" if sprint else ""),
+        f"{day:%-d %B %Y} · {race.total_laps} laps · data: {race.source} · press Play to replay it lap by lap",
     )
     if race.coverage is not None and race.coverage < 0.95:
         st.warning(f"{race.source} is missing about {1 - race.coverage:.0%} of this race's laps, so the replay has "

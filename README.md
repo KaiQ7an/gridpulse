@@ -37,7 +37,8 @@ falling away, with the cleaning rules written down and tested.
 
 **`pitwall`: race-day dashboard** (available now)
 
-- Any race from 2018 to the latest Grand Prix, picked from the sidebar.
+- Any race from 2018 to the latest Grand Prix, picked from the sidebar, and on sprint weekends the
+  sprint as well.
 - **Replay**: a player bar under the header. Press Play and the whole dashboard advances a lap at a
   time (1×, 2× or 4×), drag the slider, or type a lap number to jump straight to it. A status strip shows the lap,
   leader, track status, fastest lap so far and the weather.
