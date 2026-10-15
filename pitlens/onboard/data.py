@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 import fastf1
 import pandas as pd
+from fastf1.exceptions import DataNotLoadedError
 
 from pitlens.onboard.compare import corner_distances
 from pitlens.session import TimingUnavailable, enable_cache, load_session
@@ -46,6 +47,7 @@ class OnboardData:
     other: DriverLap
     corners: pd.DataFrame
     rotation: float
+    source: str = "F1 live timing"
 
 
 def session_drivers(session) -> pd.DataFrame:
@@ -98,19 +100,34 @@ def compare(session, ref_driver: str, other_driver: str) -> OnboardData:
 class FastF1Weekend:
     """A FastF1 session behind the small interface the onboard page and report use."""
 
-    def __init__(self, session):
+    def __init__(self, session, year: int, round_number: int, kind: str):
         self.session = session
         self.name = f"{session.event.year} {session.event['EventName']}"
         self.session_name = session.name
         self.source = "F1 live timing"
+        self._where = (year, round_number, kind)
+        self._openf1 = None
 
     def drivers(self) -> pd.DataFrame:
-        drivers = session_drivers(self.session)
-        timed = set(self.session.laps.dropna(subset=["LapTime"])["Driver"])
-        return drivers[drivers["Driver"].isin(timed)].reset_index(drop=True)
+        """Drivers with a timed lap, fastest first (in a race that isn't the classification order)."""
+        team = session_drivers(self.session).set_index("Driver")["Team"]
+        laps = self.session.laps.dropna(subset=["LapTime"])
+        if "IsPersonalBest" in laps and laps["IsPersonalBest"].eq(True).any():
+            laps = laps[laps["IsPersonalBest"].eq(True)]  # the laps pick_fastest chooses from: no deleted laps
+        best = laps.groupby("Driver")["LapTime"].min().sort_values()
+        return pd.DataFrame({"Driver": best.index, "Team": best.index.map(team)}).reset_index(drop=True)
 
     def compare(self, ref: str, other: str) -> OnboardData:
-        return compare(self.session, ref, other)
+        try:
+            return compare(self.session, ref, other)
+        except (KeyError, DataNotLoadedError):
+            # The archive sometimes has a session's laps but not every car's telemetry.
+            year = self._where[0]
+            if year < openf1.FIRST_SEASON:
+                raise ValueError(f"F1's archive has no car telemetry for {ref} or {other} in this session") from None
+            if self._openf1 is None:
+                self._openf1 = OpenF1Weekend(*self._where)
+            return self._openf1.compare(ref, other)
 
 
 class OpenF1Weekend:
@@ -160,13 +177,14 @@ class OpenF1Weekend:
         corners, rotation = openf1.circuit_info(self.session["circuit_key"], self.year)
         corners["Distance"] = corner_distances(corners, ref_lap.telemetry)
         return OnboardData(name=self.name, session_name=self.session_name, ref=ref_lap, other=other_lap,
-                           corners=corners.sort_values("Distance").reset_index(drop=True), rotation=rotation)
+                           corners=corners.sort_values("Distance").reset_index(drop=True), rotation=rotation,
+                           source=self.source)
 
 
 def load_weekend(year: int, round_number: int, kind: str):
     """F1's archive (with car telemetry) if it answers, otherwise OpenF1."""
     try:
-        return FastF1Weekend(load_session_with_telemetry(year, round_number, kind))
+        return FastF1Weekend(load_session_with_telemetry(year, round_number, kind), year, round_number, kind)
     except TimingUnavailable as archive_error:
         try:
             return OpenF1Weekend(year, round_number, kind)

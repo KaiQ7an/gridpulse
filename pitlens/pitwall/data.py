@@ -6,7 +6,7 @@ import fastf1
 import pandas as pd
 
 from pitlens.pitwall.events import lap_status, race_events
-from pitlens.pitwall.timing import classify_finish, gap_to_leader, leader_times, retired_drivers
+from pitlens.pitwall.timing import classify_finish, gap_to_leader, leader_times, non_starters, retired_drivers
 from pitlens.radio.clips import assign_laps, team_radio
 from pitlens.session import TimingUnavailable, enable_cache, load_session
 from pitlens.sources import openf1, weather
@@ -133,7 +133,8 @@ def build_race(year: int, round_number: int, parts: dict) -> RaceData:
 
     stops = pit_stops(laps, parts.get("stationary"))
     retired = retired_drivers(results)
-    entrants = pd.DataFrame({"Driver": results["Abbreviation"], "Team": results["TeamName"]}).dropna(subset=["Driver"])
+    started = results[~non_starters(results)]  # a car that never took the start isn't in the running order
+    entrants = pd.DataFrame({"Driver": started["Abbreviation"], "Team": started["TeamName"]}).dropna(subset=["Driver"])
     return RaceData(
         name=f"{year} {parts['event_name']}",
         event_name=parts["event_name"],

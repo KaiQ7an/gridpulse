@@ -156,3 +156,11 @@ def test_near_tie_follows_the_running_position():
     # Further apart than the tie window, the clock wins whatever the position column says.
     laps["Time"] = laps["Time"] - pd.to_timedelta((laps["Driver"] == "B") * 2.0, unit="s")
     assert timing_tower(laps, 2)["Driver"].tolist() == ["B", "A", "C"]
+
+
+def test_non_starters():
+    from pitlens.pitwall.timing import non_starters
+
+    results = pd.DataFrame({"Status": ["Finished", "Retired", "Did not start", None, "Lapped"],
+                            "ClassifiedPosition": ["1", "R", "W", "W", "2"]})
+    assert non_starters(results).tolist() == [False, False, True, True, False]

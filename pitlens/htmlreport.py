@@ -38,7 +38,8 @@ def write_report(path: Path, title: str, subtitle: str, sections: list[tuple[str
             parts.append(f"<h2>{html.escape(heading)}</h2>")
         for block in blocks:
             if isinstance(block, go.Figure):
-                block = go.Figure(block).update_layout(template="plotly_white")
+                # Mid-grey text reads on the page's light and dark backgrounds alike.
+                block = go.Figure(block).update_layout(template="plotly_white", font_color="#80858F")
                 parts.append(block.to_html(full_html=False, include_plotlyjs=first_chart))
                 first_chart = False
             else:

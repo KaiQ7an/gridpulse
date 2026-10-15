@@ -67,6 +67,15 @@ def retired_drivers(results: pd.DataFrame) -> set[str]:
     return set(results.loc[~finished, "Abbreviation"])
 
 
+def non_starters(results: pd.DataFrame) -> pd.Series:
+    """True for drivers who never took the start (did not start, withdrawn)."""
+    status = results["Status"].fillna("").str.lower()
+    dns = status.str.contains("not start|withdr|dns", regex=True)
+    if "ClassifiedPosition" in results:
+        dns |= results["ClassifiedPosition"].astype(str).eq("W")
+    return dns
+
+
 def official_gaps(results: pd.DataFrame) -> pd.Series:
     """Seconds behind the winner at the flag for cars on the lead lap, from the official classification.
 

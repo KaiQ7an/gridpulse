@@ -30,12 +30,12 @@ class OpenF1Error(RuntimeError):
     pass
 
 
-def get(endpoint: str, cache: bool = True, **params) -> list[dict]:
-    """GET an OpenF1 endpoint, politely rate-limited, cached on disk."""
+def get(endpoint: str, cache: bool = True, refresh: bool = False, **params) -> list[dict]:
+    """GET an OpenF1 endpoint, politely rate-limited, cached on disk (`refresh` skips the cached copy)."""
     global _last_call
     key = hashlib.sha1(json.dumps([endpoint, params], sort_keys=True).encode()).hexdigest()[:16]
     path = CACHE / endpoint / f"{key}.json"
-    if cache and path.exists():
+    if cache and not refresh and path.exists():
         return json.loads(path.read_text())
 
     for attempt in range(6):
@@ -43,7 +43,10 @@ def get(endpoint: str, cache: bool = True, **params) -> list[dict]:
         if wait > 0:
             time.sleep(wait)
         _last_call = time.monotonic()
-        resp = requests.get(API + endpoint, params=params, headers=HEADERS, timeout=30)
+        try:
+            resp = requests.get(API + endpoint, params=params, headers=HEADERS, timeout=30)
+        except requests.RequestException as exc:
+            raise OpenF1Error(f"couldn't reach OpenF1 ({exc.__class__.__name__})") from None
         if resp.status_code == 429:  # rate limited: back off and retry
             time.sleep(2 * (attempt + 1))
             continue
@@ -52,7 +55,7 @@ def get(endpoint: str, cache: bool = True, **params) -> list[dict]:
         if not resp.ok:
             raise OpenF1Error(f"OpenF1 {endpoint} returned HTTP {resp.status_code}")
         data = resp.json()
-        if cache:
+        if cache and data:  # an empty answer may just mean "not published yet": ask again next time
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(json.dumps(data))
         return data
@@ -61,13 +64,16 @@ def get(endpoint: str, cache: bool = True, **params) -> list[dict]:
 
 def find_session(year: int, race_date_utc: pd.Timestamp, session_name: str = "Race") -> dict:
     """The OpenF1 session that starts on the same UTC day as the race in FastF1's schedule."""
-    sessions = get("sessions", cache=False, year=year, session_name=session_name)
+    if year < FIRST_SEASON:
+        raise OpenF1Error(f"OpenF1 starts in {FIRST_SEASON}")
     day = pd.Timestamp(race_date_utc).tz_localize(None).normalize() if pd.Timestamp(race_date_utc).tzinfo \
         else pd.Timestamp(race_date_utc).normalize()
-    for s in sessions:
-        start = pd.Timestamp(s["date_start"]).tz_convert(None).normalize()
-        if start == day and not s.get("is_cancelled"):
-            return s
+    # The season's session list only grows, so the cached copy does until it lacks this day.
+    for refresh in (False, True):
+        for s in get("sessions", refresh=refresh, year=year, session_name=session_name):
+            start = pd.Timestamp(s["date_start"]).tz_convert(None).normalize()
+            if start == day and not s.get("is_cancelled"):
+                return s
     raise OpenF1Error(f"OpenF1 has no {session_name} on {day:%Y-%m-%d}")
 
 

@@ -68,6 +68,17 @@ def _driver_lines(df: pd.DataFrame, y: str, focus, colors, hover: str) -> go.Fig
     return fig
 
 
+def _spread_end_labels(fig: go.Figure, y_span: float, min_px: float = 15) -> None:
+    """Nudge apart end-of-line labels that would overlap (cars finishing a few tenths apart)."""
+    step = y_span * min_px / (HEIGHT - 80)  # data units per label, from the plot's height in pixels
+    labels = sorted((a for a in fig.layout.annotations if a.xanchor == "left"), key=lambda a: (a.x, a.y))
+    prev = None
+    for a in labels:
+        if prev is not None and a.x == prev.x and a.y - prev.y < step:
+            a.y = prev.y + step
+        prev = a
+
+
 PERIOD_STYLE = {"Safety car": ("SC", "rgba(240,180,0,0.18)"), "VSC": ("VSC", "rgba(240,180,0,0.10)"), "Red flag": ("RED", "rgba(225,6,0,0.15)")}
 
 
@@ -92,6 +103,7 @@ def gap_chart(gaps: pd.DataFrame, focus, colors, total_laps: int) -> go.Figure:
         # Scale to the focus drivers; lapped back-markers would flatten everyone else.
         top = max(focus_gaps.max(), 5) * 1.15
         fig.update_yaxes(range=[top, -0.04 * top])
+        _spread_end_labels(fig, 1.04 * top)
     fig.update_yaxes(title="Gap to leader (s)", zeroline=False)
     return _layout(fig, total_laps)
 

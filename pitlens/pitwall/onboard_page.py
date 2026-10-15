@@ -94,7 +94,7 @@ def render() -> None:
     ui.header(
         f"{year} · Round {round_number} · {data.session_name}",
         f"{a} vs {b}",
-        f"{data.name} · fastest laps · data: {weekend.source}",
+        f"{data.name} · fastest laps · data: {data.source}",
         title_html=f'<span style="color:{REF_COLOR}">{a}</span> <span style="opacity:.45">vs</span> '
         f'<span style="color:{OTHER_COLOR}">{b}</span>',
     )

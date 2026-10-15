@@ -212,7 +212,9 @@ def rejoin_projection(tower: pd.DataFrame, loss: float) -> pd.DataFrame:
     the pit loss to the car's gap to the leader and slots it back in among
     the cars that stay out.
     """
-    lead_lap = tower[tower["GapSeconds"].notna() & ~tower["Out"]].copy()
+    lead_lap = tower[tower["GapSeconds"].notna() & ~tower["Out"]]
+    if "LapsDown" in lead_lap:
+        lead_lap = lead_lap[lead_lap["LapsDown"] == 0]
     gaps = lead_lap.set_index("Driver")["GapSeconds"]
     rows = []
     for driver, gap in gaps.items():

@@ -38,7 +38,7 @@ def timing_tower(
                 "interval": r.Interval,
                 "interval_seconds": float(r.IntervalSeconds) if r.Interval else None,
                 "last_lap": r.LastLap,
-                "compound_letter": r.Compound[0],
+                "compound_letter": "?" if r.Compound not in COMPOUND_COLORS or r.Compound == "UNKNOWN" else r.Compound[0],
                 "tyre_age": age,
                 "compound_color": COMPOUND_COLORS.get(r.Compound, COMPOUND_COLORS["UNKNOWN"]),
                 "stops": None if pd.isna(r.Stops) else int(r.Stops),

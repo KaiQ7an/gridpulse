@@ -4,7 +4,7 @@ import argparse
 
 from pitlens.onboard import report as onboard_report
 from pitlens.pitwall import serve as pitwall_serve
-from pitlens.session import TimingUnavailable
+from pitlens.session import TimingUnavailable, enable_cache
 from pitlens.radio import report as radio_report
 from pitlens.stints import report as stints_report
 from pitlens.undercut import report as undercut_report
@@ -35,6 +35,7 @@ def main(argv: list[str] | None = None) -> None:
     pitwall.set_defaults(run=pitwall_serve.run)
 
     args = parser.parse_args(argv)
+    enable_cache()  # before any FastF1 call, or FastF1 starts a second cache of its own
     try:
         args.run(args)
     except TimingUnavailable as exc:

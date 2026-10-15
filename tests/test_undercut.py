@@ -85,6 +85,21 @@ def test_rejoin_projection():
     assert "E" not in proj.index  # retired cars aren't projected
 
 
+def test_rejoin_projection_leaves_out_lapped_cars():
+    tower = pd.DataFrame(
+        {
+            "Pos": [1, 2, 3],
+            "Driver": ["A", "B", "L"],
+            "GapSeconds": [0.0, 5.0, 95.0],  # L crossed the line a lap and a bit behind
+            "LapsDown": [0, 0, 1],
+            "Out": [False, False, False],
+        }
+    )
+    proj = rejoin_projection(tower, loss=20.0).set_index("Driver")
+    assert "L" not in proj.index
+    assert proj.loc["A", "Rejoin"] == 2 and proj.loc["B", "CarBehind"] == ""
+
+
 def test_pair_gap(undercut_race):
     gap = pair_gap(undercut_race, "A", "B").set_index("LapNumber")["Gap"]
     assert gap[9] == pytest.approx(1.5)

@@ -49,16 +49,16 @@ h1, h2, h3 { letter-spacing: -0.01em; }
 .pl-stat .v { font-size: 1.2rem; font-weight: 600; font-variant-numeric: tabular-nums; margin-top: 4px;
   white-space: nowrap; }
 .pl-stat .v small { font-size: 0.78rem; font-weight: 500; opacity: 0.6; margin-left: 4px; }
-/* Fastest sectors: three small stats (a size down from the main ones), P2 and P3 on hover */
+/* Fastest sectors: three small stats (a size down from the main ones), P2 and P3 on hover.
+   light-dark() follows Streamlit's theme (it sets color-scheme on the app), not the OS. */
 .pl-stat.sec { position: relative; min-width: 0; padding: 11px 14px 12px; cursor: default; }
 .pl-stat.sec .v { font-size: 0.98rem; margin-top: 6px; }
 .pl-stat.sec:hover .pl-pop { display: block; }
 
 .pl-pop { display: none; position: absolute; top: calc(100% + 6px); left: 0; z-index: 50; min-width: 190px;
   padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(128,128,128,0.28);
-  background: var(--pl-pop-bg, rgba(250,250,250,0.98)); box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+  background: light-dark(rgba(250,250,250,0.98), rgba(23,27,34,0.98)); box-shadow: 0 8px 24px rgba(0,0,0,0.18);
   font-size: 0.82rem; font-weight: 500; font-variant-numeric: tabular-nums; }
-@media (prefers-color-scheme: dark) { .pl-pop { --pl-pop-bg: rgba(23,27,34,0.98); } }
 .pl-pop .r { display: grid; grid-template-columns: 22px 1fr auto auto; gap: 8px; align-items: center; padding: 2px 0; }
 .pl-pop .r .n { opacity: 0.5; }
 .pl-pop .r .d { opacity: 0.55; font-size: 0.76rem; }
