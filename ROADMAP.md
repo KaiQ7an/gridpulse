@@ -51,7 +51,13 @@ pace, tyres and strategy as the race unfolds. It is built in layers, each useful
 
 - [x] OpenF1 fallback for races and onboard laps when F1's archive refuses requests
 - [x] Use MultiViewer's per-circuit pit loss (normal, SC, VSC) for the rejoin projection
-- [x] Final lap follows the official classification; near-ties mid-race follow the running position
+- [x] Final lap follows the official classification (penalties, disqualifications, missing last laps);
+      near-ties mid-race follow the running position
+- [x] OpenF1 quirks handled: stops placed on their in-lap where the pit lane crosses the timing line,
+      drive-throughs folded into the stint, extra laps capped at the classified count
+- [x] Every 2025 and 2026 race checked against the official winner, top ten and laps down
+- [x] Warn when a race's source is missing laps (2025 Miami); radio and stationary times from OpenF1
+      when F1's archive won't serve them
 
 ## 7. `pitwall` live mode
 
