@@ -99,19 +99,19 @@ h1, h2, h3 { letter-spacing: -0.01em; }
 
 /* Race notifications, styled like the F1 broadcast graphics: a solid label tab, then a dark
    slab with the team colour bar, the surname in capitals and the time on the right. */
-.st-key-pl-notes { position: fixed; top: 68px; right: 22px; width: 360px; z-index: 999990; gap: 10px;
+.st-key-pl-notes { position: fixed; top: 64px; right: 20px; width: 264px; z-index: 999990; gap: 6px;
   pointer-events: none; }
-.pl-bc { animation: pl-in 300ms ease-out, pl-out 450ms ease-in 4.3s forwards; filter: drop-shadow(0 10px 22px rgba(0,0,0,0.35)); }
-.pl-bc .tab { display: inline-block; padding: 3px 10px 2px; font-family: "Titillium Web", sans-serif; font-weight: 700;
-  font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: #fff; border-radius: 4px 4px 0 0; }
-.pl-bc .slab { display: grid; grid-template-columns: 7px 1fr auto; align-items: center; background: #15151E; color: #fff;
-  border-radius: 0 6px 6px 6px; overflow: hidden; min-height: 52px; }
+.pl-bc { animation: pl-in 260ms ease-out, pl-out 400ms ease-in 3.4s forwards; filter: drop-shadow(0 6px 14px rgba(0,0,0,0.25)); }
+.pl-bc .tab { display: inline-block; padding: 2px 8px 1px; font-family: "Titillium Web", sans-serif; font-weight: 700;
+  font-size: 0.6rem; letter-spacing: 0.14em; text-transform: uppercase; color: #fff; border-radius: 4px 4px 0 0; }
+.pl-bc .slab { display: grid; grid-template-columns: 5px 1fr auto; align-items: center; background: #15151E; color: #fff;
+  border-radius: 0 5px 5px 5px; overflow: hidden; min-height: 38px; }
 .pl-bc .bar { align-self: stretch; background: var(--team); }
-.pl-bc .who { padding: 7px 14px 8px; }
-.pl-bc .surname { font-family: "Titillium Web", sans-serif; font-weight: 700; font-size: 1.32rem; letter-spacing: 0.04em;
+.pl-bc .who { padding: 5px 10px 6px; }
+.pl-bc .surname { font-family: "Titillium Web", sans-serif; font-weight: 700; font-size: 0.98rem; letter-spacing: 0.04em;
   text-transform: uppercase; line-height: 1.05; }
-.pl-bc .team { font-size: 0.74rem; color: rgba(255,255,255,0.6); margin-top: 2px; }
-.pl-bc .right { padding: 0 16px; font-family: "Titillium Web", sans-serif; font-weight: 700; font-size: 1.25rem;
+.pl-bc .team { font-size: 0.66rem; color: rgba(255,255,255,0.55); margin-top: 1px; }
+.pl-bc .right { padding: 0 11px; font-family: "Titillium Web", sans-serif; font-weight: 700; font-size: 0.92rem;
   font-variant-numeric: tabular-nums; }
 @keyframes pl-in { from { opacity: 0; transform: translateX(28px); } }
 @keyframes pl-out { to { opacity: 0; transform: translateX(28px); visibility: hidden; } }

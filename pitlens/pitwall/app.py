@@ -138,7 +138,7 @@ def rain_stat(race: RaceData, lap: int, track_wet: bool) -> str:
                        "F1's own feed only reports whether the track sensor detects rain.")
 
 
-NOTE_SECONDS = 4.8
+NOTE_SECONDS = 3.9
 
 
 def notify(race: RaceData, lap: int) -> None:
