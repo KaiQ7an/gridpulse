@@ -88,8 +88,22 @@ h1, h2, h3 { letter-spacing: -0.01em; }
 
 .pl-zh { font-style: normal; margin-top: 3px; opacity: 0.95; }
 
-/* In-page toasts (fastest laps, retirements): the coloured title carries the meaning */
-[data-testid="stToast"] { border-left: 4px solid rgba(128,128,128,0.55); }
+/* Race notifications: cards that slide in at the top right and fade out by themselves */
+.st-key-pl-notes { position: fixed; top: 68px; right: 22px; width: 330px; z-index: 999990; gap: 10px;
+  pointer-events: none; }
+.pl-note-card { display: grid; grid-template-columns: 6px 1fr; border-radius: 12px; overflow: hidden;
+  background: var(--pl-card-bg, rgba(255,255,255,0.97)); box-shadow: 0 12px 32px rgba(0,0,0,0.22);
+  border: 1px solid rgba(128,128,128,0.22); animation: pl-in 320ms ease-out, pl-out 450ms ease-in 4.3s forwards; }
+@media (prefers-color-scheme: dark) { .pl-note-card { --pl-card-bg: rgba(23,27,34,0.97); } }
+.pl-note-card .edge { background: var(--team); }
+.pl-note-card .body { padding: 11px 14px 12px; }
+.pl-note-card .kind { font-size: 0.66rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; }
+.pl-note-card .name { font-size: 1.02rem; font-weight: 700; margin-top: 3px; display: flex; align-items: center; gap: 8px; }
+.pl-note-card .name i { width: 10px; height: 10px; border-radius: 50%; background: var(--team); display: inline-block; }
+.pl-note-card .team { font-size: 0.8rem; opacity: 0.6; margin-top: 1px; }
+.pl-note-card .detail { font-size: 0.9rem; margin-top: 6px; font-variant-numeric: tabular-nums; }
+@keyframes pl-in { from { opacity: 0; transform: translateX(24px); } }
+@keyframes pl-out { to { opacity: 0; transform: translateX(24px); visibility: hidden; } }
 
 /* Sidebar brand */
 .pl-brand { display: flex; align-items: center; gap: 10px; margin: 0 0 6px; }
@@ -270,3 +284,23 @@ def sector_stats(rankings: list[list[tuple[str, float, int]]], colors: dict[str,
             f"<small>L{lap}</small></div>{pop}</div>"
         )
     return out
+
+
+NOTE_STYLE = {"FL": ("Fastest lap", "#A855F7"), "OUT": ("Retirement", "#E10600")}
+
+
+def notifications(notes: list[dict]) -> None:
+    """Render race notifications (newest first) in a fixed stack at the top right."""
+    cards = []
+    for n in notes:
+        title, color = NOTE_STYLE.get(n["kind"], (n["kind"], "#888888"))
+        cards.append(
+            f'<div class="pl-note-card" style="--team:{n["color"]}"><div class="edge"></div><div class="body">'
+            f'<div class="kind" style="color:{color}">{html.escape(title)}</div>'
+            f'<div class="name"><i></i>{html.escape(n["name"])}</div>'
+            f'<div class="team">{html.escape(n["team"])}</div>'
+            f'<div class="detail">{n["detail"]}</div></div></div>'
+        )
+    with st.container(key="pl-notes"):
+        for card in cards:
+            st.html(card)

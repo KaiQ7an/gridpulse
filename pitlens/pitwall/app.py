@@ -3,6 +3,8 @@
 Run with `pitlens pitwall` (or `streamlit run pitlens/pitwall/app.py`).
 """
 
+import time
+
 import pandas as pd
 import streamlit as st
 
@@ -136,6 +138,28 @@ def rain_stat(race: RaceData, lap: int, track_wet: bool) -> str:
                        "F1's own feed only reports whether the track sensor detects rain.")
 
 
+NOTE_SECONDS = 4.8
+
+
+def notify(race: RaceData, lap: int) -> None:
+    """Pop up new fastest laps and retirements as the replay moves forward one lap at a time."""
+    ss = st.session_state
+    now = time.monotonic()
+    notes = [n for n in ss.get("notes", []) if n["until"] > now and n["race"] == ss.race_key]
+    if ss.get("shown_lap") == lap - 1:
+        team_of = dict(zip(race.entrants["Driver"], race.entrants["Team"]))
+        for e in race.events[(race.events["Lap"] == lap) & race.events["Kind"].isin(["FL", "OUT"])].itertuples():
+            detail = (f'<span style="color:#A855F7;font-weight:700">{e.Text.partition(", ")[2]}</span> · lap {lap}'
+                      if e.Kind == "FL" else f"Out of the race on lap {lap}")
+            notes.insert(0, {"kind": e.Kind, "name": race.full_names.get(e.Driver, e.Driver),
+                             "team": team_of.get(e.Driver, ""), "color": race.team_colors.get(e.Driver, "#888"),
+                             "detail": detail, "until": now + NOTE_SECONDS, "race": ss.race_key})
+    ss.notes = notes[:3]
+    ss.shown_lap = lap
+    if ss.notes:
+        ui.notifications(ss.notes)
+
+
 def race_view(race: RaceData) -> None:
     ss = st.session_state
     interval = SPEEDS[ss.speed]
@@ -150,15 +174,7 @@ def race_view(race: RaceData) -> None:
     replay_controls(race.total_laps)
     lap = ss.lap
     focus = ss.focus
-    if ss.get("shown_lap") == lap - 1:  # moved forward one lap (playing or stepping): announce what just happened
-        for e in race.events[race.events["Lap"] == lap].itertuples():
-            if e.Kind == "FL":
-                driver, _, time = e.Text.partition(" fastest lap, ")
-                st.toast(f":violet[**Fastest lap**] · **{driver}** {time}", icon=":material/timer:", duration="short")
-            elif e.Kind == "OUT":
-                st.toast(f":red[**Retirement**] · **{e.Driver}** is out of the race", icon=":material/flag:",
-                         duration="short")
-    ss.shown_lap = lap
+    notify(race, lap)
 
     laps = race.laps[race.laps["LapNumber"] <= lap]
     periods = neutralised_periods(laps)
