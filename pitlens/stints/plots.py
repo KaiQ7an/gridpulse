@@ -7,17 +7,9 @@ matplotlib.use("Agg")  # render to files, no GUI window needed
 import matplotlib.pyplot as plt
 import pandas as pd
 
-# F1's own compound colours, darkened where needed to read on a white
-# background (hard is grey rather than white). Marker shape is a second cue
-# so the chart still works for colour-blind readers.
-COMPOUND_STYLE = {
-    "SOFT": {"color": "#D7261E", "marker": "o"},
-    "MEDIUM": {"color": "#D99A00", "marker": "s"},
-    "HARD": {"color": "#6B6B6B", "marker": "^"},
-    "INTERMEDIATE": {"color": "#2E9B3E", "marker": "D"},
-    "WET": {"color": "#1F6FD1", "marker": "v"},
-    "UNKNOWN": {"color": "#999999", "marker": "x"},
-}
+from pitlens.style import COMPOUND_COLORS, COMPOUND_MARKERS
+
+COMPOUND_STYLE = {c: {"color": COMPOUND_COLORS[c], "marker": COMPOUND_MARKERS[c]} for c in COMPOUND_COLORS}
 
 INK = "#222222"
 MUTED = "#6B6B6B"

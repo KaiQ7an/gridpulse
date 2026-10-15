@@ -1,0 +1,12 @@
+# Separate light and dark sections keep Streamlit following the system theme.
+[theme.light]
+primaryColor = "#E10600"
+
+[theme.dark]
+primaryColor = "#FF2D21"
+
+[client]
+toolbarMode = "viewer"
+
+[browser]
+gatherUsageStats = false

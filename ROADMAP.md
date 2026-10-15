@@ -23,12 +23,15 @@ pace, tyres and strategy as the race unfolds. It is built in layers, each useful
 - [ ] Pit-loss estimate per circuit from the data
 - [ ] Gap before and after each stop to judge whether an undercut or overcut worked
 
-## 4. `pitwall`: race-day dashboard with replay
+## 4. `pitwall`: race-day dashboard with replay (done)
 
-- [ ] Pick a season, event and drivers in the browser
-- [ ] Replay mode: step through a past race lap by lap as if it were live, with every chart
+- [x] Pick a season, event and focus drivers in the browser
+- [x] Replay mode: step through a past race lap by lap as if it were live, with every chart
       updating, so the whole live pipeline can be built and tested on any weekend
-- [ ] Race-control messages and weather alongside the charts
+- [x] Timing tower, race trace, positions, tyre stints, degradation so far and clean-lap pace
+- [x] Race-control messages, track status and weather alongside the charts
+- [ ] Mark safety car and VSC periods on the race trace
+- [ ] Optional public deployment on Streamlit Community Cloud
 
 ## 5. `pitwall` live mode and `radio`
 
