@@ -5,7 +5,7 @@ from dataclasses import dataclass
 import fastf1
 import pandas as pd
 
-from pitlens.pitwall.timing import retired_drivers
+from pitlens.pitwall.timing import gap_to_leader, leader_times, retired_drivers
 from pitlens.session import enable_cache, load_session
 from pitlens.stints.pace import add_fuel_corrected_time, clean_race_laps
 from pitlens.style import FALLBACK_TEAM_COLOR
@@ -23,6 +23,8 @@ class RaceData:
     results: pd.DataFrame
     messages: pd.DataFrame
     weather: pd.DataFrame
+    gaps: pd.DataFrame  # seconds behind the leader, every driver, every lap
+    lead_times: pd.Series  # session time the leader completed each lap
     team_colors: dict[str, str]  # driver -> "#rrggbb"
     finish_order: list[str]
     retired: set[str]
@@ -49,15 +51,18 @@ def load_race(year: int, round_number: int) -> RaceData:
         color = row.get("TeamColor")
         colors[row["Abbreviation"]] = f"#{color}" if isinstance(color, str) and len(color) == 6 else FALLBACK_TEAM_COLOR
 
+    laps = pd.DataFrame(session.laps)
     return RaceData(
         name=f"{session.event.year} {session.event['EventName']}",
         date=session.event["EventDate"],
         total_laps=total_laps,
-        laps=pd.DataFrame(session.laps),
+        laps=laps,
         clean_laps=clean,
         results=pd.DataFrame(results),
         messages=pd.DataFrame(session.race_control_messages),
         weather=pd.DataFrame(session.weather_data),
+        gaps=gap_to_leader(laps),
+        lead_times=leader_times(laps),
         team_colors=colors,
         finish_order=results["Abbreviation"].tolist(),
         retired=retired_drivers(results),

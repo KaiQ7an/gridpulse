@@ -13,7 +13,7 @@ the same questions a strategy desk asks on a Sunday afternoon.
 ![Streamlit](https://img.shields.io/badge/dashboard-Streamlit-FF4B4B?logo=streamlit&logoColor=white)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-[Quick start](#quick-start) · [Pit wall](#pit-wall) · [Tyre analysis](#tyre-analysis) · [How it works](#how-it-works) · [Roadmap](ROADMAP.md)
+[Quick start](#quick-start) · [Pit wall](#pit-wall) · [Onboard](#onboard) · [Tyre analysis](#tyre-analysis) · [How it works](#how-it-works) · [Roadmap](ROADMAP.md)
 
 </div>
 
@@ -41,11 +41,21 @@ falling away, with the cleaning rules written down and tested.
 - **Replay**: press Play and the whole dashboard advances a lap at a time (three speeds), or drag
   the lap slider to any moment of the race.
 - **Timing tower**: running order, gap to the leader, interval, last lap, tyre compound and age,
-  stops, lapped cars and retirements, with a pit flag on the lap a car boxes.
+  stops, lapped cars and retirements, with a pit flag on the lap a car boxes. During a replay rows
+  slide into place on overtakes and the gaps count smoothly from lap to lap.
 - **Race trace**: seconds behind the leader for every car, focus drivers in team colours.
 - **Positions**, **tyre stints** in running order, **degradation so far** for the focus drivers,
   **clean-lap pace** by compound, and **race control messages** up to the current lap.
-- Track status, track temperature and rain at the current lap.
+- Track status, track temperature and rain at the current lap; safety car and VSC laps shaded.
+
+**`onboard`: fastest-lap telemetry comparison** (available now)
+
+- Any two drivers in any session, defaulting to the fastest driver and their teammate.
+- Speed, throttle, brake and gear against distance, with a gap trace showing where on the lap
+  time was won and lost, and corner numbers marked.
+- A track map coloured by who was faster in each of 25 mini-sectors, and a corner-by-corner
+  table of minimum speeds and time gained.
+- A page in the pit wall, or an HTML report from the command line.
 
 **`stints`: race pace and tyre degradation report** (available now)
 
@@ -57,8 +67,6 @@ falling away, with the cleaning rules written down and tested.
 
 **Planned** (see the [roadmap](ROADMAP.md))
 
-- `onboard`: teammate telemetry comparison, with speed, throttle, brake and gear traces on the
-  fastest lap and a delta-time trace.
 - `undercut`: pit-loss estimates and whether each undercut or overcut worked.
 - `radio`: team radio clips linked to the lap they were sent on.
 - A live mode for the pit wall on race day.
@@ -95,6 +103,30 @@ works too.
 | `--no-browser` | off | Start the server without opening a browser tab |
 
 The server only listens on this computer (`localhost`).
+
+## Onboard
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/images/onboard_dark.png">
+    <img src="docs/images/onboard_light.png" alt="Onboard comparison of Verstappen and Leclerc in 2026 Singapore qualifying" width="900">
+  </picture>
+</p>
+
+In the pit wall, open **Onboard** in the sidebar. From the command line:
+
+```bash
+.venv/bin/python -m pitlens onboard --year 2025 --event Hungary --session Q --drivers LEC HAM --open
+```
+
+| Option | Default | Meaning |
+|---|---|---|
+| `--year`, `--event` | `2025`, `Hungary` | Which weekend |
+| `--session` | `Q` | `Q`, `R`, `SQ`, `S`, `FP1`, `FP2` or `FP3` |
+| `--drivers` | fastest and teammate | One or two driver codes |
+| `--open` | off | Open the HTML report when done (macOS) |
+
+The report is a self-contained HTML file in `outputs/onboard/`, plus the corner table as CSV.
 
 ## Tyre analysis
 
@@ -144,11 +176,18 @@ pitlens/
 │   ├── pace.py        clean laps, fuel correction, per-stint degradation fit
 │   ├── plots.py       static matplotlib charts
 │   └── report.py      the `stints` command
+├── onboard/
+│   ├── compare.py     align two laps on track, mini-sectors, corner speeds
+│   ├── data.py        fastest laps with telemetry and circuit info
+│   ├── charts.py      telemetry stack and track dominance map
+│   └── report.py      the `onboard` command (HTML report)
 ├── pitwall/
 │   ├── data.py        one race as plain DataFrames (laps, results, weather, messages)
 │   ├── timing.py      timing tower, gaps, track status and stints at any lap
 │   ├── charts.py      interactive plotly charts
-│   ├── app.py         the Streamlit dashboard
+│   ├── tower/         animated timing tower (a small HTML/JS Streamlit component)
+│   ├── app.py         the Streamlit dashboard: race replay page
+│   ├── onboard_page.py  the Onboard page
 │   └── serve.py       the `pitwall` command
 └── cli.py             `pitlens <module>`
 tests/                 unit tests on synthetic races, run in CI
@@ -162,10 +201,18 @@ tests/                 unit tests on synthetic races, run in CI
   `timing_tower` orders cars by when they crossed the line on a given lap, takes gaps from those
   times, and counts laps down by how many laps the leader had finished when a car crossed.
   Cars that never complete the lap are lapped or, if their result says so, out.
-- **Replay.** The dashboard body is a Streamlit fragment that reruns every 0.4 to 2 seconds while
-  playing, moving the lap forward and recomputing everything from laps up to that point. The
-  functions don't care whether the laps came from a finished race or a live feed, which is the
+- **Replay.** The dashboard body is a Streamlit fragment that reruns every 0.5 to 2 seconds while
+  playing, moving the lap forward and recomputing everything from laps up to that point. Only the
+  chart on screen is redrawn, and the timing tower is a small custom component whose iframe stays
+  mounted, so rows can slide and gaps can count between laps instead of the table being replaced.
+  The functions don't care whether the laps came from a finished race or a live feed, which is the
   plan for live mode.
+- **Comparing two laps.** Each car's distance is integrated from its own speed, so over a lap it
+  drifts by tens of metres, which at a slow corner looks like half a second of gap that isn't
+  there. `align` instead places the second car on the first car's distance scale by matching GPS
+  positions to the nearest point of the first car's path, smoothing the correction because single
+  GPS points are only good to a few metres. The gap trace then agrees with the official sector
+  splits.
 
 Run the tests with `.venv/bin/pip install -r requirements-dev.txt && .venv/bin/python -m pytest`.
 

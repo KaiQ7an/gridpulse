@@ -20,6 +20,7 @@ def _layout(fig: go.Figure, total_laps: int, **kwargs) -> go.Figure:
         margin=dict(l=10, r=45, t=30, b=10),  # right margin leaves room for end-of-line labels
         hovermode="closest",
         legend=dict(orientation="h", yanchor="bottom", y=1.0, x=0, title=None),
+        uirevision="keep",  # keep the user's zoom while the replay updates the data
         **kwargs,
     )
     fig.update_xaxes(title="Lap", range=[0.5, total_laps + 0.5], showgrid=False)

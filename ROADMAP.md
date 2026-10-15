@@ -11,11 +11,14 @@ pace, tyres and strategy as the race unfolds. It is built in layers, each useful
 - [ ] Separate track evolution from tyre wear (compare drivers on different tyre ages in the same laps)
 - [ ] Run across a whole season and compare circuits
 
-## 2. `onboard`: teammate telemetry comparison
+## 2. `onboard`: teammate telemetry comparison (done)
 
-- [ ] Speed, throttle, brake and gear against distance on each driver's fastest lap
-- [ ] Delta-time trace and a track map coloured by who was faster in each mini-sector
-- [ ] Corner-by-corner table: entry speed, minimum speed, braking point
+- [x] Speed, throttle, brake and gear against distance on each driver's fastest lap
+- [x] Delta-time trace (laps aligned by GPS position, not integrated distance) and a track map
+      coloured by who was faster in each mini-sector
+- [x] Corner-by-corner table: minimum speed and time gained
+- [ ] Braking points and throttle application per corner
+- [ ] Compare a driver's laps across a stint, not only the fastest
 
 ## 3. `undercut`: pit-stop strategy explorer
 

@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  :root {
+    --ink: #1d1d1f; --muted: #6b6b6b; --rule: rgba(128,128,128,0.18); --bg: transparent;
+    --row: 34px; --header: 30px; --move: 600ms;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 14px/1.2 "Source Sans Pro", "Source Sans 3", -apple-system, system-ui, sans-serif;
+    font-variant-numeric: tabular-nums; }
+  .tower { position: relative; }
+  /* Every row is its own grid, so columns must not size to their content or
+     rows would disagree. minmax(0, …) and fixed tracks keep them identical. */
+  .head, .row { display: grid; align-items: center; column-gap: 8px; height: var(--row); padding-right: 4px;
+    grid-template-columns: 6px 28px 44px minmax(0, 1fr) minmax(0, 1fr) 76px 52px 40px; }
+  .head > *, .row > * { white-space: nowrap; overflow: hidden; }
+  @media (max-width: 440px) {
+    .head, .row { grid-template-columns: 6px 24px 40px minmax(0, 1fr) minmax(0, 1fr) 50px 34px; column-gap: 6px; }
+    .lastcol { display: none; }
+  }
+  @media (max-width: 340px) {
+    html, body { font-size: 13px; }
+    .head, .row { grid-template-columns: 5px 22px 38px minmax(0, 1fr) 44px 36px; column-gap: 5px; }
+    .intcol { display: none; }
+  }
+  .head { height: var(--header); color: var(--muted); font-size: 12.5px; border-bottom: 1px solid var(--rule); }
+  .rows { position: relative; }
+  .row { position: absolute; left: 0; right: 0; top: 0; border-bottom: 1px solid var(--rule);
+    transition: transform var(--move) cubic-bezier(.3,.7,.2,1), opacity 300ms; will-change: transform; }
+  .row.out { opacity: 0.45; }
+  .bar { height: 70%; border-radius: 2px; }
+  .pos { text-align: right; color: var(--muted); }
+  .drv { font-weight: 600; letter-spacing: .02em; }
+  .num { text-align: right; }
+  .muted { color: var(--muted); }
+  .tyre { justify-self: start; width: 100%; max-width: 50px; text-align: center; padding: 3px 6px; border-radius: 4px;
+    font-weight: 700; font-size: 12.5px; transition: background-color 400ms; }
+  .pit { background: #E10600 !important; color: #fff !important; animation: pulse 1s ease-in-out infinite; }
+  @keyframes pulse { 50% { opacity: .55; } }
+  .gain { animation: flashgain 1.2s ease-out; }
+  .loss { animation: flashloss 1.2s ease-out; }
+  @keyframes flashgain { from { background: rgba(46,155,62,.28); } to { background: transparent; } }
+  @keyframes flashloss { from { background: rgba(215,38,30,.22); } to { background: transparent; } }
+</style>
+</head>
+<body>
+<div class="tower">
+  <div class="head"><span></span><span class="num">Pos</span><span>Driver</span><span class="num">Gap</span>
+    <span class="num intcol">Int</span><span class="num lastcol">Last lap</span><span>Tyre</span><span class="num">Stops</span></div>
+  <div class="rows" id="rows"></div>
+</div>
+<script>
+// Minimal Streamlit component protocol (what streamlit-component-lib does), no build step needed.
+const send = (type, data) => window.parent.postMessage({ isStreamlitMessage: true, type, ...data }, "*");
+const rowsEl = document.getElementById("rows");
+const rowEls = new Map();      // driver -> element
+const shownGap = new Map();    // driver -> gap currently displayed (for tweening)
+const shownInt = new Map();    // driver -> interval currently displayed
+const lastPos = new Map();     // driver -> previous position
+let lastLap = null;
+
+function applyTheme(theme) {
+  if (!theme) return;
+  const root = document.documentElement.style;
+  root.setProperty("--ink", theme.textColor);
+  root.setProperty("--muted", theme.base === "dark" ? "#a3a8b4" : "#6b6b6b");
+}
+
+function fmtGap(v) { return "+" + v.toFixed(3); }
+
+function tween(el, shown, driver, target, ms) {
+  const from = shown.has(driver) ? shown.get(driver) : target;
+  const start = performance.now();
+  cancelAnimationFrame(el._raf);
+  const step = (now) => {
+    const t = Math.min(1, (now - start) / ms);
+    const e = 1 - Math.pow(1 - t, 3);
+    const v = from + (target - from) * e;
+    el.textContent = fmtGap(v);
+    shown.set(driver, v);
+    if (t < 1) el._raf = requestAnimationFrame(step);
+  };
+  el._raf = requestAnimationFrame(step);
+}
+
+function makeRow(driver) {
+  const el = document.createElement("div");
+  el.className = "row";
+  el.innerHTML = `<span class="bar"></span><span class="pos num"></span><span class="drv"></span>
+    <span class="gap num"></span><span class="int num muted intcol"></span><span class="last num lastcol"></span>
+    <span class="tyre"></span><span class="stops num"></span>`;
+  el.querySelector(".drv").textContent = driver;
+  rowsEl.appendChild(el);
+  rowEls.set(driver, el);
+  return el;
+}
+
+function render(args) {
+  const rows = args.rows || [];
+  const ms = Math.max(150, Math.min(args.duration_ms || 600, 1500));
+  document.documentElement.style.setProperty("--move", ms + "ms");
+  const rowH = 34;
+  const jumped = lastLap === null || Math.abs(args.lap - lastLap) > 1;  // slider jump: no flashes
+  const seen = new Set();
+
+  rows.forEach((r, i) => {
+    seen.add(r.driver);
+    const el = rowEls.get(r.driver) || makeRow(r.driver);
+    el.style.transform = `translateY(${i * rowH}px)`;
+    el.classList.toggle("out", r.out);
+    el.querySelector(".bar").style.background = r.team_color;
+    el.querySelector(".pos").textContent = r.pos;
+    el.querySelector(".last").textContent = r.last_lap;
+    el.querySelector(".stops").textContent = r.stops ?? "";
+
+    const tyre = el.querySelector(".tyre");
+    tyre.classList.toggle("pit", r.pit);
+    tyre.textContent = r.pit ? "PIT" : r.tyre;
+    tyre.style.background = r.compound_color;
+    tyre.style.color = r.dark_text ? "#111" : "#fff";
+
+    const gapEl = el.querySelector(".gap");
+    if (r.gap_seconds === null || r.gap_seconds === undefined || jumped) {
+      cancelAnimationFrame(gapEl._raf);
+      gapEl.textContent = r.gap;
+      if (r.gap_seconds !== null && r.gap_seconds !== undefined) shownGap.set(r.driver, r.gap_seconds);
+      else shownGap.delete(r.driver);
+    } else if (r.pos === 1) {
+      gapEl.textContent = r.gap;
+      shownGap.set(r.driver, 0);
+    } else {
+      tween(gapEl, shownGap, r.driver, r.gap_seconds, ms);
+    }
+
+    const intEl = el.querySelector(".int");
+    if (r.interval_seconds === null || r.interval_seconds === undefined || jumped) {
+      cancelAnimationFrame(intEl._raf);
+      intEl.textContent = r.interval;
+      if (r.interval_seconds !== null && r.interval_seconds !== undefined) shownInt.set(r.driver, r.interval_seconds);
+      else shownInt.delete(r.driver);
+    } else {
+      tween(intEl, shownInt, r.driver, r.interval_seconds, ms);
+    }
+
+    const before = lastPos.get(r.driver);
+    if (!jumped && before !== undefined && before !== r.pos) {
+      el.classList.remove("gain", "loss");
+      void el.offsetWidth;  // restart the flash animation
+      el.classList.add(r.pos < before ? "gain" : "loss");
+    }
+    lastPos.set(r.driver, r.pos);
+  });
+
+  for (const [driver, el] of rowEls) {
+    if (!seen.has(driver)) { el.remove(); rowEls.delete(driver); lastPos.delete(driver); }
+  }
+  rowsEl.style.height = rows.length * rowH + "px";
+  lastLap = args.lap;
+  // Absolutely positioned rows don't add to the page height, so size the frame explicitly.
+  send("streamlit:setFrameHeight", { height: 30 + 1 + rows.length * rowH + 4 });
+}
+
+window.addEventListener("message", (event) => {
+  if (event.data.type !== "streamlit:render") return;
+  applyTheme(event.data.theme);
+  render(event.data.args);
+});
+send("streamlit:componentReady", { apiVersion: 1 });
+</script>
+</body>
+</html>

@@ -6,21 +6,20 @@ Run with `pitlens pitwall` (or `streamlit run pitlens/pitwall/app.py`).
 import pandas as pd
 import streamlit as st
 
-from pitlens.pitwall import charts
+from pitlens.pitwall import charts, onboard_page
 from pitlens.pitwall.data import FIRST_SEASON, RaceData, completed_races, load_race
-from pitlens.pitwall.timing import (
-    gap_to_leader,
-    leader_times,
-    neutralised_periods,
-    stint_timeline,
-    timing_tower,
-    track_status,
-)
+from pitlens.pitwall.timing import neutralised_periods, stint_timeline, timing_tower, track_status
+from pitlens.pitwall.tower import timing_tower as tower_component
 from pitlens.stints.pace import stint_degradation
-from pitlens.style import COMPOUND_COLORS
 
-SPEEDS = {"Slow · 2 s per lap": 2.0, "Normal · 1 s per lap": 1.0, "Fast · 0.4 s per lap": 0.4}
-DARK_TEXT_COMPOUNDS = {"MEDIUM", "HARD", "UNKNOWN"}
+SPEEDS = {"Slow · 2 s per lap": 2.0, "Normal · 1 s per lap": 1.0, "Fast · 0.5 s per lap": 0.5}
+VIEWS = ["Race trace", "Positions", "Tyres", "Pace", "Race control"]
+
+# Streamlit dims elements while a rerun is in flight; during a replay that is
+# every tick, which reads as stutter. Keep them at full opacity instead.
+NO_STALE_FADE = """<style>
+[data-stale="true"], .stale-element { opacity: 1 !important; transition: none !important; }
+</style>"""
 
 
 @st.cache_data(ttl=3600, show_spinner=False)
@@ -35,7 +34,7 @@ def cached_race(year: int, round_number: int) -> RaceData:
 
 def choose_race() -> tuple[int, int]:
     st.sidebar.title("PitLens")
-    st.sidebar.caption("Pit wall · race replay")
+    st.sidebar.caption("Race replay · lap by lap")
     this_year = pd.Timestamp.now().year
     year = st.sidebar.selectbox("Season", range(this_year, FIRST_SEASON - 1, -1))
     races = cached_races(year)
@@ -50,7 +49,8 @@ def choose_race() -> tuple[int, int]:
 def reset_for_new_race(key, race: RaceData) -> None:
     """Jump to the final lap and focus on the podium whenever the race changes."""
     ss = st.session_state
-    if ss.get("race_key") != key:
+    # Widget state is dropped while another page is open, so also reset if it's gone.
+    if ss.get("race_key") != key or "lap" not in ss or "focus" not in ss:
         ss.race_key = key
         ss.lap = race.total_laps
         ss.playing = False
@@ -76,42 +76,12 @@ def replay_controls(total_laps: int) -> float:
     return SPEEDS[speed]
 
 
-def style_tower(tower: pd.DataFrame, colors: dict[str, str]):
-    view = pd.DataFrame(
-        {
-            "": "",
-            "Pos": tower["Pos"],
-            "Driver": tower["Driver"],
-            "Gap": tower["Gap"],
-            "Int": tower["Interval"],
-            "Last lap": tower["LastLap"],
-            "Tyre": [
-                "PIT" if pit else f"{c[0]} {'' if pd.isna(a) else a}".strip()
-                for c, a, pit in zip(tower["Compound"], tower["TyreAge"], tower["Pit"])
-            ],
-            "Stops": tower["Stops"],
-        }
-    )
-
-    def team_bar(col):
-        return [f"background-color: {colors.get(d, '#999')}" for d in tower["Driver"]]
-
-    def tyre_cell(col):
-        out = []
-        for c in tower["Compound"]:
-            text = "#111" if c in DARK_TEXT_COMPOUNDS else "#fff"
-            out.append(f"background-color: {COMPOUND_COLORS.get(c, '#999')}; color: {text}; font-weight: 600")
-        return out
-
-    return view.style.apply(team_bar, subset=[""]).apply(tyre_cell, subset=["Tyre"])
-
-
 def weather_at(race: RaceData, time) -> pd.Series | None:
     w = race.weather[race.weather["Time"] <= time]
     return w.iloc[-1] if not w.empty else None
 
 
-def race_view(race: RaceData) -> None:
+def race_view(race: RaceData, interval: float | None) -> None:
     ss = st.session_state
     if ss.playing:
         ss.lap = min(ss.lap + 1, race.total_laps)
@@ -125,7 +95,7 @@ def race_view(race: RaceData) -> None:
     laps = race.laps[race.laps["LapNumber"] <= lap]
     periods = neutralised_periods(laps)
     tower = timing_tower(race.laps, lap, race.retired)
-    lead_time = leader_times(race.laps).get(lap)
+    lead_time = race.lead_times.get(lap)
     leader_lap = laps[(laps["Driver"] == tower.loc[0, "Driver"]) & (laps["LapNumber"] == lap)]
     status = track_status(leader_lap["TrackStatus"].iloc[0]) if not leader_lap.empty else "Unknown"
     weather = weather_at(race, lead_time) if lead_time is not None else None
@@ -140,40 +110,30 @@ def race_view(race: RaceData) -> None:
     left, right = st.columns([6, 7], gap="medium")
     with left:
         st.subheader("Timing tower")
-        st.dataframe(
-            style_tower(tower, race.team_colors),
-            hide_index=True,
-            width="stretch",
-            height=36 * len(tower) + 40,
-            column_config={
-                "": st.column_config.TextColumn(width=6),
-                "Pos": st.column_config.NumberColumn(width=36),
-                "Driver": st.column_config.TextColumn(width=50),
-                "Gap": st.column_config.TextColumn(width=70),
-                "Int": st.column_config.TextColumn(width=62),
-                "Last lap": st.column_config.TextColumn(width=72),
-                "Tyre": st.column_config.TextColumn(width=48),
-                "Stops": st.column_config.NumberColumn(width=44),
-            },
-        )
+        # Rows slide and gaps count over most of the tick, so motion is continuous while playing.
+        move_ms = int(interval * 1000 * 0.85) if ss.playing and interval else 450
+        tower_component(tower, race.team_colors, lap, move_ms)
 
     with right:
-        trace, positions, tyres, pace, control = st.tabs(["Race trace", "Positions", "Tyres", "Pace", "Race control"])
-        with trace:
+        # Only the chosen view is drawn each tick (tabs would redraw all five).
+        view = st.segmented_control("View", VIEWS, default=VIEWS[0], key="view", label_visibility="collapsed") or VIEWS[0]
+        if view == "Race trace":
             st.caption(
                 "Seconds behind the leader at the end of each lap. Flat lines hold the gap; dips are pit stops; "
                 "shaded laps ran under safety car or VSC."
             )
-            fig = charts.gap_chart(gap_to_leader(laps), focus, race.team_colors, race.total_laps)
-            st.plotly_chart(charts.shade_periods(fig, periods), width="stretch")
-        with positions:
+            gaps = race.gaps[race.gaps["LapNumber"] <= lap]
+            fig = charts.gap_chart(gaps, focus, race.team_colors, race.total_laps)
+            st.plotly_chart(charts.shade_periods(fig, periods), width="stretch", key="chart_trace")
+        elif view == "Positions":
             fig = charts.position_chart(laps, focus, race.team_colors, race.total_laps)
-            st.plotly_chart(charts.shade_periods(fig, periods), width="stretch")
-        with tyres:
+            st.plotly_chart(charts.shade_periods(fig, periods), width="stretch", key="chart_positions")
+        elif view == "Tyres":
             st.caption("Tyre stints in the current running order.")
             st.plotly_chart(
                 charts.strategy_chart(stint_timeline(laps), tower["Driver"].tolist(), race.total_laps),
                 width="stretch",
+                key="chart_stints",
             )
             clean = race.clean_laps[(race.clean_laps["LapNumber"] <= lap) & race.clean_laps["Driver"].isin(focus)]
             deg = stint_degradation(clean)
@@ -181,15 +141,15 @@ def race_view(race: RaceData) -> None:
             if deg.empty:
                 st.caption("Not enough clean laps yet (a stint needs five green-flag laps).")
             else:
-                st.plotly_chart(charts.degradation_chart(deg), width="stretch")
+                st.plotly_chart(charts.degradation_chart(deg), width="stretch", key="chart_deg")
                 with st.expander("Table"):
                     st.dataframe(deg, hide_index=True, width="stretch")
-        with pace:
+        elif view == "Pace":
             clean = race.clean_laps[race.clean_laps["LapNumber"] <= lap]
             if focus:
                 st.caption("Representative laps only: no pit laps, safety cars or yellow flags.")
-                st.plotly_chart(charts.pace_chart(clean, focus, race.total_laps), width="stretch")
-        with control:
+                st.plotly_chart(charts.pace_chart(clean, focus, race.total_laps), width="stretch", key="chart_pace")
+        else:
             msgs = race.messages[race.messages["Lap"].fillna(0) <= lap]
             if not st.checkbox("Show blue flags", value=False):
                 msgs = msgs[msgs["Flag"] != "BLUE"]
@@ -197,8 +157,7 @@ def race_view(race: RaceData) -> None:
             st.dataframe(msgs, hide_index=True, width="stretch", height=420)
 
 
-def main() -> None:
-    st.set_page_config(page_title="PitLens · Pit wall", page_icon="🏁", layout="wide")
+def race_page() -> None:
     st.session_state.setdefault("playing", False)
 
     year, round_number = choose_race()
@@ -218,7 +177,17 @@ def main() -> None:
     st.title(race.name)
     st.caption(f"{race.date:%d %B %Y} · {race.total_laps} laps · press Play to replay the race lap by lap")
 
-    st.fragment(race_view, run_every=interval if st.session_state.playing else None)(race)
+    st.fragment(race_view, run_every=interval if st.session_state.playing else None)(race, interval)
+
+
+def main() -> None:
+    st.set_page_config(page_title="PitLens · Pit wall", page_icon="🏁", layout="wide")
+    st.markdown(NO_STALE_FADE, unsafe_allow_html=True)
+    pages = [
+        st.Page(race_page, title="Race replay", icon=":material/sports_score:", default=True),
+        st.Page(onboard_page.render, title="Onboard", icon=":material/speed:", url_path="onboard"),
+    ]
+    st.navigation(pages).run()
 
 
 if __name__ == "__main__":

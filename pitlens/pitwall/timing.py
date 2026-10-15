@@ -133,6 +133,7 @@ def timing_tower(laps: pd.DataFrame, lap: int, retired: set[str] = frozenset()) 
             "Stops": (latest["Stint"] - 1).astype("Int64"),
             "Pit": latest["PitInTime"].notna() & (latest["LapNumber"] == lap),
             "GapSeconds": latest["GapSeconds"],
+            "IntervalSeconds": latest["IntervalSeconds"],
             "LapsDown": latest["LapsDown"],
             "Out": latest["Out"],
         }

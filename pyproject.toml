@@ -23,3 +23,6 @@ pitlens = "pitlens.cli:main"
 
 [tool.setuptools.packages.find]
 include = ["pitlens*"]
+
+[tool.setuptools.package-data]
+"pitlens.pitwall.tower" = ["index.html"]
