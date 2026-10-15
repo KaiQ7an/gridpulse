@@ -88,6 +88,15 @@ h1, h2, h3 { letter-spacing: -0.01em; }
 
 .pl-zh { font-style: normal; margin-top: 3px; opacity: 0.95; }
 
+/* Fastest-sector list beside the circuit map */
+.pl-seclist { display: flex; flex-direction: column; gap: 16px; padding-top: 22px; }
+.pl-secrow { display: grid; grid-template-columns: 26px 1fr; gap: 10px; align-items: center; }
+.pl-secrow .num { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; color: #fff;
+  font-size: 0.75rem; font-weight: 700; }
+.pl-secrow .who { font-weight: 700; font-size: 0.98rem; line-height: 1.2; }
+.pl-secrow .t { color: #A855F7; font-weight: 600; font-variant-numeric: tabular-nums; margin-left: 6px; }
+.pl-secrow .meta { font-size: 0.76rem; opacity: 0.55; font-variant-numeric: tabular-nums; }
+
 /* Race notifications, styled like the F1 broadcast graphics: a solid label tab, then a dark
    slab with the team colour bar, the surname in capitals and the time on the right. */
 .st-key-pl-notes { position: fixed; top: 68px; right: 22px; width: 360px; z-index: 999990; gap: 10px;
@@ -288,17 +297,24 @@ def sector_stats(rankings: list[list[tuple[str, float, int]]], colors: dict[str,
     return out
 
 
-NOTE_STYLE = {"FL": ("Fastest lap", "#A855F7"), "OUT": ("Retired", "#E10600")}
+NOTE_STYLE = {  # kind -> (tab label, tab colour, tab text colour)
+    "FL": ("Fastest lap", "#A855F7", "#ffffff"),
+    "OUT": ("Retired", "#E10600", "#ffffff"),
+    "SC": ("Race control", "#F5B700", "#111111"),
+    "RED": ("Race control", "#E10600", "#ffffff"),
+    "GREEN": ("Race control", "#16A34A", "#ffffff"),
+}
 
 
 def notifications(notes: list[dict]) -> None:
     """Render race notifications (newest first) in a fixed stack at the top right, broadcast style."""
     cards = []
     for n in notes:
-        title, color = NOTE_STYLE.get(n["kind"], (n["kind"], "#888888"))
-        right = f'<div class="right" style="color:{color}">{n["right"]}</div>' if n.get("right") else "<div></div>"
+        title, color, ink = NOTE_STYLE.get(n["kind"], (n["kind"], "#888888", "#ffffff"))
+        right_color = "#ffffff" if n["kind"] in ("SC", "RED", "GREEN") else color
+        right = f'<div class="right" style="color:{right_color}">{n["right"]}</div>' if n.get("right") else "<div></div>"
         cards.append(
-            f'<div class="pl-bc" style="--team:{n["color"]}"><div class="tab" style="background:{color}">'
+            f'<div class="pl-bc" style="--team:{n["color"]}"><div class="tab" style="background:{color};color:{ink}">'
             f'{html.escape(title)}</div><div class="slab"><div class="bar"></div><div class="who">'
             f'<div class="surname">{html.escape(n["name"])}</div><div class="team">{html.escape(n["team"])}</div>'
             f"</div>{right}</div></div>"
@@ -306,3 +322,20 @@ def notifications(notes: list[dict]) -> None:
     with st.container(key="pl-notes"):
         for card in cards:
             st.html(card)
+
+
+def sector_list(rankings, colors: dict[str, str]) -> None:
+    """Fastest S1/S2/S3 so far, with the gap to the next quickest driver."""
+    rows = []
+    for n, ranking in enumerate(rankings, start=1):
+        if not ranking:
+            continue
+        d, t, lap = ranking[0]
+        c = colors.get(d, "#999")
+        nxt = f" · +{ranking[1][1] - t:.3f} to {html.escape(ranking[1][0])}" if len(ranking) > 1 else ""
+        rows.append(
+            f'<div class="pl-secrow"><div class="num" style="background:{c}">{n}</div>'
+            f'<div><div class="who">{html.escape(d)}<span class="t">{t:.3f}</span></div>'
+            f'<div class="meta">Sector {n} · lap {lap}{nxt}</div></div></div>'
+        )
+    st.html('<div class="pl-seclist">' + "".join(rows) + "</div>")

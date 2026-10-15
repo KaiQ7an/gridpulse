@@ -55,9 +55,10 @@ falling away, with the cleaning rules written down and tested.
   come from Open-Meteo's hourly weather-model estimate for the circuit.
 - **Race feed**: what happened lap by lap (pit stops, passes on track, new fastest laps, safety
   cars, retirements, the finish) with a one-line state of the race on top. While the replay moves
-  forward, a new fastest lap or a retirement also pops up as a small in-page notification.
+  forward, new fastest laps, retirements and race control (safety car, VSC, red flag, green flag)
+  also pop up as in-page notifications styled like the broadcast graphics.
 - **Circuit map**: the track drawn from the race's fastest lap as actually driven (or the circuit
-  outline before 2023), with the start/finish line.
+  outline before 2023), with the start/finish line, and the fastest S1/S2/S3 so far beside it.
 - **Strategy**: the typical pit loss, where each car would rejoin if it pitted at the end of this
   lap, and every undercut and overcut so far with its outcome.
 - **Radio**: team radio clips up to the current lap, playable in the page, with a microphone in

@@ -148,11 +148,17 @@ def notify(race: RaceData, lap: int) -> None:
     notes = [n for n in ss.get("notes", []) if n["until"] > now and n["race"] == ss.race_key]
     if ss.get("shown_lap") == lap - 1:
         team_of = dict(zip(race.entrants["Driver"], race.entrants["Team"]))
-        for e in race.events[(race.events["Lap"] == lap) & race.events["Kind"].isin(["FL", "OUT"])].itertuples():
-            right = e.Text.partition(", ")[2] if e.Kind == "FL" else f"LAP {lap}"
-            notes.insert(0, {"kind": e.Kind, "name": race.last_names.get(e.Driver) or e.Driver,
-                             "team": team_of.get(e.Driver, ""), "color": race.team_colors.get(e.Driver, "#888"),
-                             "right": right, "until": now + NOTE_SECONDS, "race": ss.race_key})
+        for e in race.events[(race.events["Lap"] == lap) & race.events["Kind"].isin(["FL", "OUT", "SC", "GREEN"])].itertuples():
+            if e.Kind in ("SC", "GREEN"):  # race control: safety car, VSC, red flag, back to green
+                kind = "RED" if e.Text == "Red flag" else e.Kind
+                name = "Green flag" if e.Kind == "GREEN" else e.Text
+                note = {"kind": kind, "name": name, "team": "Racing resumes" if e.Kind == "GREEN" else "Deployed",
+                        "color": {"SC": "#F5B700", "RED": "#E10600", "GREEN": "#16A34A"}[kind]}
+            else:
+                note = {"kind": e.Kind, "name": race.last_names.get(e.Driver) or e.Driver,
+                        "team": team_of.get(e.Driver, ""), "color": race.team_colors.get(e.Driver, "#888")}
+            note["right"] = e.Text.partition(", ")[2] if e.Kind == "FL" else f"LAP {lap}"
+            notes.insert(0, {**note, "until": now + NOTE_SECONDS, "race": ss.race_key})
     ss.notes = notes[:3]
     ss.shown_lap = lap
     if ss.notes:
@@ -192,8 +198,12 @@ def race_view(race: RaceData) -> None:
     if race.track:
         with left, st.container(border=True, key="card-map"):
             ui.label(f"Circuit · {race.location}")
-            st.plotly_chart(charts.circuit_map(race.track), width="stretch", key="chart_circuit",
-                            config={"displayModeBar": False, "staticPlot": True})
+            map_col, list_col = st.columns([3, 2], gap="small")
+            with map_col:
+                st.plotly_chart(charts.circuit_map(race.track), width="stretch", key="chart_circuit",
+                                config={"displayModeBar": False, "staticPlot": True})
+            with list_col:
+                ui.sector_list(fastest_sectors(laps, top=2), race.team_colors)
 
     with right, st.container(border=True, key="card-views"):
         # Only the chosen view is drawn each tick (tabs would redraw all of them).
