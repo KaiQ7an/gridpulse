@@ -214,3 +214,13 @@ def test_tower_counts_stops_from_the_stop_list_when_given(race):
 
 def test_format_lap_time_rounds_before_splitting_minutes():
     assert format_lap_time(pd.to_timedelta(119.9996, unit="s")) == "2:00.000"
+
+
+def test_race_distance_is_what_the_winner_ran():
+    from pitlens.pitwall.data import race_distance
+
+    laps = pd.DataFrame(make_driver("A", 80, 64))
+    shortened = pd.DataFrame({"Laps": [64.0, 63.0]})
+    assert race_distance(78, shortened, laps) == 64  # 2022 Monaco: time limit after 64 of 78
+    assert race_distance(58, pd.DataFrame({"Laps": [58.0]}), laps) == 58
+    assert race_distance(78, pd.DataFrame({"Position": [1.0]}), laps) == 64  # no lap counts: from the laps

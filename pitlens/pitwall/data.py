@@ -164,7 +164,7 @@ def load_race(year: int, round_number: int, kind: str = "R") -> RaceData:
 
 def build_race(year: int, round_number: int, parts: dict) -> RaceData:
     results = parts["results"].sort_values("Position")
-    total_laps = parts["total_laps"]
+    total_laps = race_distance(parts["total_laps"], results, parts["laps"])
     laps = trim_to_classified_laps(parts["laps"], results)
     laps = classify_finish(complete_final_laps(laps, results, total_laps), results, total_laps)
     clean = add_fuel_corrected_time(clean_race_laps(laps), total_laps)
@@ -214,6 +214,15 @@ def build_race(year: int, round_number: int, parts: dict) -> RaceData:
         coverage=lap_coverage(laps, results),
         start_utc=pd.Timestamp(parts["race_utc"]) if parts.get("race_utc") is not None else None,
     )
+
+
+def race_distance(scheduled: int, results: pd.DataFrame, laps: pd.DataFrame) -> int:
+    """Laps the race actually ran: the winner's, which is fewer than scheduled when the race is cut
+    short (2022 Monaco hit the time limit after 64 of 78 laps; FastF1's total is the scheduled one)."""
+    run = results["Laps"].max() if "Laps" in results else float("nan")
+    if pd.isna(run) or run <= 0:
+        run = laps["LapNumber"].max()
+    return int(min(scheduled, run)) if pd.notna(run) else int(scheduled)
 
 
 def official_finish_gaps(gaps: pd.DataFrame, laps: pd.DataFrame, total_laps: int) -> pd.DataFrame:
