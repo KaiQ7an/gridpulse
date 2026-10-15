@@ -30,7 +30,7 @@ pace, tyres and strategy as the race unfolds. It is built in layers, each useful
       updating, so the whole live pipeline can be built and tested on any weekend
 - [x] Timing tower, race trace, positions, tyre stints, degradation so far and clean-lap pace
 - [x] Race-control messages, track status and weather alongside the charts
-- [ ] Mark safety car and VSC periods on the race trace
+- [x] Mark safety car and VSC periods on the race trace
 - [ ] Optional public deployment on Streamlit Community Cloud
 
 ## 5. `pitwall` live mode and `radio`

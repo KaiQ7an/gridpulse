@@ -31,6 +31,30 @@ def track_status(code) -> str:
     return "Unknown"
 
 
+def neutralised_periods(laps: pd.DataFrame) -> list[tuple[str, int, int]]:
+    """Runs of laps run under safety car, VSC or red flag, as (status, first, last).
+
+    Each lap takes the most severe status any car saw on it.
+    """
+    per_lap = (
+        laps.dropna(subset=["TrackStatus"])
+        .groupby("LapNumber")["TrackStatus"]
+        .apply(lambda codes: track_status("".join(map(str, codes))))
+        .sort_index()
+    )
+    periods: list[tuple[str, int, int]] = []
+    for lap, status in per_lap.items():
+        if status == "VSC ending":
+            status = "VSC"
+        if status not in ("Safety car", "VSC", "Red flag"):
+            continue
+        if periods and periods[-1][0] == status and periods[-1][2] == lap - 1:
+            periods[-1] = (status, periods[-1][1], int(lap))
+        else:
+            periods.append((status, int(lap), int(lap)))
+    return periods
+
+
 def retired_drivers(results: pd.DataFrame) -> set[str]:
     """Drivers whose result shows they did not take the chequered flag."""
     status = results["Status"].fillna("")

@@ -64,6 +64,20 @@ def _driver_lines(df: pd.DataFrame, y: str, focus, colors, hover: str) -> go.Fig
     return fig
 
 
+PERIOD_STYLE = {"Safety car": ("SC", "rgba(240,180,0,0.18)"), "VSC": ("VSC", "rgba(240,180,0,0.10)"), "Red flag": ("RED", "rgba(225,6,0,0.15)")}
+
+
+def shade_periods(fig: go.Figure, periods) -> go.Figure:
+    """Shade safety car, VSC and red flag laps behind the lines."""
+    for status, first, last in periods:
+        label, color = PERIOD_STYLE[status]
+        fig.add_vrect(
+            x0=first - 0.5, x1=last + 0.5, fillcolor=color, line_width=0, layer="below",
+            annotation_text=label, annotation_position="top left", annotation_font_size=10,
+        )
+    return fig
+
+
 def gap_chart(gaps: pd.DataFrame, focus, colors, total_laps: int) -> go.Figure:
     """Race trace: seconds behind the leader, lap by lap (leader on top)."""
     fig = _driver_lines(gaps, "Gap", focus, colors, "+%{y:.1f} s to leader")

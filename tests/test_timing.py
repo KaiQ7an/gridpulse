@@ -4,6 +4,7 @@ import pytest
 from pitlens.pitwall.timing import (
     format_lap_time,
     gap_to_leader,
+    neutralised_periods,
     retired_drivers,
     stint_timeline,
     timing_tower,
@@ -106,3 +107,13 @@ def test_retired_drivers():
 def test_format_lap_time():
     assert format_lap_time(pd.to_timedelta(81.3456, unit="s")) == "1:21.346"
     assert format_lap_time(pd.NaT) == ""
+
+
+def test_neutralised_periods_groups_consecutive_laps():
+    laps = pd.DataFrame(
+        {
+            "LapNumber": [1, 2, 3, 4, 5, 6, 7, 7],
+            "TrackStatus": ["1", "14", "4", "41", "1", "6", "1", "67"],
+        }
+    )
+    assert neutralised_periods(laps) == [("Safety car", 2, 4), ("VSC", 6, 7)]

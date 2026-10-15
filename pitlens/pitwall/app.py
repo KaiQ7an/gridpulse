@@ -8,7 +8,14 @@ import streamlit as st
 
 from pitlens.pitwall import charts
 from pitlens.pitwall.data import FIRST_SEASON, RaceData, completed_races, load_race
-from pitlens.pitwall.timing import gap_to_leader, leader_times, stint_timeline, timing_tower, track_status
+from pitlens.pitwall.timing import (
+    gap_to_leader,
+    leader_times,
+    neutralised_periods,
+    stint_timeline,
+    timing_tower,
+    track_status,
+)
 from pitlens.stints.pace import stint_degradation
 from pitlens.style import COMPOUND_COLORS
 
@@ -116,6 +123,7 @@ def race_view(race: RaceData) -> None:
     focus = ss.focus
 
     laps = race.laps[race.laps["LapNumber"] <= lap]
+    periods = neutralised_periods(laps)
     tower = timing_tower(race.laps, lap, race.retired)
     lead_time = leader_times(race.laps).get(lap)
     leader_lap = laps[(laps["Driver"] == tower.loc[0, "Driver"]) & (laps["LapNumber"] == lap)]
@@ -152,10 +160,15 @@ def race_view(race: RaceData) -> None:
     with right:
         trace, positions, tyres, pace, control = st.tabs(["Race trace", "Positions", "Tyres", "Pace", "Race control"])
         with trace:
-            st.caption("Seconds behind the leader at the end of each lap. Flat lines hold the gap; dips are pit stops.")
-            st.plotly_chart(charts.gap_chart(gap_to_leader(laps), focus, race.team_colors, race.total_laps), width="stretch")
+            st.caption(
+                "Seconds behind the leader at the end of each lap. Flat lines hold the gap; dips are pit stops; "
+                "shaded laps ran under safety car or VSC."
+            )
+            fig = charts.gap_chart(gap_to_leader(laps), focus, race.team_colors, race.total_laps)
+            st.plotly_chart(charts.shade_periods(fig, periods), width="stretch")
         with positions:
-            st.plotly_chart(charts.position_chart(laps, focus, race.team_colors, race.total_laps), width="stretch")
+            fig = charts.position_chart(laps, focus, race.team_colors, race.total_laps)
+            st.plotly_chart(charts.shade_periods(fig, periods), width="stretch")
         with tyres:
             st.caption("Tyre stints in the current running order.")
             st.plotly_chart(
