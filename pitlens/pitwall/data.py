@@ -17,7 +17,14 @@ from pitlens.pitwall.timing import (
     trim_to_classified_laps,
 )
 from pitlens.radio.clips import assign_laps, team_radio
-from pitlens.session import TimingUnavailable, enable_cache, load_session, refused_recently, remember_refusal
+from pitlens.session import (
+    ResultsUnavailable,
+    TimingUnavailable,
+    enable_cache,
+    load_session,
+    refused_recently,
+    remember_refusal,
+)
 from pitlens.sources import openf1, weather
 from pitlens.stints.pace import add_fuel_corrected_time, clean_race_laps
 from pitlens.style import FALLBACK_TEAM_COLOR
@@ -83,7 +90,7 @@ def _fastf1_parts(year: int, round_number: int, kind: str = "R") -> dict:
     return {
         "laps": pd.DataFrame(session.laps),
         "stationary": _stationary(year, session, SESSIONS[kind]),
-        "results": pd.DataFrame(session.results),
+        "results": _fastf1_results(year, session, SESSIONS[kind]),
         "messages": pd.DataFrame(session.race_control_messages),
         "weather": pd.DataFrame(session.weather_data),
         "radio": radio,
@@ -95,6 +102,28 @@ def _fastf1_parts(year: int, round_number: int, kind: str = "R") -> dict:
         "race_utc": session.date,
         "circuit_key": (session.session_info.get("Meeting", {}).get("Circuit") or {}).get("Key"),
     }
+
+
+def _fastf1_results(year: int, session, session_name: str = "Race") -> pd.DataFrame:
+    """The session's results. FastF1 takes the classification (positions, statuses, laps) from the
+    Ergast/Jolpica API; when that times out the columns come back empty and the race would be built
+    wrong (every lapped car looking retired). Fill them from OpenF1, or fail so the next load retries."""
+    results = pd.DataFrame(session.results)
+    if results["Position"].notna().any() and results["Status"].notna().any():
+        return results
+    if year >= openf1.FIRST_SEASON:
+        try:
+            official = openf1.classification(year, session.date, session_name).set_index("DriverNumber")
+        except openf1.OpenF1Error:
+            official = None
+        if official is not None:
+            numbers = results["DriverNumber"].astype(str)
+            for col in ("Position", "Status", "Laps"):
+                results[col] = numbers.map(official[col]).values
+            results["GapToLeader"] = numbers.map(official["GapToLeader"]).values
+            return results
+    raise ResultsUnavailable(f"The classification for {session.event['EventName']} didn't load (the results API "
+                             "didn't answer). Try again in a minute.")
 
 
 def _openf1_radio(year: int, session, session_name: str = "Race") -> pd.DataFrame:
@@ -150,6 +179,8 @@ def load_race(year: int, round_number: int, kind: str = "R") -> RaceData:
     if not refused_recently(key):
         try:
             parts = _fastf1_parts(year, round_number, kind)
+        except ResultsUnavailable:
+            raise  # the archive answered; only the results API didn't, so just try again later
         except TimingUnavailable as exc:
             archive_error = exc
             remember_refusal(key)

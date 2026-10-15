@@ -167,6 +167,42 @@ def in_laps(pits: pd.DataFrame, stints: pd.DataFrame) -> pd.Series:
     )
 
 
+def _classification(result: pd.DataFrame) -> pd.DataFrame:
+    """OpenF1 session_result rows as FastF1-style result columns: DriverNumber, Position, GapToLeader
+    (seconds, lead-lap finishers), Laps and Status."""
+    winner_laps = result["number_of_laps"].max() if "number_of_laps" in result else np.nan
+
+    def status_of(r):
+        if r.get("dsq"):
+            return "Disqualified"
+        if r.get("dns"):
+            return "Did not start"
+        if r.get("dnf"):
+            return "Retired"
+        return "Finished" if r.get("number_of_laps", 0) >= winner_laps else "Lapped"
+
+    return pd.DataFrame(
+        {
+            "DriverNumber": result["driver_number"].astype(str),
+            "Position": pd.to_numeric(result["position"], errors="coerce").astype(float),
+            # Seconds behind the winner for lead-lap finishers ("+1 LAP" and the like become NaN).
+            "GapToLeader": pd.to_numeric(result["gap_to_leader"], errors="coerce") if "gap_to_leader" in result else np.nan,
+            "Laps": pd.to_numeric(result["number_of_laps"], errors="coerce") if "number_of_laps" in result else np.nan,
+            "Status": [status_of(r) for r in result.to_dict("records")],
+        },
+        index=result.index,
+    )
+
+
+def classification(year: int, race_date_utc, session_name: str = "Race") -> pd.DataFrame:
+    """A race's official classification from OpenF1 (DriverNumber, Position, GapToLeader, Laps, Status)."""
+    session = find_session(year, race_date_utc, session_name)
+    result = pd.DataFrame(get("session_result", session_key=session["session_key"]))
+    if result.empty:
+        raise OpenF1Error("OpenF1 has no result for this session")
+    return _classification(result)
+
+
 def merge_continuing_stints(stints: pd.DataFrame) -> pd.DataFrame:
     """Fold a "stint" that carries on with the same set of tyres into the one before it.
 
@@ -296,33 +332,16 @@ def race_parts(year: int, race_date_utc, session_name: str = "Race") -> dict:
         out.loc[merged.index, "Position"] = merged["position"].astype(float)
 
     # ---- results
-    winner_laps = result["number_of_laps"].max() if not result.empty else total_laps
-
-    def status_of(r):
-        if r.get("dsq"):
-            return "Disqualified"
-        if r.get("dns"):
-            return "Did not start"
-        if r.get("dnf"):
-            return "Retired"
-        return "Finished" if r.get("number_of_laps", 0) >= winner_laps else "Lapped"
-
     results = pd.DataFrame(
         {
             "Abbreviation": result["driver_number"].map(abbr),
-            "DriverNumber": result["driver_number"].astype(str),
             "TeamName": result["driver_number"].map(team),
             "TeamColor": result["driver_number"].map(colour),
             "FirstName": result["driver_number"].map(first),
             "FullName": [f"{first.get(n, '')} {str(last.get(n, '')).title()}".strip() for n in result["driver_number"]],
             "LastName": [str(last.get(n, "")).title() for n in result["driver_number"]],
-            "Position": pd.to_numeric(result["position"], errors="coerce").astype(float),
-            # Seconds behind the winner for lead-lap finishers ("+1 LAP" and the like become NaN).
-            "GapToLeader": pd.to_numeric(result["gap_to_leader"], errors="coerce") if "gap_to_leader" in result else np.nan,
-            "Laps": pd.to_numeric(result["number_of_laps"], errors="coerce") if "number_of_laps" in result else np.nan,
-            "Status": [status_of(r) for r in result.to_dict("records")],
         }
-    ).sort_values("Position", na_position="last").reset_index(drop=True)
+    ).join(_classification(result)).sort_values("Position", na_position="last").reset_index(drop=True)
 
     messages = pd.DataFrame(
         {

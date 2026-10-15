@@ -45,6 +45,10 @@ class TimingUnavailable(RuntimeError):
     """The F1 archive returned no lap timing for a session (network error, or access refused)."""
 
 
+class ResultsUnavailable(TimingUnavailable):
+    """The session loaded but its classification didn't (a passing failure of the results API)."""
+
+
 # When F1's archive refuses a session, asking again costs several seconds of failed requests,
 # so the refusal is remembered for a while and callers go straight to OpenF1.
 REFUSALS = CACHE_DIR / "archive_refusals.json"
