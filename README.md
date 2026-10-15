@@ -13,7 +13,7 @@ the same questions a strategy desk asks on a Sunday afternoon.
 ![Streamlit](https://img.shields.io/badge/dashboard-Streamlit-FF4B4B?logo=streamlit&logoColor=white)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-[Quick start](#quick-start) · [Pit wall](#pit-wall) · [Onboard](#onboard) · [Strategy](#strategy) · [Tyre analysis](#tyre-analysis) · [How it works](#how-it-works) · [Roadmap](ROADMAP.md)
+[Quick start](#quick-start) · [Pit wall](#pit-wall) · [Onboard](#onboard) · [Pit stops](#pit-stops) · [Strategy](#strategy) · [Tyre analysis](#tyre-analysis) · [How it works](#how-it-works) · [Roadmap](ROADMAP.md)
 
 </div>
 
@@ -167,6 +167,22 @@ In the pit wall, open **Onboard** in the sidebar. From the command line:
 | `--open` | off | Open the HTML report when done (macOS) |
 
 The report is a self-contained HTML file in `outputs/onboard/`, plus the corner table as CSV.
+
+## Pit stops
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/images/pitstops_dark.png">
+    <img src="docs/images/pitstops_light.png" alt="Pit stops view: every stop with pit lane and stationary time, cost and places" width="560">
+  </picture>
+</p>
+
+In the pit wall, pick **Pit stops** above the charts. Every stop up to the current lap, newest
+first: how long it took from pit entry to pit exit and, where F1 publishes it, how long the car
+stood still in its box; the tyres off and on; the time it cost against the cars that stayed out;
+and the places lost or gained. Stops under a safety car or VSC are tagged, the quickest times are
+purple, and below them are the quickest stops and the quickest crews by team. In the 2026
+Barcelona Grand Prix Albon's crew turned him round in 2.1 s on lap 29.
 
 ## Strategy
 

@@ -119,12 +119,12 @@ h1, h2, h3 { letter-spacing: -0.01em; }
 @keyframes pl-in { from { opacity: 0; transform: translateX(28px); } }
 @keyframes pl-out { to { opacity: 0; transform: translateX(28px); visibility: hidden; } }
 
-/* Pit stop list: one row per stop, newest first */
-.pl-pits-wrap { overflow-x: auto; }
-.pl-pits { max-height: 430px; overflow-y: auto; min-width: 560px; }
+/* Pit stop list: one row per stop, newest first. It sizes to its card (container queries), not the window. */
+.pl-pits-wrap { container-type: inline-size; }
+.pl-pits { max-height: 430px; overflow-y: auto; }
 .pl-pit { display: grid; grid-template-columns: 62px 64px minmax(118px, 1fr) 70px 70px 62px 118px; align-items: center;
   gap: 8px; padding: 8px 6px; border-bottom: 1px solid rgba(128,128,128,0.14); font-size: 0.9rem;
-  font-variant-numeric: tabular-nums; min-width: 560px; }
+  font-variant-numeric: tabular-nums; }
 .pl-pit.nostill { grid-template-columns: 62px 64px minmax(118px, 1fr) 70px 62px 118px; }
 .pl-pit.head { border-bottom: 1px solid rgba(128,128,128,0.3); padding-top: 0; font-size: 0.64rem; font-weight: 700;
   letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.55; }
@@ -141,6 +141,22 @@ h1, h2, h3 { letter-spacing: -0.01em; }
 .pl-tyre { display: inline-grid; place-items: center; width: 21px; height: 21px; border-radius: 50%;
   border: 2.5px solid var(--c); font-size: 0.6rem; font-weight: 800; box-sizing: border-box; vertical-align: middle; }
 .pl-pit .arrow { opacity: 0.4; margin: 0 5px; }
+@container (max-width: 640px) {  /* narrower card: no tyre age, flag tag under the lap */
+  .pl-pit { grid-template-columns: 46px 54px 62px 54px 56px 46px minmax(0, 1fr); gap: 6px; font-size: 0.84rem; }
+  .pl-pit.nostill { grid-template-columns: 46px 54px 62px 54px 46px minmax(0, 1fr); }
+  .pl-pit.head { font-size: 0.58rem; letter-spacing: 0.08em; }
+  .pl-pit .age { display: none; }
+  .pl-pit .flag { display: block; width: fit-content; margin: 2px 0 0; }
+  .pl-pit .arrow { margin: 0 2px; }
+}
+@container (max-width: 420px) {  /* phones */
+  .pl-pit { grid-template-columns: 40px 46px 50px 40px 36px 36px minmax(0, 1fr); gap: 4px; padding: 7px 2px;
+    font-size: 0.78rem; }
+  .pl-pit.nostill { grid-template-columns: 40px 46px 50px 40px 36px minmax(0, 1fr); }
+  .pl-pit.head { font-size: 0.56rem; letter-spacing: 0.06em; }
+  .pl-pit .arrow { margin: 0 1px; }
+  .pl-tyre { width: 18px; height: 18px; border-width: 2px; font-size: 0.52rem; }
+}
 .st-key-card-views .pl-stat { padding: 10px 14px 11px; min-width: 0; }
 
 /* Sidebar brand */
@@ -156,6 +172,7 @@ h1, h2, h3 { letter-spacing: -0.01em; }
 
 /* Views bar: scroll sideways rather than wrapping onto a second row */
 .st-key-view [data-testid="stButtonGroup"] { overflow-x: auto; scrollbar-width: none; }
+.st-key-view button { padding-left: 0.6rem; padding-right: 0.6rem; }
 
 /* Replay control bar */
 .st-key-controls { align-items: center; }
@@ -171,16 +188,6 @@ h1, h2, h3 { letter-spacing: -0.01em; }
   .pl-stat.sec .v { font-size: 0.9rem; }
   [class*="st-key-card-"] { padding: 6px 4px; }
   .st-key-pl-notes { right: 10px; top: 56px; width: 236px; }
-  /* Pit stop list without sideways scrolling: no tyre age, flag tag under the lap */
-  .pl-pits, .pl-pit { min-width: 0; }
-  .pl-pit { grid-template-columns: 40px 46px 50px 40px 36px 36px minmax(0, 1fr); gap: 4px; padding: 7px 2px;
-    font-size: 0.78rem; }
-  .pl-pit.nostill { grid-template-columns: 40px 46px 50px 40px 36px minmax(0, 1fr); }
-  .pl-pit.head { font-size: 0.56rem; letter-spacing: 0.06em; }
-  .pl-pit .age { display: none; }
-  .pl-pit .flag { display: block; width: fit-content; margin: 2px 0 0; }
-  .pl-pit .arrow { margin: 0 1px; }
-  .pl-tyre { width: 18px; height: 18px; border-width: 2px; font-size: 0.52rem; }
 }
 </style>
 """
