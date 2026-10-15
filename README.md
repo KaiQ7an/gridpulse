@@ -1,13 +1,13 @@
 <div align="center">
 
-# f1-telemetry
+# pitwall
 
 **Race-engineering style analysis of public Formula 1 timing data.**
 
 Clean the laps, correct for fuel, and measure how fast each tyre stint fell away,<br>
 the same questions a strategy desk asks on a Sunday afternoon.
 
-[![Tests](https://github.com/KaiQ7an/f1-telemetry/actions/workflows/test.yml/badge.svg)](https://github.com/KaiQ7an/f1-telemetry/actions/workflows/test.yml)
+[![Tests](https://github.com/KaiQ7an/pitwall/actions/workflows/test.yml/badge.svg)](https://github.com/KaiQ7an/pitwall/actions/workflows/test.yml)
 ![Python](https://img.shields.io/badge/python-3.12%2B-3776AB?logo=python&logoColor=white)
 ![FastF1](https://img.shields.io/badge/data-FastF1-E10600)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
@@ -57,12 +57,12 @@ rules written down and tested.
 You need Python 3.12 or newer.
 
 ```bash
-git clone https://github.com/KaiQ7an/f1-telemetry
-cd f1-telemetry
+git clone https://github.com/KaiQ7an/pitwall
+cd pitwall
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-python -m f1telemetry.race_pace --year 2025 --event Hungary
+python -m pitwall.race_pace --year 2025 --event Hungary
 ```
 
 The first run downloads the session into `cache/` (gitignored); later runs are instant. Charts
@@ -97,7 +97,7 @@ traffic, and the fuel effect is a rule of thumb. The roadmap lists how to tighte
 ## How it works
 
 ```
-f1telemetry/
+pitwall/
 ├── session.py     load a FastF1 session with the local cache
 ├── pace.py        clean laps, fuel correction, per-stint degradation fit
 ├── plots.py       matplotlib charts (compound colours + marker shapes)
