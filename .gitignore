@@ -10,3 +10,6 @@ cache/
 .DS_Store
 .vscode/
 .idea/
+
+# Generated charts and CSVs (re-create with the CLI)
+outputs/
