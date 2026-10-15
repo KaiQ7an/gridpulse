@@ -9,9 +9,10 @@ import streamlit as st
 from pitlens.pitwall import charts, onboard_page, ui
 from pitlens.session import TimingUnavailable
 from pitlens.pitwall.data import FIRST_SEASON, RaceData, completed_races, load_race
-from pitlens.pitwall.events import fastest_lap_candidates, neutralised_banner, situation
+from pitlens.pitwall.events import fastest_lap_candidates, fastest_sectors, neutralised_banner, situation
 from pitlens.pitwall.timing import format_lap_time, neutralised_periods, stint_timeline, timing_tower
 from pitlens.pitwall.tower import timing_tower as tower_component
+from pitlens.radio import transcribe
 from pitlens.stints.pace import stint_degradation
 from pitlens.undercut.analysis import pair_gap, pit_loss_now, rejoin_projection
 from pitlens.undercut.charts import battle_chart, pit_loss_chart
@@ -98,11 +99,21 @@ def status_strip(race: RaceData, laps: pd.DataFrame, tower: pd.DataFrame, lap: i
         ui.stat("Leader", "", value_html=ui.driver_dot(race.team_colors.get(leader, "#999")) + leader),
         ui.stat("Track", "", value_html=ui.status_pill(status)),
         ui.stat(
-            "Fastest lap",
-            f"{fastest['Driver']} {format_lap_time(fastest['LapTime'])}" if fastest is not None else "–",
+            "Fastest lap", "–" if fastest is None else "",
+            value_html=None if fastest is None else
+            ui.driver_dot(race.team_colors.get(fastest["Driver"], "#999")) + fastest["Driver"]
+            + f' <span style="color:#A855F7">{format_lap_time(fastest["LapTime"])}</span>',
             small=f"L{int(fastest['LapNumber'])}" if fastest is not None else "",
         ),
     ]
+    for n, best in enumerate(fastest_sectors(laps), start=1):
+        if best:
+            driver, secs, on_lap = best
+            stats.append(ui.stat(
+                f"Best S{n}", "", small=f"L{on_lap}",
+                value_html=ui.driver_dot(race.team_colors.get(driver, "#999")) + driver
+                + f' <span style="color:#A855F7">{secs:.3f}</span>',
+            ))
     if weather is not None:
         stats += [
             ui.stat("Track temp", f"{weather['TrackTemp']:.1f}°"),
@@ -129,7 +140,7 @@ def race_view(race: RaceData) -> None:
 
     laps = race.laps[race.laps["LapNumber"] <= lap]
     periods = neutralised_periods(laps)
-    tower = timing_tower(race.laps, lap, race.retired)
+    tower = timing_tower(race.laps, lap, race.retired, race.entrants)
     status_strip(race, laps, tower, lap)
 
     left, right = st.columns([5, 7], gap="medium")
@@ -171,8 +182,20 @@ def race_view(race: RaceData) -> None:
 
     with right, st.container(border=True, key="card-feed"):
         ui.label("Race feed")
-        feed = race.events[race.events["Lap"] <= lap].iloc[::-1]
+        feed = with_radio(race.events, race.radio, lap).iloc[::-1]
         ui.race_feed(situation(tower, lap, race.total_laps), feed, lap)
+
+
+def with_radio(events: pd.DataFrame, radio: pd.DataFrame, lap: int) -> pd.DataFrame:
+    """Race events up to `lap`, plus any team radio that has been transcribed, in lap order."""
+    rows = []
+    for c in radio[radio["Lap"].notna() & (radio["Lap"] <= lap)].itertuples():
+        text = (transcribe.cached(c.Url) or {}).get("text")
+        if text:
+            short = text if len(text) <= 90 else text[:87].rsplit(" ", 1)[0] + "..."
+            rows.append({"Lap": int(c.Lap), "Kind": "RADIO", "Driver": c.Driver, "Text": f"{c.Driver}: “{short}”"})
+    feed = pd.concat([events[events["Lap"] <= lap], pd.DataFrame(rows)], ignore_index=True)
+    return feed.sort_values("Lap", kind="stable")
 
 
 def tyres_view(race: RaceData, laps: pd.DataFrame, tower: pd.DataFrame, lap: int, focus: list[str]) -> None:
@@ -193,18 +216,44 @@ def tyres_view(race: RaceData, laps: pd.DataFrame, tower: pd.DataFrame, lap: int
         st.plotly_chart(charts.degradation_chart(deg), width="stretch", key="chart_deg")
 
 
+@st.cache_resource(show_spinner=False)
+def whisper() -> "transcribe.Transcriber":
+    return transcribe.Transcriber()
+
+
 def radio_view(race: RaceData, lap: int, focus: list[str]) -> None:
     clips = race.radio[race.radio["Lap"].notna() & (race.radio["Lap"] <= lap)]
     if st.toggle("Focus drivers only", value=False, key="radio_focus"):
         clips = clips[clips["Driver"].isin(focus)]
+    shown = clips.sort_values("SessionTime", ascending=False).head(12)
+    texts = {c.Url: (transcribe.cached(c.Url) or {}).get("text") for c in shown.itertuples()}
+    missing = [c for c in shown.itertuples() if texts[c.Url] is None]
+
     ui.note(f"{len(clips)} clips up to lap {lap}, newest first. A red microphone in the timing tower marks a "
             "driver with a clip on the current lap.")
-    for clip in clips.sort_values("SessionTime", ascending=False).head(12).itertuples():
+    if missing:
+        if transcribe.available():
+            if st.button(f"Transcribe {len(missing)} clip{'s' if len(missing) > 1 else ''}",
+                         icon=":material/subtitles:", key="transcribe_btn",
+                         help="Runs Whisper on this computer. The first time downloads the model (about 0.5 GB)."):
+                bar = st.progress(0.0, text="Loading the speech model...")
+                model = whisper()
+                for i, c in enumerate(missing, start=1):
+                    bar.progress(i / len(missing), text=f"Transcribing {c.Driver}, lap {c.Lap} ({i}/{len(missing)})")
+                    texts[c.Url] = model.transcribe(c.Url, race.first_names.get(c.Driver))
+                bar.empty()
+                st.rerun(scope="fragment")  # redraw with the new transcripts and without the button
+        else:
+            ui.note('To turn clips into text, install the speech model: pip install -e ".[transcribe]"')
+
+    for clip in shown.itertuples():
         new = ' <span class="pl-pill" style="background:rgba(225,6,0,.14);color:#E10600">this lap</span>' \
             if clip.Lap == lap else ""
-        st.html(f'<div style="margin-top:6px">{ui.driver_dot(race.team_colors.get(clip.Driver, "#999"))}'
+        st.html(f'<div style="margin-top:8px">{ui.driver_dot(race.team_colors.get(clip.Driver, "#999"))}'
                 f"<b>{clip.Driver}</b> <span style='opacity:.6'>· lap {clip.Lap}</span>{new}</div>")
         st.audio(clip.Url, format="audio/mpeg")
+        if texts.get(clip.Url):
+            ui.quote(texts[clip.Url])
 
 
 def messages_view(race: RaceData, lap: int) -> None:
@@ -298,8 +347,10 @@ def race_page() -> None:
             st.stop()
 
     reset_for_new_race((year, round_number), race)
-    st.sidebar.multiselect("Focus drivers", race.finish_order, key="focus", max_selections=6,
+    options = ui.driver_order(race.entrants, race.finish_order)
+    st.sidebar.multiselect("Focus drivers", options, key="focus", max_selections=6,
                            help="Highlighted in the tower and drawn in team colours on the charts")
+    ui.team_colored_picker("Focus drivers", options, race.team_colors, dict(zip(race.entrants["Driver"], race.entrants["Team"])))
     ui.sidebar_footer()
 
     ui.header(

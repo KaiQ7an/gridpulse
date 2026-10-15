@@ -147,6 +147,7 @@ def race_parts(year: int, race_date_utc) -> dict:
     abbr = dict(zip(drivers["driver_number"], drivers["name_acronym"]))
     team = dict(zip(drivers["driver_number"], drivers["team_name"]))
     colour = dict(zip(drivers["driver_number"], drivers["team_colour"]))
+    first = dict(zip(drivers["driver_number"], drivers.get("first_name", pd.Series(dtype=str))))
 
     # ---- laps -> FastF1 columns
     laps = laps.sort_values(["driver_number", "lap_number"]).copy()
@@ -232,6 +233,7 @@ def race_parts(year: int, race_date_utc) -> dict:
             "DriverNumber": result["driver_number"].astype(str),
             "TeamName": result["driver_number"].map(team),
             "TeamColor": result["driver_number"].map(colour),
+            "FirstName": result["driver_number"].map(first),
             "Position": pd.to_numeric(result["position"], errors="coerce").astype(float),
             "Status": [status_of(r) for r in result.to_dict("records")],
         }

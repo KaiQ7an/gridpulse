@@ -76,12 +76,16 @@ def gap_to_leader(laps: pd.DataFrame) -> pd.DataFrame:
     return out.reset_index(drop=True)
 
 
-def timing_tower(laps: pd.DataFrame, lap: int, retired: set[str] = frozenset()) -> pd.DataFrame:
+def timing_tower(
+    laps: pd.DataFrame, lap: int, retired: set[str] = frozenset(), entrants: pd.DataFrame | None = None
+) -> pd.DataFrame:
     """Running order, gaps and tyres as each driver completes `lap`.
 
     Drivers who completed `lap` are ordered by when they crossed the line.
     Anyone who never completes it is either out of the race (in `retired`) or
-    lapped, and is placed behind by laps completed.
+    lapped, and is placed behind by laps completed. `entrants` (Driver, Team)
+    adds anyone who never completed a lap at all, such as a first-lap
+    retirement, at the bottom.
     """
     timed = laps.dropna(subset=["Time"])
     timed = timed[timed["LapNumber"] <= lap]
@@ -89,6 +93,16 @@ def timing_tower(laps: pd.DataFrame, lap: int, retired: set[str] = frozenset()) 
     leader_time = lead.get(lap, pd.NaT)  # NaT if the feed is missing this lap
 
     latest = timed.sort_values("LapNumber").groupby("Driver").tail(1).copy()
+    if entrants is not None:
+        absent = entrants[~entrants["Driver"].isin(latest["Driver"])]
+        if not absent.empty:
+            # Grow the frame with empty rows (each column keeps its own dtype) and fill in who they are.
+            n = len(latest)
+            latest = latest.reset_index(drop=True).reindex(range(n + len(absent)))
+            latest.loc[n:, "Driver"] = absent["Driver"].values
+            latest.loc[n:, "Team"] = absent["Team"].values
+            latest.loc[n:, "LapNumber"] = 0.0
+            retired = set(retired) | set(absent["Driver"])
     latest["Out"] = (latest["LapNumber"] < lap) & latest["Driver"].isin(retired)
 
     # Laps down: how many more laps the leader had finished when this driver

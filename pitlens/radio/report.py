@@ -6,6 +6,7 @@ import fastf1
 import pandas as pd
 
 from pitlens.pitwall.data import load_race
+from pitlens.radio import transcribe
 from pitlens.radio.clips import download, team_radio
 from pitlens.session import OUTPUT_DIR, load_session
 
@@ -16,6 +17,8 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--session", default="R", help="Session, e.g. R, Q, S (default race)")
     parser.add_argument("--drivers", nargs="+", metavar="DRV", help="Only these drivers, e.g. NOR PIA")
     parser.add_argument("--download", action="store_true", help="Save the mp3s to outputs/radio/")
+    parser.add_argument("--transcribe", action="store_true", help="Turn each clip into text with a local Whisper model")
+    parser.add_argument("--model", default="small.en", help="Whisper model for --transcribe (e.g. base.en, small.en)")
 
 
 def run(args: argparse.Namespace) -> None:
@@ -32,9 +35,20 @@ def run(args: argparse.Namespace) -> None:
         clips = clips[clips["Driver"].isin([d.upper() for d in args.drivers])]
 
     print(f"\n{name}: {len(clips)} team radio clips\n")
+    model = None
+    if args.transcribe:
+        if not transcribe.available():
+            raise SystemExit('Transcription needs the speech model: pip install -e ".[transcribe]"')
+        print(f"Loading Whisper ({args.model}); the first run downloads it...")
+        model = transcribe.Transcriber(args.model)
+    first_names = race.first_names if args.session == "R" else {}
+
     for c in clips.itertuples():
         lap = f"lap {int(c.Lap):>2}" if pd.notna(c.Lap) else "  –   "
-        print(f"{lap}  {c.Driver}  {c.Url}")
+        if model:
+            print(f"{lap}  {c.Driver}  {model.transcribe(c.Url, first_names.get(c.Driver))}")
+        else:
+            print(f"{lap}  {c.Driver}  {c.Url}")
 
     if args.download and len(clips):
         folder = OUTPUT_DIR / "radio" / name.lower().replace(" ", "_")

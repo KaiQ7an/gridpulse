@@ -49,13 +49,15 @@ falling away, with the cleaning rules written down and tested.
 - **Gaps** (the race trace): seconds behind the leader for every car, focus drivers in team colours.
 - **Positions**, **tyre stints** in running order, **degradation so far** for the focus drivers,
   **clean-lap pace** by compound, and race control **messages** up to the current lap.
-- Track status, track temperature and rain at the current lap; safety car and VSC laps shaded.
+- Track status, fastest lap and fastest sectors so far (in purple, with team colours), track
+  temperature and rain at the current lap; safety car and VSC laps shaded.
 - **Race feed**: what happened lap by lap (pit stops, passes on track, new fastest laps, safety
   cars, retirements, the finish) with a one-line state of the race on top.
 - **Strategy**: the typical pit loss, where each car would rejoin if it pitted at the end of this
   lap, and every undercut and overcut so far with its outcome.
 - **Radio**: team radio clips up to the current lap, playable in the page, with a microphone in
-  the timing tower when a driver's clip comes in.
+  the timing tower when a driver's clip comes in. One click turns the clips into text with a
+  local Whisper model; transcribed radio also appears as quotes in the race feed.
 
 **`onboard`: fastest-lap telemetry comparison** (available now)
 
@@ -187,6 +189,18 @@ undercut failed.
 Lists each clip with its lap and audio link. Add `--download` to save the mp3s into
 `outputs/radio/`, or `--session Q` for qualifying.
 
+To turn radio into text, install the optional speech model once, then add `--transcribe`:
+
+```bash
+.venv/bin/pip install -e ".[transcribe]"
+.venv/bin/python -m pitlens radio --year 2026 --event Singapore --drivers VER --transcribe
+```
+
+Transcription runs [faster-whisper](https://github.com/SYSTRAN/faster-whisper) (`small.en`) on your
+own computer: about a second per clip, no account or API key, and every transcript is cached.
+The prompt names the driver on the clip plus F1 jargon, which fixes most names ("Lando", not
+"Landa"). Radio is noisy, so expect the odd misheard word.
+
 ## Tyre analysis
 
 ```bash
@@ -246,6 +260,7 @@ pitlens/
 │   └── report.py      the `undercut` command (HTML report)
 ├── radio/
 │   ├── clips.py       team radio from the F1 archive, matched to laps
+│   ├── transcribe.py  local Whisper transcription with an F1 prompt, cached
 │   └── report.py      the `radio` command
 ├── sources/
 │   └── openf1.py      OpenF1 fallback, reshaped into FastF1's columns

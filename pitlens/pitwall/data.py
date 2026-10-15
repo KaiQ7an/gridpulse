@@ -42,8 +42,10 @@ class RaceData:
     events: pd.DataFrame  # race feed: pits, passes, fastest laps, safety cars
     lap_status: pd.Series  # track status per lap: Green, Yellow, Safety car, VSC, Red flag
     team_colors: dict[str, str]  # driver -> "#rrggbb"
+    first_names: dict[str, str]  # driver -> first name, e.g. "VER" -> "Max"
     finish_order: list[str]
     retired: set[str]
+    entrants: pd.DataFrame  # Driver, Team for everyone who started, even without a completed lap
 
 
 def completed_races(year: int) -> pd.DataFrame:
@@ -112,6 +114,7 @@ def build_race(year: int, round_number: int, parts: dict) -> RaceData:
 
     stops = pit_stops(laps)
     retired = retired_drivers(results)
+    entrants = pd.DataFrame({"Driver": results["Abbreviation"], "Team": results["TeamName"]}).dropna(subset=["Driver"])
     return RaceData(
         name=f"{year} {parts['event_name']}",
         event_name=parts["event_name"],
@@ -133,9 +136,11 @@ def build_race(year: int, round_number: int, parts: dict) -> RaceData:
         pit_loss=pit_loss(stops),
         pit_loss_ref=openf1.circuit_pit_loss(parts["circuit_key"], year) if parts.get("circuit_key") else None,
         radio=parts["radio"],
-        events=race_events(laps, retired, total_laps),
+        events=race_events(laps, retired, total_laps, entrants),
         lap_status=lap_status(laps),
         team_colors=colors,
+        first_names=dict(zip(results["Abbreviation"], results["FirstName"])) if "FirstName" in results else {},
         finish_order=results["Abbreviation"].tolist(),
         retired=retired,
+        entrants=entrants,
     )

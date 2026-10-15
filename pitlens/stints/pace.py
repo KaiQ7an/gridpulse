@@ -16,6 +16,13 @@ DEFAULT_FUEL_EFFECT_S_PER_LAP = 0.06
 MIN_LAPS_FOR_FIT = 5
 
 
+def plausible(laps: pd.DataFrame, floor: float = 0.85) -> pd.DataFrame:
+    """Drop lap times too quick to be real (data glitches, e.g. a 55 s lap where 1:18 is normal)."""
+    times = laps["LapTime"]
+    seconds = times.dt.total_seconds() if pd.api.types.is_timedelta64_dtype(times) else times
+    return laps[~(seconds < floor * seconds.median())]
+
+
 def clean_race_laps(laps, drivers: list[str] | None = None) -> pd.DataFrame:
     """Return representative race laps as a tidy DataFrame.
 
@@ -35,6 +42,7 @@ def clean_race_laps(laps, drivers: list[str] | None = None) -> pd.DataFrame:
         & (laps["IsAccurate"] == True)  # noqa: E712 (column may hold NaN)
         & (laps["LapNumber"] > 1)
     ].dropna(subset=["Stint"])
+    laps = plausible(laps.dropna(subset=["LapTime"]))
 
     df = pd.DataFrame(
         {

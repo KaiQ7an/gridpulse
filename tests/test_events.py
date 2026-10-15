@@ -63,7 +63,28 @@ def test_neutralised_banner_counts_laps_under_the_same_status():
 def test_laps_under_safety_car_or_in_the_pits_cannot_be_fastest():
     from pitlens.pitwall.events import fastest_lap_candidates
 
-    laps = pd.DataFrame(car("A", [80, 70, 79, 75], pit_in=4, status={2: "4"}))
+    laps = pd.DataFrame(car("A", [80, 70, 79, 81, 40, 75], pit_in=6, status={2: "4"}))
     laps["PitOutTime"] = pd.NaT
     fast = fastest_lap_candidates(laps)
-    assert fast["LapNumber"].tolist() == [1, 3]  # lap 2 under SC, lap 4 an in-lap
+    # lap 1 from the grid, lap 2 under SC, lap 5 a 40 s data glitch, lap 6 an in-lap
+    assert fast["LapNumber"].tolist() == [3, 4]
+
+
+def test_tower_lists_a_first_lap_retirement():
+    laps = make_race()
+    entrants = pd.DataFrame({"Driver": ["A", "B", "C", "D", "E"], "Team": ["T"] * 5})
+    tower = timing_tower(laps, 6, {"D"}, entrants)
+    assert tower["Driver"].tolist()[-1] == "E"
+    assert tower.set_index("Driver").loc["E", "Gap"] == "OUT"
+
+
+def test_fastest_sectors():
+    from pitlens.pitwall.events import fastest_sectors
+
+    laps = pd.DataFrame(car("A", [80, 80, 80]) + car("B", [80, 80, 80]))
+    sectors = {("A", 2): (25.0, 30.0, 25.0), ("A", 3): (26.0, 29.0, 25.0), ("B", 2): (24.5, 30.5, 25.2),
+               ("B", 3): (5.0, 31.0, 24.9), ("A", 1): (20.0, 20.0, 20.0)}  # B lap 3 S1 is a glitch, lap 1 ignored
+    for i, name in enumerate(("Sector1Time", "Sector2Time", "Sector3Time")):
+        laps[name] = [pd.to_timedelta(sectors.get((d, n), (30, 30, 30))[i], unit="s")
+                      for d, n in zip(laps["Driver"], laps["LapNumber"])]
+    assert fastest_sectors(laps) == [("B", 24.5, 2), ("A", 29.0, 3), ("B", 24.9, 3)]

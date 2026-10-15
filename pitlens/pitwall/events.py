@@ -7,13 +7,15 @@ before, so it works the same for a replay or a live feed.
 import pandas as pd
 
 from pitlens.pitwall.timing import format_lap_time, timing_tower, track_status
+from pitlens.stints.pace import plausible
 
 NEUTRAL = {"Safety car": "Safety car", "VSC": "Virtual safety car", "Red flag": "Red flag"}
 TOP = 10  # only passes for points-paying positions, so the feed stays readable
 
 
 def fastest_lap_candidates(laps: pd.DataFrame) -> pd.DataFrame:
-    """Laps that can count as a fastest lap: timed, not deleted, no pit lane, no SC/VSC/red flag."""
+    """Laps that can count as a fastest lap: timed, not lap 1, not deleted, no pit lane, no SC/VSC/red
+    flag, and not implausibly quick."""
     timed = laps.dropna(subset=["LapTime"])
     if "Deleted" in timed:
         timed = timed[timed["Deleted"] != True]  # noqa: E712 (column holds True/False/NaN)
@@ -21,7 +23,26 @@ def fastest_lap_candidates(laps: pd.DataFrame) -> pd.DataFrame:
         if col in timed:
             timed = timed[timed[col].isna()]
     neutral = timed["TrackStatus"].astype(str).str.contains("[4567]", regex=True)
-    return timed[~neutral]
+    # Lap 1 starts from the grid, so it's never representative.
+    return plausible(timed[~neutral & (timed["LapNumber"] > 1)])
+
+
+def fastest_sectors(laps: pd.DataFrame) -> list[tuple[str, float, int] | None]:
+    """Best sector 1, 2 and 3 so far as (driver, seconds, lap), from laps that could count as fast."""
+    candidates = fastest_lap_candidates(laps)
+    out = []
+    for col in ("Sector1Time", "Sector2Time", "Sector3Time"):
+        if col not in candidates:
+            out.append(None)
+            continue
+        secs = candidates[col].dt.total_seconds()
+        ok = candidates[secs >= 0.85 * secs.median()].dropna(subset=[col])  # drop glitches, as for laps
+        if ok.empty:
+            out.append(None)
+            continue
+        best = ok.loc[ok[col].idxmin()]
+        out.append((best["Driver"], best[col].total_seconds(), int(best["LapNumber"])))
+    return out
 
 
 def lap_status(laps: pd.DataFrame) -> pd.Series:
@@ -32,7 +53,7 @@ def lap_status(laps: pd.DataFrame) -> pd.Series:
     return s.replace({"VSC ending": "VSC"})
 
 
-def race_events(laps: pd.DataFrame, retired: set[str], total_laps: int) -> pd.DataFrame:
+def race_events(laps: pd.DataFrame, retired: set[str], total_laps: int, entrants: pd.DataFrame | None = None) -> pd.DataFrame:
     rows = []
     status = lap_status(laps)
     timed = fastest_lap_candidates(laps)
@@ -42,7 +63,7 @@ def race_events(laps: pd.DataFrame, retired: set[str], total_laps: int) -> pd.Da
     for lap in range(1, total_laps + 1):
         if lap not in laps["LapNumber"].values:
             continue
-        tower = timing_tower(laps, lap, retired)
+        tower = timing_tower(laps, lap, retired, entrants)
         pos = tower.set_index("Driver")
 
         # Track status changes
@@ -64,14 +85,18 @@ def race_events(laps: pd.DataFrame, retired: set[str], total_laps: int) -> pd.Da
         for r in tower.itertuples():
             if r.Pit:
                 rows.append((lap, "PIT", r.Driver, f"{r.Driver} pits from P{r.Pos}"))
-        if prev is not None:
+        if prev is None:  # out before completing a single lap
+            for r in tower[tower["Out"]].itertuples():
+                rows.append((lap, "OUT", r.Driver, f"{r.Driver} retires on the opening lap"))
+        else:
             for r in tower.itertuples():
                 was_running = r.Driver in prev.index and not prev.loc[r.Driver, "Out"]
                 if r.Out and was_running:
                     rows.append((lap, "OUT", r.Driver, f"{r.Driver} retires"))
             # Passes on track: gained places on cars that didn't pit this lap or last.
             pitted = set(tower.loc[tower["Pit"], "Driver"]) | set(prev.index[prev["Pit"]])
-            changed_stint = {d for d in pos.index if d in prev.index and pos.loc[d, "Stops"] != prev.loc[d, "Stops"]}
+            stops_now, stops_before = pos["Stops"].fillna(-1), prev["Stops"].fillna(-1)
+            changed_stint = {d for d in pos.index if d in prev.index and stops_now[d] != stops_before[d]}
             for r in tower[tower["Pos"] <= TOP].itertuples():
                 d = r.Driver
                 if d not in prev.index or r.Out or prev.loc[d, "Pos"] <= r.Pos or d in pitted | changed_stint:

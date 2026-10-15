@@ -68,6 +68,10 @@ h1, h2, h3 { letter-spacing: -0.01em; }
   border-radius: 4px; }
 .pl-ev.now .txt { font-weight: 600; }
 
+/* Team radio transcript */
+.pl-quote { margin: 2px 0 6px 11px; padding: 2px 0 2px 10px; border-left: 2px solid rgba(128,128,128,0.35);
+  font-size: 0.88rem; line-height: 1.45; opacity: 0.9; font-style: italic; }
+
 /* Sidebar brand */
 .pl-brand { display: flex; align-items: center; gap: 10px; margin: 0 0 6px; }
 .pl-brand .mark { width: 8px; height: 30px; border-radius: 2px; background: #E10600; transform: skewX(-14deg); }
@@ -157,6 +161,7 @@ EVENT_TAGS = {  # kind -> (label, background, text)
     "GREEN": ("GREEN", "rgba(34,197,94,0.18)", "#16A34A"),
     "OUT": ("OUT", "rgba(128,128,128,0.22)", "inherit"),
     "FLAG": ("FINISH", "rgba(128,128,128,0.22)", "inherit"),
+    "RADIO": ("RADIO", "rgba(47,111,222,0.16)", "#2F6FDE"),
 }
 
 
@@ -172,3 +177,54 @@ def race_feed(situation: str, events, lap: int, limit: int = 9) -> None:
         )
     body = "".join(rows[:limit]) or '<div class="pl-note">Nothing yet.</div>'
     st.html(f'<div class="pl-situation">{html.escape(situation)}</div>{body}')
+
+
+def quote(text: str) -> None:
+    st.html(f'<div class="pl-quote">“{html.escape(text)}”</div>')
+
+
+BIG_FOUR = ("McLaren", "Ferrari", "Red Bull Racing", "Mercedes")
+
+
+def driver_order(entrants, finish_order: list[str]) -> list[str]:
+    """Drivers grouped by team: the big four first, then the rest by their best finisher."""
+    team_of = dict(zip(entrants["Driver"], entrants["Team"]))
+    rank = {d: i for i, d in enumerate(finish_order)}
+    teams = []
+    for d in finish_order:
+        t = team_of.get(d)
+        if t not in teams:
+            teams.append(t)
+    big = [t for t in BIG_FOUR if t in teams]
+    order = big + [t for t in teams if t not in big]
+    return sorted(team_of, key=lambda d: (order.index(team_of[d]) if team_of[d] in order else 99, rank.get(d, 99)))
+
+
+def _ink_for(hex_color: str) -> str:
+    h = hex_color.lstrip("#")
+    r, g, b = (int(h[i : i + 2], 16) for i in (0, 2, 4))
+    return "#111111" if 0.299 * r + 0.587 * g + 0.114 * b > 150 else "#ffffff"
+
+
+def team_colored_picker(label: str, options: list[str], colors: dict[str, str], teams: dict[str, str]) -> None:
+    """Colour a multiselect's chips and options by team (Streamlit can't, so CSS keyed on the DOM).
+
+    Chips carry aria-label=<driver>; options carry data-key=<index in options> inside
+    a listbox labelled with the widget's label.
+    """
+    rules = []
+    for i, d in enumerate(options):
+        c = colors.get(d, "#999999")
+        team = html.escape(teams.get(d, "") or "").replace('"', "")
+        rules.append(
+            f'[data-testid="stMultiSelectTagsContainer"] [data-tag][aria-label="{d}"] '
+            f"{{ background: {c} !important; color: {_ink_for(c)} !important; }}"
+            f'[data-testid="stMultiSelectTagsContainer"] [data-tag][aria-label="{d}"] button '
+            f"{{ color: {_ink_for(c)} !important; }}"
+            f'[role="listbox"][aria-label="{label}"] [role="option"][data-key="{i}"] [data-item-hl]::before '
+            f'{{ content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 9px; '
+            f"background: {c}; vertical-align: -1px; }}"
+            f'[role="listbox"][aria-label="{label}"] [role="option"][data-key="{i}"] [data-item-hl]::after '
+            f'{{ content: "{team}"; opacity: .5; font-size: .8em; margin-left: 8px; }}'
+        )
+    st.html("<style>" + "".join(rules) + "</style>")
