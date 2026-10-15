@@ -96,6 +96,13 @@ def plausible_lane_times(stops: pd.DataFrame) -> pd.Series:
     return stops["LaneTime"].between(0.85 * typical, 2 * typical)
 
 
+def ordinary_stationary_times(stops: pd.DataFrame) -> pd.Series:
+    """False for stationary times far longer than the race's usual stop (more than twice the median):
+    a stop-and-go penalty served, or repairs. NaN times count as ordinary."""
+    typical = stops["Stationary"].median()
+    return stops["Stationary"].isna() | (stops["Stationary"] <= 2 * typical)
+
+
 def _stop_loss(times, lap_time, pit_lap, driver: str, lap: int) -> float:
     """Seconds a stop on `lap` cost `driver` against the cars that stayed out."""
     if lap - 1 not in times.index or lap + 1 not in times.index:

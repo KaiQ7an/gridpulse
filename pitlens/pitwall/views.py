@@ -12,7 +12,13 @@ from pitlens.pitwall.data import RaceData
 from pitlens.pitwall.timing import stint_timeline
 from pitlens.radio import transcribe, translate
 from pitlens.stints.pace import stint_degradation
-from pitlens.undercut.analysis import pair_gap, pit_loss_now, plausible_lane_times, rejoin_projection
+from pitlens.undercut.analysis import (
+    ordinary_stationary_times,
+    pair_gap,
+    pit_loss_now,
+    plausible_lane_times,
+    rejoin_projection,
+)
 from pitlens.undercut.charts import battle_chart, pit_loss_chart
 
 
@@ -131,7 +137,7 @@ def short_source(loss_source: str) -> str:
 
 def pits_view(race: RaceData, lap: int, focus: list[str]) -> None:
     """Every pit stop so far: how long it took, what it cost, places lost, and the quickest crews."""
-    stops = race.stops.assign(LaneOk=plausible_lane_times(race.stops))
+    stops = race.stops.assign(LaneOk=plausible_lane_times(race.stops), StillOk=ordinary_stationary_times(race.stops))
     stops = stops[stops["Lap"] <= lap]
     still = race.stops["Stationary"].notna().any()
     status = race.lap_status.get(lap, "Green")
@@ -139,8 +145,7 @@ def pits_view(race: RaceData, lap: int, focus: list[str]) -> None:
 
     def quickest(key: str, column: str, tip: str) -> str:
         timed = stops.dropna(subset=[column])
-        if column == "LaneTime":
-            timed = timed[timed["LaneOk"]]
+        timed = timed[timed["LaneOk" if column == "LaneTime" else "StillOk"]]
         if timed.empty:
             return ui.stat(key, "–")
         best = timed.sort_values([column, "Lap"]).iloc[0]
@@ -186,7 +191,7 @@ def pits_view(race: RaceData, lap: int, focus: list[str]) -> None:
             ui.label("Quickest stops" if column == "Stationary" else "Quickest through the pit lane")
         by = st.segmented_control("Rank", ["Stops", "Teams"], key="pits_rank", required=True, default="Stops",
                                   label_visibility="collapsed")
-    ranked = stops[stops["LaneOk"]] if column == "LaneTime" else stops
+    ranked = stops[stops["LaneOk" if column == "LaneTime" else "StillOk"]]
     if by == "Teams":
         teams = dict(zip(race.entrants["Driver"], race.entrants["Team"]))
         fig = charts.team_stop_times(ranked, race.team_colors, teams, column)
@@ -197,7 +202,7 @@ def pits_view(race: RaceData, lap: int, focus: list[str]) -> None:
     ui.label("What each stop cost")
     ui.note("Time lost to each stop against the cars that stayed out, by lap. Stops under a safety car or VSC "
             "(grey) cost far less, which is why teams pit then.")
-    st.plotly_chart(pit_loss_chart(stops, race.pit_loss, race.total_laps), width="stretch", key="chart_pitloss")
+    st.plotly_chart(pit_loss_chart(stops, loss, race.total_laps), width="stretch", key="chart_pitloss")
 
 
 def strategy_view(race: RaceData, tower: pd.DataFrame, lap: int, focus: list[str]) -> None:

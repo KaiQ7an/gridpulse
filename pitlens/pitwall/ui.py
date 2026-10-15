@@ -429,8 +429,9 @@ def pit_table(stops, colors: dict[str, str], lap: int) -> None:
     """
     still = stops["Stationary"].notna().any()
     lane_ok = stops["LaneOk"] if "LaneOk" in stops else pd.Series(True, index=stops.index)
+    still_ok = stops["StillOk"] if "StillOk" in stops else pd.Series(True, index=stops.index)
     best_lane = stops.loc[lane_ok, "LaneTime"].min()
-    best_still = stops["Stationary"].min() if still else None
+    best_still = stops.loc[still_ok, "Stationary"].min() if still else None
     cls = "pl-pit" + ("" if still else " nostill")
 
     def secs(value, best, ok=True) -> str:
@@ -445,6 +446,11 @@ def pit_table(stops, colors: dict[str, str], lap: int) -> None:
                    "safety car" if pd.isna(best) or value < best else "Far longer than a normal stop: repairs, or held")
             return f'<span class="muted" title="{why}">{value:.1f}</span>'
         return f'<span class="best">{value:.1f}</span>' if value == best else f"{value:.1f}"
+
+    def stationary(value, best, ok) -> str:
+        if pd.notna(value) and not ok:
+            return f'<span class="muted" title="A long stop: a penalty served, or repairs">{value:.1f}</span>'
+        return secs(value, best)
 
     head = (f'<div class="{cls} head"><span>Lap</span><span>Driver</span><span>Tyres</span>'
             f'<span class="num">Pit lane</span>' + ('<span class="num">Stopped</span>' if still else "")
@@ -466,7 +472,7 @@ def pit_table(stops, colors: dict[str, str], lap: int) -> None:
             f'<span>{driver_dot(colors.get(s.Driver, "#999"))}<b>{html.escape(s.Driver)}</b></span>'
             f'<span>{tyre(s.From)}<span class="arrow">→</span>{tyre(s.To)}{age}</span>'
             f'<span class="num">{secs(s.LaneTime, best_lane, lane_ok[s.Index])}</span>'
-            + (f'<span class="num">{secs(s.Stationary, best_still)}</span>' if still else "")
+            + (f'<span class="num">{stationary(s.Stationary, best_still, still_ok[s.Index])}</span>' if still else "")
             + f'<span class="num">{cost}</span><span>{places}</span></div>'
         )
     st.html(f'<div class="pl-pits-wrap">{head}<div class="pl-pits">{"".join(rows)}</div></div>')

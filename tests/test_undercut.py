@@ -164,3 +164,10 @@ def test_rejoin_projection_with_no_timed_cars_is_an_empty_table():
     tower = pd.DataFrame({"Pos": [1], "Driver": ["A"], "GapSeconds": [None], "LapsDown": [0], "Out": [False]})
     proj = rejoin_projection(tower, loss=20.0)
     assert proj.empty and "Driver" in proj
+
+
+def test_long_stationary_times_are_not_ordinary_stops():
+    from pitlens.undercut.analysis import ordinary_stationary_times
+
+    stops = pd.DataFrame({"Stationary": [2.3, 2.5, 2.8, 10.4, None, 16.9]})
+    assert ordinary_stationary_times(stops).tolist() == [True, True, True, False, True, False]
