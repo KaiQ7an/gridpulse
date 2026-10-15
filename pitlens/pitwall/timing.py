@@ -68,6 +68,15 @@ def retired_drivers(results: pd.DataFrame) -> set[str]:
     return set(results.loc[~finished, "Abbreviation"])
 
 
+def disqualified(results: pd.DataFrame) -> set[str]:
+    """Drivers disqualified from the race (they take the flag but aren't classified)."""
+    status = results.get("Status", pd.Series("", index=results.index)).fillna("").str.lower()
+    dsq = status.str.contains("disqualif|dsq", regex=True)
+    if "ClassifiedPosition" in results:
+        dsq |= results["ClassifiedPosition"].astype(str).eq("D")
+    return set(results.loc[dsq, "Abbreviation"])
+
+
 def non_starters(results: pd.DataFrame) -> pd.Series:
     """True for drivers who never took the start (did not start, withdrawn)."""
     status = results["Status"].fillna("").str.lower()
@@ -187,6 +196,7 @@ def classify_finish(laps: pd.DataFrame, results: pd.DataFrame, total_laps: int) 
     position = results.dropna(subset=["Position"]).set_index("Abbreviation")["Position"]
     laps["Classified"] = laps["Driver"].map(position).astype(float)
     laps["OfficialGap"] = laps["Driver"].map(official_gaps(results)).where(laps["LapNumber"] == total_laps)
+    laps["Disqualified"] = laps["Driver"].isin(disqualified(results))
     return laps
 
 
@@ -248,13 +258,19 @@ def timing_tower(
     latest = latest.sort_values(["SortGroup", "LapNumber", "Time"], ascending=[True, False, True])
     latest = _settle_near_ties(latest).reset_index(drop=True)
     final = official and "Classified" in latest and lap >= laps["LapNumber"].max()
+    latest["Dsq"] = False
     if final:
-        # Cars still running in classified order (unclassified last); those out keep their places.
-        running = (latest["SortGroup"] == 0).to_numpy()
+        # Cars still running in classified order (unclassified last); those out keep their places;
+        # the disqualified go to the bottom.
+        if "Disqualified" in latest:
+            latest["Dsq"] = latest["Disqualified"].fillna(False).astype(bool)
+            latest.loc[latest["Dsq"], "Out"] = True
+        running = (latest["SortGroup"] == 0).to_numpy() & ~latest["Dsq"].to_numpy()
         key = np.where(running, latest["Classified"].fillna(1e6), 1e7 + np.arange(len(latest)))
+        key = np.where(latest["Dsq"].to_numpy(), 2e7 + np.arange(len(latest)), key)
         latest = latest.iloc[np.argsort(key, kind="stable")].reset_index(drop=True)
 
-    on_lap = latest["LapNumber"] == lap
+    on_lap = (latest["LapNumber"] == lap) & ~latest["Dsq"]
     if on_lap.any():
         leader_time = latest.loc[on_lap, "Time"].iloc[0]
     gaps = (latest["Time"] - leader_time).dt.total_seconds().where(on_lap)
@@ -265,6 +281,8 @@ def timing_tower(
     latest["IntervalSeconds"] = latest["GapSeconds"].diff()
 
     def gap_text(row) -> str:
+        if row["Dsq"]:
+            return "DSQ"
         if row["Out"]:
             return "OUT"
         if row.name == 0:

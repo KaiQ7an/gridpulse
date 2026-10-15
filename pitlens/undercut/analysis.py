@@ -89,10 +89,11 @@ def pit_stops(laps: pd.DataFrame, stationary: pd.DataFrame | None = None) -> pd.
 
 
 def plausible_lane_times(stops: pd.DataFrame) -> pd.Series:
-    """False for pit lane times too short for a normal trip down the pit lane (well under the race's
-    median), as when the field is sent through the pit lane behind the safety car and the timing
-    loops measure something else."""
-    return stops["LaneTime"] >= 0.85 * stops["LaneTime"].median()
+    """False for pit lane times that aren't a normal trip down the pit lane: well under the race's
+    median (the field sent through the pit lane behind the safety car, where the timing loops
+    measure something else) or more than twice it (held in the pit lane under a red flag, repairs)."""
+    typical = stops["LaneTime"].median()
+    return stops["LaneTime"].between(0.85 * typical, 2 * typical)
 
 
 def _stop_loss(times, lap_time, pit_lap, driver: str, lap: int) -> float:

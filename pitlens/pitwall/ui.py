@@ -406,9 +406,13 @@ def pit_table(stops, colors: dict[str, str], lap: int) -> None:
     def secs(value, best, ok=True) -> str:
         if pd.isna(value):
             return '<span class="muted">–</span>'
+        if value >= 100:  # cars held in the pit lane under a red flag, or repairs in the garage
+            return (f'<span class="muted" title="Held in the pit lane (red flag) or in the garage">'
+                    f"{int(value // 60)}:{value % 60:04.1f}</span>")
         if not ok:
-            return (f'<span class="muted" title="Too short for a normal trip down the pit lane, as when cars are '
-                    f'sent through it behind the safety car">{value:.1f}</span>')
+            why = ("Too short for a normal trip down the pit lane, as when cars are sent through it behind the "
+                   "safety car" if pd.isna(best) or value < best else "Far longer than a normal stop: repairs, or held")
+            return f'<span class="muted" title="{why}">{value:.1f}</span>'
         return f'<span class="best">{value:.1f}</span>' if value == best else f"{value:.1f}"
 
     head = (f'<div class="{cls} head"><span>Lap</span><span>Driver</span><span>Tyres</span>'
@@ -419,7 +423,8 @@ def pit_table(stops, colors: dict[str, str], lap: int) -> None:
         pending = s.Lap + 1 > lap  # out-lap not finished yet
         flag, flag_cls = FLAG_TAGS.get(s.Status, ("", ""))
         flag_html = f'<span class="flag{flag_cls}">{flag}</span>' if flag else ""
-        age = f'<span class="age">{int(s.TyreAge)} laps</span>' if pd.notna(s.TyreAge) else ""
+        age = (f'<span class="age">{int(s.TyreAge)} lap{"" if int(s.TyreAge) == 1 else "s"}</span>'
+               if pd.notna(s.TyreAge) else "")
         cost = ('<span class="muted">…</span>' if pending else
                 '<span class="muted">–</span>' if pd.isna(s.Loss) else
                 f'<span class="muted" title="Rough: under a safety car or VSC">{s.Loss:.1f}</span>'

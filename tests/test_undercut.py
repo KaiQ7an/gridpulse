@@ -156,5 +156,5 @@ def test_drive_through_on_the_same_tyres_is_not_a_stop(undercut_race):
 def test_implausibly_short_pit_lane_times():
     from pitlens.undercut.analysis import plausible_lane_times
 
-    stops = pd.DataFrame({"LaneTime": [20.6, 20.9, 21.3, 15.1, 23.6]})
-    assert plausible_lane_times(stops).tolist() == [True, True, True, False, True]
+    stops = pd.DataFrame({"LaneTime": [20.6, 20.9, 21.3, 15.1, 23.6, 2154.1]})
+    assert plausible_lane_times(stops).tolist() == [True, True, True, False, True, False]

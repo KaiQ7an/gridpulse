@@ -133,6 +133,9 @@ def race_events(laps: pd.DataFrame, retired: set[str], total_laps: int, entrants
             if r.Driver in crossed and r.Pos > crossed[r.Driver]:
                 rows.append((total_laps, "FLAG", r.Driver,
                              f"{r.Driver} classified P{r.Pos}, crossed the line P{crossed[r.Driver]}"))
+        for r in final[final["Gap"] == "DSQ"].itertuples():
+            where = f", crossed the line P{crossed[r.Driver]}" if r.Driver in crossed else ""
+            rows.append((total_laps, "FLAG", r.Driver, f"{r.Driver} disqualified{where}"))
     return pd.DataFrame(rows, columns=["Lap", "Kind", "Driver", "Text"])
 
 

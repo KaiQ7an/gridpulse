@@ -369,7 +369,9 @@ Azerbaijan Grand Prix OpenF1's lap times put Verstappen 0.003 s ahead at the fla
 won by 0.196 s. So the final lap shows the official classification and its gaps, and cars
 crossing the line within half a second of each other mid-race are ordered by the timing feed's
 running position. Where a penalty after the flag changed the result, the race feed says so
-("COL classified P10, crossed the line P8") rather than inventing a last-lap pass.
+("COL classified P10, crossed the line P8") rather than inventing a last-lap pass, and
+disqualified cars drop to the bottom of the tower marked DSQ. When OpenF1 has no time for the
+last lap (it had none in the 2026 Australian Grand Prix), the finish is rebuilt from the result.
 
 OpenF1 records a pit stop on the lap it was made. That's the in-lap where the pit boxes come
 before the timing line, but the out-lap where the pit lane crosses it (Montreal, Melbourne);

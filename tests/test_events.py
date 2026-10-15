@@ -115,3 +115,18 @@ def test_penalty_after_the_flag_is_a_classification_note_not_a_pass():
     assert not any("passes A" in t for t in events.loc[events["Lap"] == 6, "Text"])
     final = timing_tower(laps, 6, {"D"})
     assert final["Driver"].tolist()[:3] == ["B", "C", "A"]
+
+
+def test_disqualified_drivers_drop_to_the_bottom_marked_dsq():
+    from pitlens.pitwall.timing import classify_finish
+
+    results = pd.DataFrame({"Abbreviation": ["A", "C", "B", "D"], "Position": [1.0, 2.0, None, None],
+                            "GapToLeader": [0.0, None, None, None],
+                            "Status": ["Finished", "Finished", "Disqualified", "Retired"]})
+    laps = classify_finish(make_race(), results, total_laps=6)
+    final = timing_tower(laps, 6, {"D", "B"})
+    assert final["Driver"].tolist() == ["A", "C", "D", "B"]
+    assert final.set_index("Driver").loc["B", "Gap"] == "DSQ"
+    texts = race_events(laps, retired={"D", "B"}, total_laps=6)["Text"].tolist()
+    assert "B disqualified, crossed the line P1" in texts
+    assert texts[-2].startswith("A wins by")
