@@ -351,7 +351,7 @@ def timing_tower(
 def stops_made(latest: pd.DataFrame, lap: int, stops: pd.DataFrame | None) -> pd.Series:
     """Stops each car has made by the end of `lap`: from the stop list where there is one (OpenF1's
     tyre stints miss some stops), else from the stint number."""
-    if stops is None:
+    if stops is None or stops.empty:
         return (latest["Stint"] - 1).astype("Int64").reset_index(drop=True)
     done = stops[stops["Lap"] < lap].groupby("Driver").size()
     return latest["Driver"].map(done).fillna(0).astype("Int64").reset_index(drop=True)

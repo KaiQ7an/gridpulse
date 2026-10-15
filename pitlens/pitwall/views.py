@@ -191,13 +191,16 @@ def pits_view(race: RaceData, lap: int, focus: list[str]) -> None:
             ui.label("Quickest stops" if column == "Stationary" else "Quickest through the pit lane")
         by = st.segmented_control("Rank", ["Stops", "Teams"], key="pits_rank", required=True, default="Stops",
                                   label_visibility="collapsed")
-    ranked = stops[stops["LaneOk" if column == "LaneTime" else "StillOk"]]
-    if by == "Teams":
+    ranked = stops[stops["LaneOk" if column == "LaneTime" else "StillOk"]].dropna(subset=[column])
+    if ranked.empty:
+        ui.note(f"{race.source} has no pit lane times for this race, only which lap each car stopped on.")
+    elif by == "Teams":
         teams = dict(zip(race.entrants["Driver"], race.entrants["Team"]))
         fig = charts.team_stop_times(ranked, race.team_colors, teams, column)
     else:
         fig = charts.quickest_stops(ranked, race.team_colors, column)
-    st.plotly_chart(fig, width="stretch", key="chart_pit_rank", config={"displayModeBar": False})
+    if not ranked.empty:
+        st.plotly_chart(fig, width="stretch", key="chart_pit_rank", config={"displayModeBar": False})
 
     ui.label("What each stop cost")
     ui.note("Time lost to each stop against the cars that stayed out, by lap. Stops under a safety car or VSC "

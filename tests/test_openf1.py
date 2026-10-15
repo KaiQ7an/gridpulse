@@ -83,3 +83,14 @@ def test_stop_lap_is_the_in_lap_where_the_pit_lane_crosses_the_line():
     pits = pd.DataFrame({"driver_number": [55, 1, 81], "lap_number": [20, 2, 1]})
     stints = pd.DataFrame({"driver_number": [55, 55, 1, 1, 81, 81], "lap_start": [1, 21, 1, 2, 1, 12]})
     assert in_laps(pits, stints).tolist() == [20, 1, 0]  # 0: started from the pit lane
+
+
+def test_stops_from_stints_when_there_are_no_pit_records():
+    from pitlens.sources.openf1 import pits_from_stints
+
+    stints = pd.DataFrame({"driver_number": [1, 1, 44], "stint_number": [1, 2, 1], "lap_start": [1, 15, 1]})
+    laps = pd.DataFrame({"driver_number": [1, 1], "lap_number": [14, 15],
+                         "date_start": ["2023-03-05T15:40:00+00:00", "2023-03-05T15:41:40+00:00"]})
+    pits = pits_from_stints(stints, laps)
+    assert pits[["driver_number", "lap_number", "date"]].values.tolist() == [[1, 14, "2023-03-05T15:41:40+00:00"]]
+    assert pits["lane_duration"].isna().all()

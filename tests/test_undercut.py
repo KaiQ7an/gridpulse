@@ -171,3 +171,18 @@ def test_long_stationary_times_are_not_ordinary_stops():
 
     stops = pd.DataFrame({"Stationary": [2.3, 2.5, 2.8, 10.4, None, 16.9]})
     assert ordinary_stationary_times(stops).tolist() == [True, True, True, False, True, False]
+
+
+def test_race_without_any_pit_records(undercut_race):
+    laps = undercut_race.assign(PitInTime=pd.NaT, PitOutTime=pd.NaT)
+    assert pit_stops(laps).empty
+
+
+def test_stop_without_a_pit_lane_time(undercut_race):
+    # Worked out from tyre stints alone: in and out times coincide, so the pit lane time is unknown.
+    laps = undercut_race.copy()
+    a_out = (laps["Driver"] == "A") & (laps["LapNumber"] == 11)
+    a_in = (laps["Driver"] == "A") & (laps["LapNumber"] == 10)
+    laps.loc[a_out, "PitOutTime"] = laps.loc[a_in, "PitInTime"].values
+    stop = pit_stops(laps).set_index("Driver").loc["A"]
+    assert pd.isna(stop["LaneTime"]) and stop["Loss"] == pytest.approx(21.0)

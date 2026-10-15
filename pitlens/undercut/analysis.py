@@ -43,12 +43,10 @@ def pit_stops(laps: pd.DataFrame, stationary: pd.DataFrame | None = None) -> pd.
     """
     times = _lap_times(laps)
     lap_time = times.diff()  # crossing-to-crossing lap times, s
-    pitted = laps.pivot_table(
-        index="LapNumber", columns="Driver", values=["PitInTime", "PitOutTime"], aggfunc="first"
-    ).notna()
-    pit_lap = (pitted["PitInTime"] | pitted["PitOutTime"]).reindex(
-        index=times.index, columns=times.columns, fill_value=False
-    ).astype(bool)
+    in_pits = laps.assign(InPits=laps["PitInTime"].notna() | laps["PitOutTime"].notna())
+    pit_lap = in_pits.pivot_table(index="LapNumber", columns="Driver", values="InPits", aggfunc="max").reindex(
+        index=times.index, columns=times.columns
+    ).eq(True)  # missing laps count as not in the pits
 
     still = {} if stationary is None or stationary.empty else \
         stationary.set_index(["Driver", "Lap"])["Stationary"].to_dict()
@@ -69,7 +67,7 @@ def pit_stops(laps: pd.DataFrame, stationary: pd.DataFrame | None = None) -> pd.
                 {
                     "Driver": driver,
                     "Lap": int(lap),
-                    "LaneTime": round((outlap["PitOutTime"] - inlap["PitInTime"]).total_seconds(), 1),
+                    "LaneTime": lane_seconds(outlap["PitOutTime"] - inlap["PitInTime"]),
                     "Stationary": still.get((driver, int(lap)), np.nan),
                     "From": inlap["Compound"],
                     "To": outlap["Compound"],
@@ -86,6 +84,13 @@ def pit_stops(laps: pd.DataFrame, stationary: pd.DataFrame | None = None) -> pd.
     out = pd.DataFrame(rows, columns=STOP_COLUMNS).sort_values(["Lap", "Driver"]).reset_index(drop=True)
     out[["PosBefore", "PosAfter"]] = out[["PosBefore", "PosAfter"]].astype("Int64")
     return out
+
+
+def lane_seconds(lane: pd.Timedelta) -> float:
+    """Pit entry to exit in seconds; NaN where it isn't known (a stop worked out from tyre stints alone
+    carries no pit lane time, which shows up as zero)."""
+    seconds = lane.total_seconds() if pd.notna(lane) else np.nan
+    return round(seconds, 1) if seconds > 0 else np.nan
 
 
 def plausible_lane_times(stops: pd.DataFrame) -> pd.Series:

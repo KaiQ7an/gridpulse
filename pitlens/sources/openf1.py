@@ -132,6 +132,24 @@ def track_status_by_lap(race_control: pd.DataFrame, total_laps: int) -> dict[int
     return out
 
 
+def pits_from_stints(stints: pd.DataFrame, laps: pd.DataFrame) -> pd.DataFrame:
+    """Pit stops implied by tyre stints, for races OpenF1 has no pit records for (early 2023): one at the
+    end of the lap before each new stint, timed at the start of the stint's first lap. Pit lane and
+    stationary times stay unknown. `stints` merged, `laps` OpenF1's laps."""
+    starts = laps.set_index(["driver_number", "lap_number"])["date_start"]
+    rows = []
+    for st in stints.itertuples():
+        if st.stint_number == 1 or st.lap_start <= 1:
+            continue
+        when = starts.get((st.driver_number, st.lap_start))
+        if when is None or pd.isna(when):
+            continue
+        rows.append({"driver_number": st.driver_number, "lap_number": st.lap_start - 1, "date": when,
+                     "lane_duration": np.nan, "pit_duration": np.nan, "stop_duration": np.nan})
+    return pd.DataFrame(rows, columns=["driver_number", "lap_number", "date", "lane_duration", "pit_duration",
+                                       "stop_duration"])
+
+
 def in_laps(pits: pd.DataFrame, stints: pd.DataFrame) -> pd.Series:
     """The in-lap of each pit stop.
 
@@ -230,6 +248,8 @@ def race_parts(year: int, race_date_utc, session_name: str = "Race") -> dict:
     stints = merge_continuing_stints(stints)
     out["PitInTime"] = pd.Series(pd.NaT, index=out.index, dtype="timedelta64[ns]")
     out["PitOutTime"] = pd.Series(pd.NaT, index=out.index, dtype="timedelta64[ns]")
+    if pits.empty and not stints.empty:
+        pits = pits_from_stints(stints, laps)  # OpenF1 has no pit data for some races (early 2023)
     if not pits.empty:
         pits["in_lap"] = in_laps(pits, stints)
     for p in pits.itertuples() if not pits.empty else []:
