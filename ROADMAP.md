@@ -20,11 +20,14 @@ pace, tyres and strategy as the race unfolds. It is built in layers, each useful
 - [ ] Braking points and throttle application per corner
 - [ ] Compare a driver's laps across a stint, not only the fastest
 
-## 3. `undercut`: pit-stop strategy explorer
+## 3. `undercut`: pit-stop strategy explorer (done)
 
-- [ ] Stint timeline per driver (compound and length)
-- [ ] Pit-loss estimate per circuit from the data
-- [ ] Gap before and after each stop to judge whether an undercut or overcut worked
+- [x] Every stop with pit lane time, tyres and its cost against the cars that stayed out
+- [x] Typical green-flag pit loss per race
+- [x] Undercut and overcut battles with before/after gaps and a verdict
+- [x] Rejoin projection: where a car comes out if it pits now
+- [ ] Pit loss from previous years at the circuit, so live projections don't need this race's stops
+- [ ] Tyre-offset model: when does a fresher tyre catch the car ahead
 
 ## 4. `pitwall`: race-day dashboard with replay (done)
 

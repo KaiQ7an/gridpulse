@@ -5,6 +5,7 @@ import argparse
 from pitlens.onboard import report as onboard_report
 from pitlens.pitwall import serve as pitwall_serve
 from pitlens.stints import report as stints_report
+from pitlens.undercut import report as undercut_report
 
 
 def main(argv: list[str] | None = None) -> None:
@@ -18,6 +19,10 @@ def main(argv: list[str] | None = None) -> None:
     onboard = modules.add_parser("onboard", help="Compare two drivers' fastest laps (telemetry)")
     onboard_report.add_arguments(onboard)
     onboard.set_defaults(run=onboard_report.run)
+
+    undercut = modules.add_parser("undercut", help="Pit stops, pit loss and undercut battles for one race")
+    undercut_report.add_arguments(undercut)
+    undercut.set_defaults(run=undercut_report.run)
 
     pitwall = modules.add_parser("pitwall", help="Race-day dashboard in the browser (replay any race)")
     pitwall_serve.add_arguments(pitwall)

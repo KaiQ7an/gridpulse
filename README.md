@@ -13,7 +13,7 @@ the same questions a strategy desk asks on a Sunday afternoon.
 ![Streamlit](https://img.shields.io/badge/dashboard-Streamlit-FF4B4B?logo=streamlit&logoColor=white)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-[Quick start](#quick-start) · [Pit wall](#pit-wall) · [Onboard](#onboard) · [Tyre analysis](#tyre-analysis) · [How it works](#how-it-works) · [Roadmap](ROADMAP.md)
+[Quick start](#quick-start) · [Pit wall](#pit-wall) · [Onboard](#onboard) · [Strategy](#strategy) · [Tyre analysis](#tyre-analysis) · [How it works](#how-it-works) · [Roadmap](ROADMAP.md)
 
 </div>
 
@@ -47,6 +47,8 @@ falling away, with the cleaning rules written down and tested.
 - **Positions**, **tyre stints** in running order, **degradation so far** for the focus drivers,
   **clean-lap pace** by compound, and **race control messages** up to the current lap.
 - Track status, track temperature and rain at the current lap; safety car and VSC laps shaded.
+- **Strategy**: the typical pit loss, where each car would rejoin if it pitted at the end of this
+  lap, and every undercut and overcut so far with its outcome.
 
 **`onboard`: fastest-lap telemetry comparison** (available now)
 
@@ -56,6 +58,15 @@ falling away, with the cleaning rules written down and tested.
 - A track map coloured by who was faster in each of 25 mini-sectors, and a corner-by-corner
   table of minimum speeds and time gained.
 - A page in the pit wall, or an HTML report from the command line.
+
+**`undercut`: pit stops and strategy** (available now)
+
+- Every stop with its pit lane time, tyres and the time it really cost, measured against the cars
+  that stayed out on the same laps, so stops under a safety car or VSC are judged fairly.
+- The circuit's typical green-flag pit loss.
+- Undercut and overcut battles: two cars within 3.5 s, one pits and the other answers within six
+  laps. The gap before and after both stops says whether it worked.
+- A rejoin projection: if a car pits now, which position it comes out in and who it's next to.
 
 **`stints`: race pace and tyre degradation report** (available now)
 
@@ -67,7 +78,6 @@ falling away, with the cleaning rules written down and tested.
 
 **Planned** (see the [roadmap](ROADMAP.md))
 
-- `undercut`: pit-loss estimates and whether each undercut or overcut worked.
 - `radio`: team radio clips linked to the lap they were sent on.
 - A live mode for the pit wall on race day.
 
@@ -128,6 +138,31 @@ In the pit wall, open **Onboard** in the sidebar. From the command line:
 
 The report is a self-contained HTML file in `outputs/onboard/`, plus the corner table as CSV.
 
+## Strategy
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/images/strategy_dark.png">
+    <img src="docs/images/strategy_light.png" alt="Strategy view: pit loss, rejoin projection and undercut battles" width="900">
+  </picture>
+</p>
+
+In the pit wall, pick **Strategy** above the charts. From the command line:
+
+```bash
+.venv/bin/python -m pitlens undercut --year 2025 --event Hungary --open
+```
+
+In the 2025 Hungarian Grand Prix the typical stop cost 20.2 s. Piastri pitted on lap 18, 2.5 s
+behind Leclerc, and Leclerc answered a lap later: Piastri gained 1.3 s but stayed behind, so the
+undercut failed.
+
+| Option | Default | Meaning |
+|---|---|---|
+| `--year`, `--event` | `2025`, `Hungary` | Which race |
+| `--max-gap` | `3.5` | Cars within this many seconds count as a battle |
+| `--open` | off | Open the HTML report when done (macOS) |
+
 ## Tyre analysis
 
 ```bash
@@ -181,6 +216,11 @@ pitlens/
 │   ├── data.py        fastest laps with telemetry and circuit info
 │   ├── charts.py      telemetry stack and track dominance map
 │   └── report.py      the `onboard` command (HTML report)
+├── undercut/
+│   ├── analysis.py    pit stops, pit loss, undercut battles, rejoin projection
+│   ├── charts.py      battle gap chart and pit-loss chart
+│   └── report.py      the `undercut` command (HTML report)
+├── htmlreport.py      self-contained HTML reports shared by the commands
 ├── pitwall/
 │   ├── data.py        one race as plain DataFrames (laps, results, weather, messages)
 │   ├── timing.py      timing tower, gaps, track status and stints at any lap
@@ -213,6 +253,10 @@ tests/                 unit tests on synthetic races, run in CI
   positions to the nearest point of the first car's path, smoothing the correction because single
   GPS points are only good to a few metres. The gap trace then agrees with the official sector
   splits.
+- **Pit loss.** A stop's cost is its in-lap plus out-lap minus the same two laps for the cars that
+  stayed out, corrected by how much faster or slower this car was than them on the laps before.
+  Comparing with the field on the same laps cancels out safety cars, VSCs and the track getting
+  quicker, which a comparison with the car's own earlier laps would not.
 
 Run the tests with `.venv/bin/pip install -r requirements-dev.txt && .venv/bin/python -m pytest`.
 

@@ -11,9 +11,11 @@ from pitlens.pitwall.data import FIRST_SEASON, RaceData, completed_races, load_r
 from pitlens.pitwall.timing import neutralised_periods, stint_timeline, timing_tower, track_status
 from pitlens.pitwall.tower import timing_tower as tower_component
 from pitlens.stints.pace import stint_degradation
+from pitlens.undercut.analysis import pair_gap, rejoin_projection
+from pitlens.undercut.charts import battle_chart, pit_loss_chart
 
 SPEEDS = {"Slow · 2 s per lap": 2.0, "Normal · 1 s per lap": 1.0, "Fast · 0.5 s per lap": 0.5}
-VIEWS = ["Race trace", "Positions", "Tyres", "Pace", "Race control"]
+VIEWS = ["Race trace", "Positions", "Tyres", "Strategy", "Pace", "Race control"]
 
 # Streamlit dims elements while a rerun is in flight; during a replay that is
 # every tick, which reads as stutter. Keep them at full opacity instead.
@@ -144,6 +146,8 @@ def race_view(race: RaceData, interval: float | None) -> None:
                 st.plotly_chart(charts.degradation_chart(deg), width="stretch", key="chart_deg")
                 with st.expander("Table"):
                     st.dataframe(deg, hide_index=True, width="stretch")
+        elif view == "Strategy":
+            strategy_view(race, tower, lap, focus)
         elif view == "Pace":
             clean = race.clean_laps[race.clean_laps["LapNumber"] <= lap]
             if focus:
@@ -155,6 +159,59 @@ def race_view(race: RaceData, interval: float | None) -> None:
                 msgs = msgs[msgs["Flag"] != "BLUE"]
             msgs = msgs.sort_values("Time", ascending=False)[["Lap", "Category", "Flag", "Message"]]
             st.dataframe(msgs, hide_index=True, width="stretch", height=420)
+
+
+def strategy_view(race: RaceData, tower: pd.DataFrame, lap: int, focus: list[str]) -> None:
+    stops = race.stops[race.stops["Lap"] <= lap]
+    battles = race.battles[race.battles["RivalStopLap"] + 1 <= lap]
+
+    m = st.columns(3)
+    m[0].metric("Typical pit loss", f"{race.pit_loss:.1f} s" if race.pit_loss else "–",
+                help="Median cost of this race's green-flag stops. Live, it would come from past races at the circuit.")
+    m[1].metric("Stops so far", len(stops))
+    last = stops.iloc[-1] if not stops.empty else None
+    m[2].metric("Latest stop", f"{last['Driver']} · lap {last['Lap']}" if last is not None else "–")
+
+    if race.pit_loss:
+        st.markdown("**If they pit at the end of this lap**")
+        everyone = st.toggle("All cars on the lead lap", value=False)
+        proj = rejoin_projection(tower, race.pit_loss)
+        if not everyone:
+            proj = proj[proj["Driver"].isin(focus)]
+        st.dataframe(
+            pd.DataFrame(
+                {
+                    "Driver": proj["Driver"],
+                    "Now": "P" + proj["Now"].astype(str),
+                    "Rejoins": "P" + proj["Rejoin"].astype(str),
+                    "Behind": [f"{c} by {g:.1f} s" if c else "–" for c, g in zip(proj["CarAhead"], proj["GapAhead"])],
+                    "Ahead of": [f"{c} by {g:.1f} s" if c else "–" for c, g in zip(proj["CarBehind"], proj["GapBehind"])],
+                }
+            ),
+            hide_index=True,
+            width="stretch",
+        )
+
+    st.markdown("**Undercuts and overcuts so far**")
+    if battles.empty:
+        st.caption("None yet: a battle needs two cars within 3.5 s to pit within six laps of each other.")
+    else:
+        labels = [f"Lap {b.Lap}: {b.FirstStop} vs {b.Rival} · {b.Verdict}" for b in battles.itertuples()]
+        i = st.selectbox("Battle", range(len(battles)), index=len(battles) - 1, format_func=lambda i: labels[i],
+                         label_visibility="collapsed")
+        battle = battles.iloc[i]
+        st.caption(
+            f"{battle.FirstStop} pitted on lap {battle.Lap} from {abs(battle.GapBefore):.2f} s "
+            f"{'behind' if battle.GapBefore > 0 else 'ahead of'} {battle.Rival}; {battle.Rival} answered on lap "
+            f"{battle.RivalStopLap}. Afterwards {battle.FirstStop} was {abs(battle.GapAfter):.2f} s "
+            f"{'behind' if battle.GapAfter > 0 else 'ahead'}."
+        )
+        gap = pair_gap(race.laps, battle.FirstStop, battle.Rival)
+        st.plotly_chart(battle_chart(gap, battle, race.total_laps), width="stretch", key="chart_battle")
+
+    if not stops.empty:
+        st.markdown("**What each stop cost**")
+        st.plotly_chart(pit_loss_chart(stops, race.pit_loss, race.total_laps), width="stretch", key="chart_pitloss")
 
 
 def race_page() -> None:
