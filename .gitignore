@@ -1,0 +1,12 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# FastF1 HTTP/data cache (large, re-downloadable)
+cache/
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
