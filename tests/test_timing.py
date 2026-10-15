@@ -194,3 +194,11 @@ def test_laps_beyond_the_classified_count_are_dropped():
     results = pd.DataFrame({"Abbreviation": ["A", "B"], "Laps": [5.0, 4.0]})
     trimmed = trim_to_classified_laps(laps, results)
     assert trimmed.groupby("Driver")["LapNumber"].max().to_dict() == {"A": 5, "B": 4}
+
+
+def test_lap_coverage():
+    from pitlens.pitwall.timing import lap_coverage
+
+    laps = pd.DataFrame(make_driver("A", 80, 10) + make_driver("B", 80, 5))
+    results = pd.DataFrame({"Abbreviation": ["A", "B", "C"], "Laps": [10.0, 10.0, 0.0]})
+    assert lap_coverage(laps, results) == pytest.approx(0.75)

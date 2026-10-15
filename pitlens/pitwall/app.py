@@ -533,6 +533,9 @@ def race_page() -> None:
         race.event_name,
         f"{race.date:%-d %B %Y} · {race.total_laps} laps · data: {race.source} · press Play to replay it lap by lap",
     )
+    if race.coverage is not None and race.coverage < 0.95:
+        st.warning(f"{race.source} is missing about {1 - race.coverage:.0%} of this race's laps, so the replay has "
+                   "gaps: on those laps cars can look out of order or a lap down.", icon=":material/warning:")
     interval = SPEEDS[ss.speed]
     ss.timer = (ss.playing, interval)  # what the fragment's timer is built with
     st.fragment(race_view, run_every=interval if ss.playing else None)(race)

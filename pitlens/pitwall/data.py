@@ -10,6 +10,7 @@ from pitlens.pitwall.timing import (
     classify_finish,
     complete_final_laps,
     gap_to_leader,
+    lap_coverage,
     leader_times,
     non_starters,
     retired_drivers,
@@ -58,6 +59,7 @@ class RaceData:
     entrants: pd.DataFrame  # Driver, Team for everyone who started, even without a completed lap
     track: dict | None  # circuit outline split into the three timing sectors
     rain_mm: pd.Series | None  # hourly rainfall at the circuit (Open-Meteo estimate), indexed by UTC hour
+    coverage: float | None  # share of the race's laps the timing data has
     start_utc: pd.Timestamp | None  # scheduled race start, for turning laps into clock time
 
 
@@ -176,6 +178,7 @@ def build_race(year: int, round_number: int, parts: dict) -> RaceData:
         entrants=entrants,
         track=_track(year, parts),
         rain_mm=weather.hourly_rain(parts["location"], parts.get("race_utc")),
+        coverage=lap_coverage(laps, results),
         start_utc=pd.Timestamp(parts["race_utc"]) if parts.get("race_utc") is not None else None,
     )
 

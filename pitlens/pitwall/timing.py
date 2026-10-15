@@ -122,8 +122,18 @@ def trim_to_classified_laps(laps: pd.DataFrame, results: pd.DataFrame) -> pd.Dat
     if "Laps" not in results:
         return laps
     done = results.dropna(subset=["Laps"]).set_index("Abbreviation")["Laps"]
+    done = done[done > 0]  # a disqualified car can show 0
     limit = laps["Driver"].map(done)
     return laps[~(limit.notna() & (laps["LapNumber"] > limit))].reset_index(drop=True)
+
+
+def lap_coverage(laps: pd.DataFrame, results: pd.DataFrame) -> float | None:
+    """Share of the laps the result says were run that the timing data has (OpenF1 is missing
+    almost half of them for the 2025 Miami GP)."""
+    if "Laps" not in results:
+        return None
+    expected = results["Laps"].where(results["Laps"] > 0).sum()
+    return min(1.0, laps["Time"].notna().sum() / expected) if expected else None
 
 
 def complete_final_laps(laps: pd.DataFrame, results: pd.DataFrame, total_laps: int) -> pd.DataFrame:
