@@ -333,9 +333,11 @@ tests/                 unit tests on synthetic races, run in CI
   it carried end-of-race fuel, and `stint_degradation` fits lap time against tyre age for each
   stint with at least five clean laps; the slope is the degradation rate.
 - **Timing tower.** FastF1 records the session time at which every car completed every lap.
-  `timing_tower` orders cars by when they crossed the line on a given lap, takes gaps from those
-  times, and counts laps down by how many laps the leader had finished when a car crossed.
-  Cars that never complete the lap are lapped or, if their result says so, out.
+  `timing_tower` orders cars by when they crossed the line on a given lap (cars within half a
+  second of each other by the timing feed's running position), takes gaps from those times, and
+  counts laps down by how many laps the leader had finished when a car crossed. Cars that never
+  complete the lap are lapped or, if their result says so, out. The last lap shows the official
+  classification and its gaps, which is what counts after penalties and disqualifications.
 - **Replay.** The dashboard body is a Streamlit fragment that reruns every 0.5 to 2 seconds while
   playing, moving the lap forward and recomputing everything from laps up to that point. Only the
   chart on screen is redrawn, and the timing tower is a small custom component whose iframe stays
