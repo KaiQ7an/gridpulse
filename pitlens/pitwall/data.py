@@ -77,7 +77,7 @@ def _fastf1_parts(year: int, round_number: int) -> dict:
     try:
         radio = team_radio(session)
     except Exception:  # radio is a nice-to-have; the archive may not have it for every session
-        radio = pd.DataFrame(columns=["Driver", "Lap", "SessionTime", "Utc", "Url"])
+        radio = _openf1_radio(year, session)
     return {
         "laps": pd.DataFrame(session.laps),
         "stationary": _stationary(year, session),
@@ -93,6 +93,26 @@ def _fastf1_parts(year: int, round_number: int) -> dict:
         "race_utc": session.date,
         "circuit_key": (session.session_info.get("Meeting", {}).get("Circuit") or {}).get("Key"),
     }
+
+
+def _openf1_radio(year: int, session) -> pd.DataFrame:
+    """Radio clips from OpenF1, placed on laps by F1's session clock, when the archive won't serve them."""
+    empty = pd.DataFrame(columns=["Driver", "Lap", "SessionTime", "Utc", "Url"])
+    if year < openf1.FIRST_SEASON:
+        return empty
+    numbers = dict(zip(pd.to_numeric(session.results["DriverNumber"], errors="coerce"), session.results["Abbreviation"]))
+    try:
+        clips = openf1.team_radio(year, session.date, numbers)
+        laps = pd.DataFrame(session.laps)
+        # Session clock zero in UTC: OpenF1's lap start (UTC) minus the archive's (session clock), lap by lap.
+        starts = openf1.lap_starts(year, session.date)
+        matched = laps.merge(starts, on=["DriverNumber", "LapNumber"])
+        zero = (matched["Utc"] - matched["LapStartTime"]).median()
+        clips["SessionTime"] = clips["Utc"].dt.tz_convert(None) - zero
+        clips["Lap"] = assign_laps(clips, laps)
+    except Exception:  # optional extra, like the archive's own radio
+        return empty
+    return clips[["Driver", "Lap", "SessionTime", "Utc", "Url"]].sort_values("SessionTime").reset_index(drop=True)
 
 
 def _stationary(year: int, session) -> pd.DataFrame | None:

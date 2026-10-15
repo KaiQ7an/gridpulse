@@ -377,6 +377,38 @@ def stationary_from(pits: pd.DataFrame, abbr: dict, stints: pd.DataFrame | None 
     return out.drop_duplicates(["Driver", "Lap"]).reset_index(drop=True)
 
 
+def team_radio(year: int, race_date_utc, numbers: dict[int, str]) -> pd.DataFrame:
+    """A race's team radio clips (Driver, DriverNumber, Utc, Url), for races whose laps came from F1's
+    archive when the archive won't serve the radio stream. `numbers` maps car number to driver code."""
+    session = find_session(year, race_date_utc)
+    radio = pd.DataFrame(get("team_radio", session_key=session["session_key"]))
+    if radio.empty:
+        return pd.DataFrame(columns=["Driver", "DriverNumber", "Utc", "Url"])
+    return pd.DataFrame(
+        {
+            "Driver": radio["driver_number"].map(numbers),
+            "DriverNumber": radio["driver_number"].astype(str),
+            "Utc": pd.to_datetime(radio["date"], utc=True, format="ISO8601"),
+            "Url": radio["recording_url"],
+        }
+    ).dropna(subset=["Driver", "Url"])
+
+
+def lap_starts(year: int, race_date_utc) -> pd.DataFrame:
+    """When each lap of the race started, in UTC: DriverNumber (str), LapNumber (float), Utc (naive)."""
+    session = find_session(year, race_date_utc)
+    laps = pd.DataFrame(get("laps", session_key=session["session_key"]))
+    if laps.empty:
+        return pd.DataFrame(columns=["DriverNumber", "LapNumber", "Utc"])
+    return pd.DataFrame(
+        {
+            "DriverNumber": laps["driver_number"].astype(str),
+            "LapNumber": laps["lap_number"].astype(float),
+            "Utc": _utc(laps["date_start"]),
+        }
+    ).dropna()
+
+
 def stationary_times(year: int, race_date_utc, numbers: dict[int, str]) -> pd.DataFrame:
     """Stationary times for a race whose laps came from F1's archive (which doesn't carry them).
 
