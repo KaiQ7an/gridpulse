@@ -37,11 +37,16 @@ pace, tyres and strategy as the race unfolds. It is built in layers, each useful
 - [x] Timing tower, race trace, positions, tyre stints, degradation so far and clean-lap pace
 - [x] Race-control messages, track status and weather alongside the charts
 - [x] Mark safety car and VSC periods on the race trace
-- [ ] Optional public deployment on Streamlit Community Cloud
 
-## 5. `pitwall` live mode and `radio`
+## 5. `radio` (done)
+
+- [x] Team radio clips from the F1 archive, placed on the lap they were sent
+- [x] Radio view in the pit wall and a microphone in the timing tower
+- [ ] Transcribe clips locally (e.g. Whisper) so they can be searched
+
+## 6. `pitwall` live mode
 
 - [ ] Live mode on top of the same data layer as replay. F1's live-timing feed now needs an
       F1 TV subscription login (FastF1's `SignalRClient`); OpenF1 offers real-time data on a paid plan
-- [ ] Team radio clips (OpenF1 `team_radio`) linked to the lap they were sent on
 - [ ] Live tyre-degradation estimate and pit-window projection
+- [ ] Optional public deployment on Streamlit Community Cloud

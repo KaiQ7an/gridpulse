@@ -43,12 +43,14 @@ falling away, with the cleaning rules written down and tested.
 - **Timing tower**: running order, gap to the leader, interval, last lap, tyre compound and age,
   stops, lapped cars and retirements, with a pit flag on the lap a car boxes. During a replay rows
   slide into place on overtakes and the gaps count smoothly from lap to lap.
-- **Race trace**: seconds behind the leader for every car, focus drivers in team colours.
+- **Gaps** (the race trace): seconds behind the leader for every car, focus drivers in team colours.
 - **Positions**, **tyre stints** in running order, **degradation so far** for the focus drivers,
-  **clean-lap pace** by compound, and **race control messages** up to the current lap.
+  **clean-lap pace** by compound, and race control **messages** up to the current lap.
 - Track status, track temperature and rain at the current lap; safety car and VSC laps shaded.
 - **Strategy**: the typical pit loss, where each car would rejoin if it pitted at the end of this
   lap, and every undercut and overcut so far with its outcome.
+- **Radio**: team radio clips up to the current lap, playable in the page, with a microphone in
+  the timing tower when a driver's clip comes in.
 
 **`onboard`: fastest-lap telemetry comparison** (available now)
 
@@ -68,6 +70,11 @@ falling away, with the cleaning rules written down and tested.
   laps. The gap before and after both stops says whether it worked.
 - A rejoin projection: if a car pits now, which position it comes out in and who it's next to.
 
+**`radio`: team radio** (available now)
+
+- Every clip in a session from the F1 archive, placed on the lap its driver was on, playable in
+  the pit wall or listed (and optionally downloaded) from the command line.
+
 **`stints`: race pace and tyre degradation report** (available now)
 
 - Filters each driver's race to representative laps: no lap 1, no pit in/out laps, green flag
@@ -78,7 +85,6 @@ falling away, with the cleaning rules written down and tested.
 
 **Planned** (see the [roadmap](ROADMAP.md))
 
-- `radio`: team radio clips linked to the lap they were sent on.
 - A live mode for the pit wall on race day.
 
 ## Quick start
@@ -163,6 +169,15 @@ undercut failed.
 | `--max-gap` | `3.5` | Cars within this many seconds count as a battle |
 | `--open` | off | Open the HTML report when done (macOS) |
 
+## Team radio
+
+```bash
+.venv/bin/python -m pitlens radio --year 2025 --event Hungary --drivers NOR PIA
+```
+
+Lists each clip with its lap and audio link. Add `--download` to save the mp3s into
+`outputs/radio/`, or `--session Q` for qualifying.
+
 ## Tyre analysis
 
 ```bash
@@ -220,6 +235,9 @@ pitlens/
 │   ├── analysis.py    pit stops, pit loss, undercut battles, rejoin projection
 │   ├── charts.py      battle gap chart and pit-loss chart
 │   └── report.py      the `undercut` command (HTML report)
+├── radio/
+│   ├── clips.py       team radio from the F1 archive, matched to laps
+│   └── report.py      the `radio` command
 ├── htmlreport.py      self-contained HTML reports shared by the commands
 ├── pitwall/
 │   ├── data.py        one race as plain DataFrames (laps, results, weather, messages)

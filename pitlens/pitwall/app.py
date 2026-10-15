@@ -15,7 +15,7 @@ from pitlens.undercut.analysis import pair_gap, rejoin_projection
 from pitlens.undercut.charts import battle_chart, pit_loss_chart
 
 SPEEDS = {"Slow · 2 s per lap": 2.0, "Normal · 1 s per lap": 1.0, "Fast · 0.5 s per lap": 0.5}
-VIEWS = ["Race trace", "Positions", "Tyres", "Strategy", "Pace", "Race control"]
+VIEWS = ["Gaps", "Positions", "Tyres", "Strategy", "Pace", "Radio", "Messages"]
 
 # Streamlit dims elements while a rerun is in flight; during a replay that is
 # every tick, which reads as stutter. Keep them at full opacity instead.
@@ -114,12 +114,13 @@ def race_view(race: RaceData, interval: float | None) -> None:
         st.subheader("Timing tower")
         # Rows slide and gaps count over most of the tick, so motion is continuous while playing.
         move_ms = int(interval * 1000 * 0.85) if ss.playing and interval else 450
-        tower_component(tower, race.team_colors, lap, move_ms)
+        on_radio = set(race.radio.loc[race.radio["Lap"] == lap, "Driver"])
+        tower_component(tower, race.team_colors, lap, move_ms, on_radio)
 
     with right:
         # Only the chosen view is drawn each tick (tabs would redraw all five).
         view = st.segmented_control("View", VIEWS, default=VIEWS[0], key="view", label_visibility="collapsed") or VIEWS[0]
-        if view == "Race trace":
+        if view == "Gaps":
             st.caption(
                 "Seconds behind the leader at the end of each lap. Flat lines hold the gap; dips are pit stops; "
                 "shaded laps ran under safety car or VSC."
@@ -153,12 +154,33 @@ def race_view(race: RaceData, interval: float | None) -> None:
             if focus:
                 st.caption("Representative laps only: no pit laps, safety cars or yellow flags.")
                 st.plotly_chart(charts.pace_chart(clean, focus, race.total_laps), width="stretch", key="chart_pace")
+        elif view == "Radio":
+            radio_view(race, lap, focus)
         else:
             msgs = race.messages[race.messages["Lap"].fillna(0) <= lap]
             if not st.checkbox("Show blue flags", value=False):
                 msgs = msgs[msgs["Flag"] != "BLUE"]
             msgs = msgs.sort_values("Time", ascending=False)[["Lap", "Category", "Flag", "Message"]]
             st.dataframe(msgs, hide_index=True, width="stretch", height=420)
+
+
+def radio_view(race: RaceData, lap: int, focus: list[str]) -> None:
+    clips = race.radio[race.radio["Lap"].notna() & (race.radio["Lap"] <= lap)]
+    if st.toggle("Focus drivers only", value=False, key="radio_focus"):
+        clips = clips[clips["Driver"].isin(focus)]
+    st.caption(
+        f"{len(clips)} team radio clips up to lap {lap}, newest first. Audio plays from the F1 archive; "
+        "a red microphone in the timing tower marks a driver with a clip on the current lap."
+    )
+    for clip in clips.sort_values("SessionTime", ascending=False).head(12).itertuples():
+        color = race.team_colors.get(clip.Driver, "#999")
+        new = " · this lap" if clip.Lap == lap else ""
+        st.markdown(
+            f'<span style="display:inline-block;width:4px;height:14px;background:{color};border-radius:2px;'
+            f'vertical-align:middle;margin-right:6px"></span>**{clip.Driver}** · lap {clip.Lap}{new}',
+            unsafe_allow_html=True,
+        )
+        st.audio(clip.Url, format="audio/mpeg")
 
 
 def strategy_view(race: RaceData, tower: pd.DataFrame, lap: int, focus: list[str]) -> None:

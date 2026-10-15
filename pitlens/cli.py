@@ -4,6 +4,7 @@ import argparse
 
 from pitlens.onboard import report as onboard_report
 from pitlens.pitwall import serve as pitwall_serve
+from pitlens.radio import report as radio_report
 from pitlens.stints import report as stints_report
 from pitlens.undercut import report as undercut_report
 
@@ -23,6 +24,10 @@ def main(argv: list[str] | None = None) -> None:
     undercut = modules.add_parser("undercut", help="Pit stops, pit loss and undercut battles for one race")
     undercut_report.add_arguments(undercut)
     undercut.set_defaults(run=undercut_report.run)
+
+    radio = modules.add_parser("radio", help="Team radio clips for a session, matched to laps")
+    radio_report.add_arguments(radio)
+    radio.set_defaults(run=radio_report.run)
 
     pitwall = modules.add_parser("pitwall", help="Race-day dashboard in the browser (replay any race)")
     pitwall_serve.add_arguments(pitwall)

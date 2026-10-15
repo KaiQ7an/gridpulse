@@ -33,7 +33,9 @@
   .row.out { opacity: 0.45; }
   .bar { height: 70%; border-radius: 2px; }
   .pos { text-align: right; color: var(--muted); }
-  .drv { font-weight: 600; letter-spacing: .02em; }
+  .drv { font-weight: 600; letter-spacing: .02em; display: flex; align-items: center; gap: 3px; }
+  .mic { width: 12px; height: 12px; flex: none; color: #E10600; opacity: 0; transition: opacity 250ms; }
+  .mic.on { opacity: 1; }
   .num { text-align: right; }
   .muted { color: var(--muted); }
   .tyre { justify-self: start; width: 100%; max-width: 50px; text-align: center; padding: 3px 6px; border-radius: 4px;
@@ -92,7 +94,10 @@ function makeRow(driver) {
   el.innerHTML = `<span class="bar"></span><span class="pos num"></span><span class="drv"></span>
     <span class="gap num"></span><span class="int num muted intcol"></span><span class="last num lastcol"></span>
     <span class="tyre"></span><span class="stops num"></span>`;
-  el.querySelector(".drv").textContent = driver;
+  el.querySelector(".drv").innerHTML = `<span></span><svg class="mic" viewBox="0 0 24 24" aria-label="team radio"
+    fill="currentColor"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6
+    6.93V21h2v-3.07A7 7 0 0 0 19 11h-2z"/></svg>`;
+  el.querySelector(".drv span").textContent = driver;
   rowsEl.appendChild(el);
   rowEls.set(driver, el);
   return el;
@@ -115,6 +120,7 @@ function render(args) {
     el.querySelector(".pos").textContent = r.pos;
     el.querySelector(".last").textContent = r.last_lap;
     el.querySelector(".stops").textContent = r.stops ?? "";
+    el.querySelector(".mic").classList.toggle("on", !!r.radio);
 
     const tyre = el.querySelector(".tyre");
     tyre.classList.toggle("pit", r.pit);

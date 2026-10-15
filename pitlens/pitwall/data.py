@@ -6,6 +6,7 @@ import fastf1
 import pandas as pd
 
 from pitlens.pitwall.timing import gap_to_leader, leader_times, retired_drivers
+from pitlens.radio.clips import team_radio
 from pitlens.session import enable_cache, load_session
 from pitlens.stints.pace import add_fuel_corrected_time, clean_race_laps
 from pitlens.style import FALLBACK_TEAM_COLOR
@@ -29,6 +30,7 @@ class RaceData:
     stops: pd.DataFrame  # every pit stop with its cost
     battles: pd.DataFrame  # undercut / overcut attempts
     pit_loss: float | None  # typical green-flag pit loss, seconds
+    radio: pd.DataFrame  # team radio clips with the lap they were sent on
     team_colors: dict[str, str]  # driver -> "#rrggbb"
     finish_order: list[str]
     retired: set[str]
@@ -57,6 +59,10 @@ def load_race(year: int, round_number: int) -> RaceData:
 
     laps = pd.DataFrame(session.laps)
     stops = pit_stops(laps)
+    try:
+        radio = team_radio(session)
+    except Exception:  # radio is a nice-to-have; the archive may not have it for every session
+        radio = pd.DataFrame(columns=["Driver", "Lap", "SessionTime", "Utc", "Url"])
     return RaceData(
         name=f"{session.event.year} {session.event['EventName']}",
         date=session.event["EventDate"],
@@ -71,6 +77,7 @@ def load_race(year: int, round_number: int) -> RaceData:
         stops=stops,
         battles=pit_battles(laps, stops),
         pit_loss=pit_loss(stops),
+        radio=radio,
         team_colors=colors,
         finish_order=results["Abbreviation"].tolist(),
         retired=retired_drivers(results),

@@ -17,7 +17,14 @@ _component = components.declare_component("pitlens_timing_tower", path=str(Path(
 DARK_TEXT_COMPOUNDS = {"MEDIUM", "HARD", "UNKNOWN"}
 
 
-def timing_tower(tower: pd.DataFrame, team_colors: dict[str, str], lap: int, duration_ms: int, key: str = "tower"):
+def timing_tower(
+    tower: pd.DataFrame,
+    team_colors: dict[str, str],
+    lap: int,
+    duration_ms: int,
+    on_radio: set[str] = frozenset(),
+    key: str = "tower",
+):
     rows = []
     for r in tower.itertuples():
         age = "" if pd.isna(r.TyreAge) else int(r.TyreAge)
@@ -37,6 +44,7 @@ def timing_tower(tower: pd.DataFrame, team_colors: dict[str, str], lap: int, dur
                 "stops": None if pd.isna(r.Stops) else int(r.Stops),
                 "pit": bool(r.Pit),
                 "out": bool(r.Out),
+                "radio": r.Driver in on_radio,
             }
         )
     return _component(rows=rows, lap=lap, duration_ms=duration_ms, key=key, default=None)
