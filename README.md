@@ -43,7 +43,8 @@ falling away, with the cleaning rules written down and tested.
   leader, track status, fastest lap so far and the weather.
 - **Timing tower**: running order, gap to the leader, interval (green when within a second), last
   lap, tyre compound and age, stops, lapped cars and retirements, with a pit flag on the lap a car
-  boxes and your focus drivers highlighted. During a replay rows
+  boxes and your focus drivers highlighted. Under a safety car, VSC or red flag a banner slides in
+  above it with the number of laps run so far. During a replay rows
   slide into place on overtakes and the gaps count smoothly from lap to lap.
 - **Gaps** (the race trace): seconds behind the leader for every car, focus drivers in team colours.
 - **Positions**, **tyre stints** in running order, **degradation so far** for the focus drivers,
@@ -293,6 +294,11 @@ iCloud-synced folder (Desktop or Documents with iCloud Drive), iCloud marks file
 as hidden, and Python 3.13+ then skips the file that makes the editable install importable. Run
 `.venv/bin/python -m pitlens ...` from the project folder instead, which always works, or keep the
 project outside iCloud Drive (for example `~/Developer`).
+
+**"F1's live-timing archive didn't return timing data".** FastF1 downloads each session from F1's
+public archive the first time you open it. If the archive refuses the request (it answers
+HTTP 401 at times), sessions you have opened before still work from `cache/`; others will load
+once the archive answers again.
 
 ## Data
 

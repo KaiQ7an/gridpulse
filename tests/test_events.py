@@ -47,3 +47,23 @@ def test_situation():
     laps = make_race()
     assert situation(timing_tower(laps, 2, {"D"}), 2, 6) == "Lap 2 of 6: A leads B by 1.0 s."
     assert situation(timing_tower(laps, 6, {"D"}), 6, 6).startswith("Chequered flag: B wins by")
+
+
+def test_neutralised_banner_counts_laps_under_the_same_status():
+    from pitlens.pitwall.events import neutralised_banner
+
+    status = pd.Series({1: "Green", 2: "Safety car", 3: "Safety car", 4: "Safety car", 5: "Green", 6: "VSC"})
+    assert neutralised_banner(status, 1) is None
+    assert neutralised_banner(status, 3) == {"kind": "sc", "text": "Safety car", "laps": 2}
+    assert neutralised_banner(status, 4)["laps"] == 3
+    assert neutralised_banner(status, 5) is None
+    assert neutralised_banner(status, 6) == {"kind": "vsc", "text": "Virtual safety car", "laps": 1}
+
+
+def test_laps_under_safety_car_or_in_the_pits_cannot_be_fastest():
+    from pitlens.pitwall.events import fastest_lap_candidates
+
+    laps = pd.DataFrame(car("A", [80, 70, 79, 75], pit_in=4, status={2: "4"}))
+    laps["PitOutTime"] = pd.NaT
+    fast = fastest_lap_candidates(laps)
+    assert fast["LapNumber"].tolist() == [1, 3]  # lap 2 under SC, lap 4 an in-lap

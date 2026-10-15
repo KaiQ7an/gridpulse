@@ -16,6 +16,7 @@ from pitlens.onboard.data import (
 )
 from pitlens.pitwall import ui
 from pitlens.pitwall.data import FIRST_SEASON, completed_races
+from pitlens.session import TimingUnavailable
 from pitlens.pitwall.timing import format_lap_time
 
 
@@ -72,6 +73,9 @@ def render() -> None:
     with st.spinner("Loading the session with car telemetry (the first time takes up to a minute)..."):
         try:
             session = cached_session(year, round_number, kind)
+        except TimingUnavailable as exc:
+            st.warning(str(exc), icon=":material/cloud_off:")
+            st.stop()
         except Exception as exc:  # e.g. no sprint at this event
             st.error(f"Couldn't load {SESSION_NAMES[kind]} for this event: {exc}")
             st.stop()

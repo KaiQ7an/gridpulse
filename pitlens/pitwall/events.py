@@ -12,6 +12,18 @@ NEUTRAL = {"Safety car": "Safety car", "VSC": "Virtual safety car", "Red flag": 
 TOP = 10  # only passes for points-paying positions, so the feed stays readable
 
 
+def fastest_lap_candidates(laps: pd.DataFrame) -> pd.DataFrame:
+    """Laps that can count as a fastest lap: timed, not deleted, no pit lane, no SC/VSC/red flag."""
+    timed = laps.dropna(subset=["LapTime"])
+    if "Deleted" in timed:
+        timed = timed[timed["Deleted"] != True]  # noqa: E712 (column holds True/False/NaN)
+    for col in ("PitInTime", "PitOutTime"):
+        if col in timed:
+            timed = timed[timed[col].isna()]
+    neutral = timed["TrackStatus"].astype(str).str.contains("[4567]", regex=True)
+    return timed[~neutral]
+
+
 def lap_status(laps: pd.DataFrame) -> pd.Series:
     """Most severe track status any car saw on each lap."""
     s = laps.dropna(subset=["TrackStatus"]).groupby("LapNumber")["TrackStatus"].apply(
@@ -23,9 +35,7 @@ def lap_status(laps: pd.DataFrame) -> pd.Series:
 def race_events(laps: pd.DataFrame, retired: set[str], total_laps: int) -> pd.DataFrame:
     rows = []
     status = lap_status(laps)
-    timed = laps.dropna(subset=["LapTime"])
-    if "Deleted" in timed:
-        timed = timed[timed["Deleted"] != True]  # noqa: E712 (column holds True/False/NaN)
+    timed = fastest_lap_candidates(laps)
     best = None
 
     prev = None
@@ -91,3 +101,18 @@ def situation(tower: pd.DataFrame, lap: int, total_laps: int) -> str:
     if lap >= total_laps:
         return f"Chequered flag: {lead} wins by {second['GapSeconds']:.3f} s from {second['Driver']}."
     return f"Lap {lap} of {total_laps}: {lead} leads {second['Driver']} by {second['GapSeconds']:.1f} s."
+
+
+BANNERS = {"Safety car": ("sc", "Safety car"), "VSC": ("vsc", "Virtual safety car"), "Red flag": ("red", "Red flag")}
+
+
+def neutralised_banner(status: pd.Series, lap: int) -> dict | None:
+    """Banner for the timing tower while the race is neutralised, with how many laps it has run."""
+    now = status.get(lap)
+    if now not in BANNERS:
+        return None
+    laps_under = 0
+    while status.get(lap - laps_under) == now:
+        laps_under += 1
+    kind, text = BANNERS[now]
+    return {"kind": kind, "text": text, "laps": laps_under}

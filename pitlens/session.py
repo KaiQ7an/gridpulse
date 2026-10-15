@@ -3,6 +3,7 @@
 from pathlib import Path
 
 import fastf1
+from fastf1.exceptions import DataNotLoadedError
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 CACHE_DIR = PROJECT_ROOT / "cache"
@@ -25,4 +26,16 @@ def load_session(year: int, event: str | int, kind: str = "R", telemetry: bool =
     enable_cache()
     session = fastf1.get_session(year, event, kind)
     session.load(laps=True, telemetry=telemetry, weather=True, messages=True)
+    try:
+        session.laps  # FastF1 logs a warning and carries on when timing fails; fail loudly instead
+    except DataNotLoadedError:
+        raise TimingUnavailable(
+            f"F1's live-timing archive didn't return timing data for {session.event['EventName']} "
+            f"{session.name}. The archive may be refusing requests for now; sessions opened before "
+            "still work from the local cache, so try one of those or come back later."
+        ) from None
     return session
+
+
+class TimingUnavailable(RuntimeError):
+    """The F1 archive returned no lap timing for a session (network error, or access refused)."""

@@ -7,9 +7,10 @@ import pandas as pd
 import streamlit as st
 
 from pitlens.pitwall import charts, onboard_page, ui
+from pitlens.session import TimingUnavailable
 from pitlens.pitwall.data import FIRST_SEASON, RaceData, completed_races, load_race
-from pitlens.pitwall.events import situation
-from pitlens.pitwall.timing import format_lap_time, neutralised_periods, stint_timeline, timing_tower, track_status
+from pitlens.pitwall.events import fastest_lap_candidates, neutralised_banner, situation
+from pitlens.pitwall.timing import format_lap_time, neutralised_periods, stint_timeline, timing_tower
 from pitlens.pitwall.tower import timing_tower as tower_component
 from pitlens.stints.pace import stint_degradation
 from pitlens.undercut.analysis import pair_gap, rejoin_projection
@@ -85,14 +86,11 @@ def replay_controls(total_laps: int) -> None:
 
 def status_strip(race: RaceData, laps: pd.DataFrame, tower: pd.DataFrame, lap: int) -> None:
     leader = tower.loc[0, "Driver"]
-    leader_lap = laps[(laps["Driver"] == leader) & (laps["LapNumber"] == lap)]
-    status = track_status(leader_lap["TrackStatus"].iloc[0]) if not leader_lap.empty else "Unknown"
+    status = race.lap_status.get(lap, "Unknown")
     lead_time = race.lead_times.get(lap)
     weather = weather_at(race, lead_time) if lead_time is not None else None
 
-    timed = laps.dropna(subset=["LapTime"])
-    if "Deleted" in timed:
-        timed = timed[timed["Deleted"] != True]  # noqa: E712 (column holds True/False/NaN)
+    timed = fastest_lap_candidates(laps)
     fastest = timed.loc[timed["LapTime"].idxmin()] if not timed.empty else None
 
     stats = [
@@ -140,7 +138,8 @@ def race_view(race: RaceData) -> None:
         # Rows slide and gaps count over most of the tick, so motion is continuous while playing.
         move_ms = int(interval * 1000 * 0.85) if ss.playing else 450
         on_radio = set(race.radio.loc[race.radio["Lap"] == lap, "Driver"])
-        tower_component(tower, race.team_colors, lap, move_ms, on_radio, focus)
+        banner = neutralised_banner(race.lap_status, lap)
+        tower_component(tower, race.team_colors, lap, move_ms, on_radio, focus, banner)
 
     with right, st.container(border=True, key="card-views"):
         # Only the chosen view is drawn each tick (tabs would redraw all of them).
@@ -284,6 +283,9 @@ def race_page() -> None:
     with st.spinner("Loading race data. The first load of a race takes up to a minute; after that it's cached."):
         try:
             race = cached_race(year, round_number)
+        except TimingUnavailable as exc:
+            st.warning(str(exc), icon=":material/cloud_off:")
+            st.stop()
         except Exception as exc:  # FastF1 raises a variety of errors for missing data
             st.error(f"Couldn't load this race: {exc}")
             st.stop()

@@ -22,6 +22,7 @@ def timing_tower(
     duration_ms: int,
     on_radio: set[str] = frozenset(),
     focus: list[str] = (),
+    banner: dict | None = None,
     key: str = "tower",
 ):
     rows = []
@@ -46,4 +47,6 @@ def timing_tower(
                 "radio": r.Driver in on_radio,
             }
         )
-    return _component(rows=rows, lap=lap, duration_ms=duration_ms, focus=list(focus), key=key, default=None)
+    return _component(
+        rows=rows, lap=lap, duration_ms=duration_ms, focus=list(focus), banner=banner, key=key, default=None
+    )

@@ -7,7 +7,7 @@
 <style>
   :root {
     --ink: #15171C; --muted: rgba(21,23,28,0.55); --rule: rgba(128,128,128,0.16);
-    --hover: rgba(128,128,128,0.07); --focus: rgba(225,6,0,0.06); --close: #16A34A; --accent: #E10600;
+    --hover: rgba(128,128,128,0.07); --focus: rgba(225,6,0,0.06); --close: #16A34A; --accent: #E10600; --vsc-ink: #8A6700;
     --move: 600ms;
   }
   * { box-sizing: border-box; }
@@ -54,6 +54,23 @@
   @keyframes flashgain { from { background: rgba(34,197,94,.24); } }
   @keyframes flashloss { from { background: rgba(225,6,0,.18); } }
 
+  /* Neutralisation banner: slides down above the tower, F1 TV style */
+  .banner { height: 0; overflow: hidden; transition: height 380ms cubic-bezier(.3,.7,.2,1); }
+  .banner.on { height: 40px; }
+  .banner .bar { height: 34px; margin-bottom: 6px; border-radius: 6px; display: flex; align-items: center; gap: 10px;
+    padding: 0 12px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; font-size: 12.5px;
+    position: relative; overflow: hidden; }
+  .banner .bar::before { content: ""; width: 22px; align-self: stretch; margin-left: -12px; flex: none;
+    background: repeating-linear-gradient(-45deg, rgba(0,0,0,.85) 0 5px, transparent 5px 10px); }
+  .banner .laps { margin-left: auto; font-weight: 600; letter-spacing: .06em; font-size: 11px; opacity: .8; }
+  .banner .light { width: 9px; height: 9px; border-radius: 50%; background: currentColor; animation: blink 1s steps(2) infinite; }
+  @keyframes blink { 50% { opacity: .2; } }
+  .banner.sc .bar, .banner.vsc .bar { background: #F5B700; color: #111; }
+  .banner.vsc .bar { background: rgba(245,183,0,.16); color: var(--vsc-ink); box-shadow: inset 0 0 0 2px #F5B700; }
+  .banner.vsc .bar::before { background: repeating-linear-gradient(-45deg, #F5B700 0 5px, transparent 5px 10px); }
+  .banner.red .bar { background: #E10600; color: #fff; }
+  .banner.red .bar::before { background: repeating-linear-gradient(-45deg, rgba(255,255,255,.75) 0 5px, transparent 5px 10px); }
+
   @media (max-width: 400px) {
     .head, .row { grid-template-columns: 3px 26px 50px minmax(0, 1fr) minmax(0, 1fr) 50px 28px; column-gap: 6px; }
     .lastcol { display: none; }
@@ -67,6 +84,8 @@
 </style>
 </head>
 <body>
+<div class="banner" id="banner"><div class="bar"><span class="light"></span><span class="text"></span>
+  <span class="laps"></span></div></div>
 <div class="tower">
   <div class="head"><span></span><span class="num">Pos</span><span>Driver</span><span class="num">Gap</span>
     <span class="num intcol">Int</span><span class="num lastcol">Last lap</span><span>Tyre</span><span class="num">Stp</span></div>
@@ -92,6 +111,7 @@ function applyTheme(theme) {
   root.setProperty("--close", dark ? "#22C55E" : "#16A34A");
   root.setProperty("--accent", theme.primaryColor || "#E10600");
   root.setProperty("--focus", dark ? "rgba(255,42,31,0.10)" : "rgba(225,6,0,0.06)");
+  root.setProperty("--vsc-ink", dark ? "#F5B700" : "#8A6700");
 }
 
 function tween(el, shown, driver, target, ms) {
@@ -180,10 +200,19 @@ function render(args) {
   for (const [driver, el] of rowEls) {
     if (!seen.has(driver)) { el.remove(); rowEls.delete(driver); lastPos.delete(driver); }
   }
+  const banner = document.getElementById("banner");
+  const b = args.banner;
+  banner.classList.toggle("on", !!b);
+  if (b) {
+    banner.className = "banner on " + b.kind;
+    banner.querySelector(".text").textContent = b.text;
+    banner.querySelector(".laps").textContent = b.laps === 1 ? "Lap 1" : "Lap " + b.laps;
+  }
+
   rowsEl.style.height = rows.length * ROW_H + "px";
   lastLap = args.lap;
   // Absolutely positioned rows don't add to the page height, so size the frame explicitly.
-  send("streamlit:setFrameHeight", { height: 28 + 1 + rows.length * ROW_H + 4 });
+  send("streamlit:setFrameHeight", { height: (b ? 40 : 0) + 28 + 1 + rows.length * ROW_H + 4 });
 }
 
 window.addEventListener("message", (event) => {

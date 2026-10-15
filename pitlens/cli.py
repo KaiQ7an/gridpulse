@@ -4,6 +4,7 @@ import argparse
 
 from pitlens.onboard import report as onboard_report
 from pitlens.pitwall import serve as pitwall_serve
+from pitlens.session import TimingUnavailable
 from pitlens.radio import report as radio_report
 from pitlens.stints import report as stints_report
 from pitlens.undercut import report as undercut_report
@@ -34,7 +35,10 @@ def main(argv: list[str] | None = None) -> None:
     pitwall.set_defaults(run=pitwall_serve.run)
 
     args = parser.parse_args(argv)
-    args.run(args)
+    try:
+        args.run(args)
+    except TimingUnavailable as exc:
+        raise SystemExit(str(exc)) from None
 
 
 if __name__ == "__main__":

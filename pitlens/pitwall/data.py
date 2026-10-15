@@ -5,7 +5,7 @@ from dataclasses import dataclass
 import fastf1
 import pandas as pd
 
-from pitlens.pitwall.events import race_events
+from pitlens.pitwall.events import lap_status, race_events
 from pitlens.pitwall.timing import gap_to_leader, leader_times, retired_drivers
 from pitlens.radio.clips import team_radio
 from pitlens.session import enable_cache, load_session
@@ -37,6 +37,7 @@ class RaceData:
     pit_loss: float | None  # typical green-flag pit loss, seconds
     radio: pd.DataFrame  # team radio clips with the lap they were sent on
     events: pd.DataFrame  # race feed: pits, passes, fastest laps, safety cars
+    lap_status: pd.Series  # track status per lap: Green, Yellow, Safety car, VSC, Red flag
     team_colors: dict[str, str]  # driver -> "#rrggbb"
     finish_order: list[str]
     retired: set[str]
@@ -89,6 +90,7 @@ def load_race(year: int, round_number: int) -> RaceData:
         pit_loss=pit_loss(stops),
         radio=radio,
         events=race_events(laps, retired_drivers(results), total_laps),
+        lap_status=lap_status(laps),
         team_colors=colors,
         finish_order=results["Abbreviation"].tolist(),
         retired=retired_drivers(results),
