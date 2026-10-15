@@ -44,7 +44,12 @@ pace, tyres and strategy as the race unfolds. It is built in layers, each useful
 - [x] Radio view in the pit wall and a microphone in the timing tower
 - [ ] Transcribe clips locally (e.g. Whisper) so they can be searched
 
-## 6. `pitwall` live mode
+## 6. Data sources
+
+- [x] OpenF1 fallback for races and onboard laps when F1's archive refuses requests
+- [ ] Use MultiViewer's per-circuit pit loss (normal, SC, VSC) for the rejoin projection
+
+## 7. `pitwall` live mode
 
 - [ ] Live mode on top of the same data layer as replay. F1's live-timing feed now needs an
       F1 TV subscription login (FastF1's `SignalRClient`); OpenF1 offers real-time data on a paid plan

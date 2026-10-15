@@ -170,3 +170,14 @@ def summarise(ref: str, other: str, lap_gap: float, sector_gaps: list[float], co
         if notes:
             parts.append("; ".join(notes) + ".")
     return " ".join(parts)
+
+
+def corner_distances(corners: pd.DataFrame, lap_telemetry: pd.DataFrame) -> np.ndarray:
+    """Distance along the lap of each corner marker: the nearest point of the lap's path."""
+    x = lap_telemetry["X"].to_numpy(dtype=float)
+    y = lap_telemetry["Y"].to_numpy(dtype=float)
+    d = lap_telemetry["Distance"].to_numpy(dtype=float)
+    out = []
+    for cx, cy in zip(corners["X"], corners["Y"]):
+        out.append(d[np.argmin((x - cx) ** 2 + (y - cy) ** 2)])
+    return np.array(out)

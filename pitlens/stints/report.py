@@ -4,7 +4,10 @@ import argparse
 import platform
 import subprocess
 
-from pitlens.session import OUTPUT_DIR, load_session
+import fastf1
+
+from pitlens.pitwall.data import load_race
+from pitlens.session import OUTPUT_DIR
 from pitlens.stints.pace import (
     DEFAULT_FUEL_EFFECT_S_PER_LAP,
     add_fuel_corrected_time,
@@ -31,13 +34,14 @@ def run(args: argparse.Namespace) -> None:
     event = int(args.event) if str(args.event).isdigit() else args.event
 
     print(f"Loading {args.year} {args.event} race (first run downloads data, later runs use the cache)...")
-    session = load_session(args.year, event, "R")
-    name = f"{session.event.year} {session.event['EventName']}"
-    slug = f"{session.event.year}_{session.event['EventName'].lower().replace(' ', '_')}"
+    round_number = event if isinstance(event, int) else int(fastf1.get_event(args.year, event)["RoundNumber"])
+    race = load_race(args.year, round_number)  # F1's archive, or OpenF1 if the archive won't serve it
+    name = race.name
+    slug = name.lower().replace(" ", "_")
 
-    finishers = session.results.sort_values("Position")["Abbreviation"].head(args.top).tolist()
-    laps = clean_race_laps(session, finishers)
-    laps = add_fuel_corrected_time(laps, int(session.total_laps), args.fuel_effect)
+    finishers = race.finish_order[: args.top]
+    laps = clean_race_laps(race.laps, finishers)
+    laps = add_fuel_corrected_time(laps, race.total_laps, args.fuel_effect)
     deg = stint_degradation(laps)
 
     out_dir = OUTPUT_DIR / slug

@@ -2,13 +2,15 @@
 
 import argparse
 import platform
+
+import fastf1
 import subprocess
 
 import pandas as pd
 
 from pitlens.onboard.charts import telemetry_figure, track_map
 from pitlens.onboard.compare import align, corner_speeds, minisectors
-from pitlens.onboard.data import SESSION_NAMES, OnboardData, compare, load_session_with_telemetry, session_drivers, teammate_of
+from pitlens.onboard.data import SESSION_NAMES, OnboardData, load_weekend, teammate_of
 from pitlens.htmlreport import table, text, write_report
 from pitlens.pitwall.timing import format_lap_time
 from pitlens.session import OUTPUT_DIR
@@ -45,9 +47,10 @@ def summary_table(data: OnboardData) -> pd.DataFrame:
 def run(args: argparse.Namespace) -> None:
     event = int(args.event) if str(args.event).isdigit() else args.event
     print(f"Loading {args.year} {args.event} {SESSION_NAMES[args.session]} with telemetry...")
-    session = load_session_with_telemetry(args.year, event, args.session)
+    round_number = event if isinstance(event, int) else int(fastf1.get_event(args.year, event)["RoundNumber"])
+    weekend = load_weekend(args.year, round_number, args.session)
 
-    drivers = session_drivers(session)
+    drivers = weekend.drivers()
     picked = [d.upper() for d in (args.drivers or [])]
     ref = picked[0] if picked else drivers["Driver"].iloc[0]
     other = picked[1] if len(picked) > 1 else teammate_of(drivers, ref)
@@ -55,7 +58,7 @@ def run(args: argparse.Namespace) -> None:
         raise SystemExit(f"Couldn't find a teammate for {ref}; pass two drivers with --drivers")
 
     try:
-        data = compare(session, ref, other)
+        data = weekend.compare(ref, other)
     except ValueError as exc:
         raise SystemExit(f"{exc}. Pick other drivers with --drivers.") from None
     aligned = align(data.ref.telemetry, data.other.telemetry)

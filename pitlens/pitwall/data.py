@@ -7,8 +7,9 @@ import pandas as pd
 
 from pitlens.pitwall.events import lap_status, race_events
 from pitlens.pitwall.timing import gap_to_leader, leader_times, retired_drivers
-from pitlens.radio.clips import team_radio
-from pitlens.session import enable_cache, load_session
+from pitlens.radio.clips import assign_laps, team_radio
+from pitlens.session import TimingUnavailable, enable_cache, load_session
+from pitlens.sources import openf1
 from pitlens.stints.pace import add_fuel_corrected_time, clean_race_laps
 from pitlens.style import FALLBACK_TEAM_COLOR
 from pitlens.undercut.analysis import pit_battles, pit_loss, pit_stops
@@ -24,6 +25,7 @@ class RaceData:
     round_number: int
     location: str
     date: pd.Timestamp
+    source: str  # "F1 live timing" or "OpenF1"
     total_laps: int
     laps: pd.DataFrame  # every lap, all drivers
     clean_laps: pd.DataFrame  # representative laps with fuel-corrected time
@@ -52,46 +54,85 @@ def completed_races(year: int) -> pd.DataFrame:
     return done[["RoundNumber", "EventName", "Location", "EventDate"]].reset_index(drop=True)
 
 
-def load_race(year: int, round_number: int) -> RaceData:
+def _fastf1_parts(year: int, round_number: int) -> dict:
     session = load_session(year, round_number, "R")
-    results = session.results.sort_values("Position")
-    total_laps = int(session.total_laps)
+    try:
+        radio = team_radio(session)
+    except Exception:  # radio is a nice-to-have; the archive may not have it for every session
+        radio = pd.DataFrame(columns=["Driver", "Lap", "SessionTime", "Utc", "Url"])
+    return {
+        "laps": pd.DataFrame(session.laps),
+        "results": pd.DataFrame(session.results),
+        "messages": pd.DataFrame(session.race_control_messages),
+        "weather": pd.DataFrame(session.weather_data),
+        "radio": radio,
+        "total_laps": int(session.total_laps),
+        "event_name": session.event["EventName"],
+        "location": session.event["Location"],
+        "date": session.event["EventDate"],
+        "source": "F1 live timing",
+    }
 
-    clean = add_fuel_corrected_time(clean_race_laps(session), total_laps)
+
+def _openf1_parts(year: int, round_number: int) -> dict:
+    enable_cache()
+    event = fastf1.get_event_schedule(year, include_testing=False).get_event_by_round(round_number)
+    parts = openf1.race_parts(year, event["Session5DateUtc"])
+    parts["event_name"] = event["EventName"]
+    parts["location"] = event["Location"]
+    parts["date"] = event["EventDate"]
+    parts["radio"]["Lap"] = assign_laps(parts["radio"], parts["laps"])
+    return parts
+
+
+def load_race(year: int, round_number: int) -> RaceData:
+    """One race from F1's archive, or from OpenF1 when the archive won't serve it."""
+    try:
+        parts = _fastf1_parts(year, round_number)
+    except TimingUnavailable as archive_error:
+        try:
+            parts = _openf1_parts(year, round_number)
+        except openf1.OpenF1Error as exc:
+            raise TimingUnavailable(f"{archive_error} OpenF1 couldn't provide it either: {exc}") from None
+    return build_race(year, round_number, parts)
+
+
+def build_race(year: int, round_number: int, parts: dict) -> RaceData:
+    laps = parts["laps"]
+    results = parts["results"].sort_values("Position")
+    total_laps = parts["total_laps"]
+    clean = add_fuel_corrected_time(clean_race_laps(laps), total_laps)
 
     colors = {}
     for _, row in results.iterrows():
         color = row.get("TeamColor")
         colors[row["Abbreviation"]] = f"#{color}" if isinstance(color, str) and len(color) == 6 else FALLBACK_TEAM_COLOR
 
-    laps = pd.DataFrame(session.laps)
     stops = pit_stops(laps)
-    try:
-        radio = team_radio(session)
-    except Exception:  # radio is a nice-to-have; the archive may not have it for every session
-        radio = pd.DataFrame(columns=["Driver", "Lap", "SessionTime", "Utc", "Url"])
+    retired = retired_drivers(results)
     return RaceData(
-        name=f"{session.event.year} {session.event['EventName']}",
-        event_name=session.event["EventName"],
-        year=int(session.event.year),
-        round_number=int(session.event["RoundNumber"]),
-        location=session.event["Location"],
-        date=session.event["EventDate"],
+        name=f"{year} {parts['event_name']}",
+        event_name=parts["event_name"],
+        year=year,
+        round_number=round_number,
+        location=parts["location"],
+        date=parts["date"],
+        source=parts["source"],
         total_laps=total_laps,
         laps=laps,
         clean_laps=clean,
-        results=pd.DataFrame(results),
-        messages=pd.DataFrame(session.race_control_messages),
-        weather=pd.DataFrame(session.weather_data),
+        results=results,
+        messages=parts["messages"],
+        weather=parts["weather"],
         gaps=gap_to_leader(laps),
         lead_times=leader_times(laps),
         stops=stops,
         battles=pit_battles(laps, stops),
         pit_loss=pit_loss(stops),
-        radio=radio,
-        events=race_events(laps, retired_drivers(results), total_laps),
+        radio=parts["radio"],
+        events=race_events(laps, retired, total_laps),
         lap_status=lap_status(laps),
         team_colors=colors,
         finish_order=results["Abbreviation"].tolist(),
-        retired=retired_drivers(results),
+        retired=retired,
     )

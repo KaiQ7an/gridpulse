@@ -102,7 +102,8 @@ def sidebar_brand(tagline: str) -> None:
 
 def sidebar_footer() -> None:
     st.sidebar.html(
-        '<div class="pl-foot">Unofficial project. Timing data from the public F1 live-timing archive via FastF1. '
+        '<div class="pl-foot">Unofficial project. Timing data from the public F1 live-timing archive via FastF1, '
+        "or from OpenF1 when the archive is unavailable. "
         "Not associated with Formula 1 or any team.<br>"
         '<a href="https://github.com/KaiQ7an/pitlens" target="_blank" style="color:inherit">Source on GitHub</a></div>'
     )

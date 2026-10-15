@@ -10,8 +10,7 @@ from pitlens.onboard.data import (
     REF_COLOR,
     SESSION_NAMES,
     OnboardData,
-    compare,
-    load_session_with_telemetry,
+    load_weekend,
     teammate_of,
 )
 from pitlens.pitwall import ui
@@ -26,20 +25,13 @@ def cached_races(year: int) -> pd.DataFrame:
 
 
 @st.cache_resource(show_spinner=False, max_entries=4)
-def cached_session(year: int, round_number: int, kind: str):
-    return load_session_with_telemetry(year, round_number, kind)
+def cached_weekend(year: int, round_number: int, kind: str):
+    return load_weekend(year, round_number, kind)
 
 
 @st.cache_data(show_spinner=False, max_entries=16)
-def cached_compare(_session, key: tuple, ref: str, other: str) -> OnboardData:
-    return compare(_session, ref, other)
-
-
-def drivers_with_laps(session) -> pd.DataFrame:
-    res = session.results.sort_values("Position")
-    timed = set(session.laps.dropna(subset=["LapTime"])["Driver"])
-    drivers = pd.DataFrame({"Driver": res["Abbreviation"], "Team": res["TeamName"]})
-    return drivers[drivers["Driver"].isin(timed)].reset_index(drop=True)
+def cached_compare(_weekend, key: tuple, ref: str, other: str) -> OnboardData:
+    return _weekend.compare(ref, other)
 
 
 def pick_drivers(drivers: pd.DataFrame) -> tuple[str, str]:
@@ -72,7 +64,7 @@ def render() -> None:
 
     with st.spinner("Loading the session with car telemetry (the first time takes up to a minute)..."):
         try:
-            session = cached_session(year, round_number, kind)
+            weekend = cached_weekend(year, round_number, kind)
         except TimingUnavailable as exc:
             st.warning(str(exc), icon=":material/cloud_off:")
             st.stop()
@@ -80,7 +72,7 @@ def render() -> None:
             st.error(f"Couldn't load {SESSION_NAMES[kind]} for this event: {exc}")
             st.stop()
 
-    drivers = drivers_with_laps(session)
+    drivers = weekend.drivers()
     if len(drivers) < 2:
         st.warning("Fewer than two drivers set a lap time in this session.")
         st.stop()
@@ -88,7 +80,8 @@ def render() -> None:
     ui.sidebar_footer()
 
     try:
-        data = cached_compare(session, (year, round_number, kind), a, b)
+        with st.spinner("Loading both laps' telemetry..."):
+            data = cached_compare(weekend, (year, round_number, kind), a, b)
     except ValueError as exc:
         st.warning(str(exc))
         st.stop()
@@ -101,7 +94,7 @@ def render() -> None:
     ui.header(
         f"{year} · Round {round_number} · {data.session_name}",
         f"{a} vs {b}",
-        f"{data.name} · fastest laps",
+        f"{data.name} · fastest laps · data: {weekend.source}",
         title_html=f'<span style="color:{REF_COLOR}">{a}</span> <span style="opacity:.45">vs</span> '
         f'<span style="color:{OTHER_COLOR}">{b}</span>',
     )

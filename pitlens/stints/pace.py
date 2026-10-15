@@ -16,22 +16,25 @@ DEFAULT_FUEL_EFFECT_S_PER_LAP = 0.06
 MIN_LAPS_FOR_FIT = 5
 
 
-def clean_race_laps(session, drivers: list[str] | None = None) -> pd.DataFrame:
+def clean_race_laps(laps, drivers: list[str] | None = None) -> pd.DataFrame:
     """Return representative race laps as a tidy DataFrame.
 
-    Drops lap 1, in/out laps, laps under yellow/SC/VSC/red flag, laps FastF1
-    flags as inaccurate, and slow outliers (>107% of each driver's best).
+    `laps` is a FastF1 session, its laps, or any DataFrame with the same
+    columns (so OpenF1 data works too). Drops lap 1, in/out laps, laps under
+    yellow/SC/VSC/red flag, laps flagged as inaccurate, and slow outliers
+    (>107% of each driver's best).
     """
-    laps = session.laps
+    laps = pd.DataFrame(getattr(laps, "laps", laps))
     if drivers:
-        laps = laps.pick_drivers(drivers)
+        laps = laps[laps["Driver"].isin(drivers)]
 
-    laps = (
-        laps.pick_wo_box()
-        .pick_track_status("1", how="equals")  # green flag for the whole lap
-        .pick_accurate()
-    )
-    laps = laps[laps["LapNumber"] > 1]
+    laps = laps[
+        laps["PitInTime"].isna()
+        & laps["PitOutTime"].isna()
+        & (laps["TrackStatus"].astype(str) == "1")  # green flag for the whole lap
+        & (laps["IsAccurate"] == True)  # noqa: E712 (column may hold NaN)
+        & (laps["LapNumber"] > 1)
+    ].dropna(subset=["Stint"])
 
     df = pd.DataFrame(
         {

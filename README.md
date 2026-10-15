@@ -244,6 +244,8 @@ pitlens/
 ├── radio/
 │   ├── clips.py       team radio from the F1 archive, matched to laps
 │   └── report.py      the `radio` command
+├── sources/
+│   └── openf1.py      OpenF1 fallback, reshaped into FastF1's columns
 ├── htmlreport.py      self-contained HTML reports shared by the commands
 ├── plotstyle.py       one look for every plotly chart, light and dark
 ├── pitwall/
@@ -296,14 +298,25 @@ as hidden, and Python 3.13+ then skips the file that makes the editable install 
 project outside iCloud Drive (for example `~/Developer`).
 
 **"F1's live-timing archive didn't return timing data".** FastF1 downloads each session from F1's
-public archive the first time you open it. If the archive refuses the request (it answers
-HTTP 401 at times), sessions you have opened before still work from `cache/`; others will load
-once the archive answers again.
+public archive the first time you open it. When the archive refuses a request (it has been
+answering HTTP 401), PitLens switches to OpenF1 automatically; you only see this message if
+neither source has the session.
 
 ## Data
 
-Timing data comes from the public F1 live-timing archive via FastF1. This project is unofficial
-and not associated with Formula 1 or any team.
+Timing data comes from the public F1 live-timing archive via [FastF1](https://github.com/theOehrly/Fast-F1).
+When the archive won't serve a session, PitLens falls back to [OpenF1](https://openf1.org)'s free
+historical API (laps, stints, pit stops, results, race control, weather, team radio and car
+telemetry) with corner positions from the MultiViewer circuit API, reshaped into the same tables
+so every page and command works the same. The page header says which source a race came from.
+
+Checked against the archive on the 2026 Singapore Grand Prix, OpenF1 gives the same laps, pit
+stops, undercut battles, finishing order and retirements; gaps agree to within about 0.2 s and
+pit loss to 0.1 s. Its car telemetry is sampled about half as often, so onboard traces are a
+little coarser. Track status (safety car, VSC, red flag, yellows) is rebuilt per lap from race
+control messages.
+
+This project is unofficial and not associated with Formula 1 or any team.
 
 ## License
 

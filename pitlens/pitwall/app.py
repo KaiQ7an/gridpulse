@@ -298,7 +298,7 @@ def race_page() -> None:
     ui.header(
         f"{race.year} · Round {race.round_number} · {race.location}",
         race.event_name,
-        f"{race.date:%-d %B %Y} · {race.total_laps} laps · press Play to replay it lap by lap",
+        f"{race.date:%-d %B %Y} · {race.total_laps} laps · data: {race.source} · press Play to replay it lap by lap",
     )
     interval = SPEEDS[ss.speed]
     ss.timer = (ss.playing, interval)  # what the fragment's timer is built with
