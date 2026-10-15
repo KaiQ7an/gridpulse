@@ -185,3 +185,12 @@ def test_missing_last_lap_times_are_filled_from_the_result():
     assert tower.loc[2, "Gap"] == "+1 lap"
     a5 = done[(done["Driver"] == "A") & (done["LapNumber"] == 5)]["Time"].iloc[0]
     assert a5 == pd.to_timedelta(400, unit="s")  # lap 5 start (320 s) plus A's usual 80 s
+
+
+def test_laps_beyond_the_classified_count_are_dropped():
+    from pitlens.pitwall.timing import trim_to_classified_laps
+
+    laps = pd.DataFrame(make_driver("A", 80, 5) + make_driver("B", 85, 5))
+    results = pd.DataFrame({"Abbreviation": ["A", "B"], "Laps": [5.0, 4.0]})
+    trimmed = trim_to_classified_laps(laps, results)
+    assert trimmed.groupby("Driver")["LapNumber"].max().to_dict() == {"A": 5, "B": 4}

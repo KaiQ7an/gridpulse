@@ -112,6 +112,20 @@ def official_gaps(results: pd.DataFrame) -> pd.Series:
     return gaps.dropna()
 
 
+def trim_to_classified_laps(laps: pd.DataFrame, results: pd.DataFrame) -> pd.DataFrame:
+    """Drop laps beyond the number the result says a driver completed.
+
+    OpenF1 sometimes counts one lap too many for a lapped car (2026 British
+    GP: Sainz, classified a lap down with 51 laps, has a 52nd), which would
+    put it on the lead lap at the flag.
+    """
+    if "Laps" not in results:
+        return laps
+    done = results.dropna(subset=["Laps"]).set_index("Abbreviation")["Laps"]
+    limit = laps["Driver"].map(done)
+    return laps[~(limit.notna() & (laps["LapNumber"] > limit))].reset_index(drop=True)
+
+
 def complete_final_laps(laps: pd.DataFrame, results: pd.DataFrame, total_laps: int) -> pd.DataFrame:
     """Give finishers' last laps a finishing time where the feed left it out.
 

@@ -13,6 +13,7 @@ from pitlens.pitwall.timing import (
     leader_times,
     non_starters,
     retired_drivers,
+    trim_to_classified_laps,
 )
 from pitlens.radio.clips import assign_laps, team_radio
 from pitlens.session import TimingUnavailable, enable_cache, load_session
@@ -130,7 +131,8 @@ def load_race(year: int, round_number: int) -> RaceData:
 def build_race(year: int, round_number: int, parts: dict) -> RaceData:
     results = parts["results"].sort_values("Position")
     total_laps = parts["total_laps"]
-    laps = classify_finish(complete_final_laps(parts["laps"], results, total_laps), results, total_laps)
+    laps = trim_to_classified_laps(parts["laps"], results)
+    laps = classify_finish(complete_final_laps(laps, results, total_laps), results, total_laps)
     clean = add_fuel_corrected_time(clean_race_laps(laps), total_laps)
 
     colors = {}
