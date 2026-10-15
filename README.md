@@ -62,9 +62,12 @@ git clone https://github.com/KaiQ7an/pitlens
 cd pitlens
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt
-python -m pitlens.stints --year 2025 --event Hungary
+pip install -e .
+pitlens stints --year 2025 --event Hungary --open
 ```
+
+`pip install -e .` installs the `pitlens` command into the virtual environment. In a new terminal,
+run `source .venv/bin/activate` first (or call `.venv/bin/pitlens` directly).
 
 The first run downloads the session into `cache/` (gitignored); later runs are instant. Charts
 and CSVs land in `outputs/<year>_<event>/`.
@@ -75,6 +78,7 @@ and CSVs land in `outputs/<year>_<event>/`.
 | `--event` | `Hungary` | Event name, location or round number |
 | `--top` | `10` | Analyse the top N finishers |
 | `--fuel-effect` | `0.06` | Seconds gained per lap from fuel burn (`0` to disable) |
+| `--open` | off | Open the charts when the report is done (macOS) |
 
 Run the tests with `pip install -r requirements-dev.txt && pytest`.
 
@@ -103,8 +107,9 @@ pitlens/
 ├── stints/
 │   ├── pace.py        clean laps, fuel correction, per-stint degradation fit
 │   ├── plots.py       matplotlib charts (compound colours + marker shapes)
-│   └── __main__.py    command-line report for one race
-└── pitwall/           race-day dashboard (planned)
+│   └── report.py      command-line report for one race
+├── pitwall/           race-day dashboard (planned)
+└── cli.py             the `pitlens <module>` command
 tests/                 unit tests on synthetic stints, run in CI
 ```
 

@@ -2,6 +2,7 @@
 .venv/
 __pycache__/
 *.pyc
+*.egg-info/
 
 # FastF1 HTTP/data cache (large, re-downloadable)
 cache/

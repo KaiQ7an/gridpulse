@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pitlens"
+version = "0.1.0"
+description = "Race-engineering analysis of public F1 data with FastF1"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.12"
+dependencies = [
+    "fastf1>=3.8",
+    "pandas>=2.2",
+    "numpy>=2.0",
+    "matplotlib>=3.9",
+    "plotly>=6.0",
+    "streamlit>=1.40",
+]
+
+[project.scripts]
+pitlens = "pitlens.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["pitlens*"]
