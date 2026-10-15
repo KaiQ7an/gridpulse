@@ -352,6 +352,7 @@ NOTE_STYLE = {  # kind -> (tab label, tab colour, tab text colour)
     "SC": ("Race control", "#F5B700", "#111111"),
     "RED": ("Race control", "#E10600", "#ffffff"),
     "GREEN": ("Race control", "#16A34A", "#ffffff"),
+    "WIN": ("Chequered flag", "#F2F2F2", "#111111"),
 }
 
 
@@ -360,7 +361,7 @@ def notifications(notes: list[dict]) -> None:
     cards = []
     for n in notes:
         title, color, ink = NOTE_STYLE.get(n["kind"], (n["kind"], "#888888", "#ffffff"))
-        right_color = "#ffffff" if n["kind"] in ("SC", "RED", "GREEN") else color
+        right_color = "#ffffff" if n["kind"] in ("SC", "RED", "GREEN", "WIN") else color
         right = f'<div class="right" style="color:{right_color}">{n["right"]}</div>' if n.get("right") else "<div></div>"
         cards.append(
             f'<div class="pl-bc" style="--team:{n["color"]}"><div class="tab" style="background:{color};color:{ink}">'

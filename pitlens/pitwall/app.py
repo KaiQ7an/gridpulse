@@ -142,7 +142,7 @@ NOTE_SECONDS = 3.9
 
 
 def notify(race: RaceData, lap: int) -> None:
-    """Pop up new fastest laps and retirements as the replay moves forward one lap at a time."""
+    """Pop up fastest laps, retirements, race control and the winner as the replay moves forward a lap at a time."""
     ss = st.session_state
     now = time.monotonic()
     notes = [n for n in ss.get("notes", []) if n["until"] > now and n["race"] == ss.race_key]
@@ -159,6 +159,13 @@ def notify(race: RaceData, lap: int) -> None:
                         "team": team_of.get(e.Driver, ""), "color": race.team_colors.get(e.Driver, "#888")}
             note["right"] = e.Text.partition(", ")[2] if e.Kind == "FL" else f"LAP {lap}"
             notes.insert(0, {**note, "until": now + NOTE_SECONDS, "race": ss.race_key})
+        if lap == race.total_laps:  # the chequered flag: who won
+            won = race.events[(race.events["Lap"] == lap) & race.events["Text"].str.contains(" wins by ")]
+            if not won.empty:
+                d = won.iloc[0]["Driver"]
+                notes.insert(0, {"kind": "WIN", "name": race.last_names.get(d) or d, "team": team_of.get(d, ""),
+                                 "color": race.team_colors.get(d, "#888"), "right": "P1",
+                                 "until": now + NOTE_SECONDS, "race": ss.race_key})
     ss.notes = notes[:3]
     ss.shown_lap = lap
     if ss.notes:
