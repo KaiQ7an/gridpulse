@@ -171,6 +171,16 @@ h1, h2, h3 { letter-spacing: -0.01em; }
   .pl-stat.sec .v { font-size: 0.9rem; }
   [class*="st-key-card-"] { padding: 6px 4px; }
   .st-key-pl-notes { right: 10px; top: 56px; width: 236px; }
+  /* Pit stop list without sideways scrolling: no tyre age, flag tag under the lap */
+  .pl-pits, .pl-pit { min-width: 0; }
+  .pl-pit { grid-template-columns: 40px 46px 50px 40px 36px 36px minmax(0, 1fr); gap: 4px; padding: 7px 2px;
+    font-size: 0.78rem; }
+  .pl-pit.nostill { grid-template-columns: 40px 46px 50px 40px 36px minmax(0, 1fr); }
+  .pl-pit.head { font-size: 0.56rem; letter-spacing: 0.06em; }
+  .pl-pit .age { display: none; }
+  .pl-pit .flag { display: block; width: fit-content; margin: 2px 0 0; }
+  .pl-pit .arrow { margin: 0 1px; }
+  .pl-tyre { width: 18px; height: 18px; border-width: 2px; font-size: 0.52rem; }
 }
 </style>
 """
