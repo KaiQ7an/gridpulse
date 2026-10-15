@@ -9,7 +9,7 @@ import fastf1
 from pitlens.htmlreport import table, text, write_report
 from pitlens.pitwall.data import load_race
 from pitlens.session import OUTPUT_DIR
-from pitlens.undercut.analysis import pair_gap, pit_battles
+from pitlens.undercut.analysis import pair_gap, pit_battles, pit_loss_now
 from pitlens.undercut.charts import battle_chart, pit_loss_chart
 
 MAX_BATTLE_CHARTS = 8
@@ -28,12 +28,12 @@ def run(args: argparse.Namespace) -> None:
     round_number = event if isinstance(event, int) else int(fastf1.get_event(args.year, event)["RoundNumber"])
     race = load_race(args.year, round_number)
     stops = race.stops
-    loss = race.pit_loss
+    # Same rule as the pit wall: this race's median once it has three green-flag stops, else the circuit's.
+    loss, source = pit_loss_now(stops, "Green", race.pit_loss_ref)
     battles = pit_battles(race.laps, stops, max_gap=args.max_gap)
 
-    green = int((~stops["Neutralised"]).sum())
     print(f"\n{race.name}: {len(stops)} stops, typical green-flag pit loss "
-          + (f"{loss:.1f} s (from {green} green-flag stop{'s' if green != 1 else ''})" if loss is not None else "unknown"))
+          + (f"{loss:.1f} s ({source})" if loss is not None else "unknown"))
     if race.pit_loss_ref:
         ref = race.pit_loss_ref
         print("Circuit reference: " + ", ".join(f"{k} {v:.1f} s" for k, v in ref.items()))

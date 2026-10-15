@@ -16,7 +16,9 @@ def enable_cache() -> None:
     """Point FastF1 at ./cache so repeat runs don't re-download data."""
     CACHE_DIR.mkdir(exist_ok=True)
     fastf1.Cache.enable_cache(str(CACHE_DIR))
-    fastf1.set_log_level("WARNING")  # FastF1's per-request INFO logs drown out our own output
+    # FastF1 logs every request, and a warning for each part of a session the archive refuses; PitLens
+    # reports that itself (and falls back to OpenF1), so only its errors are worth showing.
+    fastf1.set_log_level("ERROR")
 
 
 def load_session(year: int, event: str | int, kind: str = "R", telemetry: bool = False):
