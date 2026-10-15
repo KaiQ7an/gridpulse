@@ -462,10 +462,17 @@ def pit_table(stops, colors: dict[str, str], lap: int) -> None:
         flag_html = f'<span class="flag{flag_cls}">{flag}</span>' if flag else ""
         age = (f'<span class="age">{int(s.TyreAge)} lap{"" if int(s.TyreAge) == 1 else "s"}</span>'
                if pd.notna(s.TyreAge) else "")
-        cost = ('<span class="muted">…</span>' if pending else
-                '<span class="muted">–</span>' if pd.isna(s.Loss) else
-                f'<span class="muted" title="Rough: under a safety car or VSC">{s.Loss:.1f}</span>'
-                if s.Neutralised else f"{s.Loss:.1f}")
+        if pending:
+            cost = '<span class="muted">…</span>'
+        elif pd.isna(s.Loss):
+            cost = '<span class="muted">–</span>'
+        elif s.Neutralised and s.Loss < 0:  # the field queueing behind the safety car, not a real gain
+            cost = ('<span class="muted" title="Under a safety car or VSC the field\'s lap times swing too much '
+                    'to measure this stop">–</span>')
+        elif s.Neutralised:
+            cost = f'<span class="muted" title="Rough: under a safety car or VSC">{s.Loss:.1f}</span>'
+        else:
+            cost = f"{s.Loss:.1f}"
         places = '<span class="muted">…</span>' if pending else _places(s.PosBefore, s.PosAfter)
         rows.append(
             f'<div class="{cls}{" now" if s.Lap == lap else ""}"><span>L{s.Lap}{flag_html}</span>'

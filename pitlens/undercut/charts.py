@@ -44,6 +44,8 @@ def battle_chart(gap: pd.DataFrame, battle, total_laps: int) -> go.Figure:
 
 def pit_loss_chart(stops: pd.DataFrame, loss: float | None, total_laps: int) -> go.Figure:
     """Time each stop cost against the lap it was made on; grey stops were under SC/VSC."""
+    # A "negative cost" under a safety car is the field queueing behind it, not a measurement.
+    stops = stops[~(stops["Neutralised"] & (stops["Loss"] < 0))]
     fig = go.Figure()
     for neutral, name, color in ((False, "Green flag", GREEN_STOP), (True, "Safety car / VSC", NEUTRAL_STOP)):
         s = stops[stops["Neutralised"] == neutral]
