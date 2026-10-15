@@ -234,7 +234,7 @@ def rejoin_projection(tower: pd.DataFrame, loss: float) -> pd.DataFrame:
                 "GapBehind": round(behind.min() - projected, 1) if len(behind) else np.nan,
             }
         )
-    return pd.DataFrame(rows)
+    return pd.DataFrame(rows, columns=["Driver", "Now", "Rejoin", "CarAhead", "GapAhead", "CarBehind", "GapBehind"])
 
 
 def pair_gap(laps: pd.DataFrame, a: str, b: str) -> pd.DataFrame:

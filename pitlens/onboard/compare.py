@@ -117,9 +117,8 @@ def corner_speeds(ref: pd.DataFrame, other: pd.DataFrame, corners: pd.DataFrame,
                 "Gain": round(float(part["Delta"].iloc[-1] - part["Delta"].iloc[0]), 3),
             }
         )
-    out = pd.DataFrame(rows)
-    if not out.empty:
-        out["SpeedDiff"] = out["RefMinSpeed"] - out["OtherMinSpeed"]
+    out = pd.DataFrame(rows, columns=["Corner", "Distance", "RefMinSpeed", "OtherMinSpeed", "Gain"])
+    out["SpeedDiff"] = out["RefMinSpeed"] - out["OtherMinSpeed"]
     return out
 
 

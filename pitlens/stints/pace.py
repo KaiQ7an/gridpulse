@@ -96,4 +96,5 @@ def stint_degradation(laps: pd.DataFrame, time_col: str = "LapTimeFuelCorr") -> 
                 "DegPerLap": round(slope, 3),
             }
         )
-    return pd.DataFrame(rows)
+    return pd.DataFrame(rows, columns=["Driver", "Team", "Stint", "Compound", "StartLap", "EndLap", "CleanLaps",
+                                       "MedianLapTime", "DegPerLap"])

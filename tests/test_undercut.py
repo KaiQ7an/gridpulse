@@ -158,3 +158,9 @@ def test_implausibly_short_pit_lane_times():
 
     stops = pd.DataFrame({"LaneTime": [20.6, 20.9, 21.3, 15.1, 23.6, 2154.1]})
     assert plausible_lane_times(stops).tolist() == [True, True, True, False, True, False]
+
+
+def test_rejoin_projection_with_no_timed_cars_is_an_empty_table():
+    tower = pd.DataFrame({"Pos": [1], "Driver": ["A"], "GapSeconds": [None], "LapsDown": [0], "Out": [False]})
+    proj = rejoin_projection(tower, loss=20.0)
+    assert proj.empty and "Driver" in proj
