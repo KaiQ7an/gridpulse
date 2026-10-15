@@ -1,5 +1,7 @@
 """Loading FastF1 sessions with a local, gitignored cache."""
 
+import json
+import time
 from pathlib import Path
 
 import fastf1
@@ -39,3 +41,27 @@ def load_session(year: int, event: str | int, kind: str = "R", telemetry: bool =
 
 class TimingUnavailable(RuntimeError):
     """The F1 archive returned no lap timing for a session (network error, or access refused)."""
+
+
+# When F1's archive refuses a session, asking again costs several seconds of failed requests,
+# so the refusal is remembered for a while and callers go straight to OpenF1.
+REFUSALS = CACHE_DIR / "archive_refusals.json"
+REFUSAL_TTL_HOURS = 12
+
+
+def refused_recently(key: str) -> bool:
+    try:
+        when = json.loads(REFUSALS.read_text()).get(key)
+    except (OSError, ValueError):
+        return False
+    return when is not None and time.time() - when < REFUSAL_TTL_HOURS * 3600
+
+
+def remember_refusal(key: str) -> None:
+    try:
+        seen = json.loads(REFUSALS.read_text()) if REFUSALS.exists() else {}
+    except (OSError, ValueError):
+        seen = {}
+    seen[key] = time.time()
+    REFUSALS.parent.mkdir(parents=True, exist_ok=True)
+    REFUSALS.write_text(json.dumps(seen))

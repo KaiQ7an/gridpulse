@@ -17,7 +17,7 @@ from pitlens.pitwall.timing import (
     trim_to_classified_laps,
 )
 from pitlens.radio.clips import assign_laps, team_radio
-from pitlens.session import TimingUnavailable, enable_cache, load_session
+from pitlens.session import TimingUnavailable, enable_cache, load_session, refused_recently, remember_refusal
 from pitlens.sources import openf1, weather
 from pitlens.stints.pace import add_fuel_corrected_time, clean_race_laps
 from pitlens.style import FALLBACK_TEAM_COLOR
@@ -120,9 +120,16 @@ def _openf1_parts(year: int, round_number: int) -> dict:
 
 def load_race(year: int, round_number: int) -> RaceData:
     """One race from F1's archive, or from OpenF1 when the archive won't serve it."""
-    try:
-        parts = _fastf1_parts(year, round_number)
-    except TimingUnavailable as archive_error:
+    key = f"{year}-{round_number}-R"
+    archive_error = TimingUnavailable(f"F1's live-timing archive refused {year} round {round_number} recently.")
+    parts = None
+    if not refused_recently(key):
+        try:
+            parts = _fastf1_parts(year, round_number)
+        except TimingUnavailable as exc:
+            archive_error = exc
+            remember_refusal(key)
+    if parts is None:
         try:
             parts = _openf1_parts(year, round_number)
         except openf1.OpenF1Error as exc:

@@ -7,7 +7,7 @@ import pandas as pd
 from fastf1.exceptions import DataNotLoadedError
 
 from pitlens.onboard.compare import corner_distances
-from pitlens.session import TimingUnavailable, enable_cache, load_session
+from pitlens.session import TimingUnavailable, enable_cache, load_session, refused_recently, remember_refusal
 from pitlens.sources import openf1
 
 SESSION_NAMES = {
@@ -183,10 +183,15 @@ class OpenF1Weekend:
 
 def load_weekend(year: int, round_number: int, kind: str):
     """F1's archive (with car telemetry) if it answers, otherwise OpenF1."""
-    try:
-        return FastF1Weekend(load_session_with_telemetry(year, round_number, kind), year, round_number, kind)
-    except TimingUnavailable as archive_error:
+    key = f"{year}-{round_number}-{kind}"
+    archive_error = TimingUnavailable(f"F1's live-timing archive refused {year} round {round_number} recently.")
+    if not refused_recently(key):
         try:
-            return OpenF1Weekend(year, round_number, kind)
-        except openf1.OpenF1Error as exc:
-            raise TimingUnavailable(f"{archive_error} OpenF1 couldn't provide it either: {exc}") from None
+            return FastF1Weekend(load_session_with_telemetry(year, round_number, kind), year, round_number, kind)
+        except TimingUnavailable as exc:
+            archive_error = exc
+            remember_refusal(key)
+    try:
+        return OpenF1Weekend(year, round_number, kind)
+    except openf1.OpenF1Error as exc:
+        raise TimingUnavailable(f"{archive_error} OpenF1 couldn't provide it either: {exc}") from None
