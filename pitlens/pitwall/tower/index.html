@@ -55,12 +55,13 @@
   @keyframes flashloss { from { background: rgba(225,6,0,.18); } }
 
   @media (max-width: 400px) {
-    .head, .row { grid-template-columns: 3px 22px 52px minmax(0, 1fr) minmax(0, 1fr) 50px 28px; column-gap: 6px; }
+    .head, .row { grid-template-columns: 3px 26px 50px minmax(0, 1fr) minmax(0, 1fr) 50px 28px; column-gap: 6px; }
     .lastcol { display: none; }
   }
   @media (max-width: 320px) {
     html, body { font-size: 12.5px; }
-    .head, .row { grid-template-columns: 3px 20px 50px minmax(0, 1fr) 48px 28px; column-gap: 5px; }
+    .head, .row { grid-template-columns: 3px 26px 48px minmax(0, 1fr) 48px 28px; column-gap: 5px; }
+    .head { letter-spacing: .06em; }
     .intcol { display: none; }
   }
 </style>

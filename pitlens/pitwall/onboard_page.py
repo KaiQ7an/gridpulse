@@ -3,8 +3,8 @@
 import pandas as pd
 import streamlit as st
 
-from pitlens.onboard.charts import telemetry_figure, track_map
-from pitlens.onboard.compare import align, corner_speeds, minisectors
+from pitlens.onboard.charts import corner_gains, telemetry_figure, track_map
+from pitlens.onboard.compare import align, corner_speeds, minisectors, sector_distances, summarise
 from pitlens.onboard.data import (
     OTHER_COLOR,
     REF_COLOR,
@@ -118,19 +118,40 @@ def render() -> None:
                 small="km/h"),
     ])
 
+    sector_gaps = [
+        (o - r).total_seconds() if pd.notna(o) and pd.notna(r) else float("nan")
+        for r, o in zip(data.ref.sectors, data.other.sectors)
+    ]
+    ui.insight(summarise(a, b, gap, sector_gaps, corners))
+
+    marks = sector_distances(data.ref.telemetry, data.ref.sectors)
+    lap_len = float(aligned["Distance"].max())
+    bounds = [0.0, *marks, lap_len]
+    ranges = {"Full lap": None}
+    if len(marks) == 2:
+        ranges.update({f"Sector {n}": (bounds[n - 1] - 30, bounds[n] + 30) for n in (1, 2, 3)})
+
     with st.container(border=True, key="card-telemetry"):
-        ui.label("Telemetry")
-        ui.note(f"Gap at the top: above zero, {b} is behind at that point of the lap. Dotted lines mark corners.")
-        st.plotly_chart(telemetry_figure(data, aligned), width="stretch")
+        with st.container(horizontal=True, vertical_alignment="center"):
+            ui.label("Telemetry")
+            zoom = st.segmented_control("Zoom", list(ranges), key="ob_zoom", required=True, default="Full lap",
+                                        label_visibility="collapsed")
+        ui.note(f"Top panel: the gap along the lap, shaded in the colour of whoever is ahead. "
+                "Dotted lines mark corners, solid lines the sector boundaries.")
+        st.plotly_chart(telemetry_figure(data, aligned, marks, ranges.get(zoom)), width="stretch", key="ob_tel")
 
     left, right = st.columns([6, 5], gap="medium")
     with left, st.container(border=True, key="card-map"):
         ui.label("Who was faster where")
-        st.plotly_chart(track_map(data, sectors), width="stretch")
+        ui.note("The lap split into 25 equal mini-sectors, each in the colour of the quicker driver.")
+        st.plotly_chart(track_map(data, sectors), width="stretch", key="ob_map")
     with right, st.container(border=True, key="card-corners"):
         ui.label("Corner by corner")
-        ui.note(f"Minimum speed in each corner and the time {a} gained (+) or lost (−) through it.")
-        table = corners.rename(
-            columns={"RefMinSpeed": f"{a} km/h", "OtherMinSpeed": f"{b} km/h", "SpeedDiff": "Diff", "Gain": f"{a} gain (s)"}
-        )[["Corner", f"{a} km/h", f"{b} km/h", "Diff", f"{a} gain (s)"]]
-        st.dataframe(table, hide_index=True, width="stretch", height=470)
+        ui.note("Time gained through each corner; hover for minimum speeds.")
+        st.plotly_chart(corner_gains(corners, a, b), width="stretch", key="ob_corners")
+        with st.expander("Table"):
+            table = corners.rename(
+                columns={"RefMinSpeed": f"{a} km/h", "OtherMinSpeed": f"{b} km/h", "SpeedDiff": "Diff",
+                         "Gain": f"{a} gain (s)"}
+            )[["Corner", f"{a} km/h", f"{b} km/h", "Diff", f"{a} gain (s)"]]
+            st.dataframe(table, hide_index=True, width="stretch")

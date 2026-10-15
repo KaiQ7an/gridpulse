@@ -2,7 +2,15 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pitlens.onboard.compare import align, corner_speeds, minisectors, project_onto, rotate
+from pitlens.onboard.compare import (
+    align,
+    corner_speeds,
+    minisectors,
+    project_onto,
+    rotate,
+    sector_distances,
+    summarise,
+)
 
 
 def make_lap(speeds_kmh, length=1000.0, points=201):
@@ -102,3 +110,18 @@ def test_position_alignment_is_robust_to_gps_noise():
     other["X"] += rng.normal(0, 3, len(other))  # ~3 m GPS noise
     other["Y"] += rng.normal(0, 3, len(other))
     assert align(ref, other)["Delta"].abs().max() < 0.05
+
+
+def test_sector_distances_follow_official_split_times():
+    lap = make_lap([180, 180], length=900)  # constant 50 m/s
+    d = sector_distances(lap, (pd.to_timedelta(6, unit="s"),) * 3)
+    assert d == pytest.approx([300, 600], abs=1)
+
+
+def test_summarise_names_sectors_and_corners():
+    corners = pd.DataFrame({"Corner": ["1", "4", "7", "9"], "Gain": [0.10, 0.05, -0.08, 0.0]})
+    text = summarise("VER", "LEC", 0.054, [0.023, -0.130, 0.161], corners)
+    assert text.startswith("VER was 0.054 s quicker than LEC.")
+    assert "VER took sectors 1 and 3; LEC was 0.130 s faster in sector 2." in text
+    assert "VER's biggest gains came at T1 and T4" in text
+    assert "LEC's biggest gains came at T7" in text

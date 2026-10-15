@@ -49,6 +49,8 @@ falling away, with the cleaning rules written down and tested.
 - **Positions**, **tyre stints** in running order, **degradation so far** for the focus drivers,
   **clean-lap pace** by compound, and race control **messages** up to the current lap.
 - Track status, track temperature and rain at the current lap; safety car and VSC laps shaded.
+- **Race feed**: what happened lap by lap (pit stops, passes on track, new fastest laps, safety
+  cars, retirements, the finish) with a one-line state of the race on top.
 - **Strategy**: the typical pit loss, where each car would rejoin if it pitted at the end of this
   lap, and every undercut and overcut so far with its outcome.
 - **Radio**: team radio clips up to the current lap, playable in the page, with a microphone in
@@ -57,10 +59,11 @@ falling away, with the cleaning rules written down and tested.
 **`onboard`: fastest-lap telemetry comparison** (available now)
 
 - Any two drivers in any session, defaulting to the fastest driver and their teammate.
-- Speed, throttle, brake and gear against distance, with a gap trace showing where on the lap
-  time was won and lost, and corner numbers marked.
-- A track map coloured by who was faster in each of 25 mini-sectors, and a corner-by-corner
-  table of minimum speeds and time gained.
+- A plain-English summary of where the lap was won: sectors, and the corners with the biggest gains.
+- Speed, throttle, brake and gear against distance, with a gap trace shaded in the colour of
+  whoever is ahead, corner numbers and sector lines, and a zoom into each sector.
+- A track map coloured by who was faster in each of 25 mini-sectors, and a chart of the time
+  gained in every corner.
 - A page in the pit wall, or an HTML report from the command line.
 
 **`undercut`: pit stops and strategy** (available now)
@@ -245,6 +248,7 @@ pitlens/
 ├── pitwall/
 │   ├── data.py        one race as plain DataFrames (laps, results, weather, messages)
 │   ├── timing.py      timing tower, gaps, track status and stints at any lap
+│   ├── events.py      the race feed: pits, passes, fastest laps, safety cars
 │   ├── charts.py      interactive plotly charts
 │   ├── tower/         animated timing tower (a small HTML/JS Streamlit component)
 │   ├── ui.py          page header, status strip and shared CSS

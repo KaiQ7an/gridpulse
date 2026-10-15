@@ -8,6 +8,7 @@ import streamlit as st
 
 from pitlens.pitwall import charts, onboard_page, ui
 from pitlens.pitwall.data import FIRST_SEASON, RaceData, completed_races, load_race
+from pitlens.pitwall.events import situation
 from pitlens.pitwall.timing import format_lap_time, neutralised_periods, stint_timeline, timing_tower, track_status
 from pitlens.pitwall.tower import timing_tower as tower_component
 from pitlens.stints.pace import stint_degradation
@@ -144,7 +145,7 @@ def race_view(race: RaceData) -> None:
     with right, st.container(border=True, key="card-views"):
         # Only the chosen view is drawn each tick (tabs would redraw all of them).
         view = st.segmented_control("View", VIEWS, key="view", required=True, label_visibility="collapsed",
-                                    width="stretch")
+                                    width="stretch", wrap=False)
         if view == "Gaps":
             ui.note("Seconds behind the leader at the end of each lap. Flat lines hold the gap, dips are pit "
                     "stops, shaded laps ran under safety car or VSC.")
@@ -168,6 +169,11 @@ def race_view(race: RaceData) -> None:
             radio_view(race, lap, focus)
         else:
             messages_view(race, lap)
+
+    with right, st.container(border=True, key="card-feed"):
+        ui.label("Race feed")
+        feed = race.events[race.events["Lap"] <= lap].iloc[::-1]
+        ui.race_feed(situation(tower, lap, race.total_laps), feed, lap)
 
 
 def tyres_view(race: RaceData, laps: pd.DataFrame, tower: pd.DataFrame, lap: int, focus: list[str]) -> None:

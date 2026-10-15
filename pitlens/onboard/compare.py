@@ -128,3 +128,45 @@ def rotate(x, y, degrees: float) -> tuple[np.ndarray, np.ndarray]:
     a = np.radians(degrees)
     x, y = np.asarray(x, dtype=float), np.asarray(y, dtype=float)
     return x * np.cos(a) - y * np.sin(a), x * np.sin(a) + y * np.cos(a)
+
+
+def sector_distances(lap_telemetry: pd.DataFrame, sector_times) -> list[float]:
+    """Distances (m) along the lap where sectors 1 and 2 end, from the official sector times."""
+    t = _seconds(lap_telemetry["Time"])
+    d = lap_telemetry["Distance"].to_numpy(dtype=float)
+    s = [pd.Timedelta(x).total_seconds() for x in sector_times[:2]]
+    if any(pd.isna(x) for x in s):
+        return []
+    return [float(np.interp(s[0], t, d)), float(np.interp(s[0] + s[1], t, d))]
+
+
+def summarise(ref: str, other: str, lap_gap: float, sector_gaps: list[float], corners: pd.DataFrame) -> str:
+    """One or two plain sentences on where the lap was won.
+
+    `lap_gap` and `sector_gaps` are other minus ref, in seconds; corner
+    `Gain` is time ref gained through each corner.
+    """
+    faster, slower = (ref, other) if lap_gap >= 0 else (other, ref)
+    parts = [f"{faster} was {abs(lap_gap):.3f} s quicker than {slower}."]
+
+    won = {ref: [], other: []}
+    for n, g in enumerate(sector_gaps, start=1):
+        if pd.notna(g) and g != 0:
+            won[ref if g > 0 else other].append((n, abs(g)))
+    if won[faster] and won[slower]:
+        f_secs = " and ".join(str(n) for n, _ in won[faster])
+        s_best = max(won[slower], key=lambda x: x[1])
+        parts.append(f"{faster} took sector{'s' if len(won[faster]) > 1 else ''} {f_secs}; "
+                     f"{slower} was {s_best[1]:.3f} s faster in sector {s_best[0]}.")
+    elif won[faster]:
+        parts.append(f"{faster} was faster in every sector.")
+
+    if not corners.empty:
+        def best(driver, sign):
+            g = corners[corners["Gain"] * sign > 0.02].assign(abs_gain=lambda c: c["Gain"].abs())
+            return [f"T{c}" for c in g.nlargest(2, "abs_gain")["Corner"]]
+
+        notes = [f"{d}'s biggest gains came at {' and '.join(b)}" for d, b in ((ref, best(ref, 1)), (other, best(other, -1))) if b]
+        if notes:
+            parts.append("; ".join(notes) + ".")
+    return " ".join(parts)
