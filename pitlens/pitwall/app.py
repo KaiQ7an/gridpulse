@@ -149,11 +149,10 @@ def notify(race: RaceData, lap: int) -> None:
     if ss.get("shown_lap") == lap - 1:
         team_of = dict(zip(race.entrants["Driver"], race.entrants["Team"]))
         for e in race.events[(race.events["Lap"] == lap) & race.events["Kind"].isin(["FL", "OUT"])].itertuples():
-            detail = (f'<span style="color:#A855F7;font-weight:700">{e.Text.partition(", ")[2]}</span> · lap {lap}'
-                      if e.Kind == "FL" else f"Out of the race on lap {lap}")
-            notes.insert(0, {"kind": e.Kind, "name": race.full_names.get(e.Driver, e.Driver),
+            right = e.Text.partition(", ")[2] if e.Kind == "FL" else f"LAP {lap}"
+            notes.insert(0, {"kind": e.Kind, "name": race.last_names.get(e.Driver) or e.Driver,
                              "team": team_of.get(e.Driver, ""), "color": race.team_colors.get(e.Driver, "#888"),
-                             "detail": detail, "until": now + NOTE_SECONDS, "race": ss.race_key})
+                             "right": right, "until": now + NOTE_SECONDS, "race": ss.race_key})
     ss.notes = notes[:3]
     ss.shown_lap = lap
     if ss.notes:

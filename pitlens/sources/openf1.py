@@ -236,6 +236,7 @@ def race_parts(year: int, race_date_utc) -> dict:
             "TeamColor": result["driver_number"].map(colour),
             "FirstName": result["driver_number"].map(first),
             "FullName": [f"{first.get(n, '')} {str(last.get(n, '')).title()}".strip() for n in result["driver_number"]],
+            "LastName": [str(last.get(n, "")).title() for n in result["driver_number"]],
             "Position": pd.to_numeric(result["position"], errors="coerce").astype(float),
             "Status": [status_of(r) for r in result.to_dict("records")],
         }

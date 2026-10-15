@@ -44,6 +44,7 @@ class RaceData:
     team_colors: dict[str, str]  # driver -> "#rrggbb"
     first_names: dict[str, str]  # driver -> first name, e.g. "VER" -> "Max"
     full_names: dict[str, str]  # driver -> full name, e.g. "VER" -> "Max Verstappen"
+    last_names: dict[str, str]  # driver -> surname, e.g. "VER" -> "Verstappen"
     finish_order: list[str]
     retired: set[str]
     entrants: pd.DataFrame  # Driver, Team for everyone who started, even without a completed lap
@@ -147,6 +148,7 @@ def build_race(year: int, round_number: int, parts: dict) -> RaceData:
         team_colors=colors,
         first_names=dict(zip(results["Abbreviation"], results["FirstName"])) if "FirstName" in results else {},
         full_names=dict(zip(results["Abbreviation"], results["FullName"])) if "FullName" in results else {},
+        last_names=dict(zip(results["Abbreviation"], results["LastName"])) if "LastName" in results else {},
         finish_order=results["Abbreviation"].tolist(),
         retired=retired,
         entrants=entrants,
