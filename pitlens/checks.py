@@ -18,6 +18,7 @@ from pitlens.session import TimingUnavailable
 def add_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--year", type=int, default=2026)
     parser.add_argument("--round", type=int, help="Only this round (default: every finished race of the season)")
+    parser.add_argument("--sprint", action="store_true", help="Check the sprints instead of the Grands Prix")
 
 
 def check_race(race) -> list[str]:
@@ -47,17 +48,19 @@ def run(args: argparse.Namespace) -> None:
     races = completed_races(args.year)
     if args.round:
         races = races[races["RoundNumber"] == args.round]
+    if args.sprint:
+        races = races[races["EventFormat"].astype(str).str.contains("sprint")]
     failed = 0
     for r in races.itertuples():
-        label = f"{args.year} R{r.RoundNumber:>2} {r.EventName}"
+        label = f"{args.year} R{r.RoundNumber:>2} {r.EventName}" + (" Sprint" if args.sprint else "")
         try:
-            race = load_race(args.year, int(r.RoundNumber))
+            race = load_race(args.year, int(r.RoundNumber), "S" if args.sprint else "R")
         except TimingUnavailable as exc:
             print(f"{label}: couldn't load ({exc})")
             continue
         problems = check_race(race)
         failed += bool(problems)
         print(f"{label:40} {race.source:15} " + ("ok" if not problems else "; ".join(problems)), flush=True)
-    print(f"\n{len(races) - failed} of {len(races)} races match the official result.")
+    print(f"\n{len(races) - failed} of {len(races)} {'sprints' if args.sprint else 'races'} match the official result.")
     if failed:
         raise SystemExit(1)
