@@ -160,7 +160,7 @@ def notify(race: RaceData, lap: int) -> None:
             note["right"] = e.Text.partition(", ")[2] if e.Kind == "FL" else f"LAP {lap}"
             notes.insert(0, {**note, "until": now + NOTE_SECONDS, "race": ss.race_key})
         if lap == race.total_laps:  # the chequered flag: who won
-            won = race.events[(race.events["Lap"] == lap) & race.events["Text"].str.contains(" wins by ")]
+            won = race.events[(race.events["Lap"] == lap) & race.events["Text"].str.contains(r" wins( by |$)")]
             if not won.empty:
                 d = won.iloc[0]["Driver"]
                 notes.insert(0, {"kind": "WIN", "name": race.last_names.get(d) or d, "team": team_of.get(d, ""),

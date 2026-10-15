@@ -130,3 +130,21 @@ def test_disqualified_drivers_drop_to_the_bottom_marked_dsq():
     texts = race_events(laps, retired={"D", "B"}, total_laps=6)["Text"].tolist()
     assert "B disqualified, crossed the line P1" in texts
     assert texts[-2].startswith("A wins by")
+
+
+def test_pit_events_follow_the_stop_list_when_given():
+    laps = make_race()
+    stops = pd.DataFrame({"Driver": [], "Lap": []})  # e.g. C's trip down the pit lane wasn't a stop
+    texts = race_events(laps, retired={"D"}, total_laps=6, stops=stops)["Text"].tolist()
+    assert "C pits from P3" not in texts
+    stops = pd.DataFrame({"Driver": ["C"], "Lap": [3]})
+    texts = race_events(laps, retired={"D"}, total_laps=6, stops=stops)["Text"].tolist()
+    assert "C pits from P3" in texts
+
+
+def test_winner_alone_on_the_lead_lap():
+    laps = make_race()
+    laps = laps[~((laps["Driver"] != "B") & (laps["LapNumber"] == 6))]  # only B completes lap 6
+    events = race_events(laps, retired={"D"}, total_laps=6)
+    assert events.loc[events["Kind"] == "FLAG", "Text"].tolist() == ["B wins"]
+    assert situation(timing_tower(laps, 6, {"D"}), 6, 6) == "Chequered flag: B wins."

@@ -68,6 +68,8 @@ def race_events(laps: pd.DataFrame, retired: set[str], total_laps: int, entrants
                 stops: pd.DataFrame | None = None) -> pd.DataFrame:
     rows = []
     status = lap_status(laps)
+    # A trip down the pit lane is a stop if it's in the stop list (or, without one, if the tyres changed).
+    listed = set(zip(stops["Driver"], stops["Lap"].astype(int))) if stops is not None else None
     passes_through = drive_throughs(laps)
     timed = fastest_lap_candidates(laps)
     best = None
@@ -96,7 +98,7 @@ def race_events(laps: pd.DataFrame, retired: set[str], total_laps: int, entrants
                 best = fl["LapTime"]
 
         for r in tower.itertuples():
-            if r.Pit and (r.Driver, lap) not in passes_through:
+            if r.Pit and ((r.Driver, lap) in listed if listed is not None else (r.Driver, lap) not in passes_through):
                 rows.append((lap, "PIT", r.Driver, f"{r.Driver} pits from P{r.Pos}"))
         if prev is None:  # out before completing a single lap
             for r in tower[tower["Out"]].itertuples():
@@ -124,9 +126,12 @@ def race_events(laps: pd.DataFrame, retired: set[str], total_laps: int, entrants
 
     if total_laps in laps["LapNumber"].values:
         final = timing_tower(laps, total_laps, retired)
+        winner = final.loc[0, "Driver"]
         if len(final) > 1 and pd.notna(final.loc[1, "GapSeconds"]):
-            rows.append((total_laps, "FLAG", final.loc[0, "Driver"],
-                         f"{final.loc[0, 'Driver']} wins by {final.loc[1, 'GapSeconds']:.3f} s from {final.loc[1, 'Driver']}"))
+            rows.append((total_laps, "FLAG", winner,
+                         f"{winner} wins by {final.loc[1, 'GapSeconds']:.3f} s from {final.loc[1, 'Driver']}"))
+        else:  # nobody else on the lead lap
+            rows.append((total_laps, "FLAG", winner, f"{winner} wins"))
         # Where the result differs from the order they crossed the line (penalties after the flag).
         road = timing_tower(laps, total_laps, retired, official=False)
         crossed = dict(zip(road.loc[~road["Out"], "Driver"], road.loc[~road["Out"], "Pos"]))
@@ -144,6 +149,8 @@ def situation(tower: pd.DataFrame, lap: int, total_laps: int) -> str:
     """One line on the state of the race at the end of `lap`."""
     lead = tower.loc[0, "Driver"]
     second = tower.iloc[1] if len(tower) > 1 else None
+    if lap >= total_laps and (second is None or pd.isna(second["GapSeconds"])):
+        return f"Chequered flag: {lead} wins."
     if second is None or pd.isna(second["GapSeconds"]):
         return f"Lap {lap} of {total_laps}: {lead} leads."
     if lap >= total_laps:
