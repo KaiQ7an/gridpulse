@@ -437,8 +437,9 @@ def pit_table(stops, colors: dict[str, str], lap: int) -> None:
         if pd.isna(value):
             return '<span class="muted">–</span>'
         if value >= 100:  # cars held in the pit lane under a red flag, or repairs in the garage
+            minutes, rest = divmod(round(value, 1), 60)
             return (f'<span class="muted" title="Held in the pit lane (red flag) or in the garage">'
-                    f"{int(value // 60)}:{value % 60:04.1f}</span>")
+                    f"{int(minutes)}:{rest:04.1f}</span>")
         if not ok:
             why = ("Too short for a normal trip down the pit lane, as when cars are sent through it behind the "
                    "safety car" if pd.isna(best) or value < best else "Far longer than a normal stop: repairs, or held")

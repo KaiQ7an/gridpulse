@@ -385,6 +385,6 @@ def format_lap_time(value) -> str:
     """Timedelta -> "1:21.345"."""
     if pd.isna(value):
         return ""
-    seconds = value.total_seconds()
+    seconds = round(value.total_seconds(), 3)
     minutes, rest = divmod(seconds, 60)
     return f"{int(minutes)}:{rest:06.3f}"

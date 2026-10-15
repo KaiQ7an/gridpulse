@@ -210,3 +210,7 @@ def test_tower_counts_stops_from_the_stop_list_when_given(race):
     tower = timing_tower(race, 11, stops=stops).set_index("Driver")
     assert tower.loc["BBB", "Stops"] == 2 and tower.loc["AAA", "Stops"] == 0
     assert timing_tower(race, 10, stops=stops).set_index("Driver").loc["BBB", "Stops"] == 1  # in-lap 10 not done yet
+
+
+def test_format_lap_time_rounds_before_splitting_minutes():
+    assert format_lap_time(pd.to_timedelta(119.9996, unit="s")) == "2:00.000"

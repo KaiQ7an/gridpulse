@@ -150,6 +150,8 @@ def pace_chart(clean: pd.DataFrame, focus: list[str], total_laps: int) -> go.Fig
     """Clean lap times of the focus drivers, one panel each, marked by compound."""
     df = clean[clean["Driver"].isin(focus)].copy()
     df["Compound"] = pd.Categorical(df["Compound"], categories=COMPOUND_ORDER)
+    df["Shown"] = df["LapTime"].map(_minutes)
+    df["ShownCorr"] = df["LapTimeFuelCorr"].map(_minutes)
     fig = px.scatter(
         df,
         x="LapNumber",
@@ -161,11 +163,12 @@ def pace_chart(clean: pd.DataFrame, focus: list[str], total_laps: int) -> go.Fig
         category_orders={"Driver": focus, "Compound": COMPOUND_ORDER},
         color_discrete_map=COMPOUND_COLORS,
         symbol_map=COMPOUND_SYMBOLS,
-        custom_data=["TyreLife", "LapTimeFuelCorr"],
+        custom_data=["TyreLife", "Shown", "ShownCorr"],
     )
     fig.update_traces(
         marker=dict(size=7),
-        hovertemplate="Lap %{x}<br>%{y:.3f} s (fuel-corrected %{customdata[1]:.3f})<br>tyre age %{customdata[0]:.0f}<extra></extra>",
+        hovertemplate="Lap %{x}<br>%{customdata[1]} (fuel-corrected %{customdata[2]})<br>tyre age %{customdata[0]:.0f}"
+                      "<extra></extra>",
     )
     fig.for_each_annotation(lambda a: a.update(text=a.text.split("=")[-1]))
     fig.for_each_trace(lambda t: t.update(name=t.name.title()))
@@ -180,7 +183,19 @@ def pace_chart(clean: pd.DataFrame, focus: list[str], total_laps: int) -> go.Fig
         lo, hi = df["LapTime"].min(), df["LapTime"].max()
         pad = max((hi - lo) * 0.08, 0.3)
         fig.update_yaxes(range=[lo - pad, hi + pad])
+        # Lap times read as 1:38.5, not 98.5 s.
+        step = 0.5 if hi - lo < 3 else 1.0
+        ticks = np.arange(np.ceil((lo - pad) / step) * step, hi + pad, step)
+        fig.update_yaxes(tickvals=ticks, ticktext=[_minutes(t, 1) for t in ticks])
     return fig
+
+
+def _minutes(seconds: float, decimals: int = 3) -> str:
+    """98.5 -> "1:38.500" (or "1:38.5" with one decimal)."""
+    if pd.isna(seconds):
+        return ""
+    minutes, rest = divmod(round(float(seconds), decimals), 60)  # round first: 59.95 is 1:00.0, not 0:60.0
+    return f"{int(minutes)}:{rest:0{3 + decimals}.{decimals}f}"
 
 
 def degradation_chart(deg: pd.DataFrame) -> go.Figure:
