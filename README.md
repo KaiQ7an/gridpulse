@@ -288,7 +288,7 @@ traffic, and the fuel effect is a rule of thumb. The roadmap lists how to tighte
 
 ```
 pitlens/
-├── session.py         load a FastF1 session with the local cache
+├── session.py         load a FastF1 session with the local cache; remember archive refusals
 ├── style.py           compound colours and symbols shared by every chart
 ├── stints/
 │   ├── pace.py        clean laps, fuel correction, per-stint degradation fit
@@ -315,12 +315,13 @@ pitlens/
 ├── plotstyle.py       one look for every plotly chart, light and dark
 ├── pitwall/
 │   ├── data.py        one race as plain DataFrames (laps, results, weather, messages)
-│   ├── timing.py      timing tower, gaps, track status and stints at any lap
+│   ├── timing.py      timing tower, gaps, track status and stints at any lap; official finish
 │   ├── events.py      the race feed: pits, passes, fastest laps, safety cars
 │   ├── charts.py      interactive plotly charts
 │   ├── tower/         animated timing tower (a small HTML/JS Streamlit component)
 │   ├── ui.py          page header, status strip and shared CSS
 │   ├── app.py         the Streamlit dashboard: race replay page
+│   ├── views.py       its views: tyres, pit stops, strategy, radio, race control
 │   ├── onboard_page.py  the Onboard page
 │   └── serve.py       the `pitwall` command
 └── cli.py             `pitlens <module>`
