@@ -1,13 +1,13 @@
 <div align="center">
 
-# pitwall
+# PitLens
 
 **Race-engineering style analysis of public Formula 1 timing data.**
 
 Clean the laps, correct for fuel, and measure how fast each tyre stint fell away,<br>
 the same questions a strategy desk asks on a Sunday afternoon.
 
-[![Tests](https://github.com/KaiQ7an/pitwall/actions/workflows/test.yml/badge.svg)](https://github.com/KaiQ7an/pitwall/actions/workflows/test.yml)
+[![Tests](https://github.com/KaiQ7an/pitlens/actions/workflows/test.yml/badge.svg)](https://github.com/KaiQ7an/pitlens/actions/workflows/test.yml)
 ![Python](https://img.shields.io/badge/python-3.12%2B-3776AB?logo=python&logoColor=white)
 ![FastF1](https://img.shields.io/badge/data-FastF1-E10600)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
@@ -33,7 +33,7 @@ rules written down and tested.
 
 ## Features
 
-**Race pace and tyre degradation** (available now)
+**`stints`: race pace and tyre degradation** (available now)
 
 - Filters each driver's race to representative laps: no lap 1, no pit in/out laps, green flag
   only, FastF1's accuracy check, and a 107% outlier cut.
@@ -45,24 +45,25 @@ rules written down and tested.
 
 **Planned** (see the [roadmap](ROADMAP.md))
 
-- Teammate telemetry comparison: speed, throttle, brake and gear traces on the fastest lap, with a
-  delta-time trace.
-- Pit-stop strategy and undercut explorer: stint timeline, pit-loss estimate, did the undercut
-  work?
-- A Streamlit dashboard that replays a race lap by lap, then a live mode for race day with team
-  radio.
+- `onboard`: teammate telemetry comparison, with speed, throttle, brake and gear traces on the
+  fastest lap and a delta-time trace.
+- `undercut`: pit-stop strategy explorer, with a stint timeline, a pit-loss estimate, and whether
+  the undercut worked.
+- `radio`: team radio clips linked to the lap they were sent on.
+- `pitwall`: a Streamlit race-day dashboard that brings the modules together, replaying a past race
+  lap by lap first and following a live one later.
 
 ## Quick start
 
 You need Python 3.12 or newer.
 
 ```bash
-git clone https://github.com/KaiQ7an/pitwall
-cd pitwall
+git clone https://github.com/KaiQ7an/pitlens
+cd pitlens
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-python -m pitwall.race_pace --year 2025 --event Hungary
+python -m pitlens.stints --year 2025 --event Hungary
 ```
 
 The first run downloads the session into `cache/` (gitignored); later runs are instant. Charts
@@ -97,12 +98,14 @@ traffic, and the fuel effect is a rule of thumb. The roadmap lists how to tighte
 ## How it works
 
 ```
-pitwall/
-├── session.py     load a FastF1 session with the local cache
-├── pace.py        clean laps, fuel correction, per-stint degradation fit
-├── plots.py       matplotlib charts (compound colours + marker shapes)
-└── race_pace.py   command-line report for one race
-tests/             unit tests on synthetic stints, run in CI
+pitlens/
+├── session.py         load a FastF1 session with the local cache
+├── stints/
+│   ├── pace.py        clean laps, fuel correction, per-stint degradation fit
+│   ├── plots.py       matplotlib charts (compound colours + marker shapes)
+│   └── __main__.py    command-line report for one race
+└── pitwall/           race-day dashboard (planned)
+tests/                 unit tests on synthetic stints, run in CI
 ```
 
 1. `load_session` pulls lap timing, results, weather and race-control messages (no car telemetry,

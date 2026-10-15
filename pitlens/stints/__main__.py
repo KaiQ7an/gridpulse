@@ -1,19 +1,19 @@
 """Race pace & tyre degradation report for one race.
 
 Usage:
-    python -m pitwall.race_pace --year 2025 --event Hungary
+    python -m pitlens.stints --year 2025 --event Hungary
 """
 
 import argparse
 
-from pitwall.pace import (
+from pitlens.stints.pace import (
     DEFAULT_FUEL_EFFECT_S_PER_LAP,
     add_fuel_corrected_time,
     clean_race_laps,
     stint_degradation,
 )
-from pitwall.plots import plot_degradation, plot_pace_by_driver
-from pitwall.session import OUTPUT_DIR, load_session
+from pitlens.stints.plots import plot_degradation, plot_pace_by_driver
+from pitlens.session import OUTPUT_DIR, load_session
 
 
 def parse_args() -> argparse.Namespace:
