@@ -5,6 +5,7 @@ per lap, with `Time` = session time when the lap was completed), so the same
 functions serve a finished race, a lap-by-lap replay and, later, live data.
 """
 
+import numpy as np
 import pandas as pd
 
 TRACK_STATUS = {
@@ -96,26 +97,96 @@ def official_gaps(results: pd.DataFrame) -> pd.Series:
     return gaps.dropna()
 
 
-def classify_finish(laps: pd.DataFrame, results: pd.DataFrame, total_laps: int) -> pd.DataFrame:
-    """Line the final lap up with the official result.
+def complete_final_laps(laps: pd.DataFrame, results: pd.DataFrame, total_laps: int) -> pd.DataFrame:
+    """Give finishers' last laps a finishing time where the feed left it out.
 
-    A photo finish can come out the wrong way round in lap timing (in the 2026
-    Azerbaijan GP OpenF1's lap times put Verstappen 0.003 s ahead of Russell,
-    who won by 0.196 s). So the lead-lap finishers' final-lap times are set to
-    the winner's time plus their official gap, and their position to their
-    classified one.
+    OpenF1 sometimes has no duration for the last lap (2026 Australian GP: no
+    lap 58 time for anyone, and no lap 58 at all for most cars), which would
+    leave every car looking a lap down at the flag. The winner's flag time is
+    estimated from their last lap's start and recent pace; cars on the lead
+    lap then finish their official gap behind (a missing last lap is added);
+    other finishers get their own last lap estimated from their pace. Lap
+    times of these laps stay unknown.
     """
+    status = results["Status"].fillna("")
+    finishers = set(results.loc[status.isin(FINISHED_STATUSES) | status.str.startswith("+"), "Abbreviation"])
     gaps = official_gaps(results)
-    final = laps["LapNumber"] == total_laps
-    winner = laps[final & (laps["Driver"] == (gaps.index[0] if len(gaps) else None))]["Time"].dropna()
-    if winner.empty:
+    timed = laps.dropna(subset=["Time"])
+    if not finishers or timed.empty or len(gaps) == 0:
         return laps
+
+    def pace(driver: str):
+        recent = timed[timed["Driver"] == driver].sort_values("LapNumber")["LapTime"].dropna().tail(5)
+        return recent.median() if len(recent) else pd.NaT
+
+    def last_row(driver: str):
+        mine = laps[laps["Driver"] == driver]
+        return mine.loc[mine["LapNumber"].idxmax()] if not mine.empty else None
+
+    def estimated_end(row) -> pd.Timedelta:
+        start = row.get("LapStartTime")
+        if pd.isna(start):  # no start stamp: the lap before ended where this one began
+            before = timed[(timed["Driver"] == row["Driver"]) & (timed["LapNumber"] == row["LapNumber"] - 1)]["Time"]
+            start = before.iloc[0] if not before.empty else pd.NaT
+        return start + pace(row["Driver"])
+
     laps = laps.copy()
-    rows = final & laps["Driver"].isin(gaps.index)
-    laps.loc[rows, "Time"] = winner.iloc[0] + pd.to_timedelta(laps.loc[rows, "Driver"].map(gaps), unit="s")
-    if "Position" in laps:
-        position = results.dropna(subset=["Position"]).set_index("Abbreviation")["Position"]
-        laps.loc[rows, "Position"] = laps.loc[rows, "Driver"].map(position).astype(float)
+    winner = last_row(gaps.index[0])
+    if winner is None:
+        return laps
+    if winner["LapNumber"] == total_laps:
+        flag = winner["Time"] if pd.notna(winner["Time"]) else estimated_end(winner)
+    else:
+        flag = winner["Time"] + pace(winner["Driver"])
+    if pd.isna(flag):
+        return laps
+
+    added = []
+    for driver in finishers:
+        row = last_row(driver)
+        if row is None:
+            continue
+        if driver in gaps.index:
+            end = flag + pd.to_timedelta(float(gaps[driver]), unit="s")
+            if row["LapNumber"] == total_laps:
+                if pd.isna(row["Time"]):
+                    laps.loc[row.name, "Time"] = end
+            elif row["LapNumber"] == total_laps - 1 and pd.notna(row["Time"]):
+                new = row.copy()
+                new["LapNumber"], new["LapStartTime"], new["Time"] = float(total_laps), row["Time"], end
+                for col in ("LapTime", "Sector1Time", "Sector2Time", "Sector3Time", "PitInTime", "PitOutTime"):
+                    if col in new:
+                        new[col] = pd.NaT
+                if "TyreLife" in new:
+                    new["TyreLife"] = row["TyreLife"] + 1
+                for col, value in (("Position", np.nan), ("IsAccurate", False), ("IsPitOutLap", False)):
+                    if col in new:
+                        new[col] = value
+                added.append(new)
+        elif pd.isna(row["Time"]):
+            laps.loc[row.name, "Time"] = estimated_end(row)
+    if added:
+        # Via object: an all-NaT column would otherwise be read as datetimes, not durations.
+        extra = pd.DataFrame(added).astype(object).astype(laps.dtypes.to_dict())
+        laps = pd.concat([laps, extra], ignore_index=True).sort_values(["Driver", "LapNumber"]).reset_index(drop=True)
+    return laps
+
+
+def classify_finish(laps: pd.DataFrame, results: pd.DataFrame, total_laps: int) -> pd.DataFrame:
+    """Attach the official result to the laps: `Classified` (position) and `OfficialGap` (seconds behind
+    the winner, lead-lap finishers only), which `timing_tower` uses for the final lap.
+
+    Lap times say who crossed the line first; the result is what counts. A
+    photo finish can come out the wrong way round in lap timing (in the 2026
+    Azerbaijan GP OpenF1's lap times put Verstappen 0.003 s ahead of Russell,
+    who won by 0.196 s), and penalties applied after the flag change the
+    order (Colapinto crossed the line 8th in the 2026 Barcelona GP and was
+    classified 10th).
+    """
+    laps = laps.copy()
+    position = results.dropna(subset=["Position"]).set_index("Abbreviation")["Position"]
+    laps["Classified"] = laps["Driver"].map(position).astype(float)
+    laps["OfficialGap"] = laps["Driver"].map(official_gaps(results)).where(laps["LapNumber"] == total_laps)
     return laps
 
 
@@ -134,12 +205,15 @@ def gap_to_leader(laps: pd.DataFrame) -> pd.DataFrame:
 
 
 def timing_tower(
-    laps: pd.DataFrame, lap: int, retired: set[str] = frozenset(), entrants: pd.DataFrame | None = None
+    laps: pd.DataFrame, lap: int, retired: set[str] = frozenset(), entrants: pd.DataFrame | None = None,
+    official: bool = True,
 ) -> pd.DataFrame:
     """Running order, gaps and tyres as each driver completes `lap`.
 
     Drivers who completed `lap` are ordered by when they crossed the line
-    (near-ties by the feed's running position, see TIE_SECONDS). Anyone who never completes it is either out of the race (in `retired`) or
+    (near-ties by the feed's running position, see TIE_SECONDS). On the last
+    lap, if `classify_finish` has attached the result and `official` is set,
+    the finishers are in classified order with the official gaps. Anyone who never completes it is either out of the race (in `retired`) or
     lapped, and is placed behind by laps completed. `entrants` (Driver, Team)
     adds anyone who never completed a lap at all, such as a first-lap
     retirement, at the bottom.
@@ -173,11 +247,19 @@ def timing_tower(
     latest["SortGroup"] = latest["Out"].astype(int)
     latest = latest.sort_values(["SortGroup", "LapNumber", "Time"], ascending=[True, False, True])
     latest = _settle_near_ties(latest).reset_index(drop=True)
+    final = official and "Classified" in latest and lap >= laps["LapNumber"].max()
+    if final:
+        # Cars still running in classified order (unclassified last); those out keep their places.
+        running = (latest["SortGroup"] == 0).to_numpy()
+        key = np.where(running, latest["Classified"].fillna(1e6), 1e7 + np.arange(len(latest)))
+        latest = latest.iloc[np.argsort(key, kind="stable")].reset_index(drop=True)
 
     on_lap = latest["LapNumber"] == lap
     if on_lap.any():
         leader_time = latest.loc[on_lap, "Time"].iloc[0]
     gaps = (latest["Time"] - leader_time).dt.total_seconds().where(on_lap)
+    if final and "OfficialGap" in latest:
+        gaps = latest["OfficialGap"].where(latest["OfficialGap"].notna() & on_lap, gaps)
     # A car placed ahead on a near-tie can't be behind on the clock: keep gaps rising.
     latest["GapSeconds"] = gaps.where(~on_lap, gaps[on_lap].cummax())
     latest["IntervalSeconds"] = latest["GapSeconds"].diff()

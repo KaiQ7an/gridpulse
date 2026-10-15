@@ -75,7 +75,7 @@ def race_events(laps: pd.DataFrame, retired: set[str], total_laps: int, entrants
     for lap in range(1, total_laps + 1):
         if lap not in laps["LapNumber"].values:
             continue
-        tower = timing_tower(laps, lap, retired, entrants)
+        tower = timing_tower(laps, lap, retired, entrants, official=False)  # passes happen on the road
         pos = tower.set_index("Driver")
 
         # Track status changes
@@ -126,6 +126,13 @@ def race_events(laps: pd.DataFrame, retired: set[str], total_laps: int, entrants
         if len(final) > 1 and pd.notna(final.loc[1, "GapSeconds"]):
             rows.append((total_laps, "FLAG", final.loc[0, "Driver"],
                          f"{final.loc[0, 'Driver']} wins by {final.loc[1, 'GapSeconds']:.3f} s from {final.loc[1, 'Driver']}"))
+        # Where the result differs from the order they crossed the line (penalties after the flag).
+        road = timing_tower(laps, total_laps, retired, official=False)
+        crossed = dict(zip(road.loc[~road["Out"], "Driver"], road.loc[~road["Out"], "Pos"]))
+        for r in final[~final["Out"]].itertuples():
+            if r.Driver in crossed and r.Pos > crossed[r.Driver]:
+                rows.append((total_laps, "FLAG", r.Driver,
+                             f"{r.Driver} classified P{r.Pos}, crossed the line P{crossed[r.Driver]}"))
     return pd.DataFrame(rows, columns=["Lap", "Kind", "Driver", "Text"])
 
 

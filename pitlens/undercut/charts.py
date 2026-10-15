@@ -29,10 +29,12 @@ def battle_chart(gap: pd.DataFrame, battle, total_laps: int) -> go.Figure:
             customdata=[f"ahead by {v:.2f} s" if v > 0 else f"behind by {-v:.2f} s" for v in ahead],
         )
     )
-    for lap, who in ((battle.Lap, a), (battle.RivalStopLap, b)):
+    # First stopper's label to the left of its line, the rival's to the right, so a stop a lap
+    # later doesn't print on top of the first.
+    for lap, who, side in ((battle.Lap, a, "right"), (battle.RivalStopLap, b, "left")):
         fig.add_vline(x=lap, line=dict(color=INK_GREY, width=1, dash="dot"))
         fig.add_annotation(x=lap, y=1, yref="paper", text=f"{who} pits", showarrow=False, yanchor="bottom",
-                           font=dict(size=11, color=INK_GREY))
+                           xanchor=side, xshift=-3 if side == "right" else 3, font=dict(size=11, color=INK_GREY))
     span = max(3.0, float(ahead.abs().max()) * 1.2) if len(ahead) else 3.0
     fig.update_yaxes(title=f"{a} ahead of {b} (s)", range=[-span, span], zeroline=False)
     fig.update_xaxes(title="Lap", dtick=1)

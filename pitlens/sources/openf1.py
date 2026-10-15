@@ -132,6 +132,23 @@ def track_status_by_lap(race_control: pd.DataFrame, total_laps: int) -> dict[int
     return out
 
 
+def in_laps(pits: pd.DataFrame, stints: pd.DataFrame) -> pd.Series:
+    """The in-lap of each pit stop.
+
+    OpenF1's `lap_number` is the lap the stop was made on. Where the pit boxes
+    come before the timing line (Baku, Singapore) that's the in-lap; where
+    the pit lane crosses the line (Montreal, Melbourne) the stop falls on the
+    next lap, the out-lap, and the new tyre stint starts on that same lap.
+    `stints` should already have drive-throughs merged away
+    (`merge_continuing_stints`). 0 means the car started from the pit lane.
+    """
+    starts = stints.groupby("driver_number")["lap_start"].apply(set).to_dict() if not stints.empty else {}
+    return pd.Series(
+        [int(n) - 1 if n in starts.get(d, set()) else int(n) for d, n in zip(pits["driver_number"], pits["lap_number"])],
+        index=pits.index,
+    )
+
+
 def merge_continuing_stints(stints: pd.DataFrame) -> pd.DataFrame:
     """Fold a "stint" that carries on with the same set of tyres into the one before it.
 
@@ -139,7 +156,8 @@ def merge_continuing_stints(stints: pd.DataFrame) -> pd.DataFrame:
     drive-through penalty, or the whole field being sent through the pit lane
     behind the safety car, looks like a tyre change. Same compound with the
     tyre age carrying straight on means the same tyres. Stints are then
-    renumbered 1, 2, 3...
+    renumbered 1, 2, 3... A stop-and-go penalty (no tyre change allowed) goes
+    the same way.
     """
     if stints.empty or "tyre_age_at_start" not in stints:
         return stints
@@ -148,9 +166,10 @@ def merge_continuing_stints(stints: pd.DataFrame) -> pd.DataFrame:
         kept: list[dict] = []
         for s in d.to_dict("records"):
             prev = kept[-1] if kept else None
+            # Within a lap: where the pit lane crosses the timing line the age can read one higher.
             if prev is not None and s["compound"] == prev["compound"] and pd.notna(s["tyre_age_at_start"]) \
                     and pd.notna(prev["tyre_age_at_start"]) and pd.notna(prev["lap_end"]) \
-                    and s["tyre_age_at_start"] == prev["tyre_age_at_start"] + prev["lap_end"] - prev["lap_start"] + 1:
+                    and abs(s["tyre_age_at_start"] - (prev["tyre_age_at_start"] + prev["lap_end"] - prev["lap_start"] + 1)) <= 1:
                 prev["lap_end"] = s["lap_end"]
                 continue
             kept.append(dict(s))
@@ -207,15 +226,20 @@ def race_parts(year: int, race_date_utc) -> dict:
         }
     ).reset_index(drop=True)
 
-    # Pit stops: OpenF1's lap_number is the in-lap; the out-lap is the next one.
+    # Pit stops: the in-lap carries PitInTime, the out-lap after it PitOutTime.
+    stints = merge_continuing_stints(stints)
     out["PitInTime"] = pd.Series(pd.NaT, index=out.index, dtype="timedelta64[ns]")
     out["PitOutTime"] = pd.Series(pd.NaT, index=out.index, dtype="timedelta64[ns]")
+    if not pits.empty:
+        pits["in_lap"] = in_laps(pits, stints)
     for p in pits.itertuples() if not pits.empty else []:
+        if p.in_lap < 1:
+            continue  # started from the pit lane: handled with the pit-out laps below
         d = abbr.get(p.driver_number)
         lane = p.lane_duration if "lane_duration" in pits and pd.notna(getattr(p, "lane_duration", np.nan)) else p.pit_duration
         pin = pd.Timestamp(p.date).tz_convert(None) - t0
-        inl = (out["Driver"] == d) & (out["LapNumber"] == p.lap_number)
-        outl = (out["Driver"] == d) & (out["LapNumber"] == p.lap_number + 1)
+        inl = (out["Driver"] == d) & (out["LapNumber"] == p.in_lap)
+        outl = (out["Driver"] == d) & (out["LapNumber"] == p.in_lap + 1)
         out.loc[inl, "PitInTime"] = pin
         out.loc[outl, "PitOutTime"] = pin + pd.to_timedelta(lane if pd.notna(lane) else 0, unit="s")
     pit_lane_start = out["IsPitOutLap"] & out["PitOutTime"].isna()
@@ -225,7 +249,6 @@ def race_parts(year: int, race_date_utc) -> dict:
     out["Stint"] = np.nan
     out["Compound"] = None
     out["TyreLife"] = np.nan
-    stints = merge_continuing_stints(stints)
     for s in stints.itertuples() if not stints.empty else []:
         d = abbr.get(s.driver_number)
         m = (out["Driver"] == d) & out["LapNumber"].between(s.lap_start, s.lap_end)
@@ -318,7 +341,7 @@ def race_parts(year: int, race_date_utc) -> dict:
 
     return {
         "laps": out,
-        "stationary": stationary_from(pits, abbr),
+        "stationary": stationary_from(pits, abbr, stints),
         "results": results,
         "messages": messages,
         "weather": wx,
@@ -332,18 +355,20 @@ def race_parts(year: int, race_date_utc) -> dict:
     }
 
 
-def stationary_from(pits: pd.DataFrame, abbr: dict) -> pd.DataFrame:
+def stationary_from(pits: pd.DataFrame, abbr: dict, stints: pd.DataFrame | None = None) -> pd.DataFrame:
     """How long each car stood still in its pit box (s), by driver and in-lap, where the feed has it.
 
     F1's timing only started publishing this in 2024 and it's patchy since:
-    some races have every stop, some none.
+    some races have every stop, some none. `stints` (merged) places each stop
+    on its in-lap; see `in_laps`.
     """
     if pits.empty or "stop_duration" not in pits:
         return pd.DataFrame(columns=["Driver", "Lap", "Stationary"])
+    laps = in_laps(pits, merge_continuing_stints(stints)) if stints is not None else pits["lap_number"]
     out = pd.DataFrame(
         {
             "Driver": pits["driver_number"].map(abbr),
-            "Lap": pd.to_numeric(pits["lap_number"], errors="coerce"),
+            "Lap": pd.to_numeric(laps, errors="coerce"),
             "Stationary": pd.to_numeric(pits["stop_duration"], errors="coerce"),
         }
     ).dropna()
@@ -357,7 +382,9 @@ def stationary_times(year: int, race_date_utc, numbers: dict[int, str]) -> pd.Da
     `numbers` maps car number to driver code.
     """
     session = find_session(year, race_date_utc)
-    return stationary_from(pd.DataFrame(get("pit", session_key=session["session_key"])), numbers)
+    pits = pd.DataFrame(get("pit", session_key=session["session_key"]))
+    stints = pd.DataFrame(get("stints", session_key=session["session_key"]))
+    return stationary_from(pits, numbers, stints)
 
 
 # ---------------------------------------------------------------- onboard (single laps)

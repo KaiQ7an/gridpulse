@@ -366,10 +366,18 @@ control messages.
 
 Lap end times are only good to a few tenths, which matters in a photo finish: in the 2026
 Azerbaijan Grand Prix OpenF1's lap times put Verstappen 0.003 s ahead at the flag, but Russell
-won by 0.196 s. So the final lap follows the official classification and its gaps, and cars
+won by 0.196 s. So the final lap shows the official classification and its gaps, and cars
 crossing the line within half a second of each other mid-race are ordered by the timing feed's
-running position. Stationary pit stop times come from OpenF1 (F1's archive doesn't carry them);
-F1 only started publishing them in 2024 and they're patchy since, so some races have none.
+running position. Where a penalty after the flag changed the result, the race feed says so
+("COL classified P10, crossed the line P8") rather than inventing a last-lap pass.
+
+OpenF1 records a pit stop on the lap it was made. That's the in-lap where the pit boxes come
+before the timing line, but the out-lap where the pit lane crosses it (Montreal, Melbourne);
+the tyre stints tell the two apart. A new "stint" on the same set of tyres (a drive-through
+or stop-and-go penalty, or the field sent through the pit lane behind the safety car) is
+folded back into the one before. Stationary times come from OpenF1 as well (F1's archive
+doesn't carry them); F1 only started publishing them in 2024 and they're patchy since, so
+some races have none.
 
 This project is unofficial and not associated with Formula 1 or any team.
 

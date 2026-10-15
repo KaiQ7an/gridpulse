@@ -164,3 +164,22 @@ def test_non_starters():
     results = pd.DataFrame({"Status": ["Finished", "Retired", "Did not start", None, "Lapped"],
                             "ClassifiedPosition": ["1", "R", "W", "W", "2"]})
     assert non_starters(results).tolist() == [False, False, True, True, False]
+
+
+def test_missing_last_lap_times_are_filled_from_the_result():
+    # Like OpenF1 for the 2026 Australian GP: no time for anyone's last lap, and no last lap at all for B.
+    from pitlens.pitwall.timing import complete_final_laps
+
+    laps = pd.DataFrame(make_driver("A", 80, 5) + make_driver("B", 80, 4, offset=3) + make_driver("C", 85, 4))
+    laps["LapStartTime"] = laps["Time"] - laps["LapTime"]
+    laps.loc[(laps["Driver"] == "A") & (laps["LapNumber"] == 5), ["Time", "LapTime"]] = pd.NaT
+    laps.loc[(laps["Driver"] == "C") & (laps["LapNumber"] == 4), ["Time", "LapTime"]] = pd.NaT
+    results = pd.DataFrame({"Abbreviation": ["A", "B", "C"], "Position": [1.0, 2.0, 3.0],
+                            "GapToLeader": [0.0, 2.5, None], "Status": ["Finished", "Finished", "Lapped"]})
+    done = complete_final_laps(laps, results, total_laps=5)
+    tower = timing_tower(done, 5)
+    assert tower["Driver"].tolist() == ["A", "B", "C"]
+    assert tower.loc[0, "Gap"] == "Leader" and tower.loc[1, "Gap"] == "+2.500"
+    assert tower.loc[2, "Gap"] == "+1 lap"
+    a5 = done[(done["Driver"] == "A") & (done["LapNumber"] == 5)]["Time"].iloc[0]
+    assert a5 == pd.to_timedelta(400, unit="s")  # lap 5 start (320 s) plus A's usual 80 s

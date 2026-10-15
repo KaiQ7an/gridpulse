@@ -6,7 +6,14 @@ import fastf1
 import pandas as pd
 
 from pitlens.pitwall.events import lap_status, race_events
-from pitlens.pitwall.timing import classify_finish, gap_to_leader, leader_times, non_starters, retired_drivers
+from pitlens.pitwall.timing import (
+    classify_finish,
+    complete_final_laps,
+    gap_to_leader,
+    leader_times,
+    non_starters,
+    retired_drivers,
+)
 from pitlens.radio.clips import assign_laps, team_radio
 from pitlens.session import TimingUnavailable, enable_cache, load_session
 from pitlens.sources import openf1, weather
@@ -123,7 +130,7 @@ def load_race(year: int, round_number: int) -> RaceData:
 def build_race(year: int, round_number: int, parts: dict) -> RaceData:
     results = parts["results"].sort_values("Position")
     total_laps = parts["total_laps"]
-    laps = classify_finish(parts["laps"], results, total_laps)
+    laps = classify_finish(complete_final_laps(parts["laps"], results, total_laps), results, total_laps)
     clean = add_fuel_corrected_time(clean_race_laps(laps), total_laps)
 
     colors = {}
@@ -149,7 +156,7 @@ def build_race(year: int, round_number: int, parts: dict) -> RaceData:
         results=results,
         messages=parts["messages"],
         weather=parts["weather"],
-        gaps=gap_to_leader(laps),
+        gaps=official_finish_gaps(gap_to_leader(laps), laps, total_laps),
         lead_times=leader_times(laps),
         stops=stops,
         battles=pit_battles(laps, stops),
@@ -169,6 +176,17 @@ def build_race(year: int, round_number: int, parts: dict) -> RaceData:
         rain_mm=weather.hourly_rain(parts["location"], parts.get("race_utc")),
         start_utc=pd.Timestamp(parts["race_utc"]) if parts.get("race_utc") is not None else None,
     )
+
+
+def official_finish_gaps(gaps: pd.DataFrame, laps: pd.DataFrame, total_laps: int) -> pd.DataFrame:
+    """The race trace with the official gaps at the flag (see `classify_finish`)."""
+    if "OfficialGap" not in laps:
+        return gaps
+    official = laps[laps["LapNumber"] == total_laps].set_index("Driver")["OfficialGap"].dropna()
+    final = (gaps["LapNumber"] == total_laps) & gaps["Driver"].isin(official.index)
+    gaps = gaps.copy()
+    gaps.loc[final, "Gap"] = gaps.loc[final, "Driver"].map(official)
+    return gaps
 
 
 def lap_clock(race: "RaceData", lap: int) -> pd.Timestamp | None:

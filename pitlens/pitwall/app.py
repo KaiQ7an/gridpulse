@@ -359,6 +359,15 @@ def messages_view(race: RaceData, lap: int) -> None:
                                 "Flag": st.column_config.TextColumn(width=80)})
 
 
+def short_source(loss_source: str) -> str:
+    """A few words for where the pit loss figure comes from (the full text goes in the tooltip)."""
+    if loss_source.startswith("median"):
+        return "race median"
+    if loss_source.startswith("circuit"):
+        return "circuit ref" + (" (SC)" if "safety" in loss_source else " (VSC)" if "VSC" in loss_source else "")
+    return "scaled for SC/VSC" if "scaled" in loss_source else loss_source
+
+
 def pits_view(race: RaceData, lap: int, focus: list[str]) -> None:
     """Every pit stop so far: how long it took, what it cost, places lost, and the quickest crews."""
     stops = race.stops.assign(LaneOk=plausible_lane_times(race.stops))
@@ -386,8 +395,7 @@ def pits_view(race: RaceData, lap: int, focus: list[str]) -> None:
     stats += [
         quickest("Quickest pit lane", "LaneTime", "Shortest time from pit entry to pit exit"),
         ui.stat("Typical cost", f"{loss:.1f} s" if loss else "–", tip=f"Pit loss now: {loss_source}",
-                small="race median" if loss_source.startswith("median") else
-                "circuit ref" if loss_source.startswith("circuit") else "SC/VSC" if loss else ""),
+                small=short_source(loss_source) if loss else ""),
     ]
     ui.strip(stats)
     if stops.empty:
@@ -439,13 +447,13 @@ def strategy_view(race: RaceData, tower: pd.DataFrame, lap: int, focus: list[str
     loss, loss_source = pit_loss_now(stops, status, race.pit_loss_ref)
     ref = race.pit_loss_ref
     ui.strip([
-        ui.stat("Pit loss now", f"{loss:.1f} s" if loss else "–", small=loss_source),
+        ui.stat("Pit loss now", f"{loss:.1f} s" if loss else "–", small=short_source(loss_source) if loss else "",
+                tip=loss_source),
         ui.stat("Circuit reference", f"{ref['normal']:.1f} s" if ref else "–",
-                small=f"VSC {ref['vsc']:.1f} · SC {ref['sc']:.1f}" if ref and "vsc" in ref and "sc" in ref else ""),
-        ui.stat("Stops so far", str(len(stops))),
-        ui.stat("Latest stop", f"{last['Driver']}" if last is not None else "–",
-                small=f"lap {last['Lap']}" if last is not None else ""),
-        ui.stat("Battles", str(len(battles))),
+                small=f"VSC {ref['vsc']:.1f} · SC {ref['sc']:.1f}" if ref and "vsc" in ref and "sc" in ref else "",
+                tip="Typical pit loss at this circuit (MultiViewer): green flag, under VSC and under safety car"),
+        ui.stat("Stops", str(len(stops)),
+                small=f"latest {last['Driver']} L{last['Lap']}" if last is not None else ""),
     ])
 
     if loss:
@@ -470,7 +478,7 @@ def strategy_view(race: RaceData, tower: pd.DataFrame, lap: int, focus: list[str
             width="stretch",
         )
 
-    ui.label("Undercuts and overcuts so far")
+    ui.label(f"Undercuts and overcuts so far · {len(battles)}" if len(battles) else "Undercuts and overcuts so far")
     if battles.empty:
         ui.note("None yet: a battle needs two cars within 3.5 s to pit within six laps of each other.")
     else:

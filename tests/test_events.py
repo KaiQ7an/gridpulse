@@ -99,3 +99,19 @@ def test_drive_through_is_not_reported_as_a_pit_stop():
     laps.loc[c, "Stint"] = 1  # C passes through the pit lane on lap 3 without changing tyres
     texts = race_events(laps, retired={"D"}, total_laps=6)["Text"].tolist()
     assert "C pits from P3" not in texts
+
+
+def test_penalty_after_the_flag_is_a_classification_note_not_a_pass():
+    from pitlens.pitwall.timing import classify_finish
+
+    laps = make_race()
+    # C crosses the line third, behind B and A... but A is classified behind C after a penalty.
+    results = pd.DataFrame({"Abbreviation": ["B", "C", "A", "D"], "Position": [1.0, 2.0, 3.0, None],
+                            "GapToLeader": [0.0, None, None, None]})
+    laps = classify_finish(laps, results, total_laps=6)
+    events = race_events(laps, retired={"D"}, total_laps=6)
+    texts = events["Text"].tolist()
+    assert any(t.startswith("A classified P3, crossed the line P") for t in texts)
+    assert not any("passes A" in t for t in events.loc[events["Lap"] == 6, "Text"])
+    final = timing_tower(laps, 6, {"D"})
+    assert final["Driver"].tolist()[:3] == ["B", "C", "A"]

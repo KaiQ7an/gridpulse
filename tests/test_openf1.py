@@ -73,3 +73,13 @@ def test_stationary_times():
     out = stationary_from(pits, {44: "HAM", 1: "VER", 16: "LEC"})
     assert out.to_dict("records") == [{"Driver": "HAM", "Lap": 11, "Stationary": 2.2},
                                       {"Driver": "LEC", "Lap": 13, "Stationary": 3.1}]
+
+
+def test_stop_lap_is_the_in_lap_where_the_pit_lane_crosses_the_line():
+    from pitlens.sources.openf1 import in_laps
+
+    # Baku: boxes before the line, stop on lap 20, new tyres from lap 21.
+    # Montreal: the stop falls on lap 2, which the new stint starts.
+    pits = pd.DataFrame({"driver_number": [55, 1, 81], "lap_number": [20, 2, 1]})
+    stints = pd.DataFrame({"driver_number": [55, 55, 1, 1, 81, 81], "lap_start": [1, 21, 1, 2, 1, 12]})
+    assert in_laps(pits, stints).tolist() == [20, 1, 0]  # 0: started from the pit lane

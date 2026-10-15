@@ -15,7 +15,9 @@ dependencies = [
     "numpy>=2.0",
     "matplotlib>=3.9",
     "plotly>=6.0",
-    "streamlit>=1.40",
+    "requests>=2.31",
+    # The pit wall uses top navigation, horizontal containers and light/dark theme sections.
+    "streamlit>=1.66",
 ]
 
 [project.optional-dependencies]

@@ -195,6 +195,7 @@ def degradation_chart(deg: pd.DataFrame) -> go.Figure:
             marker=dict(color=[COMPOUND_COLORS.get(c, COMPOUND_COLORS["UNKNOWN"]) for c in deg["Compound"]]),
             text=deg["DegPerLap"].map(lambda v: f"{v:+.3f}"),
             textposition="outside",
+            cliponaxis=False,
             customdata=deg[["Compound", "StartLap", "EndLap", "CleanLaps"]],
             hovertemplate=(
                 "<b>%{y}</b><br>%{customdata[0]}, laps %{customdata[1]}–%{customdata[2]}"
@@ -213,8 +214,11 @@ def degradation_chart(deg: pd.DataFrame) -> go.Figure:
         bargap=0.3,
     )
     plotstyle.apply(fig)
+    # Room either side for the value labels, which sit outside the bars.
+    lo, hi = min(float(deg["DegPerLap"].min()), 0.0), max(float(deg["DegPerLap"].max()), 0.0)
+    pad = max(hi - lo, 0.02) * 0.22
     fig.update_xaxes(title="Seconds lost per lap of tyre age (fuel-corrected)", zeroline=True,
-                     zerolinecolor=plotstyle.AXIS)
+                     zerolinecolor=plotstyle.AXIS, range=[lo - (pad if lo < 0 else 0), hi + pad])
     return fig
 
 
