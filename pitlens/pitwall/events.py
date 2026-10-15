@@ -64,7 +64,8 @@ def drive_throughs(laps: pd.DataFrame) -> set[tuple[str, int]]:
     return out
 
 
-def race_events(laps: pd.DataFrame, retired: set[str], total_laps: int, entrants: pd.DataFrame | None = None) -> pd.DataFrame:
+def race_events(laps: pd.DataFrame, retired: set[str], total_laps: int, entrants: pd.DataFrame | None = None,
+                stops: pd.DataFrame | None = None) -> pd.DataFrame:
     rows = []
     status = lap_status(laps)
     passes_through = drive_throughs(laps)
@@ -75,7 +76,7 @@ def race_events(laps: pd.DataFrame, retired: set[str], total_laps: int, entrants
     for lap in range(1, total_laps + 1):
         if lap not in laps["LapNumber"].values:
             continue
-        tower = timing_tower(laps, lap, retired, entrants, official=False)  # passes happen on the road
+        tower = timing_tower(laps, lap, retired, entrants, official=False, stops=stops)  # passes happen on the road
         pos = tower.set_index("Driver")
 
         # Track status changes

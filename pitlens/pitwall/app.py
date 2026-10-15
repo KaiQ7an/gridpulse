@@ -190,7 +190,7 @@ def race_view(race: RaceData) -> None:
 
     laps = race.laps[race.laps["LapNumber"] <= lap]
     periods = neutralised_periods(laps)
-    tower = timing_tower(race.laps, lap, race.retired, race.entrants)
+    tower = timing_tower(race.laps, lap, race.retired, race.entrants, stops=race.stops)
     status_strip(race, laps, tower, lap)
 
     left, right = st.columns([6, 7], gap="large")

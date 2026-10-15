@@ -246,14 +246,16 @@ def gap_to_leader(laps: pd.DataFrame) -> pd.DataFrame:
 
 def timing_tower(
     laps: pd.DataFrame, lap: int, retired: set[str] = frozenset(), entrants: pd.DataFrame | None = None,
-    official: bool = True,
+    official: bool = True, stops: pd.DataFrame | None = None,
 ) -> pd.DataFrame:
     """Running order, gaps and tyres as each driver completes `lap`.
 
     Drivers who completed `lap` are ordered by when they crossed the line
     (near-ties by the feed's running position, see TIE_SECONDS). On the last
     lap, if `classify_finish` has attached the result and `official` is set,
-    the finishers are in classified order with the official gaps. Anyone who never completes it is either out of the race (in `retired`) or
+    the finishers are in classified order with the official gaps. `stops`
+    (from `pit_stops`) counts each car's stops; without it they come from the
+    tyre stint number. Anyone who never completes it is either out of the race (in `retired`) or
     lapped, and is placed behind by laps completed. `entrants` (Driver, Team)
     adds anyone who never completed a lap at all, such as a first-lap
     retirement, at the bottom.
@@ -336,7 +338,7 @@ def timing_tower(
             "LastLap": latest["LapTime"].map(format_lap_time),
             "Compound": latest["Compound"].fillna("UNKNOWN"),
             "TyreAge": latest["TyreLife"].astype("Int64"),
-            "Stops": (latest["Stint"] - 1).astype("Int64"),
+            "Stops": stops_made(latest, lap, stops),
             "Pit": latest["PitInTime"].notna() & (latest["LapNumber"] == lap),
             "GapSeconds": latest["GapSeconds"],
             "IntervalSeconds": latest["IntervalSeconds"],
@@ -344,6 +346,15 @@ def timing_tower(
             "Out": latest["Out"],
         }
     )
+
+
+def stops_made(latest: pd.DataFrame, lap: int, stops: pd.DataFrame | None) -> pd.Series:
+    """Stops each car has made by the end of `lap`: from the stop list where there is one (OpenF1's
+    tyre stints miss some stops), else from the stint number."""
+    if stops is None:
+        return (latest["Stint"] - 1).astype("Int64").reset_index(drop=True)
+    done = stops[stops["Lap"] < lap].groupby("Driver").size()
+    return latest["Driver"].map(done).fillna(0).astype("Int64").reset_index(drop=True)
 
 
 def _settle_near_ties(rows: pd.DataFrame) -> pd.DataFrame:

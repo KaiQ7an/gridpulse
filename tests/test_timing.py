@@ -202,3 +202,11 @@ def test_lap_coverage():
     laps = pd.DataFrame(make_driver("A", 80, 10) + make_driver("B", 80, 5))
     results = pd.DataFrame({"Abbreviation": ["A", "B", "C"], "Laps": [10.0, 10.0, 0.0]})
     assert lap_coverage(laps, results) == pytest.approx(0.75)
+
+
+def test_tower_counts_stops_from_the_stop_list_when_given(race):
+    # BBB's stint number says one stop; the stop list also has an earlier stop the stints missed.
+    stops = pd.DataFrame({"Driver": ["BBB", "BBB"], "Lap": [4, 10]})
+    tower = timing_tower(race, 11, stops=stops).set_index("Driver")
+    assert tower.loc["BBB", "Stops"] == 2 and tower.loc["AAA", "Stops"] == 0
+    assert timing_tower(race, 10, stops=stops).set_index("Driver").loc["BBB", "Stops"] == 1  # in-lap 10 not done yet

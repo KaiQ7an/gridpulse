@@ -167,7 +167,7 @@ def build_race(year: int, round_number: int, parts: dict) -> RaceData:
         pit_loss=pit_loss(stops),
         pit_loss_ref=openf1.circuit_pit_loss(parts["circuit_key"], year) if parts.get("circuit_key") else None,
         radio=parts["radio"],
-        events=race_events(laps, retired, total_laps, entrants),
+        events=race_events(laps, retired, total_laps, entrants, stops),
         lap_status=lap_status(laps),
         team_colors=colors,
         first_names=dict(zip(results["Abbreviation"], results["FirstName"])) if "FirstName" in results else {},
