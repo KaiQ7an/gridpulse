@@ -39,7 +39,7 @@ falling away, with the cleaning rules written down and tested.
 
 - Any race from 2018 to the latest Grand Prix, picked from the sidebar.
 - **Replay**: a player bar under the header. Press Play and the whole dashboard advances a lap at a
-  time (1×, 2× or 4×), or drag the slider to any moment of the race. A status strip shows the lap,
+  time (1×, 2× or 4×), drag the slider, or type a lap number to jump straight to it. A status strip shows the lap,
   leader, track status, fastest lap so far and the weather.
 - **Timing tower**: running order, gap to the leader, interval (green when within a second), last
   lap, tyre compound and age, stops, lapped cars and retirements, with a pit flag on the lap a car
@@ -49,15 +49,17 @@ falling away, with the cleaning rules written down and tested.
 - **Gaps** (the race trace): seconds behind the leader for every car, focus drivers in team colours.
 - **Positions**, **tyre stints** in running order, **degradation so far** for the focus drivers,
   **clean-lap pace** by compound, and race control **messages** up to the current lap.
-- Track status, fastest lap and fastest sectors so far (in purple, with team colours), track
-  temperature and rain at the current lap; safety car and VSC laps shaded.
+- Track status, fastest lap and fastest sectors so far (in purple, with team colours; hover a sector
+  for P2-P5 and their gaps), track temperature and rain at the current lap; safety car and VSC laps
+  shaded.
 - **Race feed**: what happened lap by lap (pit stops, passes on track, new fastest laps, safety
   cars, retirements, the finish) with a one-line state of the race on top.
 - **Strategy**: the typical pit loss, where each car would rejoin if it pitted at the end of this
   lap, and every undercut and overcut so far with its outcome.
 - **Radio**: team radio clips up to the current lap, playable in the page, with a microphone in
   the timing tower when a driver's clip comes in. One click turns the clips into text with a
-  local Whisper model; transcribed radio also appears as quotes in the race feed.
+  local Whisper model, and another translates them into Chinese; transcribed radio also appears as
+  quotes in the race feed.
 
 **`onboard`: fastest-lap telemetry comparison** (available now)
 
@@ -201,6 +203,22 @@ own computer: about a second per clip, no account or API key, and every transcri
 The prompt names the driver on the clip plus F1 jargon, which fixes most names ("Lando", not
 "Landa"). Radio is noisy, so expect the odd misheard word.
 
+Add `--translate` for a Chinese line under each transcript. Two engines:
+
+```bash
+.venv/bin/pip install -e ".[translate]"   # offline: Argos Translate's model via CTranslate2 (~70 MB)
+.venv/bin/python -m pitlens radio --year 2026 --event Singapore --translate
+
+.venv/bin/pip install -e ".[claude]"      # Claude: needs ANTHROPIC_API_KEY, far better on noisy radio
+.venv/bin/python -m pitlens radio --year 2026 --event Singapore --translate --engine claude
+```
+
+Small offline models don't know F1, so before translating, the jargon is swapped for placeholders
+that the model copies through and afterwards for the term a Chinese broadcast would use: "Box,
+box" becomes 进站，进站 rather than 盒子, "stay out" 留在赛道上, "P3" 第3位, "turn one" 1号弯. The
+Claude engine (`claude-opus-5-5`, low effort, server-side fallback if a request is declined) gets
+the same glossary in its instructions. Translations are cached per engine next to the transcript.
+
 ## Tyre analysis
 
 ```bash
@@ -261,6 +279,7 @@ pitlens/
 ├── radio/
 │   ├── clips.py       team radio from the F1 archive, matched to laps
 │   ├── transcribe.py  local Whisper transcription with an F1 prompt, cached
+│   ├── translate.py   transcripts into Chinese: offline model + F1 glossary, or Claude
 │   └── report.py      the `radio` command
 ├── sources/
 │   └── openf1.py      OpenF1 fallback, reshaped into FastF1's columns

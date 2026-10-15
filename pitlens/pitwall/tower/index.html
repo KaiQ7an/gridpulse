@@ -33,7 +33,6 @@
   .bar { height: 18px; border-radius: 2px; }
   .pos { text-align: right; color: var(--muted); font-weight: 500; }
   .drv { font-weight: 700; letter-spacing: .03em; display: flex; align-items: center; gap: 4px; }
-  .code { border-bottom: 2px solid var(--team, transparent); line-height: 1.15; padding-bottom: 1px; }
   .mic { width: 12px; height: 12px; flex: none; color: var(--accent); opacity: 0; transition: opacity 250ms; }
   .mic.on { opacity: 1; }
   .num { text-align: right; }
@@ -168,7 +167,6 @@ function render(args) {
     el.classList.toggle("out", r.out);
     el.classList.toggle("focus", focus.has(r.driver));
     el.querySelector(".bar").style.background = r.team_color;
-    el.querySelector(".code").style.setProperty("--team", r.team_color);
     el.querySelector(".pos").textContent = r.pos;
     el.querySelector(".last").textContent = r.last_lap;
     el.querySelector(".stops").textContent = r.stops ?? "";

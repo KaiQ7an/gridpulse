@@ -45,6 +45,22 @@ h1, h2, h3 { letter-spacing: -0.01em; }
 .pl-stat .v { font-size: 1.08rem; font-weight: 600; font-variant-numeric: tabular-nums; margin-top: 2px;
   white-space: nowrap; }
 .pl-stat .v small { font-size: 0.78rem; font-weight: 500; opacity: 0.6; margin-left: 4px; }
+/* Fastest sectors: one compact block, a line per sector, P2-P5 on hover */
+.pl-sectors { border: 1px solid rgba(128,128,128,0.22); border-radius: 8px; padding: 4px 10px; min-width: 0;
+  background: rgba(128,128,128,0.04); display: flex; flex-direction: column; justify-content: center; gap: 1px; }
+.pl-sec { position: relative; display: flex; align-items: center; gap: 6px; font-size: 0.8rem; font-weight: 600;
+  font-variant-numeric: tabular-nums; white-space: nowrap; line-height: 1.5; cursor: default; }
+.pl-sec .k { font-size: 0.62rem; letter-spacing: 0.1em; opacity: 0.55; width: 18px; }
+.pl-sec small { opacity: 0.55; font-weight: 500; font-size: 0.7rem; }
+.pl-sec:hover .pl-pop { display: block; }
+.pl-pop { display: none; position: absolute; top: calc(100% + 6px); left: 0; z-index: 50; min-width: 190px;
+  padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(128,128,128,0.28);
+  background: var(--pl-pop-bg, rgba(250,250,250,0.98)); box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+  font-size: 0.82rem; font-weight: 500; font-variant-numeric: tabular-nums; }
+@media (prefers-color-scheme: dark) { .pl-pop { --pl-pop-bg: rgba(23,27,34,0.98); } }
+.pl-pop .r { display: grid; grid-template-columns: 22px 1fr auto auto; gap: 8px; align-items: center; padding: 2px 0; }
+.pl-pop .r .n { opacity: 0.5; }
+.pl-pop .r .d { opacity: 0.55; font-size: 0.76rem; }
 .pl-pill { display: inline-block; padding: 1px 9px; border-radius: 999px; font-size: 0.82rem; font-weight: 700;
   letter-spacing: 0.04em; text-transform: uppercase; }
 .pl-dot { display: inline-block; width: 4px; height: 14px; border-radius: 2px; margin-right: 7px; vertical-align: -2px; }
@@ -71,6 +87,8 @@ h1, h2, h3 { letter-spacing: -0.01em; }
 /* Team radio transcript */
 .pl-quote { margin: 2px 0 6px 11px; padding: 2px 0 2px 10px; border-left: 2px solid rgba(128,128,128,0.35);
   font-size: 0.88rem; line-height: 1.45; opacity: 0.9; font-style: italic; }
+
+.pl-zh { font-style: normal; margin-top: 3px; opacity: 0.95; }
 
 /* Sidebar brand */
 .pl-brand { display: flex; align-items: center; gap: 10px; margin: 0 0 6px; }
@@ -179,8 +197,9 @@ def race_feed(situation: str, events, lap: int, limit: int = 9) -> None:
     st.html(f'<div class="pl-situation">{html.escape(situation)}</div>{body}')
 
 
-def quote(text: str) -> None:
-    st.html(f'<div class="pl-quote">“{html.escape(text)}”</div>')
+def quote(text: str, translation: str | None = None) -> None:
+    zh = f'<div class="pl-zh">{html.escape(translation)}</div>' if translation else ""
+    st.html(f'<div class="pl-quote">“{html.escape(text)}”{zh}</div>')
 
 
 BIG_FOUR = ("McLaren", "Ferrari", "Red Bull Racing", "Mercedes")
@@ -228,3 +247,23 @@ def team_colored_picker(label: str, options: list[str], colors: dict[str, str], 
             f'{{ content: "{team}"; opacity: .5; font-size: .8em; margin-left: 8px; }}'
         )
     st.html("<style>" + "".join(rules) + "</style>")
+
+
+def sector_block(rankings: list[list[tuple[str, float, int]]], colors: dict[str, str]) -> str:
+    """Fastest S1/S2/S3 so far as three compact lines; hovering a line lists P2-P5 with gaps."""
+    lines = []
+    for n, ranking in enumerate(rankings, start=1):
+        if not ranking:
+            continue
+        driver, secs, lap = ranking[0]
+        rows = "".join(
+            f'<div class="r"><span class="n">P{i}</span><span>{driver_dot(colors.get(d, "#999"))}{html.escape(d)}</span>'
+            f'<span>{t:.3f}</span><span class="d">+{t - secs:.3f}</span></div>'
+            for i, (d, t, _) in enumerate(ranking[1:], start=2)
+        )
+        pop = f'<div class="pl-pop"><div class="pl-label">Sector {n}</div>{rows}</div>' if rows else ""
+        lines.append(
+            f'<div class="pl-sec"><span class="k">S{n}</span>{driver_dot(colors.get(driver, "#999"))}{html.escape(driver)}'
+            f' <span style="color:#A855F7">{secs:.3f}</span><small>L{lap}</small>{pop}</div>'
+        )
+    return f'<div class="pl-sectors">{"".join(lines)}</div>' if lines else ""

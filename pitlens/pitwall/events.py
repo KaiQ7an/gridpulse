@@ -27,21 +27,19 @@ def fastest_lap_candidates(laps: pd.DataFrame) -> pd.DataFrame:
     return plausible(timed[~neutral & (timed["LapNumber"] > 1)])
 
 
-def fastest_sectors(laps: pd.DataFrame) -> list[tuple[str, float, int] | None]:
-    """Best sector 1, 2 and 3 so far as (driver, seconds, lap), from laps that could count as fast."""
+def fastest_sectors(laps: pd.DataFrame, top: int = 5) -> list[list[tuple[str, float, int]]]:
+    """For sectors 1, 2 and 3: the `top` drivers' best times so far as (driver, seconds, lap), fastest first."""
     candidates = fastest_lap_candidates(laps)
     out = []
     for col in ("Sector1Time", "Sector2Time", "Sector3Time"):
         if col not in candidates:
-            out.append(None)
+            out.append([])
             continue
-        secs = candidates[col].dt.total_seconds()
-        ok = candidates[secs >= 0.85 * secs.median()].dropna(subset=[col])  # drop glitches, as for laps
-        if ok.empty:
-            out.append(None)
-            continue
-        best = ok.loc[ok[col].idxmin()]
-        out.append((best["Driver"], best[col].total_seconds(), int(best["LapNumber"])))
+        ok = candidates.dropna(subset=[col])
+        secs = ok[col].dt.total_seconds()
+        ok = ok[secs >= 0.85 * secs.median()]  # drop glitches, as for laps
+        best = ok.sort_values(col).drop_duplicates("Driver").head(top)
+        out.append([(r.Driver, r[col].total_seconds(), int(r.LapNumber)) for _, r in best.iterrows()])
     return out
 
 

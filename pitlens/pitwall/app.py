@@ -12,7 +12,7 @@ from pitlens.pitwall.data import FIRST_SEASON, RaceData, completed_races, load_r
 from pitlens.pitwall.events import fastest_lap_candidates, fastest_sectors, neutralised_banner, situation
 from pitlens.pitwall.timing import format_lap_time, neutralised_periods, stint_timeline, timing_tower
 from pitlens.pitwall.tower import timing_tower as tower_component
-from pitlens.radio import transcribe
+from pitlens.radio import transcribe, translate
 from pitlens.stints.pace import stint_degradation
 from pitlens.undercut.analysis import pair_gap, pit_loss_now, rejoin_projection
 from pitlens.undercut.charts import battle_chart, pit_loss_chart
@@ -71,6 +71,11 @@ def replay_controls(total_laps: int) -> None:
     def restart():
         ss.lap, ss.playing = 1, False
 
+    def jump():
+        if ss.get("goto_lap"):
+            ss.lap = int(min(max(ss.goto_lap, 1), total_laps))
+            ss.goto_lap = None  # clear the box so the slider stays the source of truth
+
     with st.container(horizontal=True, vertical_alignment="center", key="controls", gap="small"):
         st.button("Lap 1", icon=":material/skip_previous:", on_click=restart, help="Back to the start")
         st.button(
@@ -82,6 +87,9 @@ def replay_controls(total_laps: int) -> None:
         )
         st.segmented_control("Speed", list(SPEEDS), key="speed", required=True, label_visibility="collapsed",
                              help="Replay speed: 1× is two seconds per lap")
+        st.number_input("Go to lap", 1, total_laps, value=None, step=1, key="goto_lap", on_change=jump,
+                        placeholder="Lap…", label_visibility="collapsed", width=96, disabled=ss.playing,
+                        help="Type a lap number and press Enter")
         st.slider("Lap", 1, total_laps, key="lap", disabled=ss.playing, label_visibility="collapsed", width="stretch")
 
 
@@ -106,14 +114,7 @@ def status_strip(race: RaceData, laps: pd.DataFrame, tower: pd.DataFrame, lap: i
             small=f"L{int(fastest['LapNumber'])}" if fastest is not None else "",
         ),
     ]
-    for n, best in enumerate(fastest_sectors(laps), start=1):
-        if best:
-            driver, secs, on_lap = best
-            stats.append(ui.stat(
-                f"Best S{n}", "", small=f"L{on_lap}",
-                value_html=ui.driver_dot(race.team_colors.get(driver, "#999")) + driver
-                + f' <span style="color:#A855F7">{secs:.3f}</span>',
-            ))
+    stats.append(ui.sector_block(fastest_sectors(laps), race.team_colors))
     if weather is not None:
         stats += [
             ui.stat("Track temp", f"{weather['TrackTemp']:.1f}°"),
@@ -191,6 +192,8 @@ def with_radio(events: pd.DataFrame, radio: pd.DataFrame, lap: int) -> pd.DataFr
     rows = []
     for c in radio[radio["Lap"].notna() & (radio["Lap"] <= lap)].itertuples():
         text = (transcribe.cached(c.Url) or {}).get("text")
+        if text and st.session_state.get("radio_zh"):
+            text = translate.cached(c.Url) or text
         if text:
             short = text if len(text) <= 90 else text[:87].rsplit(" ", 1)[0] + "..."
             rows.append({"Lap": int(c.Lap), "Kind": "RADIO", "Driver": c.Driver, "Text": f"{c.Driver}: “{short}”"})
@@ -221,13 +224,23 @@ def whisper() -> "transcribe.Transcriber":
     return transcribe.Transcriber()
 
 
+@st.cache_resource(show_spinner=False)
+def translator(engine: str):
+    return translate.make(engine)
+
+
 def radio_view(race: RaceData, lap: int, focus: list[str]) -> None:
     clips = race.radio[race.radio["Lap"].notna() & (race.radio["Lap"] <= lap)]
-    if st.toggle("Focus drivers only", value=False, key="radio_focus"):
+    with st.container(horizontal=True, vertical_alignment="center"):
+        only_focus = st.toggle("Focus drivers only", value=False, key="radio_focus")
+        chinese = st.toggle("中文", value=st.session_state.get("radio_zh", False), key="radio_zh",
+                            help="Show a Chinese translation under each transcript")
+    if only_focus:
         clips = clips[clips["Driver"].isin(focus)]
     shown = clips.sort_values("SessionTime", ascending=False).head(12)
     texts = {c.Url: (transcribe.cached(c.Url) or {}).get("text") for c in shown.itertuples()}
     missing = [c for c in shown.itertuples() if texts[c.Url] is None]
+    engines = translate.available_engines()
 
     ui.note(f"{len(clips)} clips up to lap {lap}, newest first. A red microphone in the timing tower marks a "
             "driver with a clip on the current lap.")
@@ -246,6 +259,31 @@ def radio_view(race: RaceData, lap: int, focus: list[str]) -> None:
         else:
             ui.note('To turn clips into text, install the speech model: pip install -e ".[transcribe]"')
 
+    if chinese:
+        untranslated = [c for c in shown.itertuples() if texts[c.Url] and translate.cached(c.Url) is None]
+        if not engines:
+            ui.note('To translate, install the translation model: pip install -e ".[translate]"')
+        elif untranslated:
+            with st.container(horizontal=True, vertical_alignment="center"):
+                engine = st.segmented_control(
+                    "Engine", engines, key="zh_engine", required=True, default=engines[0],
+                    format_func={"offline": "Offline", "claude": "Claude (API key)"}.get,
+                    label_visibility="collapsed",
+                    help="Offline runs a small model on this computer. Claude translates F1 radio far better but "
+                         "needs an Anthropic API key and costs a fraction of a cent per clip.",
+                )
+                go = st.button(f"Translate {len(untranslated)} clip{'s' if len(untranslated) > 1 else ''}",
+                               icon=":material/translate:", key="translate_btn")
+            if go:
+                try:
+                    tr = translator(engine)
+                    for c in untranslated:
+                        translate.translate_clip(c.Url, tr, race.first_names.get(c.Driver))
+                except Exception as exc:  # missing key, network, model download...
+                    st.warning(f"Translation failed: {exc}")
+                else:
+                    st.rerun(scope="fragment")
+
     for clip in shown.itertuples():
         new = ' <span class="pl-pill" style="background:rgba(225,6,0,.14);color:#E10600">this lap</span>' \
             if clip.Lap == lap else ""
@@ -253,7 +291,7 @@ def radio_view(race: RaceData, lap: int, focus: list[str]) -> None:
                 f"<b>{clip.Driver}</b> <span style='opacity:.6'>· lap {clip.Lap}</span>{new}</div>")
         st.audio(clip.Url, format="audio/mpeg")
         if texts.get(clip.Url):
-            ui.quote(texts[clip.Url])
+            ui.quote(texts[clip.Url], translate.cached(clip.Url) if chinese else None)
 
 
 def messages_view(race: RaceData, lap: int) -> None:

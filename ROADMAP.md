@@ -43,7 +43,7 @@ pace, tyres and strategy as the race unfolds. It is built in layers, each useful
 - [x] Team radio clips from the F1 archive, placed on the lap they were sent
 - [x] Radio view in the pit wall and a microphone in the timing tower
 - [x] Transcribe clips locally with Whisper, shown under each clip and in the race feed
-- [ ] Translate transcripts (e.g. into Chinese)
+- [x] Translate transcripts into Chinese (offline with an F1 glossary, or Claude)
 
 ## 6. Data sources
 

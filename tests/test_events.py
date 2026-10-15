@@ -87,4 +87,7 @@ def test_fastest_sectors():
     for i, name in enumerate(("Sector1Time", "Sector2Time", "Sector3Time")):
         laps[name] = [pd.to_timedelta(sectors.get((d, n), (30, 30, 30))[i], unit="s")
                       for d, n in zip(laps["Driver"], laps["LapNumber"])]
-    assert fastest_sectors(laps) == [("B", 24.5, 2), ("A", 29.0, 3), ("B", 24.9, 3)]
+    ranked = fastest_sectors(laps)
+    assert [r[0] for r in ranked] == [("B", 24.5, 2), ("A", 29.0, 3), ("B", 24.9, 3)]
+    assert ranked[0][1] == ("A", 25.0, 2)  # second fastest S1, one entry per driver
+    assert len(ranked[0]) == 2

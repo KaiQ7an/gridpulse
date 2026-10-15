@@ -21,6 +21,10 @@ dependencies = [
 [project.optional-dependencies]
 # Team radio to text with a local Whisper model (about 0.5 GB downloaded on first use).
 transcribe = ["faster-whisper>=1.1"]
+# Team radio into Chinese: a small offline model (about 70 MB on first use)...
+translate = ["ctranslate2>=4", "sentencepiece>=0.2"]
+# ...or Claude via the Anthropic API (needs an API key).
+claude = ["anthropic>=1.0"]
 
 [project.scripts]
 pitlens = "pitlens.cli:main"

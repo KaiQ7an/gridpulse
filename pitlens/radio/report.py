@@ -6,7 +6,7 @@ import fastf1
 import pandas as pd
 
 from pitlens.pitwall.data import load_race
-from pitlens.radio import transcribe
+from pitlens.radio import transcribe, translate
 from pitlens.radio.clips import download, team_radio
 from pitlens.session import OUTPUT_DIR, load_session
 
@@ -19,6 +19,9 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--download", action="store_true", help="Save the mp3s to outputs/radio/")
     parser.add_argument("--transcribe", action="store_true", help="Turn each clip into text with a local Whisper model")
     parser.add_argument("--model", default="small.en", help="Whisper model for --transcribe (e.g. base.en, small.en)")
+    parser.add_argument("--translate", action="store_true", help="Also translate each transcript into Chinese")
+    parser.add_argument("--engine", default="offline", choices=["offline", "claude"],
+                        help="Translation engine: offline model, or Claude (needs an Anthropic API key)")
 
 
 def run(args: argparse.Namespace) -> None:
@@ -35,7 +38,10 @@ def run(args: argparse.Namespace) -> None:
         clips = clips[clips["Driver"].isin([d.upper() for d in args.drivers])]
 
     print(f"\n{name}: {len(clips)} team radio clips\n")
-    model = None
+    model = translator = None
+    if args.translate:
+        args.transcribe = True
+        translator = translate.make(args.engine)
     if args.transcribe:
         if not transcribe.available():
             raise SystemExit('Transcription needs the speech model: pip install -e ".[transcribe]"')
@@ -47,6 +53,8 @@ def run(args: argparse.Namespace) -> None:
         lap = f"lap {int(c.Lap):>2}" if pd.notna(c.Lap) else "  –   "
         if model:
             print(f"{lap}  {c.Driver}  {model.transcribe(c.Url, first_names.get(c.Driver))}")
+            if translator:
+                print(f"{'':6}  {'':3}  {translate.translate_clip(c.Url, translator, first_names.get(c.Driver))}")
         else:
             print(f"{lap}  {c.Driver}  {c.Url}")
 
