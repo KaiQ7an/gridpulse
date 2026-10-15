@@ -19,6 +19,7 @@ import requests
 from pitlens.session import CACHE_DIR
 
 API = "https://api.openf1.org/v1/"
+FIRST_SEASON = 2023  # OpenF1 has data from the 2023 season on
 # Identify ourselves honestly; some APIs refuse the anonymous python-requests default.
 HEADERS = {"User-Agent": "PitLens/0.1 (+https://github.com/KaiQ7an/pitlens)"}
 CACHE = CACHE_DIR / "openf1"
@@ -125,6 +126,34 @@ def track_status_by_lap(race_control: pd.DataFrame, total_laps: int) -> dict[int
     return out
 
 
+def merge_continuing_stints(stints: pd.DataFrame) -> pd.DataFrame:
+    """Fold a "stint" that carries on with the same set of tyres into the one before it.
+
+    OpenF1 starts a new stint at every pass through the pit lane, so a
+    drive-through penalty, or the whole field being sent through the pit lane
+    behind the safety car, looks like a tyre change. Same compound with the
+    tyre age carrying straight on means the same tyres. Stints are then
+    renumbered 1, 2, 3...
+    """
+    if stints.empty or "tyre_age_at_start" not in stints:
+        return stints
+    rows = []
+    for _, d in stints.sort_values(["driver_number", "stint_number"]).groupby("driver_number"):
+        kept: list[dict] = []
+        for s in d.to_dict("records"):
+            prev = kept[-1] if kept else None
+            if prev is not None and s["compound"] == prev["compound"] and pd.notna(s["tyre_age_at_start"]) \
+                    and pd.notna(prev["tyre_age_at_start"]) and pd.notna(prev["lap_end"]) \
+                    and s["tyre_age_at_start"] == prev["tyre_age_at_start"] + prev["lap_end"] - prev["lap_start"] + 1:
+                prev["lap_end"] = s["lap_end"]
+                continue
+            kept.append(dict(s))
+        for n, s in enumerate(kept, start=1):
+            s["stint_number"] = n
+        rows += kept
+    return pd.DataFrame(rows)
+
+
 def race_parts(year: int, race_date_utc) -> dict:
     """Everything `pitwall.data` needs for one race, from OpenF1."""
     session = find_session(year, race_date_utc)
@@ -190,6 +219,7 @@ def race_parts(year: int, race_date_utc) -> dict:
     out["Stint"] = np.nan
     out["Compound"] = None
     out["TyreLife"] = np.nan
+    stints = merge_continuing_stints(stints)
     for s in stints.itertuples() if not stints.empty else []:
         d = abbr.get(s.driver_number)
         m = (out["Driver"] == d) & out["LapNumber"].between(s.lap_start, s.lap_end)
@@ -238,6 +268,8 @@ def race_parts(year: int, race_date_utc) -> dict:
             "FullName": [f"{first.get(n, '')} {str(last.get(n, '')).title()}".strip() for n in result["driver_number"]],
             "LastName": [str(last.get(n, "")).title() for n in result["driver_number"]],
             "Position": pd.to_numeric(result["position"], errors="coerce").astype(float),
+            # Seconds behind the winner for lead-lap finishers ("+1 LAP" and the like become NaN).
+            "GapToLeader": pd.to_numeric(result["gap_to_leader"], errors="coerce") if "gap_to_leader" in result else np.nan,
             "Status": [status_of(r) for r in result.to_dict("records")],
         }
     ).sort_values("Position", na_position="last").reset_index(drop=True)
@@ -280,6 +312,7 @@ def race_parts(year: int, race_date_utc) -> dict:
 
     return {
         "laps": out,
+        "stationary": stationary_from(pits, abbr),
         "results": results,
         "messages": messages,
         "weather": wx,
@@ -291,6 +324,34 @@ def race_parts(year: int, race_date_utc) -> dict:
         "source": "OpenF1",
         "circuit_key": session.get("circuit_key"),
     }
+
+
+def stationary_from(pits: pd.DataFrame, abbr: dict) -> pd.DataFrame:
+    """How long each car stood still in its pit box (s), by driver and in-lap, where the feed has it.
+
+    F1's timing only started publishing this in 2024 and it's patchy since:
+    some races have every stop, some none.
+    """
+    if pits.empty or "stop_duration" not in pits:
+        return pd.DataFrame(columns=["Driver", "Lap", "Stationary"])
+    out = pd.DataFrame(
+        {
+            "Driver": pits["driver_number"].map(abbr),
+            "Lap": pd.to_numeric(pits["lap_number"], errors="coerce"),
+            "Stationary": pd.to_numeric(pits["stop_duration"], errors="coerce"),
+        }
+    ).dropna()
+    out["Lap"] = out["Lap"].astype(int)
+    return out.drop_duplicates(["Driver", "Lap"]).reset_index(drop=True)
+
+
+def stationary_times(year: int, race_date_utc, numbers: dict[int, str]) -> pd.DataFrame:
+    """Stationary times for a race whose laps came from F1's archive (which doesn't carry them).
+
+    `numbers` maps car number to driver code.
+    """
+    session = find_session(year, race_date_utc)
+    return stationary_from(pd.DataFrame(get("pit", session_key=session["session_key"])), numbers)
 
 
 # ---------------------------------------------------------------- onboard (single laps)

@@ -51,9 +51,23 @@ def lap_status(laps: pd.DataFrame) -> pd.Series:
     return s.replace({"VSC ending": "VSC"})
 
 
+def drive_throughs(laps: pd.DataFrame) -> set[tuple[str, int]]:
+    """(driver, lap) for trips through the pit lane that didn't change tyres: same stint before and after."""
+    if "Stint" not in laps:
+        return set()
+    stint = laps.set_index(["Driver", "LapNumber"])["Stint"]
+    out = set()
+    for r in laps[laps["PitInTime"].notna()].itertuples():
+        before, after = stint.get((r.Driver, r.LapNumber)), stint.get((r.Driver, r.LapNumber + 1))
+        if pd.notna(before) and pd.notna(after) and before == after:
+            out.add((r.Driver, int(r.LapNumber)))
+    return out
+
+
 def race_events(laps: pd.DataFrame, retired: set[str], total_laps: int, entrants: pd.DataFrame | None = None) -> pd.DataFrame:
     rows = []
     status = lap_status(laps)
+    passes_through = drive_throughs(laps)
     timed = fastest_lap_candidates(laps)
     best = None
 
@@ -81,7 +95,7 @@ def race_events(laps: pd.DataFrame, retired: set[str], total_laps: int, entrants
                 best = fl["LapTime"]
 
         for r in tower.itertuples():
-            if r.Pit:
+            if r.Pit and (r.Driver, lap) not in passes_through:
                 rows.append((lap, "PIT", r.Driver, f"{r.Driver} pits from P{r.Pos}"))
         if prev is None:  # out before completing a single lap
             for r in tower[tower["Out"]].itertuples():

@@ -6,7 +6,10 @@ so the same markup reads well in Streamlit's light and dark themes.
 
 import html
 
+import pandas as pd
 import streamlit as st
+
+from pitlens.style import COMPOUND_COLORS
 
 ACCENT = "#E10600"
 
@@ -115,6 +118,30 @@ h1, h2, h3 { letter-spacing: -0.01em; }
   font-variant-numeric: tabular-nums; }
 @keyframes pl-in { from { opacity: 0; transform: translateX(28px); } }
 @keyframes pl-out { to { opacity: 0; transform: translateX(28px); visibility: hidden; } }
+
+/* Pit stop list: one row per stop, newest first */
+.pl-pits-wrap { overflow-x: auto; }
+.pl-pits { max-height: 430px; overflow-y: auto; min-width: 560px; }
+.pl-pit { display: grid; grid-template-columns: 62px 64px minmax(118px, 1fr) 70px 70px 62px 118px; align-items: center;
+  gap: 8px; padding: 8px 6px; border-bottom: 1px solid rgba(128,128,128,0.14); font-size: 0.9rem;
+  font-variant-numeric: tabular-nums; min-width: 560px; }
+.pl-pit.nostill { grid-template-columns: 62px 64px minmax(118px, 1fr) 70px 62px 118px; }
+.pl-pit.head { border-bottom: 1px solid rgba(128,128,128,0.3); padding-top: 0; font-size: 0.64rem; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.55; }
+.pl-pit .num { text-align: right; }
+.pl-pit.now { background: rgba(225,6,0,0.07); border-radius: 6px; }
+.pl-pit .best { color: #A855F7; font-weight: 700; }
+.pl-pit .muted { opacity: 0.45; }
+.pl-pit .age { opacity: 0.55; font-size: 0.76rem; margin-left: 6px; }
+.pl-pit .flag { font-size: 0.56rem; font-weight: 800; letter-spacing: 0.06em; padding: 1px 4px; border-radius: 3px;
+  margin-left: 5px; background: #F5B700; color: #111; vertical-align: 1px; }
+.pl-pit .flag.red { background: #E10600; color: #fff; }
+.pl-pit .up { color: #16A34A; font-weight: 600; }
+.pl-pit .down { color: #E10600; font-weight: 600; }
+.pl-tyre { display: inline-grid; place-items: center; width: 21px; height: 21px; border-radius: 50%;
+  border: 2.5px solid var(--c); font-size: 0.6rem; font-weight: 800; box-sizing: border-box; vertical-align: middle; }
+.pl-pit .arrow { opacity: 0.4; margin: 0 5px; }
+.st-key-card-views .pl-stat { padding: 10px 14px 11px; min-width: 0; }
 
 /* Sidebar brand */
 .pl-brand { display: flex; align-items: center; gap: 10px; margin: 0 0 6px; }
@@ -339,3 +366,71 @@ def sector_list(rankings, colors: dict[str, str]) -> None:
             f'<div class="meta">Sector {n} · lap {lap}{nxt}</div></div></div>'
         )
     st.html('<div class="pl-seclist">' + "".join(rows) + "</div>")
+
+
+TYRE_LETTERS = {"SOFT": "S", "MEDIUM": "M", "HARD": "H", "INTERMEDIATE": "I", "WET": "W"}
+FLAG_TAGS = {"Safety car": ("SC", ""), "VSC": ("VSC", ""), "VSC ending": ("VSC", ""), "Red flag": ("RED", " red")}
+
+
+def tyre(compound) -> str:
+    """A small tyre: the compound's letter in a ring of its colour, as on the broadcast."""
+    c = compound if isinstance(compound, str) and compound in COMPOUND_COLORS else "UNKNOWN"
+    return (f'<span class="pl-tyre" style="--c:{COMPOUND_COLORS[c]}" title="{c.title()}">'
+            f'{TYRE_LETTERS.get(c, "?")}</span>')
+
+
+def _places(before, after) -> str:
+    if pd.isna(before) or pd.isna(after):
+        return '<span class="muted">–</span>'
+    delta = int(before) - int(after)
+    change = (f' <span class="up">+{delta}</span>' if delta > 0 else
+              f' <span class="down">−{-delta}</span>' if delta < 0 else "")
+    return f"P{int(before)} → P{int(after)}{change}"
+
+
+def pit_table(stops, colors: dict[str, str], lap: int) -> None:
+    """Every stop so far, newest first: lap, driver, tyres, pit lane and stationary time, cost, places.
+
+    The quickest pit lane and stationary times are purple, like a fastest lap. Pit lane times
+    flagged false in `LaneOk` (implausibly short) are greyed out. Cost under a safety car or VSC
+    is greyed too: the field's lap times swing too much then for it to be more than a rough
+    guide. Cost and places need the out-lap, so a stop made on the current lap shows them once
+    the next lap is done.
+    """
+    still = stops["Stationary"].notna().any()
+    lane_ok = stops["LaneOk"] if "LaneOk" in stops else pd.Series(True, index=stops.index)
+    best_lane = stops.loc[lane_ok, "LaneTime"].min()
+    best_still = stops["Stationary"].min() if still else None
+    cls = "pl-pit" + ("" if still else " nostill")
+
+    def secs(value, best, ok=True) -> str:
+        if pd.isna(value):
+            return '<span class="muted">–</span>'
+        if not ok:
+            return (f'<span class="muted" title="Too short for a normal trip down the pit lane, as when cars are '
+                    f'sent through it behind the safety car">{value:.1f}</span>')
+        return f'<span class="best">{value:.1f}</span>' if value == best else f"{value:.1f}"
+
+    head = (f'<div class="{cls} head"><span>Lap</span><span>Driver</span><span>Tyres</span>'
+            f'<span class="num">Pit lane</span>' + ('<span class="num">Stopped</span>' if still else "")
+            + '<span class="num">Cost</span><span>Places</span></div>')
+    rows = []
+    for s in stops.sort_values(["Lap", "Driver"], ascending=[False, True]).itertuples():
+        pending = s.Lap + 1 > lap  # out-lap not finished yet
+        flag, flag_cls = FLAG_TAGS.get(s.Status, ("", ""))
+        flag_html = f'<span class="flag{flag_cls}">{flag}</span>' if flag else ""
+        age = f'<span class="age">{int(s.TyreAge)} laps</span>' if pd.notna(s.TyreAge) else ""
+        cost = ('<span class="muted">…</span>' if pending else
+                '<span class="muted">–</span>' if pd.isna(s.Loss) else
+                f'<span class="muted" title="Rough: under a safety car or VSC">{s.Loss:.1f}</span>'
+                if s.Neutralised else f"{s.Loss:.1f}")
+        places = '<span class="muted">…</span>' if pending else _places(s.PosBefore, s.PosAfter)
+        rows.append(
+            f'<div class="{cls}{" now" if s.Lap == lap else ""}"><span>L{s.Lap}{flag_html}</span>'
+            f'<span>{driver_dot(colors.get(s.Driver, "#999"))}<b>{html.escape(s.Driver)}</b></span>'
+            f'<span>{tyre(s.From)}<span class="arrow">→</span>{tyre(s.To)}{age}</span>'
+            f'<span class="num">{secs(s.LaneTime, best_lane, lane_ok[s.Index])}</span>'
+            + (f'<span class="num">{secs(s.Stationary, best_still)}</span>' if still else "")
+            + f'<span class="num">{cost}</span><span>{places}</span></div>'
+        )
+    st.html(f'<div class="pl-pits-wrap">{head}<div class="pl-pits">{"".join(rows)}</div></div>')

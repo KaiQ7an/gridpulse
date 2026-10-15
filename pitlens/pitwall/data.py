@@ -6,7 +6,7 @@ import fastf1
 import pandas as pd
 
 from pitlens.pitwall.events import lap_status, race_events
-from pitlens.pitwall.timing import gap_to_leader, leader_times, retired_drivers
+from pitlens.pitwall.timing import classify_finish, gap_to_leader, leader_times, retired_drivers
 from pitlens.radio.clips import assign_laps, team_radio
 from pitlens.session import TimingUnavailable, enable_cache, load_session
 from pitlens.sources import openf1, weather
@@ -70,6 +70,7 @@ def _fastf1_parts(year: int, round_number: int) -> dict:
         radio = pd.DataFrame(columns=["Driver", "Lap", "SessionTime", "Utc", "Url"])
     return {
         "laps": pd.DataFrame(session.laps),
+        "stationary": _stationary(year, session),
         "results": pd.DataFrame(session.results),
         "messages": pd.DataFrame(session.race_control_messages),
         "weather": pd.DataFrame(session.weather_data),
@@ -82,6 +83,17 @@ def _fastf1_parts(year: int, round_number: int) -> dict:
         "race_utc": session.date,
         "circuit_key": (session.session_info.get("Meeting", {}).get("Circuit") or {}).get("Key"),
     }
+
+
+def _stationary(year: int, session) -> pd.DataFrame | None:
+    """Stationary pit stop times from OpenF1 (F1's archive doesn't carry them; OpenF1 starts in 2023)."""
+    if year < openf1.FIRST_SEASON:
+        return None
+    numbers = dict(zip(pd.to_numeric(session.results["DriverNumber"], errors="coerce"), session.results["Abbreviation"]))
+    try:
+        return openf1.stationary_times(year, session.date, numbers)
+    except Exception:  # optional extra: offline, rate-limited, or OpenF1 doesn't have the race
+        return None
 
 
 def _openf1_parts(year: int, round_number: int) -> dict:
@@ -109,9 +121,9 @@ def load_race(year: int, round_number: int) -> RaceData:
 
 
 def build_race(year: int, round_number: int, parts: dict) -> RaceData:
-    laps = parts["laps"]
     results = parts["results"].sort_values("Position")
     total_laps = parts["total_laps"]
+    laps = classify_finish(parts["laps"], results, total_laps)
     clean = add_fuel_corrected_time(clean_race_laps(laps), total_laps)
 
     colors = {}
@@ -119,7 +131,7 @@ def build_race(year: int, round_number: int, parts: dict) -> RaceData:
         color = row.get("TeamColor")
         colors[row["Abbreviation"]] = f"#{color}" if isinstance(color, str) and len(color) == 6 else FALLBACK_TEAM_COLOR
 
-    stops = pit_stops(laps)
+    stops = pit_stops(laps, parts.get("stationary"))
     retired = retired_drivers(results)
     entrants = pd.DataFrame({"Driver": results["Abbreviation"], "Team": results["TeamName"]}).dropna(subset=["Driver"])
     return RaceData(

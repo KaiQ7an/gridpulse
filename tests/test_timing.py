@@ -117,3 +117,42 @@ def test_neutralised_periods_groups_consecutive_laps():
         }
     )
     assert neutralised_periods(laps) == [("Safety car", 2, 4), ("VSC", 6, 7)]
+
+
+def test_photo_finish_follows_the_official_result():
+    # 2026 Azerbaijan: lap timing had VER 0.003 s ahead at the flag; RUS won by 0.196 s.
+    from pitlens.pitwall.timing import classify_finish
+
+    laps = pd.DataFrame(make_driver("RUS", 80, 3, offset=0.003) + make_driver("VER", 80, 3) + make_driver("HAD", 80, 3, offset=10))
+    laps["Position"] = float("nan")
+    results = pd.DataFrame({"Abbreviation": ["RUS", "VER", "HAD"], "Position": [1.0, 2.0, 3.0],
+                            "GapToLeader": [0.0, 0.196, 10.704]})
+    fixed = classify_finish(laps, results, total_laps=3)
+    tower = timing_tower(fixed, 3)
+    assert tower["Driver"].tolist() == ["RUS", "VER", "HAD"]
+    assert tower.loc[1, "Gap"] == "+0.196"
+    assert tower.loc[2, "Gap"] == "+10.704"
+    # Earlier laps keep their own timing.
+    assert timing_tower(fixed, 2)["Driver"].tolist()[0] == "VER"
+
+
+def test_official_gaps_from_fastf1_results():
+    from pitlens.pitwall.timing import official_gaps
+
+    results = pd.DataFrame({"Abbreviation": ["A", "B", "C"], "Position": [1.0, 2.0, 3.0],
+                            "Time": pd.to_timedelta([5400.0, 1.5, None], unit="s")})
+    gaps = official_gaps(results)
+    assert gaps.to_dict() == {"A": 0.0, "B": 1.5}
+
+
+def test_near_tie_follows_the_running_position():
+    # B's lap end time is 0.1 s earlier than A's, but the timing feed has A ahead: trust the feed.
+    laps = pd.DataFrame(make_driver("A", 80, 2) + make_driver("B", 80, 2, offset=-0.1) + make_driver("C", 80, 2, offset=3))
+    laps["Position"] = laps["Driver"].map({"A": 1.0, "B": 2.0, "C": 3.0})
+    tower = timing_tower(laps, 2)
+    assert tower["Driver"].tolist() == ["A", "B", "C"]
+    assert tower.loc[1, "GapSeconds"] >= 0
+    assert tower.loc[2, "Gap"] == "+3.000"
+    # Further apart than the tie window, the clock wins whatever the position column says.
+    laps["Time"] = laps["Time"] - pd.to_timedelta((laps["Driver"] == "B") * 2.0, unit="s")
+    assert timing_tower(laps, 2)["Driver"].tolist() == ["B", "A", "C"]

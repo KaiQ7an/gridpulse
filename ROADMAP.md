@@ -27,6 +27,8 @@ pace, tyres and strategy as the race unfolds. It is built in layers, each useful
 - [x] Undercut and overcut battles with before/after gaps and a verdict
 - [x] Rejoin projection: where a car comes out if it pits now
 - [x] Circuit reference pit loss (green, VSC, SC) until this race has three green-flag stops of its own
+- [x] Stationary time per stop (from OpenF1, where F1 publishes it), places lost, quickest stops and crews
+- [x] Leave out drives through the pit lane on the same tyres (penalties, field sent through under SC)
 - [ ] Tyre-offset model: when does a fresher tyre catch the car ahead
 
 ## 4. `pitwall`: race-day dashboard with replay (done)
@@ -49,6 +51,7 @@ pace, tyres and strategy as the race unfolds. It is built in layers, each useful
 
 - [x] OpenF1 fallback for races and onboard laps when F1's archive refuses requests
 - [x] Use MultiViewer's per-circuit pit loss (normal, SC, VSC) for the rejoin projection
+- [x] Final lap follows the official classification; near-ties mid-race follow the running position
 
 ## 7. `pitwall` live mode
 

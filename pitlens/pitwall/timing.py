@@ -21,6 +21,11 @@ _SEVERITY = ["5", "4", "6", "7", "2", "1"]
 # Result statuses for drivers who took the flag; anything else ran out of race.
 FINISHED_STATUSES = ("Finished", "Lapped")
 
+# Cars that cross the line closer together than this are ordered by the timing feed's
+# running position rather than by their lap end times, which (especially OpenF1's,
+# rebuilt from lap start stamps) are only good to a few tenths of a second.
+TIE_SECONDS = 0.5
+
 
 def track_status(code) -> str:
     """Most severe track status seen during a lap, e.g. "124" -> "Safety car"."""
@@ -62,6 +67,49 @@ def retired_drivers(results: pd.DataFrame) -> set[str]:
     return set(results.loc[~finished, "Abbreviation"])
 
 
+def official_gaps(results: pd.DataFrame) -> pd.Series:
+    """Seconds behind the winner at the flag for cars on the lead lap, from the official classification.
+
+    OpenF1 results carry `GapToLeader`; FastF1's carry `Time`, which is the
+    winner's race time and every other lead-lap finisher's gap to them.
+    """
+    ranked = results.dropna(subset=["Position"]).sort_values("Position")
+    if "GapToLeader" in ranked:
+        gaps = pd.to_numeric(ranked["GapToLeader"], errors="coerce")
+    elif "Time" in ranked:
+        gaps = pd.to_timedelta(ranked["Time"], errors="coerce").dt.total_seconds()
+    else:
+        return pd.Series(dtype=float)
+    gaps = pd.Series(gaps.values, index=ranked["Abbreviation"].values, dtype=float)
+    if gaps.empty or ranked["Position"].iloc[0] != 1:
+        return pd.Series(dtype=float)
+    gaps.iloc[0] = 0.0  # FastF1 gives the winner's total race time here
+    return gaps.dropna()
+
+
+def classify_finish(laps: pd.DataFrame, results: pd.DataFrame, total_laps: int) -> pd.DataFrame:
+    """Line the final lap up with the official result.
+
+    A photo finish can come out the wrong way round in lap timing (in the 2026
+    Azerbaijan GP OpenF1's lap times put Verstappen 0.003 s ahead of Russell,
+    who won by 0.196 s). So the lead-lap finishers' final-lap times are set to
+    the winner's time plus their official gap, and their position to their
+    classified one.
+    """
+    gaps = official_gaps(results)
+    final = laps["LapNumber"] == total_laps
+    winner = laps[final & (laps["Driver"] == (gaps.index[0] if len(gaps) else None))]["Time"].dropna()
+    if winner.empty:
+        return laps
+    laps = laps.copy()
+    rows = final & laps["Driver"].isin(gaps.index)
+    laps.loc[rows, "Time"] = winner.iloc[0] + pd.to_timedelta(laps.loc[rows, "Driver"].map(gaps), unit="s")
+    if "Position" in laps:
+        position = results.dropna(subset=["Position"]).set_index("Abbreviation")["Position"]
+        laps.loc[rows, "Position"] = laps.loc[rows, "Driver"].map(position).astype(float)
+    return laps
+
+
 def leader_times(laps: pd.DataFrame) -> pd.Series:
     """Session time at which the race leader completed each lap."""
     return laps.dropna(subset=["Time"]).groupby("LapNumber")["Time"].min()
@@ -81,8 +129,8 @@ def timing_tower(
 ) -> pd.DataFrame:
     """Running order, gaps and tyres as each driver completes `lap`.
 
-    Drivers who completed `lap` are ordered by when they crossed the line.
-    Anyone who never completes it is either out of the race (in `retired`) or
+    Drivers who completed `lap` are ordered by when they crossed the line
+    (near-ties by the feed's running position, see TIE_SECONDS). Anyone who never completes it is either out of the race (in `retired`) or
     lapped, and is placed behind by laps completed. `entrants` (Driver, Team)
     adds anyone who never completed a lap at all, such as a first-lap
     retirement, at the bottom.
@@ -115,9 +163,14 @@ def timing_tower(
     latest["LapsDown"] = latest.apply(laps_down, axis=1)
     latest["SortGroup"] = latest["Out"].astype(int)
     latest = latest.sort_values(["SortGroup", "LapNumber", "Time"], ascending=[True, False, True])
-    latest = latest.reset_index(drop=True)
+    latest = _settle_near_ties(latest).reset_index(drop=True)
 
-    latest["GapSeconds"] = (latest["Time"] - leader_time).dt.total_seconds().where(latest["LapNumber"] == lap)
+    on_lap = latest["LapNumber"] == lap
+    if on_lap.any():
+        leader_time = latest.loc[on_lap, "Time"].iloc[0]
+    gaps = (latest["Time"] - leader_time).dt.total_seconds().where(on_lap)
+    # A car placed ahead on a near-tie can't be behind on the clock: keep gaps rising.
+    latest["GapSeconds"] = gaps.where(~on_lap, gaps[on_lap].cummax())
     latest["IntervalSeconds"] = latest["GapSeconds"].diff()
 
     def gap_text(row) -> str:
@@ -152,6 +205,17 @@ def timing_tower(
             "Out": latest["Out"],
         }
     )
+
+
+def _settle_near_ties(rows: pd.DataFrame) -> pd.DataFrame:
+    """Within each run of cars that crossed the line less than TIE_SECONDS apart, order by running position."""
+    if "Position" not in rows or rows["Position"].isna().all():
+        return rows
+    t = rows["Time"].dt.total_seconds()
+    same_group = rows["LapNumber"].eq(rows["LapNumber"].shift()) & rows["SortGroup"].eq(rows["SortGroup"].shift())
+    close = same_group & (t - t.shift() < TIE_SECONDS)
+    run = (~close).cumsum().rename("_run")
+    return rows.assign(_run=run).sort_values(["_run", "Position"], na_position="last").drop(columns="_run")
 
 
 def stint_timeline(laps: pd.DataFrame) -> pd.DataFrame:

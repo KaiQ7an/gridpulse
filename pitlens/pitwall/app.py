@@ -17,11 +17,11 @@ from pitlens.pitwall.timing import format_lap_time, neutralised_periods, stint_t
 from pitlens.pitwall.tower import timing_tower as tower_component
 from pitlens.radio import transcribe, translate
 from pitlens.stints.pace import stint_degradation
-from pitlens.undercut.analysis import pair_gap, pit_loss_now, rejoin_projection
+from pitlens.undercut.analysis import pair_gap, pit_loss_now, plausible_lane_times, rejoin_projection
 from pitlens.undercut.charts import battle_chart, pit_loss_chart
 
 SPEEDS = {"1×": 2.0, "2×": 1.0, "4×": 0.5}  # seconds per lap
-VIEWS = ["Gaps", "Positions", "Tyres", "Strategy", "Pace", "Radio", "Messages"]
+VIEWS = ["Gaps", "Positions", "Tyres", "Pit stops", "Strategy", "Pace", "Radio", "Messages"]
 
 
 @st.cache_data(ttl=3600, show_spinner=False)
@@ -221,6 +221,8 @@ def race_view(race: RaceData) -> None:
             st.plotly_chart(charts.shade_periods(fig, periods), width="stretch", key="chart_positions")
         elif view == "Tyres":
             tyres_view(race, laps, tower, lap, focus)
+        elif view == "Pit stops":
+            pits_view(race, lap, focus)
         elif view == "Strategy":
             strategy_view(race, tower, lap, focus)
         elif view == "Pace":
@@ -357,6 +359,78 @@ def messages_view(race: RaceData, lap: int) -> None:
                                 "Flag": st.column_config.TextColumn(width=80)})
 
 
+def pits_view(race: RaceData, lap: int, focus: list[str]) -> None:
+    """Every pit stop so far: how long it took, what it cost, places lost, and the quickest crews."""
+    stops = race.stops.assign(LaneOk=plausible_lane_times(race.stops))
+    stops = stops[stops["Lap"] <= lap]
+    still = race.stops["Stationary"].notna().any()
+    status = race.lap_status.get(lap, "Green")
+    loss, loss_source = pit_loss_now(stops, status, race.pit_loss_ref)
+
+    def quickest(key: str, column: str, tip: str) -> str:
+        timed = stops.dropna(subset=[column])
+        if column == "LaneTime":
+            timed = timed[timed["LaneOk"]]
+        if timed.empty:
+            return ui.stat(key, "–")
+        best = timed.sort_values([column, "Lap"]).iloc[0]
+        return ui.stat(key, "", small=f"L{best['Lap']}", tip=tip, value_html=(
+            ui.driver_dot(race.team_colors.get(best["Driver"], "#999")) + best["Driver"]
+            + f' <span style="color:#A855F7">{best[column]:.1f} s</span>'))
+
+    neutral = int(stops["Neutralised"].sum())
+    stats = [ui.stat("Stops", str(len(stops)), small=f"{neutral} under SC/VSC" if neutral else "",
+                     tip="Stops with a tyre change; drive-throughs on the same tyres aren't counted")]
+    if still:
+        stats.append(quickest("Quickest stop", "Stationary", "Shortest time stood still in the pit box"))
+    stats += [
+        quickest("Quickest pit lane", "LaneTime", "Shortest time from pit entry to pit exit"),
+        ui.stat("Typical cost", f"{loss:.1f} s" if loss else "–", tip=f"Pit loss now: {loss_source}",
+                small="race median" if loss_source.startswith("median") else
+                "circuit ref" if loss_source.startswith("circuit") else "SC/VSC" if loss else ""),
+    ]
+    ui.strip(stats)
+    if stops.empty:
+        ui.note("No stops yet.")
+        return
+
+    with st.container(horizontal=True, vertical_alignment="center"):
+        ui.label("Every stop, newest first")
+        only_focus = st.toggle("Focus drivers only", value=False, key="pits_focus")
+    shown = stops[stops["Driver"].isin(focus)] if only_focus else stops
+    ui.note("Pit lane is pit entry to pit exit. "
+            + ("Stopped is the time stood still in the box. " if still else
+               "The timing feed has no stationary times for this race. ")
+            + "Cost is the time lost against the cars that stayed out; places are the end of the lap before "
+            "the stop against the end of the out-lap. The quickest times are purple; grey ones are rough or "
+            "doubtful (hover for why).")
+    if shown.empty:
+        ui.note("None of the focus drivers has stopped yet.")
+    else:
+        ui.pit_table(shown, race.team_colors, lap)
+
+    column = "Stationary" if still and stops["Stationary"].notna().any() else "LaneTime"
+    with st.container(horizontal=True, vertical_alignment="center"):
+        if st.session_state.get("pits_rank") == "Teams":
+            ui.label("Typical stop by team" if column == "Stationary" else "Typical pit lane time by team")
+        else:
+            ui.label("Quickest stops" if column == "Stationary" else "Quickest through the pit lane")
+        by = st.segmented_control("Rank", ["Stops", "Teams"], key="pits_rank", required=True, default="Stops",
+                                  label_visibility="collapsed")
+    ranked = stops[stops["LaneOk"]] if column == "LaneTime" else stops
+    if by == "Teams":
+        teams = dict(zip(race.entrants["Driver"], race.entrants["Team"]))
+        fig = charts.team_stop_times(ranked, race.team_colors, teams, column)
+    else:
+        fig = charts.quickest_stops(ranked, race.team_colors, column)
+    st.plotly_chart(fig, width="stretch", key="chart_pit_rank", config={"displayModeBar": False})
+
+    ui.label("What each stop cost")
+    ui.note("Time lost to each stop against the cars that stayed out, by lap. Stops under a safety car or VSC "
+            "(grey) cost far less, which is why teams pit then.")
+    st.plotly_chart(pit_loss_chart(stops, race.pit_loss, race.total_laps), width="stretch", key="chart_pitloss")
+
+
 def strategy_view(race: RaceData, tower: pd.DataFrame, lap: int, focus: list[str]) -> None:
     stops = race.stops[race.stops["Lap"] <= lap]
     battles = race.battles[race.battles["RivalStopLap"] + 1 <= lap]
@@ -412,10 +486,6 @@ def strategy_view(race: RaceData, tower: pd.DataFrame, lap: int, focus: list[str
         )
         gap = pair_gap(race.laps, battle.FirstStop, battle.Rival)
         st.plotly_chart(battle_chart(gap, battle, race.total_laps), width="stretch", key="chart_battle")
-
-    if not stops.empty:
-        ui.label("What each stop cost")
-        st.plotly_chart(pit_loss_chart(stops, race.pit_loss, race.total_laps), width="stretch", key="chart_pitloss")
 
 
 def race_page() -> None:

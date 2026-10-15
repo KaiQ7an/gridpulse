@@ -59,6 +59,11 @@ falling away, with the cleaning rules written down and tested.
   also pop up as in-page notifications styled like the broadcast graphics.
 - **Circuit map**: the track drawn from the race's fastest lap as actually driven (or the circuit
   outline before 2023), with the start/finish line, and the fastest S1/S2/S3 so far beside it.
+- **Pit stops**: every stop so far, newest first, with how long it took (pit entry to exit, and
+  the time stood still in the box where the timing feed has it), tyres off and on, the time it
+  cost against the cars that stayed out and the places lost; the quickest stops and the quickest
+  crews by team; and what each stop cost lap by lap. Drives through the pit lane on the same tyres
+  (a penalty, or the field sent through behind the safety car) aren't counted as stops.
 - **Strategy**: the typical pit loss, where each car would rejoin if it pitted at the end of this
   lap, and every undercut and overcut so far with its outcome.
 - **Radio**: team radio clips up to the current lap, playable in the page, with a microphone in
@@ -358,6 +363,13 @@ stops, undercut battles, finishing order and retirements; gaps agree to within a
 pit loss to 0.1 s. Its car telemetry is sampled about half as often, so onboard traces are a
 little coarser. Track status (safety car, VSC, red flag, yellows) is rebuilt per lap from race
 control messages.
+
+Lap end times are only good to a few tenths, which matters in a photo finish: in the 2026
+Azerbaijan Grand Prix OpenF1's lap times put Verstappen 0.003 s ahead at the flag, but Russell
+won by 0.196 s. So the final lap follows the official classification and its gaps, and cars
+crossing the line within half a second of each other mid-race are ordered by the timing feed's
+running position. Stationary pit stop times come from OpenF1 (F1's archive doesn't carry them);
+F1 only started publishing them in 2024 and they're patchy since, so some races have none.
 
 This project is unofficial and not associated with Formula 1 or any team.
 

@@ -116,3 +116,30 @@ def test_pit_loss_now_starts_from_the_circuit_reference_and_switches_to_this_rac
     assert value == pytest.approx(21.0 * 15 / 22, abs=0.05) and "scaled" in source
 
     assert pit_loss_now(none, "Green", None) == (None, "no estimate yet")
+
+
+def test_pit_stops_carry_stationary_time_and_places(undercut_race):
+    laps = undercut_race.copy()
+    # Positions: B ahead until A's undercut works.
+    laps["Position"] = [1.0 if (d == "B") == (n < 11) else 2.0 for d, n in zip(laps["Driver"], laps["LapNumber"])]
+    stationary = pd.DataFrame({"Driver": ["A"], "Lap": [10], "Stationary": [2.4]})
+    stops = pit_stops(laps, stationary).set_index("Driver")
+    assert stops.loc["A", "Stationary"] == pytest.approx(2.4)
+    assert pd.isna(stops.loc["B", "Stationary"])
+    assert (stops.loc["A", "PosBefore"], stops.loc["A", "PosAfter"]) == (2, 1)
+    assert (stops.loc["B", "PosBefore"], stops.loc["B", "PosAfter"]) == (2, 2)
+
+
+def test_drive_through_on_the_same_tyres_is_not_a_stop(undercut_race):
+    laps = undercut_race.copy()
+    b = laps["Driver"] == "B"
+    laps.loc[b, "Stint"] = 1  # B goes through the pit lane but keeps its tyres
+    stops = pit_stops(laps)
+    assert stops["Driver"].tolist() == ["A"]
+
+
+def test_implausibly_short_pit_lane_times():
+    from pitlens.undercut.analysis import plausible_lane_times
+
+    stops = pd.DataFrame({"LaneTime": [20.6, 20.9, 21.3, 15.1, 23.6]})
+    assert plausible_lane_times(stops).tolist() == [True, True, True, False, True]

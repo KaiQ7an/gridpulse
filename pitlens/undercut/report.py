@@ -9,7 +9,7 @@ import fastf1
 from pitlens.htmlreport import table, text, write_report
 from pitlens.pitwall.data import load_race
 from pitlens.session import OUTPUT_DIR
-from pitlens.undercut.analysis import pair_gap, pit_battles, pit_loss, pit_stops
+from pitlens.undercut.analysis import pair_gap, pit_battles
 from pitlens.undercut.charts import battle_chart, pit_loss_chart
 
 MAX_BATTLE_CHARTS = 8
@@ -27,8 +27,8 @@ def run(args: argparse.Namespace) -> None:
     print(f"Loading {args.year} {args.event} race...")
     round_number = event if isinstance(event, int) else int(fastf1.get_event(args.year, event)["RoundNumber"])
     race = load_race(args.year, round_number)
-    stops = pit_stops(race.laps)
-    loss = pit_loss(stops)
+    stops = race.stops
+    loss = race.pit_loss
     battles = pit_battles(race.laps, stops, max_gap=args.max_gap)
 
     print(f"\n{race.name}: {len(stops)} stops, typical green-flag pit loss "

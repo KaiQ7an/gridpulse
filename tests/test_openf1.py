@@ -44,3 +44,32 @@ def test_sector_yellows_until_cleared():
     ]), total_laps=6)
     assert "2" in status[4]
     assert status[6] == "1"
+
+
+def test_stints_on_the_same_tyres_are_merged():
+    from pitlens.sources.openf1 import merge_continuing_stints
+
+    stints = pd.DataFrame(
+        [
+            dict(driver_number=77, stint_number=1, lap_start=1, lap_end=26, compound="MEDIUM", tyre_age_at_start=0),
+            dict(driver_number=77, stint_number=2, lap_start=27, lap_end=36, compound="SOFT", tyre_age_at_start=0),
+            # sent through the pit lane behind the safety car: same softs, age carries on
+            dict(driver_number=77, stint_number=3, lap_start=37, lap_end=49, compound="SOFT", tyre_age_at_start=10),
+            dict(driver_number=63, stint_number=1, lap_start=1, lap_end=36, compound="SOFT", tyre_age_at_start=0),
+            dict(driver_number=63, stint_number=2, lap_start=37, lap_end=51, compound="SOFT", tyre_age_at_start=0),
+        ]
+    )
+    merged = merge_continuing_stints(stints)
+    bot = merged[merged["driver_number"] == 77]
+    assert bot["stint_number"].tolist() == [1, 2]
+    assert bot["lap_end"].tolist() == [26, 49]
+    assert len(merged[merged["driver_number"] == 63]) == 2  # fresh softs: a real stop
+
+
+def test_stationary_times():
+    from pitlens.sources.openf1 import stationary_from
+
+    pits = pd.DataFrame({"driver_number": [44, 1, 16], "lap_number": [11, 12, 13], "stop_duration": [2.2, None, 3.1]})
+    out = stationary_from(pits, {44: "HAM", 1: "VER", 16: "LEC"})
+    assert out.to_dict("records") == [{"Driver": "HAM", "Lap": 11, "Stationary": 2.2},
+                                      {"Driver": "LEC", "Lap": 13, "Stationary": 3.1}]

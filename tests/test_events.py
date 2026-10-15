@@ -91,3 +91,11 @@ def test_fastest_sectors():
     assert [r[0] for r in ranked] == [("B", 24.5, 2), ("A", 29.0, 3), ("B", 24.9, 3)]
     assert ranked[0][1] == ("A", 25.0, 2)  # second fastest S1, one entry per driver
     assert len(ranked[0]) == 2
+
+
+def test_drive_through_is_not_reported_as_a_pit_stop():
+    laps = make_race()
+    c = laps["Driver"] == "C"
+    laps.loc[c, "Stint"] = 1  # C passes through the pit lane on lap 3 without changing tyres
+    texts = race_events(laps, retired={"D"}, total_laps=6)["Text"].tolist()
+    assert "C pits from P3" not in texts

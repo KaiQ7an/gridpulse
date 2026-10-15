@@ -21,14 +21,25 @@ def _lap_times(laps: pd.DataFrame) -> pd.DataFrame:
     )
 
 
-def pit_stops(laps: pd.DataFrame) -> pd.DataFrame:
-    """One row per pit stop: in-lap, pit lane time, tyres and the time it cost.
+STOP_COLUMNS = [
+    "Driver", "Lap", "LaneTime", "Stationary", "From", "To", "TyreAge", "Status", "Neutralised", "Loss",
+    "PosBefore", "PosAfter",
+]
 
-    A stop is an in-lap (PitInTime set) followed by an out-lap (PitOutTime set).
-    `Loss` compares the in-lap plus out-lap with the same two laps for the
-    cars that stayed out, corrected for how much quicker or slower this car
-    was than them just before. Comparing with the field on the same laps
-    makes it fair under a safety car or VSC, when everyone is slow.
+
+def pit_stops(laps: pd.DataFrame, stationary: pd.DataFrame | None = None) -> pd.DataFrame:
+    """One row per pit stop: in-lap, how long it took, tyres, the time it cost and places lost.
+
+    A stop is an in-lap (PitInTime set) followed by an out-lap (PitOutTime set)
+    on a new stint; driving through the pit lane on the same tyres isn't one.
+    `LaneTime` is pit entry to pit exit; `Stationary` is how long the car stood
+    in its box, where the timing feed has it (`stationary`: Driver, Lap,
+    Stationary). `Loss` compares the in-lap plus out-lap with the same two
+    laps for the cars that stayed out, corrected for how much quicker or
+    slower this car was than them just before. Comparing with the field on
+    the same laps makes it fair under a safety car or VSC, when everyone is
+    slow. `PosBefore` and `PosAfter` are the running positions at the end of
+    the lap before the in-lap and at the end of the out-lap.
     """
     times = _lap_times(laps)
     lap_time = times.diff()  # crossing-to-crossing lap times, s
@@ -39,31 +50,49 @@ def pit_stops(laps: pd.DataFrame) -> pd.DataFrame:
         index=times.index, columns=times.columns, fill_value=False
     ).astype(bool)
 
+    still = {} if stationary is None or stationary.empty else \
+        stationary.set_index(["Driver", "Lap"])["Stationary"].to_dict()
+
     rows = []
     for driver, d in laps.sort_values("LapNumber").groupby("Driver"):
         d = d.set_index("LapNumber")
+        position = d["Position"] if "Position" in d else pd.Series(dtype=float)
         for lap in d.index[d["PitInTime"].notna()]:
             if lap + 1 not in d.index or pd.isna(d.loc[lap + 1, "PitOutTime"]):
                 continue  # retired in the pits, or no out-lap recorded
             inlap, outlap = d.loc[lap], d.loc[lap + 1]
+            if inlap.get("Stint") == outlap.get("Stint") and pd.notna(inlap.get("Stint")) \
+                    and pd.isna(still.get((driver, int(lap)))):
+                continue  # drove through the pit lane on the same tyres: a penalty, or sent through under SC
             status = track_status(str(inlap["TrackStatus"]) + str(outlap["TrackStatus"]))
             rows.append(
                 {
                     "Driver": driver,
                     "Lap": int(lap),
                     "LaneTime": round((outlap["PitOutTime"] - inlap["PitInTime"]).total_seconds(), 1),
+                    "Stationary": still.get((driver, int(lap)), np.nan),
                     "From": inlap["Compound"],
                     "To": outlap["Compound"],
                     "TyreAge": inlap["TyreLife"],
                     "Status": status,
                     "Neutralised": status in NEUTRALISED,
                     "Loss": _stop_loss(times, lap_time, pit_lap, driver, int(lap)),
+                    "PosBefore": position.get(lap - 1, np.nan),
+                    "PosAfter": position.get(lap + 1, np.nan),
                 }
             )
-    cols = ["Driver", "Lap", "LaneTime", "From", "To", "TyreAge", "Status", "Neutralised", "Loss"]
     if not rows:
-        return pd.DataFrame(columns=cols)
-    return pd.DataFrame(rows, columns=cols).sort_values(["Lap", "Driver"]).reset_index(drop=True)
+        return pd.DataFrame(columns=STOP_COLUMNS)
+    out = pd.DataFrame(rows, columns=STOP_COLUMNS).sort_values(["Lap", "Driver"]).reset_index(drop=True)
+    out[["PosBefore", "PosAfter"]] = out[["PosBefore", "PosAfter"]].astype("Int64")
+    return out
+
+
+def plausible_lane_times(stops: pd.DataFrame) -> pd.Series:
+    """False for pit lane times too short for a normal trip down the pit lane (well under the race's
+    median), as when the field is sent through the pit lane behind the safety car and the timing
+    loops measure something else."""
+    return stops["LaneTime"] >= 0.85 * stops["LaneTime"].median()
 
 
 def _stop_loss(times, lap_time, pit_lap, driver: str, lap: int) -> float:

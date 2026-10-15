@@ -228,3 +228,58 @@ def circuit_map(track: dict) -> go.Figure:
     fig.update_xaxes(visible=False)
     fig.update_yaxes(visible=False, scaleanchor="x", scaleratio=1)
     return fig
+
+
+def quickest_stops(stops: pd.DataFrame, colors: dict[str, str], column: str, top: int = 10) -> go.Figure:
+    """The quickest stops so far as team-coloured bars, quickest on top. `column` is Stationary or LaneTime."""
+    best = stops.dropna(subset=[column]).sort_values([column, "Lap"]).head(top).iloc[::-1]
+    labels = best["Driver"] + " · L" + best["Lap"].astype(str)
+    fig = go.Figure(
+        go.Bar(
+            x=best[column],
+            y=labels,
+            orientation="h",
+            marker=dict(color=[colors.get(d, "#999999") for d in best["Driver"]]),
+            text=best[column].map(lambda v: f"{v:.1f} s"),
+            textposition="outside",
+            cliponaxis=False,
+            customdata=best[["From", "To"]].fillna("?").apply(lambda c: c.str.title()),
+            hovertemplate="<b>%{y}</b><br>%{x:.1f} s<br>%{customdata[0]} → %{customdata[1]}<extra></extra>",
+            showlegend=False,
+        )
+    )
+    return _bar_layout(fig, len(best), "Stationary (s)" if column == "Stationary" else "Pit entry to exit (s)",
+                       best[column])
+
+
+def team_stop_times(stops: pd.DataFrame, colors: dict[str, str], teams: dict[str, str], column: str) -> go.Figure:
+    """Each team's median stop so far (green-flag and neutralised alike), quickest on top."""
+    s = stops.dropna(subset=[column]).assign(Team=lambda d: d["Driver"].map(teams))
+    by_team = s.groupby("Team").agg(Median=(column, "median"), Stops=(column, "size"), Driver=("Driver", "first"))
+    by_team = by_team.sort_values("Median", ascending=False)
+    fig = go.Figure(
+        go.Bar(
+            x=by_team["Median"],
+            y=by_team.index,
+            orientation="h",
+            marker=dict(color=[colors.get(d, "#999999") for d in by_team["Driver"]]),
+            text=by_team["Median"].map(lambda v: f"{v:.1f} s"),
+            textposition="outside",
+            cliponaxis=False,
+            customdata=by_team[["Stops"]],
+            hovertemplate="<b>%{y}</b><br>median %{x:.1f} s over %{customdata[0]} stops<extra></extra>",
+            showlegend=False,
+        )
+    )
+    return _bar_layout(fig, len(by_team), "Median stationary (s)" if column == "Stationary" else
+                       "Median pit entry to exit (s)", by_team["Median"])
+
+
+def _bar_layout(fig: go.Figure, n: int, title: str, values: pd.Series) -> go.Figure:
+    fig.update_layout(height=max(200, 30 * n + 70), margin=dict(l=10, r=50, t=10, b=10), bargap=0.32)
+    plotstyle.apply(fig)
+    if len(values):
+        fig.update_xaxes(range=[0, float(values.max()) * 1.18])  # bars from zero; room for the labels
+    fig.update_xaxes(title=title)
+    fig.update_yaxes(title=None)
+    return fig
