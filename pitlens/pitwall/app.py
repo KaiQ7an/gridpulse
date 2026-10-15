@@ -76,7 +76,7 @@ def replay_controls(total_laps: int) -> None:
             ss.lap = int(min(max(ss.goto_lap, 1), total_laps))
             ss.goto_lap = None  # clear the box so the slider stays the source of truth
 
-    with st.container(horizontal=True, vertical_alignment="center", key="controls", gap="small"):
+    with st.container(horizontal=True, vertical_alignment="center", key="controls", gap="medium"):
         st.button("Lap 1", icon=":material/skip_previous:", on_click=restart, help="Back to the start")
         st.button(
             "Pause" if ss.playing else "Play",
@@ -138,13 +138,22 @@ def race_view(race: RaceData) -> None:
     replay_controls(race.total_laps)
     lap = ss.lap
     focus = ss.focus
+    if ss.get("shown_lap") == lap - 1:  # moved forward one lap (playing or stepping): announce what just happened
+        for e in race.events[race.events["Lap"] == lap].itertuples():
+            if e.Kind == "FL":
+                driver, _, time = e.Text.partition(" fastest lap, ")
+                st.toast(f":violet[**Fastest lap**] · **{driver}** {time}", icon=":material/timer:", duration="short")
+            elif e.Kind == "OUT":
+                st.toast(f":red[**Retirement**] · **{e.Driver}** is out of the race", icon=":material/flag:",
+                         duration="short")
+    ss.shown_lap = lap
 
     laps = race.laps[race.laps["LapNumber"] <= lap]
     periods = neutralised_periods(laps)
     tower = timing_tower(race.laps, lap, race.retired, race.entrants)
     status_strip(race, laps, tower, lap)
 
-    left, right = st.columns([5, 7], gap="medium")
+    left, right = st.columns([6, 7], gap="large")
     with left, st.container(border=True, key="card-tower"):
         ui.label("Timing")
         # Rows slide and gaps count over most of the tick, so motion is continuous while playing.
@@ -152,6 +161,17 @@ def race_view(race: RaceData) -> None:
         on_radio = set(race.radio.loc[race.radio["Lap"] == lap, "Driver"])
         banner = neutralised_banner(race.lap_status, lap)
         tower_component(tower, race.team_colors, lap, move_ms, on_radio, focus, banner)
+
+    if race.track:
+        with left, st.container(border=True, key="card-map"):
+            ui.label("Fastest sectors")
+            rankings = fastest_sectors(laps, top=2)
+            track_col, list_col = st.columns([3, 2], gap="small")
+            with track_col:
+                st.plotly_chart(charts.sector_map(race.track, rankings, race.team_colors),
+                                width="stretch", key="chart_sector_map", config={"displayModeBar": False})
+            with list_col:
+                ui.sector_list(rankings, race.team_colors)
 
     with right, st.container(border=True, key="card-views"):
         # Only the chosen view is drawn each tick (tabs would redraw all of them).

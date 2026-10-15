@@ -396,3 +396,45 @@ def circuit_info(circuit_key: int, year: int) -> tuple[pd.DataFrame, float]:
         }
     )
     return corners, float(data.get("rotation", 0))
+
+
+def track_outline(year: int, race_date_utc, circuit_key: int | None) -> dict | None:
+    """The circuit as a line split into the three timing sectors.
+
+    From 2023 (OpenF1's coverage) it's the race's fastest lap as actually
+    driven, cut where that lap's official sector times end. Before that it
+    falls back to the MultiViewer outline, split by the same time shares
+    (approximate). Returns x, y, the sector boundary indices and rotation.
+    """
+    rotation = 0.0
+    try:
+        circuit = _circuit(circuit_key, year) if circuit_key else {}
+        rotation = float(circuit.get("rotation", 0))
+    except (requests.RequestException, ValueError):
+        circuit = {}
+
+    try:
+        session = find_session(year, race_date_utc)
+        laps = session_laps(session["session_key"])
+        laps = laps.dropna(subset=["duration_sector_1", "duration_sector_2", "duration_sector_3"])
+        median = laps["lap_duration"].median()
+        laps = laps[(laps["lap_duration"] > 0.85 * median) & (laps["lap_number"] > 1)]
+        lap = laps.loc[laps["lap_duration"].idxmin()]
+        tel = lap_telemetry(session["session_key"], int(lap["driver_number"]), lap["date_start"],
+                            float(lap["lap_duration"]))
+        secs = tel["Time"].dt.total_seconds().to_numpy()
+        s1 = float(lap["duration_sector_1"])
+        s2 = s1 + float(lap["duration_sector_2"])
+        return {"x": tel["X"].to_numpy(), "y": tel["Y"].to_numpy(),
+                "splits": [int(np.searchsorted(secs, s1)), int(np.searchsorted(secs, s2))],
+                "rotation": rotation, "source": "fastest lap"}
+    except (OpenF1Error, requests.RequestException, KeyError, ValueError):
+        pass
+
+    if circuit.get("x"):
+        x, y = np.asarray(circuit["x"], float), np.asarray(circuit["y"], float)
+        t = np.asarray(circuit.get("trackPositionTime") or np.linspace(0, 1, len(x)), float)
+        frac = t / t[-1]
+        return {"x": x, "y": y, "splits": [int(np.searchsorted(frac, 1 / 3)), int(np.searchsorted(frac, 2 / 3))],
+                "rotation": rotation, "source": "circuit outline (approximate sectors)"}
+    return None

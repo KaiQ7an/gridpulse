@@ -5,8 +5,8 @@
 [theme]
 font = "Inter:https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap, sans-serif"
 headingFont = "Titillium Web:https://fonts.googleapis.com/css2?family=Titillium+Web:wght@600;700&display=swap, sans-serif"
-baseFontSize = 14
-headingFontSizes = ["2.1rem", "1.15rem", "1rem", "0.9rem"]
+baseFontSize = 15
+headingFontSizes = ["2.3rem", "1.2rem", "1.05rem", "0.95rem"]
 headingFontWeights = [700, 700, 600, 600]
 metricValueFontSize = "1.35rem"
 metricValueFontWeight = 600

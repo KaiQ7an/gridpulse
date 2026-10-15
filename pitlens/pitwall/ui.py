@@ -26,29 +26,30 @@ CSS = """
 [data-stale="true"], .stale-element { opacity: 1 !important; transition: none !important; }
 
 /* Leave room for the top navigation bar, which sits over the page. */
-[data-testid="stMainBlockContainer"] { padding-top: 4.6rem; padding-bottom: 3rem; max-width: 1680px; }
+[data-testid="stMainBlockContainer"] { padding-top: 5rem; padding-bottom: 4rem; padding-left: 3rem; padding-right: 3rem;
+  max-width: 1760px; }
 [data-testid="stSidebarUserContent"] { padding-top: 1.2rem; }
 h1, h2, h3 { letter-spacing: -0.01em; }
 
 /* Page header */
 .pl-eyebrow { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase;
   color: #E10600; margin-bottom: 0.15rem; }
-.pl-title { font-family: "Titillium Web", sans-serif; font-weight: 700; font-size: 2.15rem; line-height: 1.08;
-  margin: 0; }
-.pl-sub { opacity: 0.62; font-size: 0.9rem; margin-top: 0.3rem; }
+.pl-title { font-family: "Titillium Web", sans-serif; font-weight: 700; font-size: 2.5rem; line-height: 1.08;
+  margin: 0.1rem 0 0; }
+.pl-sub { opacity: 0.62; font-size: 0.95rem; margin-top: 0.45rem; margin-bottom: 0.6rem; }
 
 /* Status strip: small labelled values in a row */
-.pl-strip { display: flex; flex-wrap: wrap; gap: 8px; margin: 2px 0 4px; }
-.pl-stat { border: 1px solid rgba(128,128,128,0.22); border-radius: 8px; padding: 7px 12px 8px; min-width: 84px;
+.pl-strip { display: flex; flex-wrap: wrap; gap: 12px; margin: 6px 0 10px; }
+.pl-stat { border: 1px solid rgba(128,128,128,0.22); border-radius: 10px; padding: 11px 16px 12px; min-width: 104px;
   background: rgba(128,128,128,0.04); }
-.pl-stat .k { font-size: 0.64rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.55; }
-.pl-stat .v { font-size: 1.08rem; font-weight: 600; font-variant-numeric: tabular-nums; margin-top: 2px;
+.pl-stat .k { font-size: 0.66rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.55; }
+.pl-stat .v { font-size: 1.2rem; font-weight: 600; font-variant-numeric: tabular-nums; margin-top: 4px;
   white-space: nowrap; }
 .pl-stat .v small { font-size: 0.78rem; font-weight: 500; opacity: 0.6; margin-left: 4px; }
 /* Fastest sectors: one compact block, a line per sector, P2-P5 on hover */
-.pl-sectors { border: 1px solid rgba(128,128,128,0.22); border-radius: 8px; padding: 4px 10px; min-width: 0;
+.pl-sectors { border: 1px solid rgba(128,128,128,0.22); border-radius: 10px; padding: 6px 14px; min-width: 0;
   background: rgba(128,128,128,0.04); display: flex; flex-direction: column; justify-content: center; gap: 1px; }
-.pl-sec { position: relative; display: flex; align-items: center; gap: 6px; font-size: 0.8rem; font-weight: 600;
+.pl-sec { position: relative; display: flex; align-items: center; gap: 7px; font-size: 0.84rem; font-weight: 600;
   font-variant-numeric: tabular-nums; white-space: nowrap; line-height: 1.5; cursor: default; }
 .pl-sec .k { font-size: 0.62rem; letter-spacing: 0.1em; opacity: 0.55; width: 18px; }
 .pl-sec small { opacity: 0.55; font-weight: 500; font-size: 0.7rem; }
@@ -66,18 +67,18 @@ h1, h2, h3 { letter-spacing: -0.01em; }
 .pl-dot { display: inline-block; width: 4px; height: 14px; border-radius: 2px; margin-right: 7px; vertical-align: -2px; }
 
 /* Section labels inside cards */
-.pl-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.55;
-  margin: 0 0 2px; }
-.pl-note { font-size: 0.82rem; opacity: 0.6; margin: 0 0 6px; }
+.pl-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.55;
+  margin: 2px 0 6px; }
+.pl-note { font-size: 0.87rem; opacity: 0.62; margin: 0 0 10px; line-height: 1.5; }
 
 /* One-line takeaway under a page header */
-.pl-insight { border-left: 3px solid #E10600; border-radius: 4px 8px 8px 4px; padding: 10px 14px; margin: 4px 0 2px;
-  background: rgba(128,128,128,0.06); font-size: 0.93rem; line-height: 1.5; }
+.pl-insight { border-left: 3px solid #E10600; border-radius: 4px 10px 10px 4px; padding: 14px 18px; margin: 8px 0 8px;
+  background: rgba(128,128,128,0.06); font-size: 0.98rem; line-height: 1.6; }
 
 /* Race feed */
-.pl-situation { font-weight: 600; font-size: 0.95rem; margin: 2px 0 8px; }
-.pl-ev { display: grid; grid-template-columns: 40px 54px 1fr; align-items: center; gap: 8px; padding: 5px 0;
-  border-bottom: 1px solid rgba(128,128,128,0.14); font-size: 0.86rem; }
+.pl-situation { font-weight: 600; font-size: 1.02rem; margin: 2px 0 12px; }
+.pl-ev { display: grid; grid-template-columns: 44px 62px 1fr; align-items: center; gap: 10px; padding: 9px 0;
+  border-bottom: 1px solid rgba(128,128,128,0.14); font-size: 0.92rem; line-height: 1.45; }
 .pl-ev:last-child { border-bottom: none; }
 .pl-ev .lap { opacity: 0.55; font-variant-numeric: tabular-nums; font-size: 0.78rem; }
 .pl-ev .tag { justify-self: start; font-size: 0.64rem; font-weight: 800; letter-spacing: 0.08em; padding: 2px 6px;
@@ -90,6 +91,18 @@ h1, h2, h3 { letter-spacing: -0.01em; }
 
 .pl-zh { font-style: normal; margin-top: 3px; opacity: 0.95; }
 
+/* Fastest-sector list beside the track map */
+.pl-seclist { display: flex; flex-direction: column; gap: 14px; padding-top: 18px; }
+.pl-secrow { display: grid; grid-template-columns: 26px 1fr; gap: 10px; align-items: center; }
+.pl-secrow .num { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; color: #fff;
+  font-size: 0.75rem; font-weight: 700; }
+.pl-secrow .who { font-weight: 700; font-size: 0.98rem; line-height: 1.2; }
+.pl-secrow .t { color: #A855F7; font-weight: 600; font-variant-numeric: tabular-nums; margin-left: 6px; }
+.pl-secrow .meta { font-size: 0.76rem; opacity: 0.55; font-variant-numeric: tabular-nums; }
+
+/* In-page toasts (fastest laps, retirements): the coloured title carries the meaning */
+[data-testid="stToast"] { border-left: 4px solid rgba(128,128,128,0.55); }
+
 /* Sidebar brand */
 .pl-brand { display: flex; align-items: center; gap: 10px; margin: 0 0 6px; }
 .pl-brand .mark { width: 8px; height: 30px; border-radius: 2px; background: #E10600; transform: skewX(-14deg); }
@@ -99,7 +112,7 @@ h1, h2, h3 { letter-spacing: -0.01em; }
 .pl-foot { font-size: 0.72rem; opacity: 0.5; line-height: 1.45; }
 
 /* Cards (keyed containers) get a little more air */
-[class*="st-key-card-"] { padding: 2px 4px; }
+[class*="st-key-card-"] { padding: 10px 12px; }
 
 /* Views bar: scroll sideways rather than wrapping onto a second row */
 .st-key-view [data-testid="stButtonGroup"] { overflow-x: auto; scrollbar-width: none; }
@@ -267,3 +280,20 @@ def sector_block(rankings: list[list[tuple[str, float, int]]], colors: dict[str,
             f' <span style="color:#A855F7">{secs:.3f}</span><small>L{lap}</small>{pop}</div>'
         )
     return f'<div class="pl-sectors">{"".join(lines)}</div>' if lines else ""
+
+
+def sector_list(rankings, colors: dict[str, str]) -> None:
+    """Fastest S1/S2/S3 so far, with the gap to the next quickest driver."""
+    rows = []
+    for n, ranking in enumerate(rankings, start=1):
+        if not ranking:
+            continue
+        d, t, lap = ranking[0]
+        c = colors.get(d, "#999")
+        nxt = f" · +{ranking[1][1] - t:.3f} to {html.escape(ranking[1][0])}" if len(ranking) > 1 else ""
+        rows.append(
+            f'<div class="pl-secrow"><div class="num" style="background:{c}">{n}</div>'
+            f'<div><div class="who">{html.escape(d)}<span class="t">{t:.3f}</span></div>'
+            f'<div class="meta">Sector {n} · lap {lap}{nxt}</div></div></div>'
+        )
+    st.html('<div class="pl-seclist">' + "".join(rows) + "</div>")

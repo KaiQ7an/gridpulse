@@ -12,15 +12,15 @@
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; background: transparent; color: var(--ink);
-    font: 13.5px/1.2 Inter, -apple-system, system-ui, sans-serif; font-variant-numeric: tabular-nums; }
+    font: 14.5px/1.2 Inter, -apple-system, system-ui, sans-serif; font-variant-numeric: tabular-nums; }
   .tower { position: relative; }
 
   /* Every row is its own grid, so columns must not size to their content or
      rows would disagree. minmax(0, …) and fixed tracks keep them identical. */
-  .head, .row { display: grid; align-items: center; column-gap: 8px; height: 32px; padding: 0 6px 0 0;
-    grid-template-columns: 3px 24px 52px minmax(0, 1fr) minmax(0, 1fr) 70px 52px 28px; }
+  .head, .row { display: grid; align-items: center; column-gap: 10px; height: 38px; padding: 0 8px 0 0;
+    grid-template-columns: 3px 26px 56px minmax(0, 1fr) minmax(0, 1fr) 76px 56px 30px; }
   .head > *, .row > * { white-space: nowrap; overflow: hidden; }
-  .head { height: 28px; color: var(--muted); font-size: 10px; font-weight: 600; letter-spacing: .12em;
+  .head { height: 32px; color: var(--muted); font-size: 10px; font-weight: 600; letter-spacing: .12em;
     text-transform: uppercase; border-bottom: 1px solid var(--rule); }
   .rows { position: relative; }
   .row { position: absolute; left: 0; right: 0; top: 0; border-bottom: 1px solid var(--rule);
@@ -42,7 +42,7 @@
 
   /* F1-style tyre: compound-coloured ring with the letter, age beside it */
   .tyre { display: flex; align-items: center; gap: 6px; }
-  .ring { width: 19px; height: 19px; border-radius: 50%; border: 2.5px solid var(--c); color: var(--c);
+  .ring { width: 21px; height: 21px; border-radius: 50%; border: 2.5px solid var(--c); color: var(--c);
     display: grid; place-items: center; font-size: 9.5px; font-weight: 800; flex: none; }
   .age { color: var(--muted); font-size: 12px; }
   .pit { background: var(--accent); color: #fff; border-radius: 4px; padding: 2px 7px; font-size: 10.5px;
@@ -56,8 +56,8 @@
 
   /* Neutralisation banner: slides down above the tower, F1 TV style */
   .banner { height: 0; overflow: hidden; transition: height 380ms cubic-bezier(.3,.7,.2,1); }
-  .banner.on { height: 40px; }
-  .banner .bar { height: 34px; margin-bottom: 6px; border-radius: 6px; display: flex; align-items: center; gap: 10px;
+  .banner.on { height: 44px; }
+  .banner .bar { height: 36px; margin-bottom: 8px; border-radius: 6px; display: flex; align-items: center; gap: 10px;
     padding: 0 12px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; font-size: 12.5px;
     position: relative; overflow: hidden; }
   .banner .bar::before { content: ""; width: 22px; align-self: stretch; margin-left: -12px; flex: none;
@@ -100,7 +100,7 @@ const shownGap = new Map();    // driver -> gap currently displayed (for tweenin
 const shownInt = new Map();    // driver -> interval currently displayed
 const lastPos = new Map();     // driver -> previous position
 let lastLap = null;
-const ROW_H = 32;
+const ROW_H = 38;
 
 function applyTheme(theme) {
   if (!theme) return;
@@ -212,7 +212,7 @@ function render(args) {
   rowsEl.style.height = rows.length * ROW_H + "px";
   lastLap = args.lap;
   // Absolutely positioned rows don't add to the page height, so size the frame explicitly.
-  send("streamlit:setFrameHeight", { height: (b ? 40 : 0) + 28 + 1 + rows.length * ROW_H + 4 });
+  send("streamlit:setFrameHeight", { height: (b ? 44 : 0) + 32 + 1 + rows.length * ROW_H + 4 });
 }
 
 window.addEventListener("message", (event) => {

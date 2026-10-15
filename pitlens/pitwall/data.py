@@ -46,6 +46,7 @@ class RaceData:
     finish_order: list[str]
     retired: set[str]
     entrants: pd.DataFrame  # Driver, Team for everyone who started, even without a completed lap
+    track: dict | None  # circuit outline split into the three timing sectors
 
 
 def completed_races(year: int) -> pd.DataFrame:
@@ -74,6 +75,7 @@ def _fastf1_parts(year: int, round_number: int) -> dict:
         "location": session.event["Location"],
         "date": session.event["EventDate"],
         "source": "F1 live timing",
+        "race_utc": session.date,
         "circuit_key": (session.session_info.get("Meeting", {}).get("Circuit") or {}).get("Key"),
     }
 
@@ -86,6 +88,7 @@ def _openf1_parts(year: int, round_number: int) -> dict:
     parts["location"] = event["Location"]
     parts["date"] = event["EventDate"]
     parts["radio"]["Lap"] = assign_laps(parts["radio"], parts["laps"])
+    parts["race_utc"] = event["Session5DateUtc"]
     return parts
 
 
@@ -143,4 +146,12 @@ def build_race(year: int, round_number: int, parts: dict) -> RaceData:
         finish_order=results["Abbreviation"].tolist(),
         retired=retired,
         entrants=entrants,
+        track=_track(year, parts),
     )
+
+
+def _track(year: int, parts: dict) -> dict | None:
+    try:
+        return openf1.track_outline(year, parts.get("race_utc"), parts.get("circuit_key"))
+    except Exception:  # the map is optional; never let it stop a race from loading
+        return None

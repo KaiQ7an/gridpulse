@@ -53,7 +53,11 @@ falling away, with the cleaning rules written down and tested.
   for P2-P5 and their gaps), track temperature and rain at the current lap; safety car and VSC laps
   shaded.
 - **Race feed**: what happened lap by lap (pit stops, passes on track, new fastest laps, safety
-  cars, retirements, the finish) with a one-line state of the race on top.
+  cars, retirements, the finish) with a one-line state of the race on top. While the replay moves
+  forward, a new fastest lap or a retirement also pops up as a small in-page notification.
+- **Fastest sectors map**: the circuit drawn from the race's fastest lap and cut at its official
+  sector times, each sector in the team colour of whoever holds it so far, with the times and the
+  gap to the next driver beside it.
 - **Strategy**: the typical pit loss, where each car would rejoin if it pitted at the end of this
   lap, and every undercut and overcut so far with its outcome.
 - **Radio**: team radio clips up to the current lap, playable in the page, with a microphone in

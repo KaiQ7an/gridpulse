@@ -137,7 +137,7 @@ def render() -> None:
                 "Dotted lines mark corners, solid lines the sector boundaries.")
         st.plotly_chart(telemetry_figure(data, aligned, marks, ranges.get(zoom)), width="stretch", key="ob_tel")
 
-    left, right = st.columns([6, 5], gap="medium")
+    left, right = st.columns([6, 5], gap="large")
     with left, st.container(border=True, key="card-map"):
         ui.label("Who was faster where")
         ui.note("The lap split into 25 equal mini-sectors, each in the colour of the quicker driver.")

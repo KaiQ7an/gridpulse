@@ -12,7 +12,7 @@ from pitlens import plotstyle
 from pitlens.style import COMPOUND_COLORS, COMPOUND_ORDER, COMPOUND_SYMBOLS
 
 CONTEXT_GREY = "rgba(150,150,150,0.35)"
-HEIGHT = 420
+HEIGHT = 460
 
 
 def _layout(fig: go.Figure, total_laps: int, **kwargs) -> go.Figure:
@@ -202,4 +202,44 @@ def degradation_chart(deg: pd.DataFrame) -> go.Figure:
     plotstyle.apply(fig)
     fig.update_xaxes(title="Seconds lost per lap of tyre age (fuel-corrected)", zeroline=True,
                      zerolinecolor=plotstyle.AXIS)
+    return fig
+
+
+def sector_map(track: dict, rankings, colors: dict[str, str]) -> go.Figure:
+    """The circuit with each timing sector drawn in the team colour of its fastest driver so far.
+
+    A soft wide underlay gives the track body; numbered dots mark where each sector starts
+    (sector 1's dot is the start/finish line). Names and times live in the list beside the map.
+    """
+    from pitlens.onboard.compare import rotate
+
+    x, y = rotate(track["x"], track["y"], track["rotation"])
+    a, b = track["splits"]
+    bounds = [(0, a + 1), (a, b + 1), (b, len(x))]
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=x, y=y, mode="lines", line=dict(color="rgba(128,128,128,0.16)", width=12, shape="spline",
+                             smoothing=0.6), hoverinfo="skip", showlegend=False))
+    starts_x, starts_y, dot_colors = [], [], []
+    for n, (lo, hi) in enumerate(bounds, start=1):
+        best = rankings[n - 1][0] if n - 1 < len(rankings) and rankings[n - 1] else None
+        color = colors.get(best[0], "#9A9A9A") if best else "rgba(150,150,150,0.7)"
+        fig.add_trace(go.Scatter(
+            x=x[lo:hi], y=y[lo:hi], mode="lines", line=dict(color=color, width=4.5, shape="spline", smoothing=0.6),
+            hovertemplate=(f"<b>Sector {n}</b><br>{best[0]} {best[1]:.3f}<extra></extra>" if best
+                           else f"<b>Sector {n}</b><extra></extra>"),
+            showlegend=False,
+        ))
+        starts_x.append(x[lo])
+        starts_y.append(y[lo])
+        dot_colors.append(color)
+    fig.add_trace(go.Scatter(
+        x=starts_x, y=starts_y, mode="markers+text", text=["1", "2", "3"], textposition="middle center",
+        textfont=dict(size=10, color="#ffffff", family=plotstyle.FONT),
+        marker=dict(size=19, color=dot_colors, line=dict(width=2, color="rgba(255,255,255,0.9)")),
+        hoverinfo="skip", showlegend=False,
+    ))
+    fig.update_layout(height=260, margin=dict(l=6, r=6, t=6, b=6))
+    plotstyle.apply(fig)
+    fig.update_xaxes(visible=False)
+    fig.update_yaxes(visible=False, scaleanchor="x", scaleratio=1)
     return fig
