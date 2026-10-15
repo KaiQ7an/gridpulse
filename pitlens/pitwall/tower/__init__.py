@@ -14,8 +14,6 @@ from pitlens.style import COMPOUND_COLORS
 
 _component = components.declare_component("pitlens_timing_tower", path=str(Path(__file__).parent))
 
-DARK_TEXT_COMPOUNDS = {"MEDIUM", "HARD", "UNKNOWN"}
-
 
 def timing_tower(
     tower: pd.DataFrame,
@@ -23,6 +21,7 @@ def timing_tower(
     lap: int,
     duration_ms: int,
     on_radio: set[str] = frozenset(),
+    focus: list[str] = (),
     key: str = "tower",
 ):
     rows = []
@@ -38,13 +37,13 @@ def timing_tower(
                 "interval": r.Interval,
                 "interval_seconds": float(r.IntervalSeconds) if r.Interval else None,
                 "last_lap": r.LastLap,
-                "tyre": f"{r.Compound[0]} {age}".strip(),
+                "compound_letter": r.Compound[0],
+                "tyre_age": age,
                 "compound_color": COMPOUND_COLORS.get(r.Compound, COMPOUND_COLORS["UNKNOWN"]),
-                "dark_text": r.Compound in DARK_TEXT_COMPOUNDS,
                 "stops": None if pd.isna(r.Stops) else int(r.Stops),
                 "pit": bool(r.Pit),
                 "out": bool(r.Out),
                 "radio": r.Driver in on_radio,
             }
         )
-    return _component(rows=rows, lap=lap, duration_ms=duration_ms, key=key, default=None)
+    return _component(rows=rows, lap=lap, duration_ms=duration_ms, focus=list(focus), key=key, default=None)

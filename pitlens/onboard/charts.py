@@ -3,6 +3,7 @@
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
+from pitlens import plotstyle
 from pitlens.onboard.compare import rotate
 from pitlens.onboard.data import OTHER_COLOR, REF_COLOR, OnboardData
 
@@ -62,7 +63,7 @@ def telemetry_figure(data: OnboardData, aligned) -> go.Figure:
         hovermode="x unified",
         legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0),
     )
-    return fig
+    return plotstyle.apply(fig)
 
 
 def track_map(data: OnboardData, sectors) -> go.Figure:
@@ -104,4 +105,4 @@ def track_map(data: OnboardData, sectors) -> go.Figure:
         margin=dict(l=10, r=10, t=40, b=10),
         legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0, title_text="Faster in mini-sector: "),
     )
-    return fig
+    return plotstyle.apply(fig)

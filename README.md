@@ -38,10 +38,12 @@ falling away, with the cleaning rules written down and tested.
 **`pitwall`: race-day dashboard** (available now)
 
 - Any race from 2018 to the latest Grand Prix, picked from the sidebar.
-- **Replay**: press Play and the whole dashboard advances a lap at a time (three speeds), or drag
-  the lap slider to any moment of the race.
-- **Timing tower**: running order, gap to the leader, interval, last lap, tyre compound and age,
-  stops, lapped cars and retirements, with a pit flag on the lap a car boxes. During a replay rows
+- **Replay**: a player bar under the header. Press Play and the whole dashboard advances a lap at a
+  time (1×, 2× or 4×), or drag the slider to any moment of the race. A status strip shows the lap,
+  leader, track status, fastest lap so far and the weather.
+- **Timing tower**: running order, gap to the leader, interval (green when within a second), last
+  lap, tyre compound and age, stops, lapped cars and retirements, with a pit flag on the lap a car
+  boxes and your focus drivers highlighted. During a replay rows
   slide into place on overtakes and the gaps count smoothly from lap to lap.
 - **Gaps** (the race trace): seconds behind the leader for every car, focus drivers in team colours.
 - **Positions**, **tyre stints** in running order, **degradation so far** for the focus drivers,
@@ -239,11 +241,13 @@ pitlens/
 │   ├── clips.py       team radio from the F1 archive, matched to laps
 │   └── report.py      the `radio` command
 ├── htmlreport.py      self-contained HTML reports shared by the commands
+├── plotstyle.py       one look for every plotly chart, light and dark
 ├── pitwall/
 │   ├── data.py        one race as plain DataFrames (laps, results, weather, messages)
 │   ├── timing.py      timing tower, gaps, track status and stints at any lap
 │   ├── charts.py      interactive plotly charts
 │   ├── tower/         animated timing tower (a small HTML/JS Streamlit component)
+│   ├── ui.py          page header, status strip and shared CSS
 │   ├── app.py         the Streamlit dashboard: race replay page
 │   ├── onboard_page.py  the Onboard page
 │   └── serve.py       the `pitwall` command

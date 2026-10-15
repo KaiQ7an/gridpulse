@@ -8,6 +8,7 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
+from pitlens import plotstyle
 from pitlens.style import COMPOUND_COLORS, COMPOUND_ORDER, COMPOUND_SYMBOLS
 
 CONTEXT_GREY = "rgba(150,150,150,0.35)"
@@ -23,6 +24,7 @@ def _layout(fig: go.Figure, total_laps: int, **kwargs) -> go.Figure:
         uirevision="keep",  # keep the user's zoom while the replay updates the data
         **kwargs,
     )
+    plotstyle.apply(fig)
     fig.update_xaxes(title="Lap", range=[0.5, total_laps + 0.5], showgrid=False)
     return fig
 
@@ -115,7 +117,7 @@ def strategy_chart(stints: pd.DataFrame, order: list[str], total_laps: int) -> g
                 base=s["StartLap"] - 0.5,
                 orientation="h",
                 name=compound.title(),
-                marker=dict(color=COMPOUND_COLORS[compound], line=dict(color="rgba(255,255,255,0.9)", width=2)),
+                marker=dict(color=COMPOUND_COLORS[compound], line=dict(color="rgba(128,128,128,0.55)", width=1.5)),
                 customdata=s[["Stint", "StartLap", "EndLap", "StartAge"]],
                 hovertemplate=(
                     "<b>%{y}</b> stint %{customdata[0]}<br>"
@@ -197,5 +199,7 @@ def degradation_chart(deg: pd.DataFrame) -> go.Figure:
         legend=dict(orientation="h", yanchor="bottom", y=1.0, x=0),
         bargap=0.3,
     )
-    fig.update_xaxes(title="Seconds lost per lap of tyre age (fuel-corrected)", zeroline=True)
+    plotstyle.apply(fig)
+    fig.update_xaxes(title="Seconds lost per lap of tyre age (fuel-corrected)", zeroline=True,
+                     zerolinecolor=plotstyle.AXIS)
     return fig

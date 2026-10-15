@@ -3,6 +3,8 @@
 import pandas as pd
 import plotly.graph_objects as go
 
+from pitlens import plotstyle
+
 INK_GREY = "rgba(140,140,140,1)"
 RULE = "rgba(150,150,150,0.35)"
 GREEN_STOP = "#2F6FDE"
@@ -35,7 +37,7 @@ def battle_chart(gap: pd.DataFrame, battle, total_laps: int) -> go.Figure:
     fig.update_yaxes(title=f"{a} ahead of {b} (s)", range=[-span, span], zeroline=False)
     fig.update_xaxes(title="Lap", dtick=1)
     fig.update_layout(height=340, margin=dict(l=10, r=10, t=36, b=10), hovermode="x")
-    return fig
+    return plotstyle.apply(fig)
 
 
 def pit_loss_chart(stops: pd.DataFrame, loss: float | None, total_laps: int) -> go.Figure:
@@ -62,4 +64,4 @@ def pit_loss_chart(stops: pd.DataFrame, loss: float | None, total_laps: int) -> 
     fig.update_xaxes(title="Lap", range=[0.5, total_laps + 0.5])
     fig.update_yaxes(title="Time lost to the stop (s)")
     fig.update_layout(height=360, margin=dict(l=10, r=10, t=30, b=10), legend=dict(orientation="h", y=1.02, yanchor="bottom", x=0))
-    return fig
+    return plotstyle.apply(fig)

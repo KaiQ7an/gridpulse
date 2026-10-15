@@ -2,56 +2,73 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --ink: #1d1d1f; --muted: #6b6b6b; --rule: rgba(128,128,128,0.18); --bg: transparent;
-    --row: 34px; --header: 30px; --move: 600ms;
+    --ink: #15171C; --muted: rgba(21,23,28,0.55); --rule: rgba(128,128,128,0.16);
+    --hover: rgba(128,128,128,0.07); --focus: rgba(225,6,0,0.06); --close: #16A34A; --accent: #E10600;
+    --move: 600ms;
   }
   * { box-sizing: border-box; }
-  html, body { margin: 0; background: var(--bg); color: var(--ink);
-    font: 14px/1.2 "Source Sans Pro", "Source Sans 3", -apple-system, system-ui, sans-serif;
-    font-variant-numeric: tabular-nums; }
+  html, body { margin: 0; background: transparent; color: var(--ink);
+    font: 13.5px/1.2 Inter, -apple-system, system-ui, sans-serif; font-variant-numeric: tabular-nums; }
   .tower { position: relative; }
+
   /* Every row is its own grid, so columns must not size to their content or
      rows would disagree. minmax(0, …) and fixed tracks keep them identical. */
-  .head, .row { display: grid; align-items: center; column-gap: 8px; height: var(--row); padding-right: 4px;
-    grid-template-columns: 6px 28px 44px minmax(0, 1fr) minmax(0, 1fr) 76px 52px 40px; }
+  .head, .row { display: grid; align-items: center; column-gap: 8px; height: 32px; padding: 0 6px 0 0;
+    grid-template-columns: 3px 24px 52px minmax(0, 1fr) minmax(0, 1fr) 70px 52px 28px; }
   .head > *, .row > * { white-space: nowrap; overflow: hidden; }
-  @media (max-width: 440px) {
-    .head, .row { grid-template-columns: 6px 24px 40px minmax(0, 1fr) minmax(0, 1fr) 50px 34px; column-gap: 6px; }
-    .lastcol { display: none; }
-  }
-  @media (max-width: 340px) {
-    html, body { font-size: 13px; }
-    .head, .row { grid-template-columns: 5px 22px 38px minmax(0, 1fr) 44px 36px; column-gap: 5px; }
-    .intcol { display: none; }
-  }
-  .head { height: var(--header); color: var(--muted); font-size: 12.5px; border-bottom: 1px solid var(--rule); }
+  .head { height: 28px; color: var(--muted); font-size: 10px; font-weight: 600; letter-spacing: .12em;
+    text-transform: uppercase; border-bottom: 1px solid var(--rule); }
   .rows { position: relative; }
   .row { position: absolute; left: 0; right: 0; top: 0; border-bottom: 1px solid var(--rule);
-    transition: transform var(--move) cubic-bezier(.3,.7,.2,1), opacity 300ms; will-change: transform; }
-  .row.out { opacity: 0.45; }
-  .bar { height: 70%; border-radius: 2px; }
-  .pos { text-align: right; color: var(--muted); }
-  .drv { font-weight: 600; letter-spacing: .02em; display: flex; align-items: center; gap: 3px; }
-  .mic { width: 12px; height: 12px; flex: none; color: #E10600; opacity: 0; transition: opacity 250ms; }
+    transition: transform var(--move) cubic-bezier(.3,.7,.2,1), opacity 300ms, background-color 300ms;
+    will-change: transform; }
+  .row:hover { background: var(--hover); }
+  .row.focus { background: var(--focus); }
+  .row.out { opacity: 0.4; }
+
+  .bar { height: 18px; border-radius: 2px; }
+  .pos { text-align: right; color: var(--muted); font-weight: 500; }
+  .drv { font-weight: 700; letter-spacing: .03em; display: flex; align-items: center; gap: 4px; }
+  .mic { width: 12px; height: 12px; flex: none; color: var(--accent); opacity: 0; transition: opacity 250ms; }
   .mic.on { opacity: 1; }
   .num { text-align: right; }
-  .muted { color: var(--muted); }
-  .tyre { justify-self: start; width: 100%; max-width: 50px; text-align: center; padding: 3px 6px; border-radius: 4px;
-    font-weight: 700; font-size: 12.5px; transition: background-color 400ms; }
-  .pit { background: #E10600 !important; color: #fff !important; animation: pulse 1s ease-in-out infinite; }
+  .gap { font-weight: 500; }
+  .int, .last, .stops { color: var(--muted); }
+  .int.close { color: var(--close); font-weight: 600; }
+
+  /* F1-style tyre: compound-coloured ring with the letter, age beside it */
+  .tyre { display: flex; align-items: center; gap: 6px; }
+  .ring { width: 19px; height: 19px; border-radius: 50%; border: 2.5px solid var(--c); color: var(--c);
+    display: grid; place-items: center; font-size: 9.5px; font-weight: 800; flex: none; }
+  .age { color: var(--muted); font-size: 12px; }
+  .pit { background: var(--accent); color: #fff; border-radius: 4px; padding: 2px 7px; font-size: 10.5px;
+    font-weight: 800; letter-spacing: .06em; animation: pulse 1s ease-in-out infinite; }
   @keyframes pulse { 50% { opacity: .55; } }
+
   .gain { animation: flashgain 1.2s ease-out; }
   .loss { animation: flashloss 1.2s ease-out; }
-  @keyframes flashgain { from { background: rgba(46,155,62,.28); } to { background: transparent; } }
-  @keyframes flashloss { from { background: rgba(215,38,30,.22); } to { background: transparent; } }
+  @keyframes flashgain { from { background: rgba(34,197,94,.24); } }
+  @keyframes flashloss { from { background: rgba(225,6,0,.18); } }
+
+  @media (max-width: 400px) {
+    .head, .row { grid-template-columns: 3px 22px 52px minmax(0, 1fr) minmax(0, 1fr) 50px 28px; column-gap: 6px; }
+    .lastcol { display: none; }
+  }
+  @media (max-width: 320px) {
+    html, body { font-size: 12.5px; }
+    .head, .row { grid-template-columns: 3px 20px 50px minmax(0, 1fr) 48px 28px; column-gap: 5px; }
+    .intcol { display: none; }
+  }
 </style>
 </head>
 <body>
 <div class="tower">
   <div class="head"><span></span><span class="num">Pos</span><span>Driver</span><span class="num">Gap</span>
-    <span class="num intcol">Int</span><span class="num lastcol">Last lap</span><span>Tyre</span><span class="num">Stops</span></div>
+    <span class="num intcol">Int</span><span class="num lastcol">Last lap</span><span>Tyre</span><span class="num">Stp</span></div>
   <div class="rows" id="rows"></div>
 </div>
 <script>
@@ -63,15 +80,18 @@ const shownGap = new Map();    // driver -> gap currently displayed (for tweenin
 const shownInt = new Map();    // driver -> interval currently displayed
 const lastPos = new Map();     // driver -> previous position
 let lastLap = null;
+const ROW_H = 32;
 
 function applyTheme(theme) {
   if (!theme) return;
   const root = document.documentElement.style;
+  const dark = theme.base === "dark";
   root.setProperty("--ink", theme.textColor);
-  root.setProperty("--muted", theme.base === "dark" ? "#a3a8b4" : "#6b6b6b");
+  root.setProperty("--muted", dark ? "rgba(231,233,238,0.55)" : "rgba(21,23,28,0.55)");
+  root.setProperty("--close", dark ? "#22C55E" : "#16A34A");
+  root.setProperty("--accent", theme.primaryColor || "#E10600");
+  root.setProperty("--focus", dark ? "rgba(255,42,31,0.10)" : "rgba(225,6,0,0.06)");
 }
-
-function fmtGap(v) { return "+" + v.toFixed(3); }
 
 function tween(el, shown, driver, target, ms) {
   const from = shown.has(driver) ? shown.get(driver) : target;
@@ -79,25 +99,33 @@ function tween(el, shown, driver, target, ms) {
   cancelAnimationFrame(el._raf);
   const step = (now) => {
     const t = Math.min(1, (now - start) / ms);
-    const e = 1 - Math.pow(1 - t, 3);
-    const v = from + (target - from) * e;
-    el.textContent = fmtGap(v);
+    const v = from + (target - from) * (1 - Math.pow(1 - t, 3));
+    el.textContent = "+" + v.toFixed(3);
     shown.set(driver, v);
     if (t < 1) el._raf = requestAnimationFrame(step);
   };
   el._raf = requestAnimationFrame(step);
 }
 
+// Show a gap/interval: count smoothly to the new value, or just set the text.
+function setNumber(el, shown, driver, text, seconds, ms, animate) {
+  const has = seconds !== null && seconds !== undefined;
+  if (has && animate) return tween(el, shown, driver, seconds, ms);
+  cancelAnimationFrame(el._raf);
+  el.textContent = text;
+  if (has) shown.set(driver, seconds); else shown.delete(driver);
+}
+
 function makeRow(driver) {
   const el = document.createElement("div");
   el.className = "row";
-  el.innerHTML = `<span class="bar"></span><span class="pos num"></span><span class="drv"></span>
-    <span class="gap num"></span><span class="int num muted intcol"></span><span class="last num lastcol"></span>
+  el.innerHTML = `<span class="bar"></span><span class="pos num"></span>
+    <span class="drv"><span class="code"></span><svg class="mic" viewBox="0 0 24 24" aria-label="team radio"
+      fill="currentColor"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6
+      6.93V21h2v-3.07A7 7 0 0 0 19 11h-2z"/></svg></span>
+    <span class="gap num"></span><span class="int num intcol"></span><span class="last num lastcol"></span>
     <span class="tyre"></span><span class="stops num"></span>`;
-  el.querySelector(".drv").innerHTML = `<span></span><svg class="mic" viewBox="0 0 24 24" aria-label="team radio"
-    fill="currentColor"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6
-    6.93V21h2v-3.07A7 7 0 0 0 19 11h-2z"/></svg>`;
-  el.querySelector(".drv span").textContent = driver;
+  el.querySelector(".code").textContent = driver;
   rowsEl.appendChild(el);
   rowEls.set(driver, el);
   return el;
@@ -107,15 +135,16 @@ function render(args) {
   const rows = args.rows || [];
   const ms = Math.max(150, Math.min(args.duration_ms || 600, 1500));
   document.documentElement.style.setProperty("--move", ms + "ms");
-  const rowH = 34;
-  const jumped = lastLap === null || Math.abs(args.lap - lastLap) > 1;  // slider jump: no flashes
+  const jumped = lastLap === null || Math.abs(args.lap - lastLap) > 1;  // slider jump: no flashes or tweens
+  const focus = new Set(args.focus || []);
   const seen = new Set();
 
   rows.forEach((r, i) => {
     seen.add(r.driver);
     const el = rowEls.get(r.driver) || makeRow(r.driver);
-    el.style.transform = `translateY(${i * rowH}px)`;
+    el.style.transform = `translateY(${i * ROW_H}px)`;
     el.classList.toggle("out", r.out);
+    el.classList.toggle("focus", focus.has(r.driver));
     el.querySelector(".bar").style.background = r.team_color;
     el.querySelector(".pos").textContent = r.pos;
     el.querySelector(".last").textContent = r.last_lap;
@@ -123,33 +152,20 @@ function render(args) {
     el.querySelector(".mic").classList.toggle("on", !!r.radio);
 
     const tyre = el.querySelector(".tyre");
-    tyre.classList.toggle("pit", r.pit);
-    tyre.textContent = r.pit ? "PIT" : r.tyre;
-    tyre.style.background = r.compound_color;
-    tyre.style.color = r.dark_text ? "#111" : "#fff";
-
-    const gapEl = el.querySelector(".gap");
-    if (r.gap_seconds === null || r.gap_seconds === undefined || jumped) {
-      cancelAnimationFrame(gapEl._raf);
-      gapEl.textContent = r.gap;
-      if (r.gap_seconds !== null && r.gap_seconds !== undefined) shownGap.set(r.driver, r.gap_seconds);
-      else shownGap.delete(r.driver);
-    } else if (r.pos === 1) {
-      gapEl.textContent = r.gap;
-      shownGap.set(r.driver, 0);
+    if (r.pit) {
+      tyre.innerHTML = '<span class="pit">PIT</span>';
     } else {
-      tween(gapEl, shownGap, r.driver, r.gap_seconds, ms);
+      tyre.innerHTML = '<span class="ring"></span><span class="age"></span>';
+      const ring = tyre.querySelector(".ring");
+      ring.style.setProperty("--c", r.compound_color);
+      ring.textContent = r.compound_letter;
+      tyre.querySelector(".age").textContent = r.tyre_age ?? "";
     }
 
+    setNumber(el.querySelector(".gap"), shownGap, r.driver, r.gap, r.gap_seconds, ms, !jumped && r.pos !== 1);
     const intEl = el.querySelector(".int");
-    if (r.interval_seconds === null || r.interval_seconds === undefined || jumped) {
-      cancelAnimationFrame(intEl._raf);
-      intEl.textContent = r.interval;
-      if (r.interval_seconds !== null && r.interval_seconds !== undefined) shownInt.set(r.driver, r.interval_seconds);
-      else shownInt.delete(r.driver);
-    } else {
-      tween(intEl, shownInt, r.driver, r.interval_seconds, ms);
-    }
+    setNumber(intEl, shownInt, r.driver, r.interval, r.interval_seconds, ms, !jumped);
+    intEl.classList.toggle("close", r.interval_seconds !== null && r.interval_seconds !== undefined && r.interval_seconds < 1);
 
     const before = lastPos.get(r.driver);
     if (!jumped && before !== undefined && before !== r.pos) {
@@ -163,10 +179,10 @@ function render(args) {
   for (const [driver, el] of rowEls) {
     if (!seen.has(driver)) { el.remove(); rowEls.delete(driver); lastPos.delete(driver); }
   }
-  rowsEl.style.height = rows.length * rowH + "px";
+  rowsEl.style.height = rows.length * ROW_H + "px";
   lastLap = args.lap;
   // Absolutely positioned rows don't add to the page height, so size the frame explicitly.
-  send("streamlit:setFrameHeight", { height: 30 + 1 + rows.length * rowH + 4 });
+  send("streamlit:setFrameHeight", { height: 28 + 1 + rows.length * ROW_H + 4 });
 }
 
 window.addEventListener("message", (event) => {

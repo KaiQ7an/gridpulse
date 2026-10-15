@@ -18,6 +18,10 @@ FIRST_SEASON = 2018  # first season with full timing data in FastF1
 @dataclass
 class RaceData:
     name: str
+    event_name: str
+    year: int
+    round_number: int
+    location: str
     date: pd.Timestamp
     total_laps: int
     laps: pd.DataFrame  # every lap, all drivers
@@ -65,6 +69,10 @@ def load_race(year: int, round_number: int) -> RaceData:
         radio = pd.DataFrame(columns=["Driver", "Lap", "SessionTime", "Utc", "Url"])
     return RaceData(
         name=f"{session.event.year} {session.event['EventName']}",
+        event_name=session.event["EventName"],
+        year=int(session.event.year),
+        round_number=int(session.event["RoundNumber"]),
+        location=session.event["Location"],
         date=session.event["EventDate"],
         total_laps=total_laps,
         laps=laps,

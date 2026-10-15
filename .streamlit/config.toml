@@ -1,9 +1,48 @@
-# Separate light and dark sections keep Streamlit following the system theme.
+# PitLens look: a pit-wall screen. Dense, quiet surfaces, F1 red only for
+# what needs attention. Separate light and dark sections keep Streamlit
+# following the system theme; both are tuned, dark is the hero.
+
+[theme]
+font = "Inter:https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap, sans-serif"
+headingFont = "Titillium Web:https://fonts.googleapis.com/css2?family=Titillium+Web:wght@600;700&display=swap, sans-serif"
+baseFontSize = 14
+headingFontSizes = ["2.1rem", "1.15rem", "1rem", "0.9rem"]
+headingFontWeights = [700, 700, 600, 600]
+metricValueFontSize = "1.35rem"
+metricValueFontWeight = 600
+baseRadius = "8px"
+buttonRadius = "8px"
+showWidgetBorder = true
+
 [theme.light]
 primaryColor = "#E10600"
+backgroundColor = "#F5F6F8"
+secondaryBackgroundColor = "#E9EBEF"
+textColor = "#15171C"
+borderColor = "#D8DBE1"
+redColor = "#E10600"
+greenColor = "#16A34A"
+yellowColor = "#D99A00"
+
+[theme.light.sidebar]
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F0F1F4"
+borderColor = "#E3E5EA"
 
 [theme.dark]
-primaryColor = "#FF2D21"
+primaryColor = "#FF2A1F"
+backgroundColor = "#0B0D11"
+secondaryBackgroundColor = "#171B22"
+textColor = "#E7E9EE"
+borderColor = "#262C36"
+redColor = "#FF2A1F"
+greenColor = "#22C55E"
+yellowColor = "#F5B700"
+
+[theme.dark.sidebar]
+backgroundColor = "#101319"
+secondaryBackgroundColor = "#1A1F27"
+borderColor = "#20252E"
 
 [client]
 toolbarMode = "viewer"

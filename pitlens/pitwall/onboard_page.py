@@ -5,7 +5,16 @@ import streamlit as st
 
 from pitlens.onboard.charts import telemetry_figure, track_map
 from pitlens.onboard.compare import align, corner_speeds, minisectors
-from pitlens.onboard.data import SESSION_NAMES, OnboardData, compare, load_session_with_telemetry, teammate_of
+from pitlens.onboard.data import (
+    OTHER_COLOR,
+    REF_COLOR,
+    SESSION_NAMES,
+    OnboardData,
+    compare,
+    load_session_with_telemetry,
+    teammate_of,
+)
+from pitlens.pitwall import ui
 from pitlens.pitwall.data import FIRST_SEASON, completed_races
 from pitlens.pitwall.timing import format_lap_time
 
@@ -48,8 +57,7 @@ def pick_drivers(drivers: pd.DataFrame) -> tuple[str, str]:
 
 
 def render() -> None:
-    st.sidebar.title("PitLens")
-    st.sidebar.caption("Onboard · fastest-lap comparison")
+    ui.sidebar_brand("Onboard, fastest lap against fastest lap")
     this_year = pd.Timestamp.now().year
     year = st.sidebar.selectbox("Season", range(this_year, FIRST_SEASON - 1, -1), key="ob_year")
     races = cached_races(year)
@@ -73,8 +81,7 @@ def render() -> None:
         st.warning("Fewer than two drivers set a lap time in this session.")
         st.stop()
     a, b = pick_drivers(drivers)
-    st.sidebar.divider()
-    st.sidebar.caption("Unofficial. Timing data from the public F1 archive via FastF1.")
+    ui.sidebar_footer()
 
     try:
         data = cached_compare(session, (year, round_number, kind), a, b)
@@ -87,43 +94,43 @@ def render() -> None:
     corners = corner_speeds(data.ref.telemetry, data.other.telemetry, data.corners)
     gap = (data.other.lap_time - data.ref.lap_time).total_seconds()
 
-    st.title(f"{a} vs {b}")
-    st.caption(f"{data.name} · {data.session_name} · fastest laps")
-
-    m = st.columns(4)
-    m[0].metric(f"{a} lap", format_lap_time(data.ref.lap_time), help=f"{data.ref.compound.title()}, {data.ref.tyre_life:.0f} laps old")
-    m[1].metric(
-        f"{b} lap", format_lap_time(data.other.lap_time), f"{gap:+.3f} s", delta_color="inverse",
-        help=f"{data.other.compound.title()}, {data.other.tyre_life:.0f} laps old",
+    ui.header(
+        f"{year} · Round {round_number} · {data.session_name}",
+        f"{a} vs {b}",
+        f"{data.name} · fastest laps",
+        title_html=f'<span style="color:{REF_COLOR}">{a}</span> <span style="opacity:.45">vs</span> '
+        f'<span style="color:{OTHER_COLOR}">{b}</span>',
     )
     won = int((sectors["Faster"] == "ref").sum())
-    m[2].metric("Mini-sectors won", f"{a} {won} · {b} {len(sectors) - won}")
-    m[3].metric("Top speed", f"{data.ref.telemetry['Speed'].max():.0f} · {data.other.telemetry['Speed'].max():.0f} km/h")
+    sector_stats = [
+        ui.stat(f"Sector {n + 1}",
+                f"{a if data.ref.sectors[n] <= data.other.sectors[n] else b}",
+                small=f"by {abs((data.other.sectors[n] - data.ref.sectors[n]).total_seconds()):.3f}")
+        for n in range(3)
+        if pd.notna(data.ref.sectors[n]) and pd.notna(data.other.sectors[n])
+    ]
+    ui.strip([
+        ui.stat(a, format_lap_time(data.ref.lap_time), small=f"{data.ref.compound.title()} · {data.ref.tyre_life:.0f} laps"),
+        ui.stat(b, format_lap_time(data.other.lap_time), small=f"{gap:+.3f} s"),
+        *sector_stats,
+        ui.stat("Mini-sectors", f"{a} {won} · {b} {len(sectors) - won}"),
+        ui.stat("Top speed", f"{data.ref.telemetry['Speed'].max():.0f} · {data.other.telemetry['Speed'].max():.0f}",
+                small="km/h"),
+    ])
 
-    sector_rows = pd.DataFrame(
-        {
-            "Driver": [a, b],
-            **{
-                f"S{n + 1}": [format_lap_time(data.ref.sectors[n]), format_lap_time(data.other.sectors[n])]
-                for n in range(3)
-            },
-            "Lap": [format_lap_time(data.ref.lap_time), format_lap_time(data.other.lap_time)],
-        }
-    )
-    st.dataframe(sector_rows, hide_index=True)
-
-    st.subheader("Telemetry")
-    st.caption("Gap at the top: above zero, the second driver is behind at that point of the lap. Dotted lines mark corners.")
-    st.plotly_chart(telemetry_figure(data, aligned), width="stretch")
+    with st.container(border=True, key="card-telemetry"):
+        ui.label("Telemetry")
+        ui.note(f"Gap at the top: above zero, {b} is behind at that point of the lap. Dotted lines mark corners.")
+        st.plotly_chart(telemetry_figure(data, aligned), width="stretch")
 
     left, right = st.columns([6, 5], gap="medium")
-    with left:
-        st.subheader("Who was faster where")
+    with left, st.container(border=True, key="card-map"):
+        ui.label("Who was faster where")
         st.plotly_chart(track_map(data, sectors), width="stretch")
-    with right:
-        st.subheader("Corner by corner")
-        st.caption(f"Minimum speed in each corner and time {a} gained (+) or lost (−) through it.")
+    with right, st.container(border=True, key="card-corners"):
+        ui.label("Corner by corner")
+        ui.note(f"Minimum speed in each corner and the time {a} gained (+) or lost (−) through it.")
         table = corners.rename(
             columns={"RefMinSpeed": f"{a} km/h", "OtherMinSpeed": f"{b} km/h", "SpeedDiff": "Diff", "Gain": f"{a} gain (s)"}
         )[["Corner", f"{a} km/h", f"{b} km/h", "Diff", f"{a} gain (s)"]]
-        st.dataframe(table, hide_index=True, width="stretch", height=480)
+        st.dataframe(table, hide_index=True, width="stretch", height=470)
