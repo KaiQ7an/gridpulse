@@ -26,3 +26,11 @@ def test_empty_classification_is_filled_from_openf1(monkeypatch):
 def test_empty_classification_before_openf1_fails_so_the_next_load_retries():
     with pytest.raises(ResultsUnavailable):
         data._fastf1_results(2021, session_with_empty_classification())
+
+
+def test_empty_status_strings_count_as_missing(monkeypatch):
+    session = session_with_empty_classification()
+    session.results["Position"] = [1.0, 2.0]
+    session.results["Status"] = ["", ""]
+    with pytest.raises(ResultsUnavailable):
+        data._fastf1_results(2021, session)

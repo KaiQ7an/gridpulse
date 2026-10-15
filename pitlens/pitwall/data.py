@@ -109,7 +109,8 @@ def _fastf1_results(year: int, session, session_name: str = "Race") -> pd.DataFr
     Ergast/Jolpica API; when that times out the columns come back empty and the race would be built
     wrong (every lapped car looking retired). Fill them from OpenF1, or fail so the next load retries."""
     results = pd.DataFrame(session.results)
-    if results["Position"].notna().any() and results["Status"].notna().any():
+    statuses = results["Status"].fillna("").astype(str).str.strip()
+    if results["Position"].eq(1).any() and statuses.ne("").mean() > 0.5:  # missing ones can be empty strings
         return results
     if year >= openf1.FIRST_SEASON:
         try:
