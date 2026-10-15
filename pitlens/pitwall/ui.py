@@ -46,7 +46,11 @@ h1, h2, h3 { letter-spacing: -0.01em; }
 .pl-stat .v { font-size: 1.2rem; font-weight: 600; font-variant-numeric: tabular-nums; margin-top: 4px;
   white-space: nowrap; }
 .pl-stat .v small { font-size: 0.78rem; font-weight: 500; opacity: 0.6; margin-left: 4px; }
-/* Fastest sectors: one compact block, a line per sector, P2-P5 on hover */
+/* Fastest sectors: three small stats (a size down from the main ones), P2 and P3 on hover */
+.pl-stat.sec { position: relative; min-width: 0; padding: 11px 14px 12px; cursor: default; }
+.pl-stat.sec .v { font-size: 0.98rem; margin-top: 6px; }
+.pl-stat.sec:hover .pl-pop { display: block; }
+
 .pl-sectors { border: 1px solid rgba(128,128,128,0.22); border-radius: 10px; padding: 6px 14px; min-width: 0;
   background: rgba(128,128,128,0.04); display: flex; flex-direction: column; justify-content: center; gap: 1px; }
 .pl-sec { position: relative; display: flex; align-items: center; gap: 7px; font-size: 0.84rem; font-weight: 600;
@@ -262,9 +266,9 @@ def team_colored_picker(label: str, options: list[str], colors: dict[str, str], 
     st.html("<style>" + "".join(rules) + "</style>")
 
 
-def sector_block(rankings: list[list[tuple[str, float, int]]], colors: dict[str, str]) -> str:
-    """Fastest S1/S2/S3 so far as three compact lines; hovering a line lists P2-P5 with gaps."""
-    lines = []
+def sector_stats(rankings: list[list[tuple[str, float, int]]], colors: dict[str, str]) -> list[str]:
+    """Fastest S1/S2/S3 so far as three small stats (a size down from the main ones); hover shows P2 and P3."""
+    out = []
     for n, ranking in enumerate(rankings, start=1):
         if not ranking:
             continue
@@ -275,11 +279,12 @@ def sector_block(rankings: list[list[tuple[str, float, int]]], colors: dict[str,
             for i, (d, t, _) in enumerate(ranking[1:], start=2)
         )
         pop = f'<div class="pl-pop"><div class="pl-label">Sector {n}</div>{rows}</div>' if rows else ""
-        lines.append(
-            f'<div class="pl-sec"><span class="k">S{n}</span>{driver_dot(colors.get(driver, "#999"))}{html.escape(driver)}'
-            f' <span style="color:#A855F7">{secs:.3f}</span><small>L{lap}</small>{pop}</div>'
+        out.append(
+            f'<div class="pl-stat sec"><div class="k">Best S{n}</div><div class="v">'
+            f'{driver_dot(colors.get(driver, "#999"))}{html.escape(driver)} <span style="color:#A855F7">{secs:.3f}</span>'
+            f"<small>L{lap}</small></div>{pop}</div>"
         )
-    return f'<div class="pl-sectors">{"".join(lines)}</div>' if lines else ""
+    return out
 
 
 def sector_list(rankings, colors: dict[str, str]) -> None:

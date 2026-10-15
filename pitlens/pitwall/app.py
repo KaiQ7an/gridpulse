@@ -114,7 +114,7 @@ def status_strip(race: RaceData, laps: pd.DataFrame, tower: pd.DataFrame, lap: i
             small=f"L{int(fastest['LapNumber'])}" if fastest is not None else "",
         ),
     ]
-    stats.append(ui.sector_block(fastest_sectors(laps), race.team_colors))
+    stats += ui.sector_stats(fastest_sectors(laps, top=3), race.team_colors)
     if weather is not None:
         stats += [
             ui.stat("Track temp", f"{weather['TrackTemp']:.1f}°"),

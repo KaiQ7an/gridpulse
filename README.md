@@ -50,7 +50,7 @@ falling away, with the cleaning rules written down and tested.
 - **Positions**, **tyre stints** in running order, **degradation so far** for the focus drivers,
   **clean-lap pace** by compound, and race control **messages** up to the current lap.
 - Track status, fastest lap and fastest sectors so far (in purple, with team colours; hover a sector
-  for P2-P5 and their gaps), track temperature and rain at the current lap; safety car and VSC laps
+  for P2 and P3 and their gaps), track temperature and rain at the current lap; safety car and VSC laps
   shaded.
 - **Race feed**: what happened lap by lap (pit stops, passes on track, new fastest laps, safety
   cars, retirements, the finish) with a one-line state of the race on top. While the replay moves
