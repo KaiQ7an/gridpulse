@@ -133,7 +133,7 @@ def render() -> None:
             ui.label("Telemetry")
             zoom = st.segmented_control("Zoom", list(ranges), key="ob_zoom", required=True, default="Full lap",
                                         label_visibility="collapsed")
-        ui.note(f"Top panel: the gap along the lap, shaded in the colour of whoever is ahead. "
+        ui.note("Top panel: the gap along the lap, shaded in the colour of whoever is ahead. "
                 "Dotted lines mark corners, solid lines the sector boundaries.")
         st.plotly_chart(telemetry_figure(data, aligned, marks, ranges.get(zoom)), width="stretch", key="ob_tel")
 

@@ -10,7 +10,6 @@ finished race doesn't change.
 import hashlib
 import json
 import time
-from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -81,6 +80,14 @@ def _utc(series) -> pd.Series:
     return pd.to_datetime(series, utc=True, format="ISO8601").dt.tz_convert(None)
 
 
+def _in_force(sc: bool, vsc: bool, red: bool, yellow: set) -> set[str]:
+    """Track status codes in force right now (yellows only count while the race isn't neutralised)."""
+    codes = {"5" if red else "4" if sc else "6" if vsc else "1"}
+    if yellow and not (sc or vsc or red):
+        codes.add("2")
+    return codes
+
+
 def track_status_by_lap(race_control: pd.DataFrame, total_laps: int) -> dict[int, str]:
     """Rebuild FastF1-style track status codes per lap from race control messages.
 
@@ -93,14 +100,7 @@ def track_status_by_lap(race_control: pd.DataFrame, total_laps: int) -> dict[int
     yellow: set = set()
     out = {}
     for lap in range(1, total_laps + 1):
-        codes = set()
-
-        def snapshot():
-            codes.add("5" if red else "4" if sc else "6" if vsc else "1")
-            if yellow and not (sc or vsc or red):
-                codes.add("2")
-
-        snapshot()
+        codes = _in_force(sc, vsc, red, yellow)
         for m in (by_lap[lap].itertuples() if lap in by_lap else []):
             text = (m.message or "").upper()
             if m.category == "SafetyCar":
@@ -127,7 +127,7 @@ def track_status_by_lap(race_control: pd.DataFrame, total_laps: int) -> dict[int
             elif m.flag in ("CLEAR", "GREEN") and m.scope == "Track":
                 yellow.clear()
                 red = False
-            snapshot()
+            codes |= _in_force(sc, vsc, red, yellow)
         out[lap] = "".join(sorted(codes)) if codes != {"1"} else "1"
     return out
 

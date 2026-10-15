@@ -29,7 +29,7 @@ def load_session(year: int, event: str | int, kind: str = "R", telemetry: bool =
     session = fastf1.get_session(year, event, kind)
     session.load(laps=True, telemetry=telemetry, weather=True, messages=True)
     try:
-        session.laps  # FastF1 logs a warning and carries on when timing fails; fail loudly instead
+        session.laps  # noqa: B018 (FastF1 logs a warning and carries on when timing fails; fail loudly instead)
     except DataNotLoadedError:
         raise TimingUnavailable(
             f"F1's live-timing archive didn't return timing data for {session.event['EventName']} "
