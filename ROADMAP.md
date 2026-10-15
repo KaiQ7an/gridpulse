@@ -57,6 +57,7 @@ pace, tyres and strategy as the race unfolds. It is built in layers, each useful
 - [x] OpenF1 quirks handled: stops placed on their in-lap where the pit lane crosses the timing line,
       drive-throughs folded into the stint, extra laps capped at the classified count
 - [x] Every race from 2023 to 2026 checked against the official winner, top ten and laps down
+      (`pitlens check`, sprints included)
 - [x] Warn when a race's source is missing laps (2025 Miami); radio and stationary times from OpenF1
       when F1's archive won't serve them
 
