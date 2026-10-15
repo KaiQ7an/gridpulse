@@ -2,6 +2,7 @@
 
 import argparse
 
+from pitlens import checks
 from pitlens.onboard import report as onboard_report
 from pitlens.pitwall import serve as pitwall_serve
 from pitlens.session import TimingUnavailable, enable_cache
@@ -33,6 +34,10 @@ def main(argv: list[str] | None = None) -> None:
     pitwall = modules.add_parser("pitwall", help="Race-day dashboard in the browser (replay any race)")
     pitwall_serve.add_arguments(pitwall)
     pitwall.set_defaults(run=pitwall_serve.run)
+
+    check = modules.add_parser("check", help="Check each replayed race's finish against the official result")
+    checks.add_arguments(check)
+    check.set_defaults(run=checks.run)
 
     args = parser.parse_args(argv)
     enable_cache()  # before any FastF1 call, or FastF1 starts a second cache of its own

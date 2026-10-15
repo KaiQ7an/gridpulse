@@ -312,6 +312,7 @@ pitlens/
 ├── sources/
 │   ├── openf1.py      OpenF1 fallback, reshaped into FastF1's columns; circuit outline
 │   └── weather.py     hourly rainfall (mm) at the circuit from Open-Meteo
+├── checks.py          the `check` command: replayed finishes against the official results
 ├── htmlreport.py      self-contained HTML reports shared by the commands
 ├── plotstyle.py       one look for every plotly chart, light and dark
 ├── pitwall/
@@ -387,7 +388,11 @@ control messages.
 
 Every race from 2023 to the 2026 Singapore Grand Prix (87 of them) has been checked against the
 official result: the replay's final timing tower has the same winner, the same top ten in the same
-order and every finisher the same number of laps down.
+order and every finisher the same number of laps down. To run the check yourself:
+
+```bash
+.venv/bin/python -m pitlens check --year 2025
+```
 
 Lap end times are only good to a few tenths, which matters in a photo finish: in the 2026
 Azerbaijan Grand Prix OpenF1's lap times put Verstappen 0.003 s ahead at the flag, but Russell
