@@ -139,8 +139,10 @@ def test_photo_finish_follows_the_official_result():
 def test_official_gaps_from_fastf1_results():
     from pitlens.pitwall.timing import official_gaps
 
-    results = pd.DataFrame({"Abbreviation": ["A", "B", "C"], "Position": [1.0, 2.0, 3.0],
-                            "Time": pd.to_timedelta([5400.0, 1.5, None], unit="s")})
+    # FastF1 (2026 Singapore): lapped cars carry a Time too, but it isn't a gap to the winner.
+    results = pd.DataFrame({"Abbreviation": ["A", "B", "C", "D"], "Position": [1.0, 2.0, 3.0, 4.0],
+                            "Time": pd.to_timedelta([5400.0, 1.5, 2.171, None], unit="s"),
+                            "Laps": [62.0, 62.0, 61.0, 36.0], "Status": ["Finished", "Finished", "Lapped", "Retired"]})
     gaps = official_gaps(results)
     assert gaps.to_dict() == {"A": 0.0, "B": 1.5}
 

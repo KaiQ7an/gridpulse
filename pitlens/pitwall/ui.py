@@ -160,6 +160,18 @@ h1, h2, h3 { letter-spacing: -0.01em; }
 /* Replay control bar */
 .st-key-controls { align-items: center; }
 .st-key-controls [data-testid="stSlider"] { padding-top: 0.2rem; }
+
+/* Phones: less side padding, stats two to a row */
+@media (max-width: 640px) {
+  [data-testid="stMainBlockContainer"] { padding-left: 1rem; padding-right: 1rem; padding-top: 4rem; }
+  .pl-title { font-size: 2rem; }
+  .pl-strip { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .pl-stat { min-width: 0; padding: 9px 12px 10px; }
+  .pl-stat .v { font-size: 1.02rem; overflow: hidden; text-overflow: ellipsis; }
+  .pl-stat.sec .v { font-size: 0.9rem; }
+  [class*="st-key-card-"] { padding: 6px 4px; }
+  .st-key-pl-notes { right: 10px; top: 56px; width: 236px; }
+}
 </style>
 """
 

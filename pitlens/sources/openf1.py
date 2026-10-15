@@ -299,6 +299,7 @@ def race_parts(year: int, race_date_utc) -> dict:
             "Position": pd.to_numeric(result["position"], errors="coerce").astype(float),
             # Seconds behind the winner for lead-lap finishers ("+1 LAP" and the like become NaN).
             "GapToLeader": pd.to_numeric(result["gap_to_leader"], errors="coerce") if "gap_to_leader" in result else np.nan,
+            "Laps": pd.to_numeric(result["number_of_laps"], errors="coerce") if "number_of_laps" in result else np.nan,
             "Status": [status_of(r) for r in result.to_dict("records")],
         }
     ).sort_values("Position", na_position="last").reset_index(drop=True)

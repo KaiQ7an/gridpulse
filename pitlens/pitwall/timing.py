@@ -90,9 +90,15 @@ def official_gaps(results: pd.DataFrame) -> pd.Series:
     """Seconds behind the winner at the flag for cars on the lead lap, from the official classification.
 
     OpenF1 results carry `GapToLeader`; FastF1's carry `Time`, which is the
-    winner's race time and every other lead-lap finisher's gap to them.
+    winner's race time and every other lead-lap finisher's gap to them (and
+    for lapped cars something else, so they're left out by laps completed).
     """
     ranked = results.dropna(subset=["Position"]).sort_values("Position")
+    # Only cars that ran the full distance: FastF1's Time for a lapped car is some other gap.
+    if "Laps" in ranked and ranked["Laps"].notna().any():
+        ranked = ranked[ranked["Laps"] == ranked["Laps"].max()]
+    elif "Status" in ranked:
+        ranked = ranked[ranked["Status"].fillna("").eq("Finished") | (ranked["Position"] == 1)]
     if "GapToLeader" in ranked:
         gaps = pd.to_numeric(ranked["GapToLeader"], errors="coerce")
     elif "Time" in ranked:
