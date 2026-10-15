@@ -9,7 +9,7 @@ from pitlens.pitwall.events import lap_status, race_events
 from pitlens.pitwall.timing import gap_to_leader, leader_times, retired_drivers
 from pitlens.radio.clips import assign_laps, team_radio
 from pitlens.session import TimingUnavailable, enable_cache, load_session
-from pitlens.sources import openf1
+from pitlens.sources import openf1, weather
 from pitlens.stints.pace import add_fuel_corrected_time, clean_race_laps
 from pitlens.style import FALLBACK_TEAM_COLOR
 from pitlens.undercut.analysis import pit_battles, pit_loss, pit_stops
@@ -47,6 +47,8 @@ class RaceData:
     retired: set[str]
     entrants: pd.DataFrame  # Driver, Team for everyone who started, even without a completed lap
     track: dict | None  # circuit outline split into the three timing sectors
+    rain_mm: pd.Series | None  # hourly rainfall at the circuit (Open-Meteo estimate), indexed by UTC hour
+    start_utc: pd.Timestamp | None  # scheduled race start, for turning laps into clock time
 
 
 def completed_races(year: int) -> pd.DataFrame:
@@ -147,7 +149,19 @@ def build_race(year: int, round_number: int, parts: dict) -> RaceData:
         retired=retired,
         entrants=entrants,
         track=_track(year, parts),
+        rain_mm=weather.hourly_rain(parts["location"], parts.get("race_utc")),
+        start_utc=pd.Timestamp(parts["race_utc"]) if parts.get("race_utc") is not None else None,
     )
+
+
+def lap_clock(race: "RaceData", lap: int) -> pd.Timestamp | None:
+    """Approximate UTC time the leader finished `lap`: race start plus the elapsed race time."""
+    if race.start_utc is None or lap not in race.lead_times.index:
+        return None
+    first = race.lead_times.index.min()
+    lap1 = race.laps[(race.laps["LapNumber"] == first)]["LapTime"].dropna()
+    race_start = race.lead_times[first] - (lap1.min() if not lap1.empty else pd.Timedelta(0))
+    return race.start_utc + (race.lead_times[lap] - race_start)
 
 
 def _track(year: int, parts: dict) -> dict | None:

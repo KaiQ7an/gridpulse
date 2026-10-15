@@ -50,14 +50,14 @@ falling away, with the cleaning rules written down and tested.
 - **Positions**, **tyre stints** in running order, **degradation so far** for the focus drivers,
   **clean-lap pace** by compound, and race control **messages** up to the current lap.
 - Track status, fastest lap and fastest sectors so far (in purple, with team colours; hover a sector
-  for P2 and P3 and their gaps), track temperature and rain at the current lap; safety car and VSC laps
-  shaded.
+  for P2 and P3 and their gaps), track temperature and rainfall in mm/h at the current lap; safety car
+  and VSC laps shaded. F1's feed only says whether the track sensor sees rain, so the millimetres
+  come from Open-Meteo's hourly weather-model estimate for the circuit.
 - **Race feed**: what happened lap by lap (pit stops, passes on track, new fastest laps, safety
   cars, retirements, the finish) with a one-line state of the race on top. While the replay moves
   forward, a new fastest lap or a retirement also pops up as a small in-page notification.
-- **Fastest sectors map**: the circuit drawn from the race's fastest lap and cut at its official
-  sector times, each sector in the team colour of whoever holds it so far, with the times and the
-  gap to the next driver beside it.
+- **Circuit map**: the track drawn from the race's fastest lap as actually driven (or the circuit
+  outline before 2023), with the start/finish line.
 - **Strategy**: the typical pit loss, where each car would rejoin if it pitted at the end of this
   lap, and every undercut and overcut so far with its outcome.
 - **Radio**: team radio clips up to the current lap, playable in the page, with a microphone in
@@ -286,7 +286,8 @@ pitlens/
 │   ├── translate.py   transcripts into Chinese: offline model + F1 glossary, or Claude
 │   └── report.py      the `radio` command
 ├── sources/
-│   └── openf1.py      OpenF1 fallback, reshaped into FastF1's columns
+│   ├── openf1.py      OpenF1 fallback, reshaped into FastF1's columns; circuit outline
+│   └── weather.py     hourly rainfall (mm) at the circuit from Open-Meteo
 ├── htmlreport.py      self-contained HTML reports shared by the commands
 ├── plotstyle.py       one look for every plotly chart, light and dark
 ├── pitwall/

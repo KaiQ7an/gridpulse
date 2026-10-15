@@ -51,13 +51,6 @@ h1, h2, h3 { letter-spacing: -0.01em; }
 .pl-stat.sec .v { font-size: 0.98rem; margin-top: 6px; }
 .pl-stat.sec:hover .pl-pop { display: block; }
 
-.pl-sectors { border: 1px solid rgba(128,128,128,0.22); border-radius: 10px; padding: 6px 14px; min-width: 0;
-  background: rgba(128,128,128,0.04); display: flex; flex-direction: column; justify-content: center; gap: 1px; }
-.pl-sec { position: relative; display: flex; align-items: center; gap: 7px; font-size: 0.84rem; font-weight: 600;
-  font-variant-numeric: tabular-nums; white-space: nowrap; line-height: 1.5; cursor: default; }
-.pl-sec .k { font-size: 0.62rem; letter-spacing: 0.1em; opacity: 0.55; width: 18px; }
-.pl-sec small { opacity: 0.55; font-weight: 500; font-size: 0.7rem; }
-.pl-sec:hover .pl-pop { display: block; }
 .pl-pop { display: none; position: absolute; top: calc(100% + 6px); left: 0; z-index: 50; min-width: 190px;
   padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(128,128,128,0.28);
   background: var(--pl-pop-bg, rgba(250,250,250,0.98)); box-shadow: 0 8px 24px rgba(0,0,0,0.18);
@@ -94,15 +87,6 @@ h1, h2, h3 { letter-spacing: -0.01em; }
   font-size: 0.88rem; line-height: 1.45; opacity: 0.9; font-style: italic; }
 
 .pl-zh { font-style: normal; margin-top: 3px; opacity: 0.95; }
-
-/* Fastest-sector list beside the track map */
-.pl-seclist { display: flex; flex-direction: column; gap: 14px; padding-top: 18px; }
-.pl-secrow { display: grid; grid-template-columns: 26px 1fr; gap: 10px; align-items: center; }
-.pl-secrow .num { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; color: #fff;
-  font-size: 0.75rem; font-weight: 700; }
-.pl-secrow .who { font-weight: 700; font-size: 0.98rem; line-height: 1.2; }
-.pl-secrow .t { color: #A855F7; font-weight: 600; font-variant-numeric: tabular-nums; margin-left: 6px; }
-.pl-secrow .meta { font-size: 0.76rem; opacity: 0.55; font-variant-numeric: tabular-nums; }
 
 /* In-page toasts (fastest laps, retirements): the coloured title carries the meaning */
 [data-testid="stToast"] { border-left: 4px solid rgba(128,128,128,0.55); }
@@ -164,11 +148,12 @@ def header(eyebrow: str, title: str, sub: str = "", title_html: str | None = Non
     )
 
 
-def stat(key: str, value: str, small: str = "", value_html: str | None = None) -> str:
-    """One labelled value for `strip`. Pass `value_html` for pre-formatted markup."""
+def stat(key: str, value: str, small: str = "", value_html: str | None = None, tip: str = "") -> str:
+    """One labelled value for `strip`. Pass `value_html` for pre-formatted markup, `tip` for a hover note."""
     v = value_html if value_html is not None else html.escape(value)
     s = f"<small>{html.escape(small)}</small>" if small else ""
-    return f'<div class="pl-stat"><div class="k">{html.escape(key)}</div><div class="v">{v}{s}</div></div>'
+    t = f' title="{html.escape(tip)}"' if tip else ""
+    return f'<div class="pl-stat"{t}><div class="k">{html.escape(key)}</div><div class="v">{v}{s}</div></div>'
 
 
 def strip(stats: list[str]) -> None:
@@ -285,20 +270,3 @@ def sector_stats(rankings: list[list[tuple[str, float, int]]], colors: dict[str,
             f"<small>L{lap}</small></div>{pop}</div>"
         )
     return out
-
-
-def sector_list(rankings, colors: dict[str, str]) -> None:
-    """Fastest S1/S2/S3 so far, with the gap to the next quickest driver."""
-    rows = []
-    for n, ranking in enumerate(rankings, start=1):
-        if not ranking:
-            continue
-        d, t, lap = ranking[0]
-        c = colors.get(d, "#999")
-        nxt = f" · +{ranking[1][1] - t:.3f} to {html.escape(ranking[1][0])}" if len(ranking) > 1 else ""
-        rows.append(
-            f'<div class="pl-secrow"><div class="num" style="background:{c}">{n}</div>'
-            f'<div><div class="who">{html.escape(d)}<span class="t">{t:.3f}</span></div>'
-            f'<div class="meta">Sector {n} · lap {lap}{nxt}</div></div></div>'
-        )
-    st.html('<div class="pl-seclist">' + "".join(rows) + "</div>")

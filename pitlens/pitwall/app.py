@@ -8,7 +8,8 @@ import streamlit as st
 
 from pitlens.pitwall import charts, onboard_page, ui
 from pitlens.session import TimingUnavailable
-from pitlens.pitwall.data import FIRST_SEASON, RaceData, completed_races, load_race
+from pitlens.pitwall.data import FIRST_SEASON, RaceData, completed_races, lap_clock, load_race
+from pitlens.sources.weather import rain_at
 from pitlens.pitwall.events import fastest_lap_candidates, fastest_sectors, neutralised_banner, situation
 from pitlens.pitwall.timing import format_lap_time, neutralised_periods, stint_timeline, timing_tower
 from pitlens.pitwall.tower import timing_tower as tower_component
@@ -119,9 +120,20 @@ def status_strip(race: RaceData, laps: pd.DataFrame, tower: pd.DataFrame, lap: i
         stats += [
             ui.stat("Track temp", f"{weather['TrackTemp']:.1f}°"),
             ui.stat("Air temp", f"{weather['AirTemp']:.1f}°"),
-            ui.stat("Rain", "Wet" if weather["Rainfall"] else "Dry"),
+            rain_stat(race, lap, bool(weather["Rainfall"])),
         ]
     ui.strip(stats)
+
+
+def rain_stat(race: RaceData, lap: int, track_wet: bool) -> str:
+    """Rainfall in mm/h this hour (a weather-model estimate), with the track's own wet/dry sensor below."""
+    mm = rain_at(race.rain_mm, lap_clock(race, lap))
+    sensor = "track wet" if track_wet else "track dry"
+    if mm is None:
+        return ui.stat("Rain", "Wet" if track_wet else "Dry")
+    return ui.stat("Rain", f"{mm:.1f} mm/h", small=sensor,
+                   tip="Rainfall this hour around the circuit, estimated by a weather model (Open-Meteo). "
+                       "F1's own feed only reports whether the track sensor detects rain.")
 
 
 def race_view(race: RaceData) -> None:
@@ -164,14 +176,9 @@ def race_view(race: RaceData) -> None:
 
     if race.track:
         with left, st.container(border=True, key="card-map"):
-            ui.label("Fastest sectors")
-            rankings = fastest_sectors(laps, top=2)
-            track_col, list_col = st.columns([3, 2], gap="small")
-            with track_col:
-                st.plotly_chart(charts.sector_map(race.track, rankings, race.team_colors),
-                                width="stretch", key="chart_sector_map", config={"displayModeBar": False})
-            with list_col:
-                ui.sector_list(rankings, race.team_colors)
+            ui.label(f"Circuit · {race.location}")
+            st.plotly_chart(charts.circuit_map(race.track), width="stretch", key="chart_circuit",
+                            config={"displayModeBar": False, "staticPlot": True})
 
     with right, st.container(border=True, key="card-views"):
         # Only the chosen view is drawn each tick (tabs would redraw all of them).
