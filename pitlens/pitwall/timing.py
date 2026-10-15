@@ -295,7 +295,7 @@ def timing_tower(
         # Cars still running in classified order (unclassified last); those out keep their places;
         # the disqualified go to the bottom.
         if "Disqualified" in latest:
-            latest["Dsq"] = latest["Disqualified"].fillna(False).astype(bool)
+            latest["Dsq"] = latest["Disqualified"].eq(True)
             latest.loc[latest["Dsq"], "Out"] = True
         running = (latest["SortGroup"] == 0).to_numpy() & ~latest["Dsq"].to_numpy()
         key = np.where(running, latest["Classified"].fillna(1e6), 1e7 + np.arange(len(latest)))
