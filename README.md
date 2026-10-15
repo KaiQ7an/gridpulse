@@ -385,6 +385,10 @@ pit loss to 0.1 s. Its car telemetry is sampled about half as often, so onboard 
 little coarser. Track status (safety car, VSC, red flag, yellows) is rebuilt per lap from race
 control messages.
 
+Every race from 2023 to the 2026 Singapore Grand Prix (87 of them) has been checked against the
+official result: the replay's final timing tower has the same winner, the same top ten in the same
+order and every finisher the same number of laps down.
+
 Lap end times are only good to a few tenths, which matters in a photo finish: in the 2026
 Azerbaijan Grand Prix OpenF1's lap times put Verstappen 0.003 s ahead at the flag, but Russell
 won by 0.196 s. So the final lap shows the official classification and its gaps, and cars
