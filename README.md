@@ -75,6 +75,9 @@ falling away, with the cleaning rules written down and tested.
 - Undercut and overcut battles: two cars within 3.5 s, one pits and the other answers within six
   laps. The gap before and after both stops says whether it worked.
 - A rejoin projection: if a car pits now, which position it comes out in and who it's next to.
+  It starts from the circuit's reference pit loss (green, VSC and safety car figures), switches to
+  this race's own median once three green-flag stops have happened, and uses the cheaper figure
+  while the race is neutralised.
 
 **`radio`: team radio** (available now)
 

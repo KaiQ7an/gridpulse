@@ -284,6 +284,7 @@ def race_parts(year: int, race_date_utc) -> dict:
         "location": session.get("location", ""),
         "date": t0,
         "source": "OpenF1",
+        "circuit_key": session.get("circuit_key"),
     }
 
 
@@ -357,18 +358,32 @@ def lap_telemetry(session_key: int, driver_number: int, start, duration_s: float
     )
 
 
-def circuit_info(circuit_key: int, year: int) -> tuple[pd.DataFrame, float]:
-    """Corners (X, Y, Number, Letter, Angle) and map rotation from the MultiViewer circuit API."""
+def _circuit(circuit_key: int, year: int) -> dict:
     path = CACHE / "circuits" / f"{circuit_key}_{year}.json"
     if path.exists():
-        data = json.loads(path.read_text())
-    else:
-        resp = requests.get(f"https://api.multiviewer.app/api/v1/circuits/{circuit_key}/{year}", headers=HEADERS,
-                            timeout=20)
-        resp.raise_for_status()
-        data = resp.json()
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(json.dumps(data))
+        return json.loads(path.read_text())
+    resp = requests.get(f"https://api.multiviewer.app/api/v1/circuits/{circuit_key}/{year}", headers=HEADERS,
+                        timeout=20)
+    resp.raise_for_status()
+    data = resp.json()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(data))
+    return data
+
+
+def circuit_pit_loss(circuit_key: int, year: int) -> dict[str, float] | None:
+    """Reference time lost to a pit stop at this circuit: green flag, under VSC and under SC (seconds)."""
+    try:
+        loss = _circuit(circuit_key, year).get("pitLoss") or {}
+        out = {k: float(loss[k]) for k in ("normal", "vsc", "sc") if loss.get(k) not in (None, "")}
+        return out if "normal" in out else None
+    except (requests.RequestException, ValueError):
+        return None
+
+
+def circuit_info(circuit_key: int, year: int) -> tuple[pd.DataFrame, float]:
+    """Corners (X, Y, Number, Letter, Angle) and map rotation from the MultiViewer circuit API."""
+    data = _circuit(circuit_key, year)
     corners = pd.DataFrame(
         {
             "X": [c["trackPosition"]["x"] for c in data["corners"]],

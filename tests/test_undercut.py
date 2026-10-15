@@ -100,3 +100,19 @@ def test_stop_under_vsc_is_measured_against_cars_also_under_vsc():
     stop = pit_stops(laps).iloc[0]
     assert stop["Neutralised"]
     assert stop["Loss"] == pytest.approx(12.0)
+
+
+def test_pit_loss_now_starts_from_the_circuit_reference_and_switches_to_this_race():
+    from pitlens.undercut.analysis import pit_loss_now
+
+    ref = {"normal": 22.0, "vsc": 15.0, "sc": 11.0}
+    none = pd.DataFrame(columns=["Loss", "Neutralised"])
+    assert pit_loss_now(none, "Green", ref) == (22.0, "circuit reference")
+    assert pit_loss_now(none, "Safety car", ref) == (11.0, "circuit reference under safety car")
+
+    three = pd.DataFrame({"Loss": [20.0, 21.0, 24.0], "Neutralised": [False] * 3})
+    assert pit_loss_now(three, "Green", ref) == (21.0, "median of 3 green-flag stops")
+    value, source = pit_loss_now(three, "VSC", ref)
+    assert value == pytest.approx(21.0 * 15 / 22, abs=0.05) and "scaled" in source
+
+    assert pit_loss_now(none, "Green", None) == (None, "no estimate yet")

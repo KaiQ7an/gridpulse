@@ -13,7 +13,7 @@ from pitlens.pitwall.events import fastest_lap_candidates, neutralised_banner, s
 from pitlens.pitwall.timing import format_lap_time, neutralised_periods, stint_timeline, timing_tower
 from pitlens.pitwall.tower import timing_tower as tower_component
 from pitlens.stints.pace import stint_degradation
-from pitlens.undercut.analysis import pair_gap, rejoin_projection
+from pitlens.undercut.analysis import pair_gap, pit_loss_now, rejoin_projection
 from pitlens.undercut.charts import battle_chart, pit_loss_chart
 
 SPEEDS = {"1×": 2.0, "2×": 1.0, "4×": 0.5}  # seconds per lap
@@ -222,18 +222,25 @@ def strategy_view(race: RaceData, tower: pd.DataFrame, lap: int, focus: list[str
     stops = race.stops[race.stops["Lap"] <= lap]
     battles = race.battles[race.battles["RivalStopLap"] + 1 <= lap]
     last = stops.iloc[-1] if not stops.empty else None
+    status = race.lap_status.get(lap, "Green")
+    loss, loss_source = pit_loss_now(stops, status, race.pit_loss_ref)
+    ref = race.pit_loss_ref
     ui.strip([
-        ui.stat("Typical pit loss", f"{race.pit_loss:.1f} s" if race.pit_loss else "–"),
+        ui.stat("Pit loss now", f"{loss:.1f} s" if loss else "–", small=loss_source),
+        ui.stat("Circuit reference", f"{ref['normal']:.1f} s" if ref else "–",
+                small=f"VSC {ref['vsc']:.1f} · SC {ref['sc']:.1f}" if ref and "vsc" in ref and "sc" in ref else ""),
         ui.stat("Stops so far", str(len(stops))),
         ui.stat("Latest stop", f"{last['Driver']}" if last is not None else "–",
                 small=f"lap {last['Lap']}" if last is not None else ""),
         ui.stat("Battles", str(len(battles))),
     ])
 
-    if race.pit_loss:
+    if loss:
         ui.label("If they pit at the end of this lap")
+        ui.note(f"Uses a pit loss of {loss:.1f} s ({loss_source}). Under a safety car or VSC a stop costs less, "
+                "which is why teams pit then.")
         everyone = st.toggle("All cars on the lead lap", value=False, key="rejoin_all")
-        proj = rejoin_projection(tower, race.pit_loss)
+        proj = rejoin_projection(tower, loss)
         if not everyone:
             proj = proj[proj["Driver"].isin(focus)]
         st.dataframe(

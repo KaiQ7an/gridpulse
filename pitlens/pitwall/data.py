@@ -36,7 +36,8 @@ class RaceData:
     lead_times: pd.Series  # session time the leader completed each lap
     stops: pd.DataFrame  # every pit stop with its cost
     battles: pd.DataFrame  # undercut / overcut attempts
-    pit_loss: float | None  # typical green-flag pit loss, seconds
+    pit_loss: float | None  # typical green-flag pit loss over the whole race, seconds
+    pit_loss_ref: dict | None  # circuit reference pit loss: normal / vsc / sc
     radio: pd.DataFrame  # team radio clips with the lap they were sent on
     events: pd.DataFrame  # race feed: pits, passes, fastest laps, safety cars
     lap_status: pd.Series  # track status per lap: Green, Yellow, Safety car, VSC, Red flag
@@ -71,6 +72,7 @@ def _fastf1_parts(year: int, round_number: int) -> dict:
         "location": session.event["Location"],
         "date": session.event["EventDate"],
         "source": "F1 live timing",
+        "circuit_key": (session.session_info.get("Meeting", {}).get("Circuit") or {}).get("Key"),
     }
 
 
@@ -129,6 +131,7 @@ def build_race(year: int, round_number: int, parts: dict) -> RaceData:
         stops=stops,
         battles=pit_battles(laps, stops),
         pit_loss=pit_loss(stops),
+        pit_loss_ref=openf1.circuit_pit_loss(parts["circuit_key"], year) if parts.get("circuit_key") else None,
         radio=parts["radio"],
         events=race_events(laps, retired, total_laps),
         lap_status=lap_status(laps),

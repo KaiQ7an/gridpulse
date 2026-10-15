@@ -4,6 +4,8 @@ import argparse
 import platform
 import subprocess
 
+import fastf1
+
 from pitlens.htmlreport import table, text, write_report
 from pitlens.pitwall.data import load_race
 from pitlens.session import OUTPUT_DIR
@@ -23,13 +25,17 @@ def add_arguments(parser: argparse.ArgumentParser) -> None:
 def run(args: argparse.Namespace) -> None:
     event = int(args.event) if str(args.event).isdigit() else args.event
     print(f"Loading {args.year} {args.event} race...")
-    race = load_race(args.year, event)
+    round_number = event if isinstance(event, int) else int(fastf1.get_event(args.year, event)["RoundNumber"])
+    race = load_race(args.year, round_number)
     stops = pit_stops(race.laps)
     loss = pit_loss(stops)
     battles = pit_battles(race.laps, stops, max_gap=args.max_gap)
 
     print(f"\n{race.name}: {len(stops)} stops, typical green-flag pit loss "
           + (f"{loss:.1f} s" if loss is not None else "unknown"))
+    if race.pit_loss_ref:
+        ref = race.pit_loss_ref
+        print("Circuit reference: " + ", ".join(f"{k} {v:.1f} s" for k, v in ref.items()))
     print(stops.to_string(index=False))
     print("\nUndercut and overcut battles:" if not battles.empty else "\nNo close pit battles found.")
     if not battles.empty:

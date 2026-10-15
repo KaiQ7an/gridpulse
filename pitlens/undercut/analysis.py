@@ -97,6 +97,34 @@ def pit_loss(stops: pd.DataFrame) -> float | None:
     return round(float(green.median()), 1) if len(green) else None
 
 
+MIN_STOPS_FOR_RACE_ESTIMATE = 3
+
+
+def pit_loss_now(
+    stops_so_far: pd.DataFrame, status: str, reference: dict[str, float] | None
+) -> tuple[float | None, str]:
+    """The pit loss a strategist would use at this moment, and where it comes from.
+
+    Before enough green-flag stops have happened, the circuit's reference
+    figure; after that, the median of this race's stops. Under a safety car
+    or VSC a stop is cheaper, so the figure is the circuit's SC/VSC value (or
+    this race's figure scaled by the same ratio).
+    """
+    key = {"Safety car": "sc", "VSC": "vsc", "VSC ending": "vsc"}.get(status, "normal")
+    green = stops_so_far[~stops_so_far["Neutralised"]] if len(stops_so_far) else stops_so_far
+    measured = pit_loss(stops_so_far) if len(green) >= MIN_STOPS_FOR_RACE_ESTIMATE else None
+    label = {"sc": "safety car", "vsc": "VSC"}.get(key)
+
+    if measured is not None:
+        if key != "normal" and reference and key in reference:
+            return round(measured * reference[key] / reference["normal"], 1), f"this race, scaled for the {label}"
+        return measured, f"median of {len(green)} green-flag stops"
+    if reference:
+        value = reference.get(key, reference["normal"])
+        return round(value, 1), "circuit reference" + (f" under {label}" if label else "")
+    return None, "no estimate yet"
+
+
 def pit_battles(laps: pd.DataFrame, stops: pd.DataFrame, max_gap: float = 3.5, window: int = 6) -> pd.DataFrame:
     """Undercut and overcut attempts between cars running close together.
 
