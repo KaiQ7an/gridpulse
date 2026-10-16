@@ -643,7 +643,7 @@ def quali_table(results, ideal, colors: dict[str, str]) -> None:
     st.html(f'<div class="pl-qwrap">{head}{"".join(rows)}</div>')
 
 
-def team_drivers(drivers, battles, color: str) -> None:
+def team_drivers(drivers, battles, color: str, *, year: int | None = None) -> None:
     """A card per driver of a team: season numbers and how they fared against their teammate."""
     battle = battles.set_index("Driver") if len(battles) else battles
     cards = []
@@ -664,7 +664,10 @@ def team_drivers(drivers, battles, color: str) -> None:
             if parts:
                 h2h = f'<div class="h2h">Against their teammate: {" · ".join(parts)}</div>'
         cells = "".join(f"<div>{html.escape(k)}<b>{v}</b></div>" for k, v in nums)
-        cards.append(f'<div class="pl-drv"><div class="name">{driver_dot(color)}{html.escape(d.FullName)}'
+        name = html.escape(d.FullName)
+        if year is not None:
+            name = f'<a href="./drivers?year={year}&driver={d.Driver}" target="_self">{name}</a>'
+        cards.append(f'<div class="pl-drv"><div class="name">{driver_dot(color)}{name}'
                      f'<span class="code">{html.escape(d.Driver)}</span></div><div class="nums">{cells}</div>{h2h}</div>')
     st.html("".join(cards))
 
@@ -683,7 +686,7 @@ def position_cell(position, classified: bool = True, dsq: bool = False, pole: bo
     return f'<span class="pl-pos {cls}{extra}">{p}</span>'
 
 
-def driver_results_table(rows, year: int) -> None:
+def driver_results_table(rows, year: int, *, driver: str | None = None) -> None:
     """A driver's season: one row per Grand Prix with grid, finish, points and qualifying; each race
     links to its replay."""
     sprints = "Sprint" in rows and rows["Sprint"].notna().any()
@@ -699,7 +702,8 @@ def driver_results_table(rows, year: int) -> None:
         sprint = "" if not sprints or pd.isna(r.Sprint) else int(r.Sprint)
         out.append(
             f'<div class="{cls}"><span class="muted">{r.Round}</span>'
-            f'<span><a href="./?year={year}&round={r.Round}" target="_self">{html.escape(r.Event)}</a></span>'
+            f'<span><a href="./?year={year}&round={r.Round}{"&drivers=" + driver if driver else ""}" '
+            f'target="_self">{html.escape(r.Event)}</a></span>'
             f'<span class="num">{quali}</span><span class="num">{grid}</span>'
             f'<span class="num">{position_cell(r.Position, r.Classified, r.Dsq, r.Pole, r.Fastest)}</span>'
             + (f'<span class="num">{sprint}</span>' if sprints else "") + f'<span class="num">{points}</span></div>'

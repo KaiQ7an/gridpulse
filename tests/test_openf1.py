@@ -3,6 +3,39 @@ import pandas as pd
 from pitlens.sources.openf1 import track_status_by_lap
 
 
+def test_deleted_laps_use_time_and_completion_and_respect_reinstatement():
+    from pitlens.sources.openf1 import deleted_lap_mask
+
+    laps = pd.DataFrame({"driver_number": [11, 11, 1, 1, 1], "lap_number": [12, 16, 14, 17, 19],
+                         "lap_duration": [128.539, 73.334, 95.081, 94.718, 94.718],
+                         "date_start": ["2023-10-20T21:10:00Z", "2023-10-20T21:20:00Z",
+                                        "2023-10-20T21:50:03Z", "2023-10-20T21:58:46Z", "2023-10-20T22:05:00Z"]})
+    messages = pd.DataFrame([
+        {"date": "2023-10-20T21:13:00Z", "message": "CAR 11 (PER) TIME 2:08.539 DELETED - LAP 16"},
+        {"date": "2023-10-20T22:00:22Z", "message": "CAR 1 (VER) TIME 1:34.718 DELETED - LAP 18"},
+    ])
+    assert deleted_lap_mask(laps, messages).tolist() == [True, False, False, True, False]
+    restored = pd.DataFrame([{"date": "2023-10-20T22:01:00Z",
+                              "message": "CAR 1 (VER) TIME 1:34.718 WILL BE REINSTATED"}])
+    assert deleted_lap_mask(laps, pd.concat([restored, messages])).tolist() == [True, False, False, False, False]
+
+
+def test_onboard_never_selects_a_deleted_fastest_lap(monkeypatch):
+    from pitlens.onboard.data import OpenF1Weekend
+    from pitlens.sources import openf1
+
+    weekend = OpenF1Weekend.__new__(OpenF1Weekend)
+    weekend.session = {"session_key": 1}
+    weekend.stints = pd.DataFrame()
+    weekend.laps = pd.DataFrame({"name_acronym": ["VER", "VER"], "driver_number": [1, 1],
+                                "team_name": ["Red Bull"] * 2, "lap_duration": [94.718, 95.008],
+                                "lap_number": [17, 11], "Deleted": [True, False],
+                                "duration_sector_1": [25, 25], "duration_sector_2": [38, 38],
+                                "duration_sector_3": [31.718, 32.008], "date_start": ["2023-10-20T21:00Z"] * 2})
+    monkeypatch.setattr(openf1, "lap_telemetry", lambda *args: pd.DataFrame())
+    assert weekend.fastest_lap("VER").lap_time.total_seconds() == 95.008
+
+
 def rc(rows):
     return pd.DataFrame(
         [dict(date=f"2026-01-01T12:{i:02d}:00", lap_number=lap, category=cat, flag=flag, scope=scope, sector=sector,

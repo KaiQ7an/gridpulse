@@ -72,6 +72,19 @@ class RaceData:
     coverage: float | None  # share of the race's laps the timing data has
     start_utc: pd.Timestamp | None  # scheduled race start, for turning laps into clock time
 
+    def clean_through(self, lap: int) -> pd.DataFrame:
+        """Clean only the known laps: later fastest laps must not change today's outlier cut."""
+        known = self.laps[self.laps["LapNumber"] <= lap]
+        return add_fuel_corrected_time(clean_race_laps(known), self.total_laps)
+
+    def stops_through(self, lap: int) -> pd.DataFrame:
+        """Known stops, with measurements withheld until the out-lap is complete."""
+        known = self.stops[self.stops["Lap"] <= lap].copy()
+        pending = known["Lap"] == lap
+        for column in ("LaneTime", "Stationary", "Loss", "PosAfter"):
+            known.loc[pending, column] = float("nan")
+        return known
+
 
 def completed_races(year: int) -> pd.DataFrame:
     """Rounds of `year` whose race has already finished, latest last (the saved ones when offline or

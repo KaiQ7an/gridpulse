@@ -5,7 +5,9 @@ import html
 import pandas as pd
 import streamlit as st
 
+from pitlens import snapshots
 from pitlens.pitwall import charts, ui
+from pitlens.pitwall.navigation import select_season
 from pitlens.season.data import (
     Season,
     drivers_of,
@@ -19,8 +21,12 @@ from pitlens.season.data import (
 from pitlens.season.facts import facts
 
 
-@st.cache_resource(show_spinner=False, max_entries=3)
 def cached_season(year: int) -> Season:
+    return _cached_season(year, snapshots.revision(year))
+
+
+@st.cache_resource(show_spinner=False, max_entries=3)
+def _cached_season(year: int, revision: tuple) -> Season:
     return load_season(year)
 
 
@@ -37,7 +43,7 @@ def render() -> None:
             st.session_state.team_year = int(link[0])
         if link[1]:
             st.session_state.team_pick = link[1]
-    year = st.sidebar.selectbox("Season", years, key="team_year")
+    year = select_season(years, key="team_year")
     ui.sidebar_footer()
 
     with st.spinner("Adding up the season..."):
@@ -69,13 +75,14 @@ def render() -> None:
     strip(season, team, row, drivers)
     if info:
         titles = f"{info['titles']}" + (f" ({info['note']})" if info.get("note") else "")
-        ui.strip([ui.stat("Base", info["base"]), ui.stat("Power unit", info.get("power") or "–"),
-                  ui.stat("In F1 since", info["since"]), ui.stat("Constructors' titles", titles)])
+        with st.expander("Team background"):
+            ui.strip([ui.stat("Base", info["base"]), ui.stat("Power unit", info.get("power") or "–"),
+                      ui.stat("In F1 since", info["since"]), ui.stat("Constructors' titles", titles)])
 
     left, right = st.columns([5, 7], gap="large")
     with left, st.container(border=True, key="card-team-drivers"):
         ui.label("Drivers")
-        ui.team_drivers(drivers, teammate_battles(season, team), color)
+        ui.team_drivers(drivers, teammate_battles(season, team), color, year=year)
     with right, st.container(border=True, key="card-team-results"):
         ui.label("Race by race")
         ui.note("Where each driver finished every Grand Prix; a cross for a retirement.")

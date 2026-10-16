@@ -33,3 +33,14 @@ def test_ideal_lap_adds_up_the_best_sectors_and_skips_deleted_laps():
     assert ideal.loc["A", "Best"] == 90.0
     assert ideal.loc["A", "Ideal"] == pytest.approx(29.8 + 30.0 + 30.0)
     assert ideal.loc["A", "LeftOnTable"] == pytest.approx(0.2)
+
+
+def test_saved_openf1_validity_matches_the_stewards_not_offset_lap_numbers():
+    from pitlens import snapshots
+
+    spain = snapshots.load_quali(2023, 7, "Q")
+    assert ideal_laps(spain.laps).set_index("Driver").loc["PER", "Best"] == 73.334
+    austin = snapshots.load_quali(2023, 18, "Q")
+    ver = austin.laps[austin.laps.Driver == "VER"]
+    assert ver.loc[ver.LapTime == 94.718, "Deleted"].all()
+    assert ideal_laps(austin.laps).set_index("Driver").loc["VER", "Best"] == 95.008

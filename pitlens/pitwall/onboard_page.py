@@ -6,8 +6,6 @@ import streamlit as st
 from pitlens.onboard.charts import corner_gains, telemetry_figure, track_map
 from pitlens.onboard.compare import align, corner_speeds, minisectors, sector_distances, summarise
 from pitlens.onboard.data import (
-    OTHER_COLOR,
-    REF_COLOR,
     SESSION_NAMES,
     OnboardData,
     load_weekend,
@@ -15,6 +13,7 @@ from pitlens.onboard.data import (
 )
 from pitlens.pitwall import ui
 from pitlens.pitwall.data import FIRST_SEASON, completed_races
+from pitlens.pitwall.navigation import driver_codes, integer, select_season
 from pitlens.pitwall.timing import format_lap_time
 from pitlens.session import TimingUnavailable
 
@@ -25,12 +24,12 @@ def cached_races(year: int) -> pd.DataFrame:
 
 
 @st.cache_resource(show_spinner=False, max_entries=4)
-def cached_weekend(year: int, round_number: int, kind: str):
+def cached_weekend(year: int, round_number: int, kind: str, validity_version: int = 2):
     return load_weekend(year, round_number, kind)
 
 
 @st.cache_data(show_spinner=False, max_entries=16)
-def cached_compare(_weekend, key: tuple, ref: str, other: str) -> OnboardData:
+def cached_compare(_weekend, key: tuple, ref: str, other: str, validity_version: int = 2) -> OnboardData:
     return _weekend.compare(ref, other)
 
 
@@ -51,16 +50,40 @@ def pick_drivers(drivers: pd.DataFrame) -> tuple[str, str]:
 
 def render() -> None:
     ui.sidebar_brand("Onboard, fastest lap against fastest lap")
+    ss = st.session_state
+    params = dict(st.query_params)
+    link = tuple(sorted(params.items()))
+    incoming = bool(params.get("year")) and ss.get("ob_link") != link
+    if incoming:
+        ss.ob_link = link  # consume before loading: a failed request must not trap the pickers
     this_year = pd.Timestamp.now().year
-    year = st.sidebar.selectbox("Season", range(this_year, FIRST_SEASON - 1, -1), key="ob_year")
+    if incoming and FIRST_SEASON <= integer(params.get("year"), 0) <= this_year:
+        ss.ob_year = int(params["year"])
+    elif "ob_year" not in ss and ss.get("selected_race"):
+        ss.ob_year = ss.selected_race[0]
+    year = select_season(range(this_year, FIRST_SEASON - 1, -1), key="ob_year")
     races = cached_races(year)
     if races.empty:
         st.info(f"No {year} races have finished yet. Pick an earlier season.")
         st.stop()
     labels = [f"R{r.RoundNumber} · {r.EventName}" for r in races.itertuples()]
+    requested_round = integer(params.get("round")) if incoming else None
+    if requested_round is None and "ob_event" not in ss and ss.get("selected_race", (None,))[0] == year:
+        requested_round = ss.selected_race[1]
+    rounds = races["RoundNumber"].astype(int).tolist()
+    if requested_round in rounds:
+        ss.ob_event = rounds.index(requested_round)
+    if ss.get("ob_event", 0) >= len(races):
+        ss.ob_event = len(races) - 1
     i = st.sidebar.selectbox("Event", range(len(races)), index=len(races) - 1, format_func=lambda i: labels[i], key="ob_event")
     round_number = int(races.loc[i, "RoundNumber"])
+    if incoming and params.get("session") in SESSION_NAMES:
+        ss.ob_session = params["session"]
+    elif "ob_session" not in ss and ss.get("selected_race", (None, None))[:2] == (year, round_number):
+        ss.ob_session = ss.selected_race[2]
     kind = st.sidebar.selectbox("Session", list(SESSION_NAMES), format_func=SESSION_NAMES.get, key="ob_session")
+    if incoming:
+        ss.ob_requested_drivers = ((year, round_number, kind), driver_codes(params.get("drivers", "")))
 
     with st.spinner("Loading the session with car telemetry (the first time takes up to a minute)..."):
         try:
@@ -76,12 +99,24 @@ def render() -> None:
     if len(drivers) < 2:
         st.warning("Fewer than two drivers set a lap time in this session.")
         st.stop()
+    requested_key, requested_drivers = ss.pop("ob_requested_drivers", (None, []))
+    if requested_key == (year, round_number, kind):
+        requested = [d for d in requested_drivers if d in set(drivers["Driver"])]
+        if requested:
+            ss.ob_a = requested[0]
+            ss.ob_prev_a = requested[0]
+            if len(requested) > 1:
+                ss.ob_b = requested[1]
     a, b = pick_drivers(drivers)
+    current = {"year": str(year), "round": str(round_number), "session": kind, "drivers": f"{a},{b}"}
+    if dict(st.query_params) != current:
+        st.query_params.from_dict(current)
+    ss.ob_link = tuple(sorted(current.items()))
     ui.sidebar_footer()
 
     try:
         with st.spinner("Loading both laps' telemetry..."):
-            data = cached_compare(weekend, (year, round_number, kind), a, b)
+            data = cached_compare(weekend, (year, round_number, kind), a, b, validity_version=2)
     except ValueError as exc:
         st.warning(str(exc))
         st.stop()
@@ -90,13 +125,14 @@ def render() -> None:
     sectors = minisectors(aligned)
     corners = corner_speeds(data.ref.telemetry, data.other.telemetry, data.corners)
     gap = (data.other.lap_time - data.ref.lap_time).total_seconds()
+    ref_color, other_color = data.colors
 
     ui.header(
         f"{year} · Round {round_number} · {data.session_name}",
         f"{a} vs {b}",
         f"{data.name} · fastest laps · data: {data.source}",
-        title_html=f'<span style="color:{REF_COLOR}">{a}</span> <span style="opacity:.45">vs</span> '
-        f'<span style="color:{OTHER_COLOR}">{b}</span>',
+        title_html=f'<span style="color:{ref_color}">{a}</span> <span style="opacity:.45">vs</span> '
+        f'<span style="color:{other_color}">{b}</span>',
     )
     won = int((sectors["Faster"] == "ref").sum())
     sector_stats = [
@@ -135,6 +171,9 @@ def render() -> None:
                                         label_visibility="collapsed")
         ui.note("Top panel: the gap along the lap, shaded in the colour of whoever is ahead. "
                 "Dotted lines mark corners, solid lines the sector boundaries.")
+        if data.dashes[1] == "dash":
+            ui.note(f"Shared team colour: {a} is the solid line; {b} is dashed. "
+                    f"The gap is above zero for {a}, below for {b}.")
         st.plotly_chart(telemetry_figure(data, aligned, marks, ranges.get(zoom)), width="stretch", key="ob_tel")
 
     left, right = st.columns([6, 5], gap="large")
@@ -145,7 +184,8 @@ def render() -> None:
     with right, st.container(border=True, key="card-corners"):
         ui.label("Corner by corner")
         ui.note("Time gained through each corner; hover for minimum speeds.")
-        st.plotly_chart(corner_gains(corners, a, b), width="stretch", key="ob_corners")
+        st.plotly_chart(corner_gains(corners, a, b, ref_color=ref_color, other_color=other_color,
+                                    distinguish=data.dashes[1] == "dash"), width="stretch", key="ob_corners")
         with st.expander("Table"):
             table = corners.rename(
                 columns={"RefMinSpeed": f"{a} km/h", "OtherMinSpeed": f"{b} km/h", "SpeedDiff": "Diff",

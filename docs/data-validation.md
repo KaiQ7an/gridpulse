@@ -145,8 +145,14 @@ evenly between the two stints.
 
 | Season | Stops | Model within 5 laps | Rule of thumb within 5 laps | Real stop inside the model's window |
 |---|---|---|---|---|
-| 2024 | 303 | 66% | 62% | 56% |
-| 2025 | 322 | 61% | 57% | 52% |
+| 2024 | 303 | 66% | 62% | 54% |
+| 2025 | 322 | 59% | 57% | 51% |
+
+These figures use the replay boundary throughout: the clean-lap filter is rebuilt on the known
+laps at each prediction, and a pit loss is only available after its out-lap. A future fastest
+lap cannot change which early laps the model treats as representative. Replay attack/defence
+charts are also clipped at the selected lap. The one-second pit window measures the cost of
+alternative plans, not a statistical confidence interval.
 
 The first version of the model lost to the rule of thumb (median error 9 laps). It took the fuel
 correction as a fixed 0.06 s a lap, and wherever that was wrong the error leaked into the tyre

@@ -17,6 +17,16 @@ RACE_POINTS = [25, 18, 15, 12, 10, 8, 6, 4, 2, 1]
 SPRINT_POINTS = [8, 7, 6, 5, 4, 3, 2, 1]
 FINISHED = ("Finished", "Lapped")
 
+# Completed calendars, verified against F1's results and FastF1's event schedules.
+# https://www.formula1.com/en/results/2025/races (and the equivalent archived seasons).
+# Unknown years remain provisional until their completed calendar is recorded here.
+COMPLETED_CALENDARS = {
+    2018: (21, ()), 2019: (21, ()), 2020: (17, ()),
+    2021: (22, (10, 14, 19)), 2022: (22, (4, 11, 21)),
+    2023: (22, (4, 9, 12, 17, 18, 20)),
+    2024: (24, (5, 6, 11, 19, 21, 23)), 2025: (24, (2, 6, 13, 19, 21, 23)),
+}
+
 
 @dataclass
 class Season:
@@ -29,6 +39,19 @@ class Season:
     fastest: pd.DataFrame  # Round, Driver, LapTime (s): each Grand Prix's fastest lap
     colors: dict[str, str]  # team -> "#rrggbb"
     missing: list[int]  # finished rounds with no saved race
+
+    @property
+    def missing_sprints(self) -> list[int]:
+        _, expected = COMPLETED_CALENDARS.get(self.year, (0, ()))
+        saved = set(self.results.loc[self.results["Kind"] == "S", "Round"])
+        return sorted(set(expected) - saved)
+
+    @property
+    def complete(self) -> bool:
+        calendar = COMPLETED_CALENDARS.get(self.year)
+        if calendar is None or self.missing or self.missing_sprints:
+            return False
+        return set(self.results.loc[self.results["Kind"] == "R", "Round"]) == set(range(1, calendar[0] + 1))
 
 
 def seasons_saved() -> list[int]:
@@ -83,6 +106,10 @@ def load_season(year: int) -> Season:
         if q is not None:
             quali_rows.append(q.results.assign(Round=int(r.RoundNumber)))
     results = pd.concat(result_rows, ignore_index=True) if result_rows else pd.DataFrame()
+    if year in COMPLETED_CALENDARS:
+        expected = set(range(1, COMPLETED_CALENDARS[year][0] + 1))
+        saved = set(results.loc[results["Kind"] == "R", "Round"]) if not results.empty else set()
+        missing = sorted(expected - saved)
     quali = pd.concat(quali_rows, ignore_index=True) if quali_rows else pd.DataFrame(
         columns=["Round", "Driver", "Team", "Position", "Q1", "Q2", "Q3", "Out"])
     stops = pd.concat(stop_rows, ignore_index=True) if stop_rows else pd.DataFrame(
@@ -151,7 +178,17 @@ def driver_standings(season: Season) -> pd.DataFrame:
     }
     for name, count in counts.items():
         table[name] = count.reindex(table.index, fill_value=0).astype(int)
-    return table.sort_values(["Points", "Wins"], ascending=False).reset_index()
+    return countback(table, results, "Driver").reset_index()
+
+
+def countback(table: pd.DataFrame, results: pd.DataFrame, by: str) -> pd.DataFrame:
+    """FIA championship order: points, then the count of P1, P2, P3, ... in Grands Prix."""
+    gp = results[(results["Kind"] == "R") & ~results["Dsq"] & results["Position"].notna()]
+    finishes = pd.crosstab(gp[by], gp["Position"]).reindex(table.index, fill_value=0)
+    finishes = finishes.reindex(sorted(finishes.columns), axis=1).fillna(0)
+    finishes.columns = [f"_finish_{p:g}" for p in finishes.columns]
+    ranked = table.join(finishes)
+    return ranked.sort_values(["Points", *finishes.columns], ascending=False, kind="stable")[table.columns]
 
 
 def pole_sitters(season: Season) -> pd.Series:
@@ -185,9 +222,10 @@ def round_winners(season: Season) -> pd.DataFrame:
     return rounds[rounds["Winner"].notna()].reset_index(drop=True)
 
 
-def leaders_by_round(progress: pd.DataFrame) -> pd.Series:
-    """Round -> who led the championship after it (the first in the column order on a tie)."""
-    return progress.idxmax(axis=1)
+def leaders_by_round(progress: pd.DataFrame, season: Season) -> pd.Series:
+    """Championship leader after each round, using only countback results known by then."""
+    return pd.Series({r: countback(points.to_frame("Points"), season.results[season.results["Round"] <= r],
+                                   "Driver").index[0] for r, points in progress.iterrows()})
 
 
 # ---------------------------------------------------------------- per team
@@ -200,7 +238,7 @@ def standings(season: Season) -> pd.DataFrame:
     table["Wins"] = gp[gp["Position"] == 1].groupby("Team").size()
     table["Podiums"] = gp[gp["Position"] <= 3].groupby("Team").size()
     table = table.fillna(0).astype({"Wins": int, "Podiums": int})
-    return table.sort_values(["Points", "Wins"], ascending=False).reset_index()
+    return countback(table, season.results, "Team").reset_index()
 
 
 def drivers_of(season: Season, team: str) -> pd.DataFrame:

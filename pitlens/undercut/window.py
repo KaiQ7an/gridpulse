@@ -37,6 +37,7 @@ class TyreModel:
     trend: float = TYPICAL_TREND  # s a lap gained every lap (fuel and track), the same for every car
     measured: set[str] = field(default_factory=set)  # compounds whose pace was measured in this race
     deg_measured: set[str] = field(default_factory=set)  # compounds whose wear was measured
+    sample_counts: dict[str, int] = field(default_factory=dict)  # retained clean laps per compound
 
     @property
     def field_base(self) -> float:
@@ -78,6 +79,7 @@ def fit_tyre_model(clean: pd.DataFrame) -> TyreModel | None:
         trend=float(theta[n + 5]),
         measured={c for c in DRY if counts.get(c, 0) >= MIN_COMPOUND_LAPS},
         deg_measured=set(stint_laps.loc[stint_laps["size"] >= MIN_STINT_LAPS, "first"]),
+        sample_counts={c: int(counts.get(c, 0)) for c in DRY},
     )
 
 
@@ -189,11 +191,11 @@ def backtest(race, horizon: int = 10) -> pd.DataFrame:
         plan_lap = s.Lap - horizon
         if plan_lap < 5:
             continue
-        model = fit_tyre_model(race.clean_laps[race.clean_laps["LapNumber"] <= plan_lap])
+        model = fit_tyre_model(race.clean_through(plan_lap))
         on = race.laps[(race.laps["Driver"] == s.Driver) & (race.laps["LapNumber"] == plan_lap)]
         if model is None or on.empty or pd.isna(on["TyreLife"].iloc[0]) or on["Compound"].iloc[0] not in DRY:
             continue
-        loss, _ = pit_loss_now(race.stops[race.stops["Lap"] <= plan_lap], "Green", race.pit_loss_ref)
+        loss, _ = pit_loss_now(race.stops_through(plan_lap).query("Lap < @plan_lap"), "Green", race.pit_loss_ref)
         if loss is None:
             continue
         age, laps_left = float(on["TyreLife"].iloc[0]), race.total_laps - plan_lap

@@ -3,8 +3,10 @@
 import pandas as pd
 import streamlit as st
 
+from pitlens import snapshots
 from pitlens.pitwall import charts, ui
 from pitlens.pitwall.data import FIRST_SEASON, completed_races
+from pitlens.pitwall.navigation import select_season
 from pitlens.quali.data import SESSIONS, QualiData, ideal_laps, load_quali
 from pitlens.session import TimingUnavailable
 
@@ -14,15 +16,19 @@ def cached_races(year: int) -> pd.DataFrame:
     return completed_races(year)
 
 
-@st.cache_resource(show_spinner=False, max_entries=6)
 def cached_quali(year: int, round_number: int, kind: str) -> QualiData:
+    return _cached_quali(year, round_number, kind, snapshots.revision(year))
+
+
+@st.cache_resource(show_spinner=False, max_entries=6)
+def _cached_quali(year: int, round_number: int, kind: str, revision: tuple) -> QualiData:
     return load_quali(year, round_number, kind)
 
 
 def render() -> None:
     ui.sidebar_brand("Qualifying, part by part")
     this_year = pd.Timestamp.now().year
-    year = st.sidebar.selectbox("Season", range(this_year, FIRST_SEASON - 1, -1), key="q_year")
+    year = select_season(range(this_year, FIRST_SEASON - 1, -1), key="q_year")
     races = cached_races(year)
     if races.empty:
         st.info(f"No {year} races have finished yet. Pick an earlier season.")

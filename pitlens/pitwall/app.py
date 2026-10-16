@@ -8,6 +8,7 @@ import time
 import pandas as pd
 import streamlit as st
 
+from pitlens import snapshots
 from pitlens.pitwall import (
     about_page,
     charts,
@@ -22,6 +23,7 @@ from pitlens.pitwall import (
 )
 from pitlens.pitwall.data import FIRST_SEASON, RaceData, completed_races, lap_clock, load_race
 from pitlens.pitwall.events import fastest_lap_candidates, fastest_sectors, neutralised_banner, situation
+from pitlens.pitwall.navigation import driver_codes, integer, replay_params, select_season, url
 from pitlens.pitwall.timing import format_lap_time, neutralised_periods, timing_tower
 from pitlens.pitwall.tower import timing_tower as tower_component
 from pitlens.radio import transcribe, translate
@@ -37,8 +39,12 @@ def cached_races(year: int) -> pd.DataFrame:
     return completed_races(year)
 
 
-@st.cache_resource(show_spinner=False, max_entries=6)
 def cached_race(year: int, round_number: int, kind: str = "R") -> RaceData:
+    return _cached_race(year, round_number, kind, snapshots.revision(year))
+
+
+@st.cache_resource(show_spinner=False, max_entries=6)
+def _cached_race(year: int, round_number: int, kind: str, revision: tuple) -> RaceData:
     return load_race(year, round_number, kind)
 
 
@@ -46,26 +52,29 @@ def apply_link() -> None:
     """Open the race a link names (?year=2026&round=15, &session=sprint), once per link."""
     ss = st.session_state
     params = st.query_params
-    wanted = (params.get("year"), params.get("round"), params.get("session"))
-    if not wanted[0] or ss.get("link_applied") == wanted:
+    wanted = tuple(sorted(dict(params).items()))
+    if not params.get("year") or ss.get("link_applied") == wanted:
         return
     ss.link_applied = wanted
     try:
-        year, round_number = int(wanted[0]), int(wanted[1]) if wanted[1] else None
+        year = int(params["year"])
+        round_number = int(params["round"]) if params.get("round") else None
     except ValueError:
         return
     if FIRST_SEASON <= year <= pd.Timestamp.now().year:
         ss.race_year = year
         if round_number:
             ss.race_pick = round_number
-        ss.race_session = "Sprint" if wanted[2] == "sprint" else "Race"
+        ss.race_session = "Sprint" if params.get("session") == "sprint" else "Race"
+        ss.no_spoilers = params.get("mode") == "replay"
+        ss.pending_replay = dict(params)
 
 
 def choose_race() -> tuple[int, int, str]:
     ss = st.session_state
     apply_link()
     this_year = pd.Timestamp.now().year
-    year = st.sidebar.selectbox("Season", range(this_year, FIRST_SEASON - 1, -1), key="race_year")
+    year = select_season(range(this_year, FIRST_SEASON - 1, -1), key="race_year")
     races = cached_races(year)
     if races.empty:
         st.info(f"No {year} races have finished yet. Pick an earlier season.")
@@ -80,23 +89,69 @@ def choose_race() -> tuple[int, int, str]:
         ss.setdefault("race_session", "Race")  # set here, not as a default, since a link may set it too
         session = st.sidebar.segmented_control("Session", ["Race", "Sprint"], key="race_session", required=True)
         kind = "S" if session == "Sprint" else "R"
-    # Keep the address bar pointing at this race, so it can be shared.
-    link = {"year": str(year), "round": str(round_number), **({"session": "sprint"} if kind == "S" else {})}
-    if dict(st.query_params) != link:
-        st.query_params.from_dict(link)
-        ss.link_applied = (link["year"], link["round"], link.get("session"))
+    ss.selected_race = (year, round_number, kind)
     return year, round_number, kind
 
 
+def restore_replay() -> None:
+    """Keep a non-widget copy: Streamlit removes widgets when another page opens."""
+    ss = st.session_state
+    saved = ss.get("saved_replay", {})
+    if not saved or "lap" in ss:
+        return
+    for key, value in saved.items():
+        if key not in ss:
+            ss[key] = value
+    ss.playing = False
+
+
+def remember_replay() -> None:
+    ss = st.session_state
+    keys = ("race_year", "race_pick", "race_session", "no_spoilers", "lap", "focus", "view", "speed")
+    ss.saved_replay = {key: ss[key] for key in keys if key in ss}
+
+
 def reset_for_new_race(key, race: RaceData) -> None:
-    """Jump to the final lap and focus on the podium whenever the race changes."""
+    """Start an analysis at the flag, or a spoiler-free replay at the start."""
     ss = st.session_state
     # Widget state is dropped while another page is open, so also reset if it's gone.
-    if ss.get("race_key") != key or "lap" not in ss or "focus" not in ss:
+    mode = ss.get("no_spoilers", False)
+    if ss.get("race_key") != key or ss.get("replay_mode") != mode or "lap" not in ss or "focus" not in ss:
         ss.race_key = key
-        ss.lap = race.total_laps
+        ss.replay_mode = mode
+        ss.lap = 1 if mode else race.total_laps
         ss.playing = False
-        ss.focus = race.finish_order[:3]
+        ss.focus = starting_order(race)[:3] if mode else race.finish_order[:3]
+        ss.pop("goto_lap", None)
+        ss.pop("window_actual", None)
+    pending = ss.pop("pending_replay", {})
+    if integer(pending.get("year")) == race.year and integer(pending.get("round")) == race.round_number:
+        if "lap" in pending:
+            ss.lap = min(max(integer(pending["lap"], ss.lap), 1), race.total_laps)
+        if "drivers" in pending:
+            ss.focus = [d for d in driver_codes(pending["drivers"]) if d in set(race.entrants["Driver"])]
+        if pending.get("view") in VIEWS:
+            ss.view = pending["view"]
+
+
+def starting_order(race: RaceData) -> list[str]:
+    results = race.results
+    if "GridPosition" in results:
+        grid = pd.to_numeric(results["GridPosition"], errors="coerce")
+        results = results.assign(_grid=grid.where(grid > 0).fillna(999))
+        results = results.sort_values(["_grid", "Abbreviation"], kind="stable")
+        return [d for d in results["Abbreviation"] if d in set(race.entrants["Driver"])]
+    return race.entrants["Driver"].sort_values().tolist()
+
+
+def sync_replay_link(race: RaceData) -> None:
+    ss = st.session_state
+    params = replay_params(race.year, race.round_number, "S" if race.session_name == "Sprint" else "R",
+                           lap=ss.lap, focus=ss.focus, view=ss.view, no_spoilers=ss.no_spoilers)
+    if dict(st.query_params) != params:
+        st.query_params.from_dict(params)
+    ss.link_applied = tuple(sorted(params.items()))
+    remember_replay()
 
 
 def weather_at(race: RaceData, time) -> pd.Series | None:
@@ -159,14 +214,16 @@ def status_strip(race: RaceData, laps: pd.DataFrame, tower: pd.DataFrame, lap: i
             small=f"L{int(fastest['LapNumber'])}" if fastest is not None else "",
         ),
     ]
-    stats += ui.sector_stats(fastest_sectors(laps, top=3), race.team_colors)
+    ui.strip(stats)
+    ui.strip(ui.sector_stats(fastest_sectors(laps, top=3), race.team_colors))
     if weather is not None:
-        stats += [
+        details = [
             ui.stat("Track temp", f"{weather['TrackTemp']:.1f}°"),
             ui.stat("Air temp", f"{weather['AirTemp']:.1f}°"),
             rain_stat(race, lap, bool(weather["Rainfall"])),
         ]
-    ui.strip(stats)
+        with st.expander("Weather"):
+            ui.strip(details)
 
 
 def rain_stat(race: RaceData, lap: int, track_wet: bool) -> str:
@@ -242,8 +299,15 @@ def race_view(race: RaceData) -> None:
         move_ms = int(interval * 1000 * 0.85) if ss.playing else 450
         on_radio = set(race.radio.loc[race.radio["Lap"] == lap, "Driver"])
         banner = neutralised_banner(race.lap_status, lap)
-        tower_component(tower, race.team_colors, lap, move_ms, on_radio, focus, banner,
-                        places_gained(race, tower, lap))
+        clicked = tower_component(tower, race.team_colors, lap, move_ms, on_radio, focus, banner,
+                                  places_gained(race, tower, lap), year=race.year)
+        if isinstance(clicked, dict) and clicked.get("driver") in set(race.entrants["Driver"]) \
+                and clicked.get("id") != ss.get("tower_click"):
+            ss.tower_click = clicked.get("id")
+            ss.playing = False
+            remember_replay()
+            st.switch_page(about_page.pages["Drivers"],
+                           query_params={"year": str(race.year), "driver": clicked["driver"]})
 
     if race.track:
         with left, st.container(border=True, key="card-map"):
@@ -258,7 +322,7 @@ def race_view(race: RaceData) -> None:
     with right, st.container(border=True, key="card-views"):
         # Only the chosen view is drawn each tick (tabs would redraw all of them).
         view = st.segmented_control("View", VIEWS, key="view", required=True, label_visibility="collapsed",
-                                    width="stretch", wrap=False)
+                                    width="stretch", wrap=True)
         if view == "Gaps":
             ui.note("Seconds behind the leader at the end of each lap. Flat lines hold the gap, dips are pit "
                     "stops, shaded laps ran under safety car or VSC.")
@@ -278,7 +342,7 @@ def race_view(race: RaceData) -> None:
         elif view == "Pace":
             ui.note("Representative laps only: no pit laps, safety cars or yellow flags.")
             if focus:
-                clean = race.clean_laps[race.clean_laps["LapNumber"] <= lap]
+                clean = race.clean_through(lap)
                 st.plotly_chart(charts.pace_chart(clean, focus, race.total_laps), width="stretch", key="chart_pace")
         elif view == "Radio":
             views.radio_view(race, lap, focus)
@@ -289,6 +353,7 @@ def race_view(race: RaceData) -> None:
         ui.label("Race feed")
         feed = with_radio(race.events, race.radio, lap).iloc[::-1]
         ui.race_feed(situation(tower, lap, race.total_laps), feed, lap)
+    sync_replay_link(race)
 
 
 def places_gained(race: RaceData, tower: pd.DataFrame, lap: int) -> dict[str, int]:
@@ -320,12 +385,15 @@ def with_radio(events: pd.DataFrame, radio: pd.DataFrame, lap: int) -> pd.DataFr
 
 def race_page() -> None:
     ss = st.session_state
+    restore_replay()
     ss.setdefault("playing", False)
     ss.setdefault("speed", "2×")
     ss.setdefault("view", VIEWS[0])
 
     ui.sidebar_brand("Race replay, lap by lap")
     year, round_number, kind = choose_race()
+    st.sidebar.toggle("No spoilers", key="no_spoilers",
+                      help="Start on lap 1, focus on the starting grid and hide future pit-stop overlays")
     with st.spinner("Loading race data. The first load of a race takes up to a minute; after that it's cached."):
         try:
             race = cached_race(year, round_number, kind)
@@ -337,10 +405,14 @@ def race_page() -> None:
             st.stop()
 
     reset_for_new_race((year, round_number, kind), race)
-    options = ui.driver_order(race.entrants, race.finish_order)
+    options = starting_order(race) if ss.no_spoilers else ui.driver_order(race.entrants, race.finish_order)
     st.sidebar.multiselect("Focus drivers", options, key="focus", max_selections=6,
                            help="Highlighted in the tower and drawn in team colours on the charts")
     ui.team_colored_picker("Focus drivers", options, race.team_colors, dict(zip(race.entrants["Driver"], race.entrants["Team"])))
+    if len(ss.focus) == 2:
+        st.sidebar.link_button("Compare these drivers", url("onboard", year=year, round=round_number,
+                                                         session=kind, drivers=",".join(ss.focus)),
+                               icon=":material/compare_arrows:")
     ui.sidebar_footer()
 
     sprint = race.session_name == "Sprint"

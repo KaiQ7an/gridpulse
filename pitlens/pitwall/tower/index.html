@@ -40,6 +40,8 @@
   .chg.fresh { animation: chgin 500ms ease-out; }
   @keyframes chgin { from { opacity: 0; transform: translateY(var(--from, 0)); } }
   .drv { font-weight: 700; letter-spacing: .03em; display: flex; align-items: center; gap: 4px; }
+  a.drv { color: inherit; text-decoration: none; }
+  a.drv:hover { text-decoration: underline; }
   .mic { width: 12px; height: 12px; flex: none; color: var(--accent); opacity: 0; transition: opacity 250ms; }
   .mic.on { opacity: 1; }
   .num { text-align: right; }
@@ -166,9 +168,9 @@ function makeRow(driver) {
   const el = document.createElement("div");
   el.className = "row";
   el.innerHTML = `<span class="bar"></span><span class="pos num"></span><span class="chg"></span>
-    <span class="drv"><span class="code"></span><svg class="mic" viewBox="0 0 24 24" aria-label="team radio"
+    <a class="drv" target="_top"><span class="code"></span><svg class="mic" viewBox="0 0 24 24" aria-label="team radio"
       fill="currentColor"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6
-      6.93V21h2v-3.07A7 7 0 0 0 19 11h-2z"/></svg></span>
+      6.93V21h2v-3.07A7 7 0 0 0 19 11h-2z"/></svg></a>
     <span class="gap num"></span><span class="int num intcol"></span><span class="last num lastcol"></span>
     <span class="tyre"></span><span class="stops num"></span>`;
   el.querySelector(".code").textContent = driver;
@@ -192,6 +194,18 @@ function render(args) {
     el.classList.toggle("out", r.out);
     el.classList.toggle("focus", focus.has(r.driver));
     el.querySelector(".bar").style.background = r.team_color;
+    const driverLink = el.querySelector(".drv");
+    if (r.driver_url) {
+      driverLink.href = r.driver_url;
+      driverLink.setAttribute("aria-label", `${r.driver}: open driver season`);
+      driverLink.onclick = (event) => {
+        event.preventDefault();
+        send("streamlit:setComponentValue", {value:{driver:r.driver,id:Date.now()},dataType:"json"});
+      };
+    } else {
+      driverLink.removeAttribute("href");
+      driverLink.onclick = null;
+    }
     el.querySelector(".pos").textContent = r.pos;
     setChange(el.querySelector(".chg"), r.change || 0, lastChange.get(r.driver), r.driver);
     el.querySelector(".last").textContent = r.last_lap;

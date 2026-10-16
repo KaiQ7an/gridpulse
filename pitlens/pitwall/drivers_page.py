@@ -6,6 +6,7 @@ import pandas as pd
 import streamlit as st
 
 from pitlens.pitwall import charts, ui
+from pitlens.pitwall.navigation import select_season, url
 from pitlens.pitwall.teams_page import cached_season
 from pitlens.season.data import (
     driver_highlights,
@@ -31,7 +32,7 @@ def render() -> None:
             ss.driver_year = int(link[0])
         if link[1]:
             ss.driver_pick = link[1].upper()
-    year = st.sidebar.selectbox("Season", years, key="driver_year")
+    year = select_season(years, key="driver_year")
     ui.sidebar_footer()
 
     with st.spinner("Adding up the season..."):
@@ -60,6 +61,9 @@ def render() -> None:
                          f'border-radius:2px;margin-right:12px;vertical-align:-2px"></span>'
                          f'{html.escape(str(me["FullName"]))}')
     strips(rows, me, season, driver)
+    with st.container(horizontal=True, gap="small"):
+        st.link_button("Season standings", url("season", year=year))
+        st.link_button(f"{team} season", url("teams", year=year, team=team))
 
     left, right = st.columns(2, gap="large")
     with left, st.container(border=True, key="card-driver-races"):
@@ -87,7 +91,7 @@ def render() -> None:
         ui.note("Finishing positions: gold, silver and bronze for the podium, green in the points, red for a "
                 "retirement; a purple ring for pole and a purple underline for the race's fastest lap. Points "
                 "include the sprint. Each Grand Prix opens its replay.")
-        ui.driver_results_table(rows, year)
+        ui.driver_results_table(rows, year, driver=driver)
     with right, st.container(border=True, key="card-driver-highlights"):
         ui.label("Highlights")
         items = driver_highlights(rows)
@@ -114,15 +118,11 @@ def strips(rows: pd.DataFrame, me, season, driver: str) -> None:
     started = classified[classified["Grid"].notna() & (classified["Grid"] > 0)]
     gained = (started["Grid"] - started["Position"]).mean() if len(started) else float("nan")
     dnfs = int((~rows["Classified"] & ~rows["Dsq"]).sum())
-    ui.strip([
+    primary = [
         ui.stat("Points", f"{me['Points']:g}"),
         ui.stat("Wins", str(me["Wins"])),
         ui.stat("Podiums", str(me["Podiums"])),
-        ui.stat("Poles", str(me["Poles"])),
-        ui.stat("Fastest laps", str(me["FastestLaps"])),
-        ui.stat("Laps led", str(me["LapsLed"])),
-        ui.stat("Retirements", str(dnfs), small=f"of {races}"),
-    ])
+    ]
     battles = [teammate_battles(season, t) for t in rows["Team"].unique()]
     mine = pd.concat(battles).query("Driver == @driver") if battles else pd.DataFrame()
     started_at = rows.loc[rows["Grid"] > 0, "Grid"]
@@ -136,6 +136,11 @@ def strips(rows: pd.DataFrame, me, season, driver: str) -> None:
     ]
     if not mine.empty:
         b = mine.sum(numeric_only=True)
-        stats += [ui.stat("Beat teammate", f"{int(b['QualiWon'])}/{int(b['QualiOf'])}", small="qualifying"),
-                  ui.stat("Beat teammate", f"{int(b['RaceWon'])}/{int(b['RaceOf'])}", small="races")]
-    ui.strip(stats)
+        primary.append(ui.stat("Beat teammate", f"{int(b['RaceWon'])}/{int(b['RaceOf'])}", small="races"))
+        stats.append(ui.stat("Beat teammate", f"{int(b['QualiWon'])}/{int(b['QualiOf'])}", small="qualifying"))
+    ui.strip(primary)
+    with st.expander("More season statistics"):
+        ui.strip([ui.stat("Poles", str(me["Poles"])),
+                  ui.stat("Fastest laps", str(me["FastestLaps"])),
+                  ui.stat("Laps led", str(me["LapsLed"])),
+                  ui.stat("Retirements", str(dnfs), small=f"of {races}"), *stats])

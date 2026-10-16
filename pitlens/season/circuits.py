@@ -37,7 +37,7 @@ def saved_races() -> pd.DataFrame:
     years = sorted(int(p.name) for p in snapshots.SNAPSHOT_DIR.glob("*") if p.name.isdigit())
     for year in years:
         for r in snapshots.races(year).itertuples():
-            parts = snapshots.load_race(year, int(r.RoundNumber), "R")
+            parts = snapshots.race_metadata(year, int(r.RoundNumber))
             if parts is None or parts.get("circuit_key") is None:
                 continue
             rows.append({"Year": year, "Round": int(r.RoundNumber), "Event": r.EventName, "Location": r.Location,

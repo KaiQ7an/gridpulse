@@ -7,7 +7,8 @@ from plotly.subplots import make_subplots
 
 from pitlens import plotstyle
 from pitlens.onboard.compare import rotate
-from pitlens.onboard.data import OTHER_COLOR, REF_COLOR, OnboardData
+from pitlens.onboard.data import OnboardData
+from pitlens.style import FALLBACK_TEAM_COLOR
 
 CORNER_LINE = "rgba(150,150,150,0.30)"
 SECTOR_LINE = "rgba(150,150,150,0.65)"
@@ -27,12 +28,14 @@ def telemetry_figure(data: OnboardData, aligned, sector_marks: list[float] = (),
     so the story of the lap reads at a glance.
     """
     ref, other = data.ref.driver, data.other.driver
+    ref_color, other_color = data.colors
+    ref_dash, other_dash = data.dashes
     fig = make_subplots(rows=5, cols=1, shared_xaxes=True, vertical_spacing=0.03, row_heights=[0.22, 0.34, 0.16, 0.1, 0.18])
     d = aligned["Distance"]
     delta = aligned["Delta"]
 
     # Ahead/behind areas, then the line on top.
-    for part, color in ((delta.clip(lower=0), REF_COLOR), (delta.clip(upper=0), OTHER_COLOR)):
+    for part, color in ((delta.clip(lower=0), ref_color), (delta.clip(upper=0), other_color)):
         fig.add_trace(
             go.Scatter(x=d, y=part, mode="lines", line=dict(width=0), fill="tozeroy", fillcolor=_rgba(color, 0.28),
                        hoverinfo="skip", showlegend=False),
@@ -41,24 +44,26 @@ def telemetry_figure(data: OnboardData, aligned, sector_marks: list[float] = (),
     fig.add_trace(
         go.Scatter(
             x=d, y=delta, mode="lines", line=dict(color=MUTED, width=1.5), showlegend=False,
-            customdata=np.where(delta >= 0, ref, other),
-            hovertemplate="%{x:.0f} m<br>%{customdata} ahead by %{y:.3f} s<extra></extra>",
+            customdata=list(zip(np.where(delta >= 0, ref, other), delta.abs())),
+            hovertemplate="%{x:.0f} m<br>%{customdata[0]} ahead by %{customdata[1]:.3f} s<extra></extra>",
         ),
         row=1, col=1,
     )
     span = max(0.05, float(delta.abs().max()) * 1.15)
     fig.update_yaxes(range=[-span, span], row=1, col=1)
-    for text, y, color, anchor in ((f"▲ {ref} ahead", 1, REF_COLOR, "top"), (f"▼ {other} ahead", 0, OTHER_COLOR, "bottom")):
+    for text, y, color, anchor in ((f"▲ {ref} ahead", 1, ref_color, "top"),
+                                   (f"▼ {other} ahead", 0, other_color, "bottom")):
         fig.add_annotation(x=0, xref="x domain", y=y, yref="y domain", text=text, showarrow=False, xanchor="left",
                            yanchor=anchor, font=dict(size=10, color=color))
 
     panels = [("Speed", 2, "%{y:.0f} km/h"), ("Throttle", 3, "%{y:.0f}%"), ("Brake", 4, "%{y:.0f}"), ("nGear", 5, "gear %{y:.0f}")]
     for col, row, fmt in panels:
-        for name, prefix, color in ((ref, "Ref", REF_COLOR), (other, "Other", OTHER_COLOR)):
+        for name, prefix, color, dash in ((ref, "Ref", ref_color, ref_dash),
+                                           (other, "Other", other_color, other_dash)):
             fig.add_trace(
                 go.Scatter(
                     x=d, y=aligned[f"{prefix}{col}"], mode="lines", name=name, legendgroup=name, showlegend=row == 2,
-                    line=dict(color=color, width=1.8, shape="hv" if col in ("Brake", "nGear") else "linear"),
+                    line=dict(color=color, dash=dash, width=1.8, shape="hv" if col in ("Brake", "nGear") else "linear"),
                     hovertemplate=f"<b>{name}</b> %{{x:.0f}} m<br>{fmt}<extra></extra>",
                 ),
                 row=row, col=1,
@@ -92,7 +97,8 @@ def track_map(data: OnboardData, sectors) -> go.Figure:
     tel = data.ref.telemetry
     x, y = rotate(tel["X"], tel["Y"], data.rotation)
     dist = tel["Distance"].to_numpy()
-    colors = {"ref": REF_COLOR, "other": OTHER_COLOR}
+    colors = dict(zip(("ref", "other"), data.colors))
+    dashes = dict(zip(("ref", "other"), data.dashes))
     names = {"ref": data.ref.driver, "other": data.other.driver}
 
     fig = go.Figure()
@@ -105,7 +111,7 @@ def track_map(data: OnboardData, sectors) -> go.Figure:
         who = s["Faster"]
         fig.add_trace(
             go.Scatter(
-                x=x[mask], y=y[mask], mode="lines", line=dict(color=colors[who], width=6),
+                x=x[mask], y=y[mask], mode="lines", line=dict(color=colors[who], dash=dashes[who], width=6),
                 name=f"{names[who]} faster", legendgroup=who, showlegend=who not in shown,
                 hovertemplate=f"Mini-sector {int(s['Sector'])}<br>{names[who]} faster by {abs(s['Gain']):.3f} s<extra></extra>",
             )
@@ -141,14 +147,17 @@ def track_map(data: OnboardData, sectors) -> go.Figure:
     return fig
 
 
-def corner_gains(corners: pd.DataFrame, ref: str, other: str) -> go.Figure:
+def corner_gains(corners: pd.DataFrame, ref: str, other: str, *,
+                 ref_color: str = FALLBACK_TEAM_COLOR, other_color: str = FALLBACK_TEAM_COLOR,
+                 distinguish: bool = False) -> go.Figure:
     """Time gained through each corner: bars right for `ref`, left for `other`."""
     c = corners.iloc[::-1]  # first corner at the top
     labels = "T" + c["Corner"].astype(str)
-    colors = [REF_COLOR if g >= 0 else OTHER_COLOR for g in c["Gain"]]
+    colors = [ref_color if g >= 0 else other_color for g in c["Gain"]]
+    patterns = ["/" if distinguish and g < 0 else "" for g in c["Gain"]]
     fig = go.Figure(
         go.Bar(
-            x=c["Gain"], y=labels, orientation="h", marker=dict(color=colors), width=0.62,
+            x=c["Gain"], y=labels, orientation="h", marker=dict(color=colors, pattern_shape=patterns), width=0.62,
             customdata=c[["RefMinSpeed", "OtherMinSpeed"]],
             hovertemplate=(f"<b>%{{y}}</b><br>{ref} %{{customdata[0]}} km/h · {other} %{{customdata[1]}} km/h"
                            "<br>%{x:+.3f} s<extra></extra>"),
@@ -157,7 +166,8 @@ def corner_gains(corners: pd.DataFrame, ref: str, other: str) -> go.Figure:
     )
     lim = max(0.05, float(c["Gain"].abs().max()) * 1.2) if len(c) else 0.1
     fig.add_vline(x=0, line=dict(color="rgba(128,128,128,0.5)", width=1))
-    for text, x, color, anchor in ((f"{ref} gains →", lim, REF_COLOR, "right"), (f"← {other} gains", -lim, OTHER_COLOR, "left")):
+    for text, x, color, anchor in ((f"{ref} gains →", lim, ref_color, "right"),
+                                   (f"← {other} gains", -lim, other_color, "left")):
         fig.add_annotation(x=x, y=1, yref="paper", text=text, showarrow=False, xanchor=anchor, yanchor="bottom",
                            font=dict(size=10, color=color))
     fig.update_layout(height=max(320, 22 * len(c) + 90), margin=dict(l=10, r=10, t=30, b=10), bargap=0.25)

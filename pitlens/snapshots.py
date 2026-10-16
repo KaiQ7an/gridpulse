@@ -29,6 +29,18 @@ def offline() -> bool:
     return os.environ.get("PITLENS_OFFLINE", "").lower() in ("1", "true", "yes")
 
 
+def revision(year: int | None = None) -> tuple:
+    """Cheap cache identity. Snapshot writers publish meta.json after writing the data frames."""
+    root = SNAPSHOT_DIR / str(year) if year is not None else SNAPSHOT_DIR
+    return tuple((str(p.relative_to(SNAPSHOT_DIR)), p.stat().st_mtime_ns, p.stat().st_size)
+                 for p in sorted(root.glob("**/meta.json")))
+
+
+def race_metadata(year: int, round_number: int, kind: str = "R") -> dict | None:
+    """Read the index metadata without loading parquet files or seeding radio transcripts."""
+    return _meta(_dir(year, round_number, kind))
+
+
 def _dir(year: int, round_number: int, kind: str) -> Path:
     return SNAPSHOT_DIR / str(year) / f"{round_number:02d}-{kind}"
 
@@ -109,6 +121,8 @@ def save_quali(q, kind: str, event_format: str = "") -> Path:
     meta = {"format": FORMAT, "year": q.year, "round": q.round_number, "kind": kind, "event_format": event_format,
             "name": q.name, "event_name": q.event_name, "session_name": q.session_name, "location": q.location,
             "date": _timestamp(q.date), "source": q.source, "team_colors": q.team_colors}
+    if q.source == "OpenF1":
+        meta["lap_validity_version"] = 2
     (d / "meta.json").write_text(json.dumps(meta, ensure_ascii=False))
     return d
 

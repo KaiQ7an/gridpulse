@@ -6,6 +6,7 @@ import pandas as pd
 import streamlit as st
 
 from pitlens.pitwall import charts, ui
+from pitlens.pitwall.navigation import select_season
 from pitlens.pitwall.teams_page import cached_season
 from pitlens.season.data import (
     driver_standings,
@@ -32,7 +33,7 @@ def render() -> None:
         ss.season_link = link
         if link.isdigit() and int(link) in years:
             ss.season_year = int(link)
-    year = st.sidebar.selectbox("Season", years, key="season_year")
+    year = select_season(years, key="season_year")
     ui.sidebar_footer()
     if dict(st.query_params) != {"year": str(year)}:  # keep the address shareable
         st.query_params.from_dict({"year": str(year)})
@@ -46,7 +47,7 @@ def render() -> None:
         st.stop()
     winners = round_winners(season)
     progress = points_by_round(season)
-    ui.header(*headline(year, drivers, teams, winners))
+    ui.header(*headline(year, drivers, teams, winners, complete=season.complete))
     strip(season, drivers, winners, progress)
 
     left, right = st.columns([5, 7], gap="large")
@@ -56,13 +57,13 @@ def render() -> None:
         ui.standings_table(drivers, season.colors, year)
     with right, st.container(border=True, key="card-season-progress"):
         ui.label("Points through the season")
-        ui.note(f"The top {TOP_LINES} after each round; teammates share a colour, the second dashed.")
+        ui.note(f"The current top {TOP_LINES}, followed through every round; teammates share a colour, the second dashed.")
         lines = [(d.Driver, d.Driver, season.colors.get(d.Team, "#888888"))
                  for d in drivers.head(TOP_LINES).itertuples()]
         st.plotly_chart(charts.points_progress_chart(progress, lines, season.rounds), width="stretch",
                         key="chart_season_progress")
         ui.label("Who led the championship")
-        ui.highlights(lead_spells(leaders_by_round(progress), drivers, season.rounds))
+        ui.highlights(lead_spells(leaders_by_round(progress, season), drivers, season.rounds))
 
     left, right = st.columns([5, 7], gap="large")
     with left, st.container(border=True, key="card-season-teams"):
@@ -90,24 +91,28 @@ def render() -> None:
         ui.round_winners_table(winners, season.results, season.colors, year)
     if season.missing:
         ui.note(f"Rounds not saved yet: {', '.join(map(str, season.missing))}.")
+    if season.missing_sprints:
+        ui.note(f"Sprint results not saved yet: rounds {', '.join(map(str, season.missing_sprints))}.")
 
 
-def headline(year: int, drivers: pd.DataFrame, teams: pd.DataFrame, winners: pd.DataFrame) -> tuple[str, str, str]:
+def headline(year: int, drivers: pd.DataFrame, teams: pd.DataFrame, winners: pd.DataFrame, *,
+             complete: bool = False) -> tuple[str, str, str]:
     first, second = drivers.iloc[0], drivers.iloc[1]
     margin = first["Points"] - second["Points"]
     gap = "level on points with" if margin == 0 else f"by {margin:g} point{'' if margin == 1 else 's'} from"
     rounds = len(winners)
-    if year < date.today().year:  # a past season is over
+    if year < date.today().year and complete:
         return (f"{year} season · final standings after {rounds} rounds", f"{year} championship",
                 f"{first['FullName']} champion {gap} {second['FullName']}; "
                 f"{teams.iloc[0]['Team']} take the constructors' title.")
-    return (f"{year} season · after round {int(winners['Round'].max())}", f"{year} championship",
+    coverage = "saved standings" if year < date.today().year else "standings"
+    return (f"{year} season · {coverage} through round {int(winners['Round'].max())}", f"{year} championship",
             f"{first['FullName']} leads {gap} {second['FullName']} after {rounds} rounds; "
             f"{teams.iloc[0]['Team']} lead the constructors.")
 
 
 def strip(season, drivers: pd.DataFrame, winners: pd.DataFrame, progress: pd.DataFrame) -> None:
-    leaders = leaders_by_round(progress)
+    leaders = leaders_by_round(progress, season)
     most_wins = drivers.sort_values("Wins", ascending=False, kind="stable").iloc[0]
     most_poles = drivers.sort_values("Poles", ascending=False, kind="stable").iloc[0]
     sprints = int(season.results.loc[season.results["Kind"] == "S", "Round"].nunique())

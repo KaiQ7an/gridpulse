@@ -142,3 +142,109 @@ def test_circuits_page():
     assert not at.exception
     text = page_text(at)
     assert "Monte Carlo" in text and "Year by year" in text
+
+
+def test_replay_link_restores_lap_drivers_and_view_and_tracks_changes():
+    at = replay(year="2026", round="17", lap="24", drivers="HAM,ANT", view="Strategy")
+    assert not at.exception
+    assert at.slider(key="lap").value == 24
+    assert at.multiselect(key="focus").value == ["HAM", "ANT"]
+    assert at.segmented_control(key="view").value == "Strategy"
+    at.slider(key="lap").set_value(26).run()
+    assert not at.exception
+    assert at.query_params["lap"] == "26"
+    assert at.query_params["drivers"] == "HAM,ANT"
+    assert at.query_params["view"] == "Strategy"
+
+
+def test_replay_link_clamps_lap_and_filters_unknown_and_duplicate_drivers():
+    at = replay(year="2026", round="17", lap="99999", drivers="ham,INVALID,HAM,ant", view="invalid")
+    assert not at.exception
+    assert at.slider(key="lap").value == 62
+    assert at.multiselect(key="focus").value == ["HAM", "ANT"]
+    assert at.segmented_control(key="view").value == "Gaps"
+
+
+def test_spoiler_free_mode_starts_at_lap_one_and_uses_starting_order():
+    from pitlens.pitwall.app import starting_order
+    from pitlens.pitwall.data import load_race
+
+    at = replay(year="2026", round="17", mode="replay")
+    assert not at.exception
+    assert at.slider(key="lap").value == 1
+    assert at.multiselect(key="focus").value == starting_order(load_race(2026, 17))[:3]
+    at.slider(key="lap").set_value(24).run()
+    at.segmented_control(key="view").set_value("Strategy").run()
+    assert not at.exception
+    assert all(t.key != "window_actual" for t in at.toggle)
+
+
+def test_spoiler_mode_switch_restarts_an_analysis():
+    at = replay(year="2026", round="17")
+    at.toggle(key="no_spoilers").set_value(True).run()
+    assert not at.exception
+    assert at.slider(key="lap").value == 1
+    assert at.query_params["mode"] == "replay"
+
+
+def test_driver_race_links_keep_the_selected_driver():
+    at = render_page("drivers_page", year="2025", driver="VER")
+    assert not at.exception
+    assert 'round=24&drivers=VER' in page_text(at)
+
+
+def test_new_page_inherits_the_selected_season():
+    at = AppTest.from_string(
+        "from pitlens.pitwall import drivers_page\ndrivers_page.render()", default_timeout=180)
+    at.session_state["selected_year"] = 2024
+    at.run()
+    assert not at.exception
+    assert at.selectbox(key="driver_year").value == 2024
+
+
+def test_replay_survives_widget_cleanup_when_visiting_drivers():
+    at = AppTest.from_string('''
+import streamlit as st
+from pitlens.pitwall import app, drivers_page
+st.radio("Page", ["Race", "Drivers"], key="test_page", on_change=st.query_params.clear)
+if st.session_state.test_page == "Race":
+    app.race_page()
+else:
+    drivers_page.render()
+''', default_timeout=180)
+    at.query_params.update(year="2025", round="4", lap="23", drivers="HAM,LEC", view="Tyres", mode="replay")
+    at.run()
+    assert not at.exception
+    at.radio(key="test_page").set_value("Drivers").run()
+    assert not at.exception
+    at.radio(key="test_page").set_value("Race").run()
+    assert not at.exception
+    assert at.selectbox(key="race_pick").value == 4
+    assert at.slider(key="lap").value == 23
+    assert at.multiselect(key="focus").value == ["HAM", "LEC"]
+    assert at.toggle(key="no_spoilers").value
+    assert at.segmented_control(key="view").value == "Tyres"
+    assert not at.session_state["playing"]
+
+
+def test_onboard_link_failure_does_not_override_recovery_selection(monkeypatch):
+    import pandas as pd
+
+    from pitlens.pitwall import onboard_page
+    from pitlens.session import TimingUnavailable
+
+    calls = []
+    monkeypatch.setattr(onboard_page, "cached_races", lambda year: pd.DataFrame(
+        [{"RoundNumber": 1, "EventName": "Test GP"}, {"RoundNumber": 2, "EventName": "Other GP"}]))
+
+    def fail(year, round_number, kind):
+        calls.append((year, round_number, kind))
+        raise TimingUnavailable("Session unavailable")
+
+    monkeypatch.setattr(onboard_page, "cached_weekend", fail)
+    at = render_page("onboard_page", year="2025", round="1", session="Q")
+    at.selectbox(key="ob_session").set_value("R").run()
+    at.selectbox(key="ob_event").set_value(1).run()
+    at.selectbox(key="ob_year").set_value(2024).run()
+    assert not at.exception
+    assert calls == [(2025, 1, "Q"), (2025, 1, "R"), (2025, 2, "R"), (2024, 2, "R")]

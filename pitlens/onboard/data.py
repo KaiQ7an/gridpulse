@@ -1,5 +1,6 @@
 """Load two drivers' fastest laps (with telemetry) from one session."""
 
+import re
 from dataclasses import dataclass
 
 import fastf1
@@ -11,6 +12,7 @@ from pitlens.deploy import hosted
 from pitlens.onboard.compare import corner_distances
 from pitlens.session import TimingUnavailable, enable_cache, load_session, refused_recently, remember_refusal
 from pitlens.sources import openf1
+from pitlens.style import FALLBACK_TEAM_COLOR
 
 SESSION_NAMES = {
     "Q": "Qualifying",
@@ -22,11 +24,10 @@ SESSION_NAMES = {
     "FP3": "Practice 3",
 }
 
-# Fixed comparison colours (first driver blue, second orange). They pass the
-# colour-blind and contrast checks on light and dark backgrounds, and unlike
-# team colours they still differ when the two drivers are teammates.
-REF_COLOR = "#2F6FDE"
-OTHER_COLOR = "#E8590C"
+def team_color(value) -> str:
+    """Use this session's team colour; missing metadata gets a neutral fallback."""
+    color = str(value).strip().lstrip("#")
+    return f"#{color.upper()}" if re.fullmatch(r"[0-9a-fA-F]{6}", color) else FALLBACK_TEAM_COLOR
 
 
 @dataclass
@@ -39,6 +40,7 @@ class DriverLap:
     tyre_life: float
     lap_number: int
     telemetry: pd.DataFrame
+    team_color: str = FALLBACK_TEAM_COLOR
 
 
 @dataclass
@@ -50,6 +52,14 @@ class OnboardData:
     corners: pd.DataFrame
     rotation: float
     source: str = "F1 live timing"
+
+    @property
+    def colors(self) -> tuple[str, str]:
+        return team_color(self.ref.team_color), team_color(self.other.team_color)
+
+    @property
+    def dashes(self) -> tuple[str, str]:
+        return "solid", "dash" if self.ref.team == self.other.team or self.colors[0] == self.colors[1] else "solid"
 
 
 def session_drivers(session) -> pd.DataFrame:
@@ -71,6 +81,8 @@ def fastest_lap(session, driver: str) -> DriverLap:
     if lap is None or pd.isna(lap["LapTime"]):
         raise ValueError(f"{driver} has no timed lap in this session")
     tel = lap.get_telemetry()
+    result = session.results[session.results["Abbreviation"] == driver]
+    color = result["TeamColor"].iloc[0] if "TeamColor" in result and not result.empty else None
     return DriverLap(
         driver=driver,
         team=lap["Team"],
@@ -80,6 +92,7 @@ def fastest_lap(session, driver: str) -> DriverLap:
         tyre_life=lap["TyreLife"],
         lap_number=int(lap["LapNumber"]),
         telemetry=pd.DataFrame(tel[["Time", "Distance", "Speed", "Throttle", "Brake", "nGear", "DRS", "X", "Y"]]),
+        team_color=team_color(color),
     )
 
 
@@ -147,11 +160,14 @@ class OpenF1Weekend:
         self.source = "OpenF1"
 
     def drivers(self) -> pd.DataFrame:
-        best = self.laps.sort_values("lap_duration").drop_duplicates("driver_number")
+        valid = self.laps[~self.laps["Deleted"]] if "Deleted" in self.laps else self.laps
+        best = valid.sort_values("lap_duration").drop_duplicates("driver_number")
         return pd.DataFrame({"Driver": best["name_acronym"], "Team": best["team_name"]}).reset_index(drop=True)
 
     def fastest_lap(self, driver: str) -> DriverLap:
         mine = self.laps[self.laps["name_acronym"] == driver]
+        if "Deleted" in mine:
+            mine = mine[~mine["Deleted"]]
         if mine.empty:
             raise ValueError(f"{driver} has no timed lap in this session")
         lap = mine.loc[mine["lap_duration"].idxmin()]
@@ -172,6 +188,7 @@ class OpenF1Weekend:
             telemetry=openf1.lap_telemetry(
                 self.session["session_key"], int(lap["driver_number"]), lap["date_start"], float(lap["lap_duration"])
             ),
+            team_color=team_color(lap.get("team_colour")),
         )
 
     def compare(self, ref: str, other: str) -> OnboardData:

@@ -41,7 +41,8 @@ def tyres_view(race: RaceData, laps: pd.DataFrame, tower: pd.DataFrame, lap: int
         key="chart_stints",
     )
     ui.label("Degradation so far")
-    clean = race.clean_laps[(race.clean_laps["LapNumber"] <= lap) & race.clean_laps["Driver"].isin(focus)]
+    clean = race.clean_through(lap)
+    clean = clean[clean["Driver"].isin(focus)]
     deg = stint_degradation(clean)
     if deg.empty:
         ui.note("Not enough clean laps yet: a stint needs five green-flag laps.")
@@ -149,11 +150,11 @@ def short_source(loss_source: str) -> str:
 
 def pits_view(race: RaceData, lap: int, focus: list[str]) -> None:
     """Every pit stop so far: how long it took, what it cost, places lost, and the quickest crews."""
-    stops = race.stops.assign(LaneOk=plausible_lane_times(race.stops), StillOk=ordinary_stationary_times(race.stops))
-    stops = stops[stops["Lap"] <= lap]
-    still = race.stops["Stationary"].notna().any()
+    stops = race.stops_through(lap)
+    stops = stops.assign(LaneOk=plausible_lane_times(stops), StillOk=ordinary_stationary_times(stops))
+    still = stops["Stationary"].notna().any()
     status = race.lap_status.get(lap, "Green")
-    loss, loss_source = pit_loss_now(stops, status, race.pit_loss_ref)
+    loss, loss_source = pit_loss_now(stops[stops["Lap"] < lap], status, race.pit_loss_ref)
 
     def quickest(key: str, column: str, tip: str) -> str:
         timed = stops.dropna(subset=[column])
@@ -279,13 +280,33 @@ def pit_window_view(race: RaceData, tower: pd.DataFrame, lap: int, focus: list[s
         verdict = (f"Quickest is to stop at the end of lap {lap + int(best['LapsMore'])} for "
                    f"{best['Compound'].lower()}s; any lap from {lap + best['From']} to {lap + best['To']} costs under "
                    f"a second more, and stopping at the end of the next lap costs {first:.1f} s.")
-    ui.insight(f"{driver} is on {compound.lower()}s that are {age:.0f} laps old, losing "
-               f"{model.deg[compound]:.2f} s a lap to wear. {verdict}")
+    evidence = "fitted from this race" if compound in model.deg_measured else "based mainly on typical wear"
+    ui.insight(f"{driver} is on {compound.lower()}s that are {age:.0f} laps old, with estimated wear of "
+               f"{model.deg[compound]:.2f} s/lap ({evidence}). {verdict}")
+    ui.note(f"{sum(model.sample_counts.values())} clean laps across the field inform this fit. "
+            "Assumes fresh tyres and one final stop; traffic, future safety cars and available tyre sets "
+            "are not modelled. The one-second window compares plans, not statistical confidence.")
 
-    later = race.stops[(race.stops["Driver"] == driver) & (race.stops["Lap"] > lap)]
-    show_actual = st.toggle("Show when they really stopped", value=False, key="window_actual",
-                            disabled=later.empty, help="Their next stop in this race (from the future, in a replay)")
-    actual = int(later["Lap"].iloc[0]) if show_actual and not later.empty else None
+    comparison = []
+    for k, label in ((1, "Stop next lap"), (4, "Stop three laps later")):
+        options = window[window["LapsMore"] == k]
+        if not options.empty:
+            plan = options.loc[options["Total"].idxmin()]
+            comparison.append({"Plan": label, "Tyres": plan["Compound"].title(), "Total": plan["Total"]})
+    if stay is not None:
+        comparison.append({"Plan": "Stay out to the flag", "Tyres": compound.title(),
+                           "Total": stay_out_time(model, driver, compound, age, laps_left)})
+    baseline = min(window["Total"].min(), *(row["Total"] for row in comparison))
+    st.dataframe(pd.DataFrame([{"Plan": row["Plan"], "Tyres": row["Tyres"],
+                                "Cost vs quickest plan": f"+{max(0, row['Total'] - baseline):.1f} s"}
+                               for row in comparison]), hide_index=True, width="stretch")
+
+    actual = None
+    if not st.session_state.get("no_spoilers", False):
+        later = race.stops[(race.stops["Driver"] == driver) & (race.stops["Lap"] > lap)]
+        show_actual = st.toggle("Show when they really stopped", value=False, key="window_actual",
+                               disabled=later.empty, help="Their next stop in this race (from the future, in a replay)")
+        actual = int(later["Lap"].iloc[0]) if show_actual and not later.empty else None
     st.plotly_chart(charts.pit_window_chart(window, lap, race.total_laps, best, actual, stay), width="stretch",
                     key="chart_window")
 
@@ -294,23 +315,25 @@ def pit_window_view(race: RaceData, tower: pd.DataFrame, lap: int, focus: list[s
                 "fuel and track that is the same for everyone. Each plan is one more stop then the new set to the "
                 "flag, with the pit loss above. It knows tyres and pit loss only: not traffic, undercut threats, "
                 "safety cars or tyre-life limits. Backtested on every 2024 and 2025 race (pitlens pitwindow), its "
-                "best lap is within five laps of the team's choice about two times in three, a little better than "
+                "best lap is within five laps of the team's choice 59–66% of the time, a little better than "
                 "splitting the remaining laps evenly between the stints.")
         st.dataframe(pd.DataFrame({
             "Compound": [c.title() for c in DRY],
             "Fresh pace vs medium": [f"{model.offset[c]:+.2f} s" for c in DRY],
             "Wear": [f"{model.deg[c]:.3f} s/lap" for c in DRY],
-            "From": ["this race" if c in model.measured else "typical figures" for c in DRY],
+            "Pace evidence": ["race fit" if c in model.measured else "typical figures" for c in DRY],
+            "Wear evidence": ["race fit" if c in model.deg_measured else "typical figures" for c in DRY],
+            "Clean laps": [model.sample_counts.get(c, 0) for c in DRY],
         }), hide_index=True, width="stretch")
         ui.note(f"Fuel and track: {model.trend:+.3f} s a lap, every car.")
 
 
 def strategy_view(race: RaceData, tower: pd.DataFrame, lap: int, focus: list[str]) -> None:
-    stops = race.stops[race.stops["Lap"] <= lap]
+    stops = race.stops_through(lap)
     battles = race.battles[race.battles["RivalStopLap"] + 1 <= lap]
     last = stops.iloc[-1] if not stops.empty else None
     status = race.lap_status.get(lap, "Green")
-    loss, loss_source = pit_loss_now(stops, status, race.pit_loss_ref)
+    loss, loss_source = pit_loss_now(stops[stops["Lap"] < lap], status, race.pit_loss_ref)
     ref = race.pit_loss_ref
     ui.strip([
         ui.stat("Pit loss now", f"{loss:.1f} s" if loss else "–", small=short_source(loss_source) if loss else "",
@@ -330,7 +353,7 @@ def strategy_view(race: RaceData, tower: pd.DataFrame, lap: int, focus: list[str
         proj = rejoin_projection(tower, loss)
         if not everyone:
             proj = proj[proj["Driver"].isin(focus)]
-        model = fit_tyre_model(race.clean_laps[race.clean_laps["LapNumber"] <= lap])
+        model = fit_tyre_model(race.clean_through(lap))
         st.dataframe(
             pd.DataFrame(
                 {
@@ -364,4 +387,5 @@ def strategy_view(race: RaceData, tower: pd.DataFrame, lap: int, focus: list[str
             f"{'behind' if battle.GapAfter > 0 else 'ahead'}."
         )
         gap = pair_gap(race.laps, battle.FirstStop, battle.Rival)
-        st.plotly_chart(battle_chart(gap, battle, race.total_laps), width="stretch", key="chart_battle")
+        st.plotly_chart(battle_chart(gap, battle, race.total_laps, through_lap=lap),
+                        width="stretch", key="chart_battle")

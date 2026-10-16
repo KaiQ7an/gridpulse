@@ -6,6 +6,7 @@ from pitlens.season.data import (
     driver_highlights,
     driver_season,
     driver_standings,
+    leaders_by_round,
     points_by_round,
     points_for,
     pole_sitters,
@@ -35,6 +36,19 @@ def row(rnd, driver, team, pos, classified=True, kind="R", grid=1):
 def test_points():
     assert points_for(1, "R") == 25 and points_for(10, "R") == 1 and points_for(11, "R") == 0
     assert points_for(1, "S") == 8 and points_for(9, "S") == 0 and points_for(float("nan"), "R") == 0
+
+
+def test_countback_uses_all_finishes_and_only_past_results():
+    # The alphabetically later driver/team has the better best finish despite equal points/wins.
+    s = season_with([row(1, "A", "Team A", 9), row(1, "Z", "Team Z", 8),
+                     row(2, "A", "Team A", 9), row(2, "Z", "Team Z", 12),
+                     row(3, "A", "Team A", 7), row(3, "Z", "Team Z", 9)], rounds=3)
+    through_two = points_by_round(s).loc[[2]]
+    assert through_two.loc[2, "A"] == through_two.loc[2, "Z"]
+    assert leaders_by_round(through_two, s).loc[2] == "Z"  # A's future P7 must not break the tie
+    s.results = s.results[s.results.Round <= 2]
+    assert driver_standings(s).Driver.tolist() == ["Z", "A"]
+    assert standings(s).Team.tolist() == ["Team Z", "Team A"]
 
 
 def test_standings_add_up_both_cars_and_sprints():

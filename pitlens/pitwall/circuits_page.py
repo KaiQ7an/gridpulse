@@ -10,18 +10,30 @@ from pitlens.season.circuits import circuit_years, circuits, saved_races
 NEW_RULES = 2026  # the year the cars changed: lap times before it aren't comparable
 
 
-@st.cache_data(show_spinner=False)
 def cached_races() -> pd.DataFrame:
+    return _cached_races(snapshots.revision())
+
+
+@st.cache_data(show_spinner=False, max_entries=2)
+def _cached_races(revision: tuple) -> pd.DataFrame:
     return saved_races()
 
 
-@st.cache_data(show_spinner=False, max_entries=8)
 def cached_years(circuit: int) -> pd.DataFrame:
+    return _cached_years(circuit, snapshots.revision())
+
+
+@st.cache_data(show_spinner=False, max_entries=8)
+def _cached_years(circuit: int, revision: tuple) -> pd.DataFrame:
     return circuit_years(cached_races(), circuit)
 
 
-@st.cache_data(show_spinner=False, max_entries=8)
 def cached_track(year: int, round_number: int) -> dict | None:
+    return _cached_track(year, round_number, snapshots.revision(year))
+
+
+@st.cache_data(show_spinner=False, max_entries=8)
+def _cached_track(year: int, round_number: int, revision: tuple) -> dict | None:
     parts = snapshots.load_race(year, round_number, "R")
     return parts["track"] if parts else None
 
@@ -95,13 +107,16 @@ def render() -> None:
 def strip(years: pd.DataFrame) -> None:
     latest = years.iloc[-1]
     n = len(years)
+    known_grid = years["WinnerGrid"].notna() & (years["WinnerGrid"] > 0)
     stats = [ui.stat("Laps", str(latest["Scheduled"]))]
     if pd.notna(latest["PitLoss"]):
         vsc = f"{latest['PitLossVsc']:.0f} s under VSC" if pd.notna(latest["PitLossVsc"]) else ""
         stats.append(ui.stat("Pit stop costs", f"{latest['PitLoss']:.0f} s", small=vsc,
                              tip="Time lost to a stop against staying out, from MultiViewer"))
     stats += [
-        ui.stat("Won from pole", f"{int((years['WinnerGrid'] == 1).sum())} of {n}"),
+        ui.stat("Won from pole", f"{int((years['WinnerGrid'] == 1).sum())} of {int(known_grid.sum())}",
+                small=f"grid unknown in {int((~known_grid).sum())}" if not known_grid.all() else "",
+                tip="Only races with a known winner's starting grid count in this comparison"),
         ui.stat("Safety cars", str(int(years["SafetyCars"].sum())), small=f"in {n} race{'s' if n > 1 else ''}"),
         ui.stat("Virtual safety cars", str(int(years["VSCs"].sum()))),
         ui.stat("Red flags", str(int(years["RedFlags"].sum()))),

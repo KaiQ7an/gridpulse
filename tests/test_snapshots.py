@@ -54,3 +54,26 @@ def test_an_older_snapshot_format_is_ignored(tmp_path, monkeypatch, parts):
     monkeypatch.setattr(snapshots, "FORMAT", snapshots.FORMAT + 1)
     assert snapshots.load_race(2026, 15, "R") is None
     assert snapshots.races(2026).empty
+
+
+def test_snapshot_revision_changes_when_a_saved_race_is_replaced(tmp_path, monkeypatch, parts):
+    monkeypatch.setattr(snapshots, "SNAPSHOT_DIR", tmp_path)
+    monkeypatch.setattr(transcribe, "TEXT_DIR", tmp_path / "radio")
+    snapshots.save_race(2026, 15, "R", parts)
+    before = snapshots.revision(2026)
+    snapshots.save_race(2026, 15, "R", {**parts, "location": "Baku updated"})
+    assert snapshots.revision(2026) != before
+    assert snapshots.revision(2025) == ()
+
+
+def test_circuit_index_only_needs_metadata(tmp_path, monkeypatch, parts):
+    from pitlens.season.circuits import saved_races
+
+    monkeypatch.setattr(snapshots, "SNAPSHOT_DIR", tmp_path)
+    monkeypatch.setattr(transcribe, "TEXT_DIR", tmp_path / "radio")
+    snapshots.save_race(2026, 15, "R", parts)
+    for frame in (tmp_path / "2026" / "15-R").glob("*.parquet"):
+        frame.unlink()  # listing circuits must not need the large timing tables
+    index = saved_races()
+    assert index[["Year", "Round", "Circuit"]].to_dict("records") == [
+        {"Year": 2026, "Round": 15, "Circuit": 144}]

@@ -4,7 +4,6 @@ From F1's archive via FastF1, or from OpenF1 when the archive won't serve it (wh
 laps come from race control's "TIME ... DELETED" messages).
 """
 
-import re
 from dataclasses import dataclass
 
 import fastf1
@@ -19,7 +18,6 @@ from pitlens.style import FALLBACK_TEAM_COLOR
 SESSIONS = {"Q": "Qualifying", "SQ": "Sprint Qualifying"}
 SHOOTOUT_YEARS = (2023,)  # sprint qualifying ran as the Sprint Shootout, FastF1 session "SS"
 PARTS = ("Q1", "Q2", "Q3")
-_DELETED = re.compile(r"CAR (\d+) \((\w+)\).*DELETED.*?\bLAP (\d+)")
 
 
 def session_name(year: int, kind: str) -> str:
@@ -173,11 +171,7 @@ def _from_openf1(year: int, round_number: int, kind: str) -> QualiData:
     raw = raw[raw["lap_duration"].notna()]
     t0 = pd.Timestamp(session["date_start"])
     rc = pd.DataFrame(openf1.get("race_control", session_key=sk))
-    deleted = set()
-    for message in rc.get("message", pd.Series(dtype=str)).dropna():
-        m = _DELETED.search(message)
-        if m:
-            deleted.add((int(m.group(1)), int(m.group(3))))
+    deleted = openf1.deleted_lap_mask(raw, rc)
     laps = pd.DataFrame({
         "Driver": raw["driver_number"].map(code),
         "LapNumber": raw["lap_number"],
@@ -187,7 +181,7 @@ def _from_openf1(year: int, round_number: int, kind: str) -> QualiData:
         "S3": pd.to_numeric(raw["duration_sector_3"], errors="coerce"),
         "Minute": (pd.to_datetime(raw["date_start"], utc=True, format="ISO8601") - t0).dt.total_seconds() / 60
                   + raw["lap_duration"].astype(float) / 60,
-        "Deleted": [(n, lap) in deleted for n, lap in zip(raw["driver_number"], raw["lap_number"])],
+        "Deleted": deleted,
         "Compound": None,
     }).reset_index(drop=True)
     return QualiData(name=f"{year} {event['EventName']}", event_name=event["EventName"],

@@ -13,7 +13,7 @@ the same questions a strategy desk asks on a Sunday afternoon.
 ![Streamlit](https://img.shields.io/badge/dashboard-Streamlit-FF4B4B?logo=streamlit&logoColor=white)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-[Quick start](#quick-start) · [Pit wall](#pit-wall) · [Onboard](#onboard) · [Pit stops](#pit-stops) · [Strategy](#strategy) · [Tyre analysis](#tyre-analysis) · [How it works](#how-it-works) · [Roadmap](ROADMAP.md)
+[Quick start](#quick-start) · [macOS / Homebrew](#macos-with-homebrew) · [Pit wall](#pit-wall) · [Onboard](#onboard) · [Pit stops](#pit-stops) · [Strategy](#strategy) · [Tyre analysis](#tyre-analysis) · [How it works](#how-it-works) · [Roadmap](ROADMAP.md)
 
 </div>
 
@@ -185,6 +185,29 @@ takes up to a minute; after that it opens instantly.
 With the virtual environment activated (`source .venv/bin/activate`) the shorter `pitlens pitwall`
 works too.
 
+### macOS with Homebrew
+
+Install [Homebrew](https://brew.sh/) first if `brew` is not available. Then install Git and
+[Python 3.12](https://formulae.brew.sh/formula/python@3.12), and create a separate environment for PitLens:
+
+```bash
+brew install git python@3.12
+git clone https://github.com/KaiQ7an/pitlens.git
+cd pitlens
+"$(brew --prefix python@3.12)/bin/python3.12" -m venv .venv
+.venv/bin/python -m pip install --upgrade pip
+.venv/bin/python -m pip install -e .
+.venv/bin/python -m pitlens pitwall
+```
+
+The `brew --prefix` command locates Python on both Apple Silicon and Intel Macs. Homebrew installs
+the prerequisites; PitLens is installed from this repository into `.venv`. There is no published
+PitLens Homebrew formula or tap at present.
+
+On later runs, open a terminal in the `pitlens` folder and run `.venv/bin/python -m pitlens pitwall`.
+To update, stop the server, run `git pull --ff-only` and `.venv/bin/python -m pip install -e .`, then
+start it again. Local source changes should be committed or stashed before pulling an update.
+
 ## Pit wall
 
 <p align="center">
@@ -194,8 +217,15 @@ works too.
   </picture>
 </p>
 
-Any race opens from a link: `?year=2026&round=15` (add `&session=sprint` for a sprint), and the
-address bar keeps pointing at the race on screen, so it can be shared.
+Any race opens from a link: `?year=2026&round=15` (add `&session=sprint` for a sprint). The address
+bar also preserves the current lap, focus drivers and view, for example
+`?year=2026&round=17&lap=24&drivers=HAM,ANT&view=Strategy`.
+
+Turn on **No spoilers** to start on lap 1 with the first three cars on the grid selected (driver
+codes in alphabetical order when the grid is unavailable). Future
+pit-stop overlays are hidden in that mode. Sector bests and weather sit in an expandable section;
+the timing-tower driver names open their season. With two focus drivers selected, **Compare these
+drivers** opens Onboard at the same event and session.
 
 | Option | Default | Meaning |
 |---|---|---|
@@ -227,6 +257,9 @@ In the pit wall, open **Onboard** in the sidebar. From the command line:
 | `--open` | off | Open the HTML report when done (macOS) |
 
 The report is a self-contained HTML file in `outputs/onboard/`, plus the corner table as CSV.
+Driver titles, telemetry, delta shading and mini-sector maps use the team colours supplied for
+that session, including historical teams. Teammates share their team colour and use solid and
+dashed lines; the second driver's corner gains are hatched. Missing colour metadata uses grey.
 
 ## Pit stops
 
@@ -280,8 +313,8 @@ flag; the lowest is the best plan, and laps within a second of it are the window
 
 It knows tyres and pit loss only, not traffic, undercut threats, safety cars or tyre-life limits,
 so it's a guide rather than an answer. Backtested on every last green-flag stop of 2024 and 2025
-(625 stops), deciding ten laps ahead, its best lap was within five laps of the team's choice 61 to
-66% of the time and the real stop fell inside its window 52 to 56% of the time, a little better
+(625 stops), deciding ten laps ahead, its best lap was within five laps of the team's choice 59 to
+66% of the time and the real stop fell inside its window 51 to 54% of the time, a little better
 than splitting the remaining laps evenly between the two stints (57 to 62%). Run it yourself:
 
 ```bash

@@ -9,6 +9,7 @@ finished race doesn't change.
 
 import hashlib
 import json
+import re
 import time
 
 import numpy as np
@@ -523,6 +524,46 @@ def stationary_times(year: int, race_date_utc, numbers: dict[int, str], session_
 
 # ---------------------------------------------------------------- onboard (single laps)
 
+_LAP_ACTION = re.compile(r"CAR (\d+) \((\w+)\).*?TIME (\d+:\d{2}\.\d{3}).*?(DELETED|REINSTATED)")
+
+
+def deleted_lap_mask(laps: pd.DataFrame, messages: pd.DataFrame) -> pd.Series:
+    """Match stewards' lap actions by driver, time and completion, not their offset lap numbers.
+
+    Repeated identical times are resolved to the most recent completed lap before the message.
+    Reinstatements undo a deletion. Unknown/ambiguous messages never delete an arbitrary lap.
+    """
+    deleted = pd.Series(False, index=laps.index)
+    if laps.empty or messages.empty:
+        return deleted
+    durations = pd.to_numeric(laps["lap_duration"], errors="coerce")
+    ended = pd.to_datetime(laps["date_start"], utc=True, format="mixed") + pd.to_timedelta(durations, unit="s")
+    ordered = messages.sort_values("date") if "date" in messages else messages
+    for row in ordered.to_dict("records"):
+        action = _LAP_ACTION.search(str(row.get("message", "")).upper())
+        if not action:
+            continue
+        number, code, clock, verb = action.groups()
+        minutes, seconds = clock.split(":")
+        duration = int(minutes) * 60 + float(seconds)
+        driver = (laps["driver_number"].eq(int(number)) if "driver_number" in laps
+                  else laps["name_acronym"].eq(code))
+        candidates = driver & durations.sub(duration).abs().lt(0.0011)
+        issued = pd.to_datetime(row.get("date"), utc=True, errors="coerce")
+        if pd.notna(issued):
+            candidates &= ended <= issued + pd.Timedelta(2, unit="s")
+        indexes = laps.index[candidates]
+        if not len(indexes):
+            continue
+        if len(indexes) > 1:
+            if pd.isna(issued) or ended.loc[indexes].isna().all():
+                continue
+            index = ended.loc[indexes].idxmax()
+        else:
+            index = indexes[0]
+        deleted.loc[index] = verb == "DELETED"
+    return deleted
+
 ONBOARD_SESSION_NAMES = {
     "Q": "Qualifying",
     "R": "Race",
@@ -552,8 +593,12 @@ def session_laps(session_key: int) -> pd.DataFrame:
     laps = pd.DataFrame(get("laps", session_key=session_key))
     if laps.empty:
         raise OpenF1Error("OpenF1 has no laps for this session")
-    laps = laps.merge(drivers[["driver_number", "name_acronym", "team_name"]], on="driver_number", how="left")
-    return laps[laps["lap_duration"].notna() & ~laps["is_pit_out_lap"].fillna(False).astype(bool)]
+    if "team_colour" not in drivers:
+        drivers["team_colour"] = None
+    laps = laps.merge(drivers[["driver_number", "name_acronym", "team_name", "team_colour"]],
+                      on="driver_number", how="left")
+    laps["Deleted"] = deleted_lap_mask(laps, pd.DataFrame(get("race_control", session_key=session_key)))
+    return laps[laps["lap_duration"].notna() & ~laps["is_pit_out_lap"].fillna(False).astype(bool) & ~laps["Deleted"]]
 
 
 def lap_telemetry(session_key: int, driver_number: int, start, duration_s: float) -> pd.DataFrame:

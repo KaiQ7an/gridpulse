@@ -11,10 +11,12 @@ GREEN_STOP = "#2F6FDE"
 NEUTRAL_STOP = "#9A9A9A"
 
 
-def battle_chart(gap: pd.DataFrame, battle, total_laps: int) -> go.Figure:
+def battle_chart(gap: pd.DataFrame, battle, total_laps: int, *, through_lap: int | None = None) -> go.Figure:
     """Gap between the two cars around their stops, drawn so 'up' means the first stopper is ahead."""
     a, b = battle.FirstStop, battle.Rival
     lo, hi = max(1, battle.Lap - 5), min(total_laps, battle.RivalStopLap + 6)
+    if through_lap is not None:
+        hi = min(hi, through_lap)
     g = gap[(gap["LapNumber"] >= lo) & (gap["LapNumber"] <= hi)]
     ahead = -g["Gap"]  # > 0: a ahead of b
 
