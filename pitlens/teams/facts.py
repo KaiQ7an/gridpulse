@@ -1,7 +1,8 @@
 """Facts about each team that the timing data doesn't carry: base, power unit, history.
 
-Kept to what changes rarely, as of the 2026 season. Power units are per season, since 2026
-brought new engine rules and several teams changed supplier.
+Kept to what changes rarely, as of the 2026 season (checked in October 2026). Power units are
+per season, since 2026 brought new engine rules and several teams changed supplier. Titles are
+constructors' championships up to the end of 2025.
 """
 
 TEAMS = {
@@ -26,9 +27,9 @@ TEAMS = {
                     "power": {2025: "Ferrari"}},
     "Audi": {"base": "Hinwil, Switzerland", "since": "2026 (from Sauber, 1993)", "titles": 0,
              "power": {2026: "Audi"}},
-    "Haas F1 Team": {"base": "Kannapolis, United States", "since": "2016", "titles": 0,
+    "Haas F1 Team": {"base": "Kannapolis, United States, and Banbury, United Kingdom", "since": "2016", "titles": 0,
                      "power": {2025: "Ferrari", 2026: "Ferrari"}},
-    "Cadillac": {"base": "Fishers, United States", "since": "2026", "titles": 0,
+    "Cadillac": {"base": "Fishers, United States, and Silverstone, United Kingdom", "since": "2026", "titles": 0,
                  "power": {2026: "Ferrari"}},
 }
 
