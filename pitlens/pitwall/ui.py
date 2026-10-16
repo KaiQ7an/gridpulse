@@ -310,7 +310,7 @@ def inject_css() -> None:
 
 def sidebar_brand(tagline: str) -> None:
     st.sidebar.html(
-        f'<div class="pl-brand"><div class="mark"></div><div><div class="name">PitLens</div>'
+        f'<div class="pl-brand"><div class="mark"></div><div><div class="name">F1 PitLens</div>'
         f'<div class="tag">{html.escape(tagline)}</div></div></div>'
     )
 

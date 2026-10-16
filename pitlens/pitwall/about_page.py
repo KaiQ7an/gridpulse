@@ -43,7 +43,7 @@ pages: dict = {}
 def render() -> None:
     ui.sidebar_brand("A race engineer's view of F1 data")
     ui.sidebar_footer()
-    ui.header("Unofficial F1 data project", "PitLens",
+    ui.header("Unofficial F1 data project", "F1 PitLens",
               "Replay any race from 2018 on the way a strategy desk sees it, lap by lap.")
     ui.insight("Pick a race, press Play, and the whole pit wall moves on a lap at a time: the timing tower, "
                "the gaps, tyres, pit stops, strategy and team radio, with what was known at that lap and "

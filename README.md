@@ -1,6 +1,6 @@
 <div align="center">
 
-# PitLens
+# F1 PitLens
 
 **A race engineer's view of public Formula 1 data.**
 
@@ -13,7 +13,7 @@ the same questions a strategy desk asks on a Sunday afternoon.
 ![Streamlit](https://img.shields.io/badge/dashboard-Streamlit-FF4B4B?logo=streamlit&logoColor=white)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-[Quick start](#quick-start) · [macOS / Homebrew](#macos-with-homebrew) · [Pit wall](#pit-wall) · [Onboard](#onboard) · [Pit stops](#pit-stops) · [Strategy](#strategy) · [Tyre analysis](#tyre-analysis) · [How it works](#how-it-works) · [Roadmap](ROADMAP.md)
+[Open F1 PitLens](https://f1-pitlens.streamlit.app/) · [Quick start](#quick-start) · [macOS / Homebrew](#macos-with-homebrew) · [Pit wall](#pit-wall) · [Onboard](#onboard) · [Pit stops](#pit-stops) · [Strategy](#strategy) · [Tyre analysis](#tyre-analysis) · [How it works](#how-it-works) · [Roadmap](ROADMAP.md)
 
 </div>
 
@@ -517,6 +517,10 @@ snapshots/             saved races and qualifying sessions
 Run the tests with `.venv/bin/pip install -r requirements-dev.txt && .venv/bin/python -m pytest`.
 
 ## Hosting
+
+The public deployment is [F1 PitLens](https://f1-pitlens.streamlit.app/). It follows this
+repository's `main` branch on Streamlit Community Cloud, uses Python 3.12, and updates when
+changes are pushed to GitHub. The display name is F1 PitLens; the package and CLI remain `pitlens`.
 
 The pit wall runs on [Streamlit Community Cloud](https://share.streamlit.io) as it is: create an
 app from this repository with `pitlens/pitwall/app.py` as the main file and Python 3.12 in the

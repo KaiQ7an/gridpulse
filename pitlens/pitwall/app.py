@@ -447,7 +447,7 @@ def race_page() -> None:
 
 
 def main() -> None:
-    st.set_page_config(page_title="PitLens · Pit wall", page_icon="🏁", layout="wide")
+    st.set_page_config(page_title="F1 PitLens · Pit wall", page_icon="🏁", layout="wide")
     ui.inject_css()
     pages = [
         st.Page(race_page, title="Race replay", icon=":material/sports_score:", default=True),
