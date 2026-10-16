@@ -1,0 +1,47 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+*{box-sizing:border-box}body{margin:0;font:12px Arial,sans-serif;color:#dce3ec;background:transparent}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+.title{font:10px ui-monospace,monospace;letter-spacing:1.5px;text-transform:uppercase;color:#929ba8}
+.filters{display:flex;gap:4px;flex-wrap:wrap}button{cursor:pointer;font:10px Arial,sans-serif;border-radius:4px}
+.filters button{padding:5px 9px;border:1px solid #303744;background:#111821;color:#a5b0be}
+.filters button[aria-pressed=true]{border-color:#ff332b;color:#ff625c;background:#311719}
+button:focus-visible{outline:2px solid #fff;outline-offset:2px}#rail{height:70px;position:relative;margin:0 15px;border-bottom:1px solid #3c4654}
+.progress{position:absolute;bottom:0;height:1px;background:#ff3831;left:0;pointer-events:none}
+.cursor{position:absolute;top:7px;bottom:-4px;border-left:1px dashed #e3e8ee70;pointer-events:none;font:9px ui-monospace,monospace}
+.cursor span{position:absolute;top:-9px;left:4px;white-space:nowrap;color:#adb7c6}
+.event{position:absolute;width:18px;height:18px;padding:0;border:1px solid var(--c);color:var(--c);background:#121820;
+transform:translate(-50%,-50%);transition:transform .12s,box-shadow .12s;z-index:2;border-radius:50%;font-weight:700;font-size:8px}
+.event:hover,.event:focus{transform:translate(-50%,-50%) scale(1.4);box-shadow:0 0 16px color-mix(in srgb,var(--c),transparent 55%);z-index:4}
+.event.current{background:var(--c);color:#0b1018}.axis{display:flex;justify-content:space-between;font:9px ui-monospace,monospace;color:#6e7b8d;margin:6px 10px}
+#detail{min-height:37px;margin-top:4px;padding:8px 12px;background:#151d27;border-left:2px solid #ff342e;border-radius:3px;color:#c9d2df;font-size:11px;line-height:1.5}
+#detail strong{color:#f2f5fa}#detail small{color:#8d9aab;margin-left:8px}.empty{color:#8794a6;font-size:11px;padding:22px 0}
+#jump{width:100%;margin-top:8px;padding:6px 9px;background:#111821;color:#bfcbd9;border:1px solid #303744;border-radius:4px;font:11px Arial,sans-serif}
+@media(prefers-reduced-motion:reduce){.event{transition:none}}
+</style></head><body>
+<div class="top"><div class="title" id="title">Race event timeline</div><div class="filters" role="group" aria-label="Filter race events"></div></div>
+<div id="rail" aria-label="Race event timeline"></div><div class="axis"><span>L1</span><span id="end"></span></div>
+<div id="detail" role="status">Hover or focus an event to inspect it. Click to jump and pause the replay.</div>
+<select id="jump" aria-label="Jump to a race event"></select>
+<script>
+const send=(type,payload={})=>parent.postMessage({isStreamlitMessage:true,type,...payload},'*');
+const kinds={PIT:['Pit','#f3bf38','P'],PASS:['Pass','#30cf8a','↗'],FL:['Fastest','#b58bff','F'],SC:['SC / VSC','#f5c445','S'],GREEN:['Green','#39cf88','G'],OUT:['Out','#98a3b1','×'],FLAG:['Finish','#eee','⚑']};
+const rail=document.querySelector('#rail'),detail=document.querySelector('#detail');let args=null,filter='All';
+const jump=document.querySelector('#jump');function choose(e){inspect(e);send('streamlit:setComponentValue',{value:{event:e.event,lap:e.lap,id:Date.now()+':'+e.event},dataType:'json'})}
+function inspect(e){detail.replaceChildren();let b=document.createElement('strong');b.textContent=`L${e.lap} · ${e.driver||kinds[e.kind]?.[0]||e.kind} `;let s=document.createElement('span');s.textContent=e.text;let h=document.createElement('small');h.textContent='CLICK TO REPLAY';detail.append(b,s,h)}
+function draw(){if(!args)return;rail.replaceChildren();const total=Math.max(2,args.total_laps),x=lap=>(lap-1)/(total-1)*100;
+document.querySelector('#title').textContent=args.no_spoilers?'EVENTS THROUGH L'+args.lap:'FULL RACE TIMELINE';document.querySelector('#end').textContent='L'+args.total_laps;
+const progress=document.createElement('div');progress.className='progress';progress.style.width=x(args.lap)+'%';rail.append(progress);
+const cursor=document.createElement('div');cursor.className='cursor';cursor.style.left=x(args.lap)+'%';const label=document.createElement('span');label.textContent='L'+args.lap;cursor.append(label);rail.append(cursor);
+const shown=args.events.filter(e=>filter==='All'||(filter==='SC'?['SC','GREEN'].includes(e.kind):e.kind===filter));
+jump.replaceChildren();const placeholder=document.createElement('option');placeholder.value='';placeholder.textContent='Jump to an event… ('+shown.length+')';jump.append(placeholder);shown.forEach(e=>{const o=document.createElement('option');o.value=e.event;o.textContent='L'+e.lap+' · '+e.text;jump.append(o)});jump.disabled=!shown.length;
+const counts=new Map();for(const e of shown){const lane=(counts.get(e.lap)||0)%3;counts.set(e.lap,lane+1);const b=document.createElement('button');
+b.className='event'+(e.lap===args.lap?' current':'');b.style.left=x(e.lap)+'%';b.style.top=(25+lane*17)+'px';b.style.setProperty('--c',e.text==='Red flag'?'#ff4b45':(kinds[e.kind]?.[1]||'#8da6c7'));
+b.textContent=kinds[e.kind]?.[2]||'·';b.setAttribute('aria-label',`Lap ${e.lap}: ${e.text}`);b.title=`L${e.lap} · ${e.text}`;
+b.onpointerenter=b.onfocus=()=>inspect(e);b.onclick=()=>choose(e);rail.append(b)}
+if(!shown.length){const p=document.createElement('div');p.className='empty';p.textContent='No events of this type so far.';rail.append(p)}
+send('streamlit:setFrameHeight',{height:210})}
+jump.onchange=()=>{const e=args.events.find(e=>e.event===jump.value);if(e)choose(e)};
+const buttons=document.querySelector('.filters');for(const [id,label] of [['All','All'],['PIT','Pit'],['PASS','Pass'],['SC','SC / VSC'],['FL','Fastest'],['OUT','Out']]){const b=document.createElement('button');b.textContent=label;b.setAttribute('aria-pressed',id===filter);b.onclick=()=>{filter=id;buttons.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b));draw()};buttons.append(b)}
+addEventListener('message',e=>{if(e.source===parent&&e.data.type==='streamlit:render'){args=e.data.args;draw()}});send('streamlit:componentReady',{apiVersion:1});
+</script></body></html>

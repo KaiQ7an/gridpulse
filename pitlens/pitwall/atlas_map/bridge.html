@@ -1,0 +1,36 @@
+<script>
+(() => {
+  if (window.pitlensAtlasBridge) return;
+  window.pitlensAtlasBridge = true;
+  const prefixes = ['st-key-card-atlas-circuit-', 'st-key-card-atlas-compare-'];
+  const cardFor = target => target?.closest?.('[class*="st-key-card-atlas-circuit-"], [class*="st-key-card-atlas-compare-"]');
+  const slugFor = card => {
+    for (const name of card?.classList || []) {
+      for (const prefix of prefixes) if (name.startsWith(prefix)) return name.slice(prefix.length);
+    }
+    return null;
+  };
+  const preview = slug => {
+    document.querySelectorAll('iframe[title="pitlens.pitwall.atlas_map.pitlens_circuit_atlas"]').forEach(frame => {
+      frame.contentWindow?.postMessage({type:'pitlens:atlas-hover',slug}, location.origin);
+    });
+  };
+  for (const event of ['pointerover','focusin']) document.addEventListener(event,e => {
+    const card=cardFor(e.target);
+    if(card && !card.contains(e.relatedTarget)) preview(slugFor(card));
+  });
+  for (const event of ['pointerout','focusout']) document.addEventListener(event,e => {
+    const card=cardFor(e.target);
+    if(card && !card.contains(e.relatedTarget)) preview(null);
+  });
+  addEventListener('message',e => {
+    if(e.origin!==location.origin || e.data?.type!=='pitlens:atlas-preview')return;
+    const frames=[...document.querySelectorAll('iframe[title="pitlens.pitwall.atlas_map.pitlens_circuit_atlas"]')];
+    if(!frames.some(f=>f.contentWindow===e.source))return;
+    const slug=e.data.slug;
+    document.querySelectorAll('[class*="st-key-card-atlas-circuit-"], [class*="st-key-card-atlas-compare-"]').forEach(card=>{
+      card.classList.toggle('atlas-linked',slugFor(card)===slug);
+    });
+  });
+})();
+</script>

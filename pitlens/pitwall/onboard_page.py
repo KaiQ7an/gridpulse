@@ -1,4 +1,4 @@
-"""Onboard page of the pit wall: two drivers' fastest laps side by side."""
+"""Onboard page of the pit wall: fastest or explicitly chosen telemetry laps."""
 
 import pandas as pd
 import streamlit as st
@@ -13,7 +13,7 @@ from pitlens.onboard.data import (
 )
 from pitlens.pitwall import ui
 from pitlens.pitwall.data import FIRST_SEASON, completed_races
-from pitlens.pitwall.navigation import driver_codes, integer, select_season
+from pitlens.pitwall.navigation import integer, select_season
 from pitlens.pitwall.timing import format_lap_time
 from pitlens.session import TimingUnavailable
 
@@ -24,38 +24,70 @@ def cached_races(year: int) -> pd.DataFrame:
 
 
 @st.cache_resource(show_spinner=False, max_entries=4)
-def cached_weekend(year: int, round_number: int, kind: str, validity_version: int = 2):
+def cached_weekend(year: int, round_number: int, kind: str, validity_version: int = 3):
     return load_weekend(year, round_number, kind)
 
 
 @st.cache_data(show_spinner=False, max_entries=16)
-def cached_compare(_weekend, key: tuple, ref: str, other: str, validity_version: int = 2) -> OnboardData:
-    return _weekend.compare(ref, other)
+def cached_compare(_weekend, key: tuple, ref: str, other: str, ref_lap: int | None = None,
+                   other_lap: int | None = None, validity_version: int = 3) -> OnboardData:
+    return _weekend.compare(ref, other, ref_lap, other_lap)
 
 
-def pick_drivers(drivers: pd.DataFrame) -> tuple[str, str]:
+def pick_drivers(drivers: pd.DataFrame, allow_same: bool = False) -> tuple[str, str]:
     """First driver defaults to the fastest; the second follows them to their teammate."""
     ss = st.session_state
     names = drivers["Driver"].tolist()
     if ss.get("ob_a") not in names:
         ss.ob_a = names[0]
     a = st.sidebar.selectbox("Driver", names, key="ob_a")
-    if ss.get("ob_prev_a") != a or ss.get("ob_b") not in names or ss.get("ob_b") == a:
+    if ss.get("ob_prev_a") != a or ss.get("ob_b") not in names or (not allow_same and ss.get("ob_b") == a):
         mate = teammate_of(drivers, a)
         ss.ob_b = mate if mate in names else next(n for n in names if n != a)
         ss.ob_prev_a = a
-    b = st.sidebar.selectbox("Compared with", [n for n in names if n != a], key="ob_b")
+    b = st.sidebar.selectbox("Compared with", [n for n in names if allow_same or n != a], key="ob_b")
     return a, b
 
 
+def pick_laps(weekend, a: str, b: str, scope: tuple, requested: dict) -> tuple[int | None, int | None]:
+    ss = st.session_state
+    if ss.get("ob_lap_scope") != (*scope, a, b):
+        ss.ob_lap_scope = (*scope, a, b)
+        ss.ob_ref_lap = ss.ob_other_lap = None
+    chosen = []
+    for driver, key, param, label in ((a, "ob_ref_lap", "lap_a", "Reference lap"),
+                                      (b, "ob_other_lap", "lap_b", "Comparison lap")):
+        options = weekend.lap_options(driver).set_index("Lap")
+        numbers = [None, *options.index.astype(int).tolist()]
+        if integer(requested.get(param)) in options.index:
+            ss[key] = integer(requested[param])
+        elif requested.get(param):
+            st.sidebar.warning(f"{driver} L{requested[param]} isn't a valid available lap. Choose another below.")
+        if ss.get(key) not in numbers:
+            ss[key] = None
+
+        def name(number, options=options, driver=driver):
+            if number is None:
+                return f"{driver} · fastest valid lap"
+            row = options.loc[number]
+            tyre = str(row["Compound"]).title()
+            age = f" · {row['TyreLife']:.0f} laps old" if pd.notna(row["TyreLife"]) else ""
+            return f"L{number} · {format_lap_time(row['LapTime'])} · {tyre}{age}"
+
+        chosen.append(st.sidebar.selectbox(label, numbers, key=key, format_func=name))
+    return tuple(chosen)
+
+
 def render() -> None:
-    ui.sidebar_brand("Onboard, fastest lap against fastest lap")
+    ui.sidebar_brand("Onboard, compare two laps")
     ss = st.session_state
     params = dict(st.query_params)
     link = tuple(sorted(params.items()))
     incoming = bool(params.get("year")) and ss.get("ob_link") != link
     if incoming:
         ss.ob_link = link  # consume before loading: a failed request must not trap the pickers
+        ss.ob_mode = "Choose laps" if params.get("mode") == "laps" or params.get("lap_a") or params.get("lap_b") \
+            else "Fastest laps"
     this_year = pd.Timestamp.now().year
     if incoming and FIRST_SEASON <= integer(params.get("year"), 0) <= this_year:
         ss.ob_year = int(params["year"])
@@ -83,7 +115,9 @@ def render() -> None:
         ss.ob_session = ss.selected_race[2]
     kind = st.sidebar.selectbox("Session", list(SESSION_NAMES), format_func=SESSION_NAMES.get, key="ob_session")
     if incoming:
-        ss.ob_requested_drivers = ((year, round_number, kind), driver_codes(params.get("drivers", "")))
+        requested = [d.strip().upper() for d in params.get("drivers", "").split(",") if d.strip()][:2]
+        ss.ob_requested_drivers = ((year, round_number, kind), requested)
+        ss.ob_requested_laps = ((year, round_number, kind), params)
 
     with st.spinner("Loading the session with car telemetry (the first time takes up to a minute)..."):
         try:
@@ -107,19 +141,41 @@ def render() -> None:
             ss.ob_prev_a = requested[0]
             if len(requested) > 1:
                 ss.ob_b = requested[1]
-    a, b = pick_drivers(drivers)
+    mode = st.sidebar.segmented_control("Comparison", ["Fastest laps", "Choose laps"], default="Fastest laps",
+                                        key="ob_mode", required=True)
+    a, b = pick_drivers(drivers, allow_same=mode == "Choose laps")
+    request_key, lap_request = ss.pop("ob_requested_laps", (None, {}))
+    lap_a = lap_b = None
+    if mode == "Choose laps":
+        lap_a, lap_b = pick_laps(weekend, a, b, (year, round_number, kind),
+                                lap_request if request_key == (year, round_number, kind) else {})
     current = {"year": str(year), "round": str(round_number), "session": kind, "drivers": f"{a},{b}"}
+    if mode == "Choose laps":
+        current["mode"] = "laps"
+        current.update({key: str(value) for key, value in (("lap_a", lap_a), ("lap_b", lap_b)) if value is not None})
     if dict(st.query_params) != current:
         st.query_params.from_dict(current)
     ss.ob_link = tuple(sorted(current.items()))
     ui.sidebar_footer()
 
+    if a == b and lap_a == lap_b:
+        st.info("Choose two different laps to compare this driver's tyre age or race phases.")
+        st.stop()
+
     try:
         with st.spinner("Loading both laps' telemetry..."):
-            data = cached_compare(weekend, (year, round_number, kind), a, b, validity_version=2)
-    except ValueError as exc:
+            data = cached_compare(weekend, (year, round_number, kind), a, b, lap_a, lap_b, validity_version=3)
+    except (ValueError, TimingUnavailable) as exc:
         st.warning(str(exc))
         st.stop()
+    except Exception as exc:
+        st.warning(f"Couldn't load telemetry for the selected laps: {exc}. Choose another lap or session.")
+        st.stop()
+
+    if a == b and data.ref.lap_number == data.other.lap_number:
+        st.info("Both selections resolve to the same lap. Choose a different comparison lap.")
+        st.stop()
+    a, b = data.labels
 
     aligned = align(data.ref.telemetry, data.other.telemetry)
     sectors = minisectors(aligned)
@@ -130,7 +186,7 @@ def render() -> None:
     ui.header(
         f"{year} · Round {round_number} · {data.session_name}",
         f"{a} vs {b}",
-        f"{data.name} · fastest laps · data: {data.source}",
+        f"{data.name} · {'selected laps' if mode == 'Choose laps' else 'fastest laps'} · data: {data.source}",
         title_html=f'<span style="color:{ref_color}">{a}</span> <span style="opacity:.45">vs</span> '
         f'<span style="color:{other_color}">{b}</span>',
     )

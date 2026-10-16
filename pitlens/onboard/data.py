@@ -61,6 +61,10 @@ class OnboardData:
     def dashes(self) -> tuple[str, str]:
         return "solid", "dash" if self.ref.team == self.other.team or self.colors[0] == self.colors[1] else "solid"
 
+    @property
+    def labels(self) -> tuple[str, str]:
+        return tuple(f"{lap.driver} · L{lap.lap_number}" for lap in (self.ref, self.other))
+
 
 def session_drivers(session) -> pd.DataFrame:
     """Drivers in classification order with their team, for pickers."""
@@ -76,8 +80,17 @@ def teammate_of(drivers: pd.DataFrame, driver: str) -> str | None:
     return mates["Driver"].iloc[0] if not mates.empty else None
 
 
-def fastest_lap(session, driver: str) -> DriverLap:
-    lap = session.laps.pick_drivers(driver).pick_fastest()
+def fastest_lap(session, driver: str, lap_number: int | None = None) -> DriverLap:
+    mine = session.laps.pick_drivers(driver)
+    if lap_number is None:
+        lap = mine.pick_fastest()
+    else:
+        selected = mine[(mine["LapNumber"] == lap_number) & mine["LapTime"].notna()]
+        if "Deleted" in selected:
+            selected = selected[~selected["Deleted"].eq(True)]
+        if selected.empty:
+            raise ValueError(f"{driver} lap {lap_number} has no valid lap time in this session")
+        lap = selected.iloc[0]
     if lap is None or pd.isna(lap["LapTime"]):
         raise ValueError(f"{driver} has no timed lap in this session")
     tel = lap.get_telemetry()
@@ -100,13 +113,14 @@ def load_session_with_telemetry(year: int, event, kind: str):
     return load_session(year, event, kind, telemetry=True)
 
 
-def compare(session, ref_driver: str, other_driver: str) -> OnboardData:
+def compare(session, ref_driver: str, other_driver: str, ref_lap: int | None = None,
+            other_lap: int | None = None) -> OnboardData:
     info = session.get_circuit_info()
     return OnboardData(
         name=f"{session.event.year} {session.event['EventName']}",
         session_name=session.name,
-        ref=fastest_lap(session, ref_driver),
-        other=fastest_lap(session, other_driver),
+        ref=fastest_lap(session, ref_driver, ref_lap),
+        other=fastest_lap(session, other_driver, other_lap),
         corners=pd.DataFrame(info.corners),
         rotation=float(info.rotation),
     )
@@ -132,10 +146,22 @@ class FastF1Weekend:
         best = laps.groupby("Driver")["LapTime"].min().sort_values()
         return pd.DataFrame({"Driver": best.index, "Team": best.index.map(team)}).reset_index(drop=True)
 
-    def compare(self, ref: str, other: str) -> OnboardData:
+    def lap_options(self, driver: str) -> pd.DataFrame:
+        laps = self.session.laps.pick_drivers(driver).dropna(subset=["LapTime"])
+        if "Deleted" in laps:
+            laps = laps[~laps["Deleted"].eq(True)]
+        if "PitOutTime" in laps:
+            laps = laps[laps["PitOutTime"].isna()]
+        return pd.DataFrame({"Lap": laps["LapNumber"].astype(int), "LapTime": laps["LapTime"],
+                             "Compound": laps["Compound"], "TyreLife": laps["TyreLife"]}).sort_values("Lap")
+
+    def compare(self, ref: str, other: str, ref_lap: int | None = None,
+                other_lap: int | None = None) -> OnboardData:
         try:
-            return compare(self.session, ref, other)
+            return compare(self.session, ref, other, ref_lap, other_lap)
         except (KeyError, DataNotLoadedError):
+            if ref_lap is not None or other_lap is not None:
+                raise ValueError("The archive has no telemetry for one of the selected laps. Choose another lap.") from None
             # The archive sometimes has a session's laps but not every car's telemetry.
             year = self._where[0]
             if year < openf1.FIRST_SEASON:
@@ -165,17 +191,40 @@ class OpenF1Weekend:
         return pd.DataFrame({"Driver": best["name_acronym"], "Team": best["team_name"]}).reset_index(drop=True)
 
     def fastest_lap(self, driver: str) -> DriverLap:
+        return self.lap(driver)
+
+    def lap_options(self, driver: str) -> pd.DataFrame:
+        mine = self.laps[self.laps["name_acronym"] == driver].copy()
+        if "Deleted" in mine:
+            mine = mine[~mine["Deleted"]]
+        compounds, ages = [], []
+        for row in mine.itertuples():
+            compound, age = self.tyre_info(row.driver_number, row.lap_number)
+            compounds.append(compound)
+            ages.append(age)
+        return pd.DataFrame({"Lap": mine["lap_number"].astype(int),
+                             "LapTime": pd.to_timedelta(mine["lap_duration"], unit="s"),
+                             "Compound": compounds, "TyreLife": ages}).sort_values("Lap")
+
+    def tyre_info(self, driver_number: int, lap_number: int) -> tuple[str, float]:
+        stints = self.stints[self.stints["driver_number"] == driver_number] if not self.stints.empty else self.stints
+        for stint in stints.itertuples():
+            if stint.lap_start <= lap_number <= stint.lap_end:
+                age = stint.tyre_age_at_start
+                return stint.compound, age + lap_number - stint.lap_start + 1 if pd.notna(age) else float("nan")
+        return "UNKNOWN", float("nan")
+
+    def lap(self, driver: str, lap_number: int | None = None) -> DriverLap:
         mine = self.laps[self.laps["name_acronym"] == driver]
         if "Deleted" in mine:
             mine = mine[~mine["Deleted"]]
+        if lap_number is not None:
+            mine = mine[mine["lap_number"] == lap_number]
         if mine.empty:
-            raise ValueError(f"{driver} has no timed lap in this session")
+            label = f" lap {lap_number}" if lap_number is not None else ""
+            raise ValueError(f"{driver}{label} has no valid timed lap in this session")
         lap = mine.loc[mine["lap_duration"].idxmin()]
-        compound, age = "UNKNOWN", float("nan")
-        st = self.stints[(self.stints.get("driver_number") == lap["driver_number"])] if not self.stints.empty else self.stints
-        for s in st.itertuples():
-            if s.lap_start <= lap["lap_number"] <= s.lap_end:
-                compound, age = s.compound, (s.tyre_age_at_start or 0) + lap["lap_number"] - s.lap_start + 1
+        compound, age = self.tyre_info(lap["driver_number"], lap["lap_number"])
         sec = lambda k: pd.to_timedelta(lap[k], unit="s") if pd.notna(lap[k]) else pd.NaT  # noqa: E731
         return DriverLap(
             driver=driver,
@@ -191,8 +240,9 @@ class OpenF1Weekend:
             team_color=team_color(lap.get("team_colour")),
         )
 
-    def compare(self, ref: str, other: str) -> OnboardData:
-        ref_lap, other_lap = self.fastest_lap(ref), self.fastest_lap(other)
+    def compare(self, ref: str, other: str, ref_lap: int | None = None,
+                other_lap: int | None = None) -> OnboardData:
+        ref_lap, other_lap = self.lap(ref, ref_lap), self.lap(other, other_lap)
         corners, rotation = openf1.circuit_info(self.session["circuit_key"], self.year)
         corners["Distance"] = corner_distances(corners, ref_lap.telemetry)
         return OnboardData(name=self.name, session_name=self.session_name, ref=ref_lap, other=other_lap,

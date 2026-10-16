@@ -8,6 +8,7 @@ from plotly.subplots import make_subplots
 from pitlens import plotstyle
 from pitlens.onboard.compare import rotate
 from pitlens.onboard.data import OnboardData
+from pitlens.season.tours import corner_measurements
 from pitlens.style import FALLBACK_TEAM_COLOR
 
 CORNER_LINE = "rgba(150,150,150,0.30)"
@@ -27,7 +28,7 @@ def telemetry_figure(data: OnboardData, aligned, sector_marks: list[float] = (),
     The gap panel is filled in the colour of whoever is ahead at that point,
     so the story of the lap reads at a glance.
     """
-    ref, other = data.ref.driver, data.other.driver
+    ref, other = data.labels
     ref_color, other_color = data.colors
     ref_dash, other_dash = data.dashes
     fig = make_subplots(rows=5, cols=1, shared_xaxes=True, vertical_spacing=0.03, row_heights=[0.22, 0.34, 0.16, 0.1, 0.18])
@@ -99,7 +100,7 @@ def track_map(data: OnboardData, sectors) -> go.Figure:
     dist = tel["Distance"].to_numpy()
     colors = dict(zip(("ref", "other"), data.colors))
     dashes = dict(zip(("ref", "other"), data.dashes))
-    names = {"ref": data.ref.driver, "other": data.other.driver}
+    names = dict(zip(("ref", "other"), data.labels))
 
     fig = go.Figure()
     # A wide, faint base line under the coloured segments gives the track some body.
@@ -126,10 +127,18 @@ def track_map(data: OnboardData, sectors) -> go.Figure:
         a = np.radians(c["Angle"])
         (cx, lx), (cy, ly) = rotate([c["X"], c["X"] + off * np.cos(a)], [c["Y"], c["Y"] + off * np.sin(a)], data.rotation)
         fig.add_shape(type="line", x0=cx, y0=cy, x1=lx, y1=ly, line=dict(color="rgba(128,128,128,0.45)", width=1))
+        label = f"T{int(c['Number'])}{c.get('Letter') or ''}"
+        details = []
+        for lap, name in zip((data.ref, data.other), data.labels):
+            distance = c["Distance"] * lap.telemetry["Distance"].max() / dist.max()
+            values = corner_measurements(lap.telemetry, distance)
+            speed, gear, brake = (values[k] if values[k] is not None else "—" for k in ("speed", "gear", "brake_m"))
+            details.append(f"{name}: {speed} km/h · gear {gear} · brake-on ~{brake} m")
         fig.add_trace(go.Scatter(
             x=[lx], y=[ly], mode="markers+text", text=[f"{int(c['Number'])}{c.get('Letter') or ''}"],
             textfont=dict(size=9, color="#ffffff"), marker=dict(size=18, color="rgba(88,92,102,0.95)"),
-            hoverinfo="skip", showlegend=False,
+            hovertemplate=f"<b>{label}</b><br>" + "<br>".join(details)
+            + "<br>Local minima / sampled approach braking<extra></extra>", showlegend=False,
         ))
 
     # Start/finish: a short bar across the track at the first sample.

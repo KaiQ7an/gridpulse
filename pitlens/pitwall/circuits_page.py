@@ -2,17 +2,22 @@
 
 import base64
 import html
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import plotly.graph_objects as go
 import streamlit as st
 
-from pitlens import snapshots
+from pitlens import plotstyle, snapshots
 from pitlens.onboard.compare import rotate
 from pitlens.pitwall import charts, ui
 from pitlens.pitwall.atlas_map import atlas_map
+from pitlens.pitwall.corner_guide import corner_guide
 from pitlens.season.atlas import REGIONS, catalog, circuit_fact, in_region, record_holders
 from pitlens.season.circuits import circuit_years, circuits, saved_races
+from pitlens.season.comparison import comparison_slugs, comparison_table
+from pitlens.season.tours import corner_tour
 
 NEW_RULES = 2026  # the year the cars changed: lap times before it aren't comparable
 
@@ -48,6 +53,11 @@ def _cached_track(year: int, round_number: int, revision: tuple) -> dict | None:
 def render() -> None:
     ui.sidebar_brand("The world of Formula 1 circuits")
     inject_atlas_css()
+    st.html(Path(__file__).with_name("atlas_map") / "bridge.html", unsafe_allow_javascript=True)
+    if "compare" in st.query_params:
+        ui.sidebar_footer()
+        render_comparison()
+        return
     requested = st.query_params.get("circuit")
     fact = circuit_fact(requested)
     region = fact["region"] if fact else st.query_params.get("region", "world")
@@ -71,6 +81,8 @@ def render() -> None:
     ss.atlas_region = region
     st.pills("Explore regions", list(REGIONS), key="atlas_region", on_change=change_region,
              format_func=lambda r: REGIONS[r]["name"], label_visibility="collapsed")
+    st.button("Compare circuits", key="atlas-compare-open", on_click=open_comparison,
+              icon=":material/compare_arrows:")
     if fact:
         render_fact(fact)
     else:
@@ -91,6 +103,77 @@ def jump_to_circuit() -> None:
 
 def change_region() -> None:
     navigate(st.session_state.atlas_region or "world")
+
+
+def open_comparison(slug: str | None = None) -> None:
+    selected = [slug] if slug else ["monza", "suzuka"]
+    st.query_params.from_dict({"compare": ",".join(selected)})
+
+
+def render_comparison() -> None:
+    ss = st.session_state
+    incoming = st.query_params.get("compare", "")
+    if ss.get("atlas_compare_link") != incoming or "atlas_compared" not in ss:
+        ss.atlas_compared = comparison_slugs(incoming)
+        ss.atlas_compare_link = incoming
+    st.button("World atlas", on_click=navigate, icon=":material/public:")
+    ui.header("Circuit atlas · compare", "Different tracks. Different demands.",
+              "Choose two or three venues. Hover the bars to inspect values and saved-race coverage.")
+    selected = st.multiselect("Circuits to compare", [c["slug"] for c in catalog()], key="atlas_compared",
+                             max_selections=3, format_func=lambda s: f"{circuit_fact(s)['city']} · {circuit_fact(s)['country']}")
+    current = ",".join(selected)
+    if current != incoming:
+        st.query_params.from_dict({"compare": current})
+        ss.atlas_compare_link = current
+    if len(selected) < 2:
+        st.info("Select at least two circuits to compare, up to three.")
+    if not selected:
+        return
+    facts = [circuit_fact(s) for s in selected]
+    histories = {c["key"]: cached_years(c["key"]) for c in facts}
+    data = comparison_table(facts, histories)
+    table = circuits(cached_races())
+    palette = ["#ff453e", "#55bfff", "#f5c34d"]
+    for col, fact, color in zip(st.columns(len(facts)), facts, palette):
+        with col, st.container(border=True, key=f"card-atlas-compare-{fact['slug']}"):
+            summary = data.loc[data["Circuit"] == fact["city"]].iloc[0]
+            st.html(f'<div class="atlas-card-country" style="color:{color}">{html.escape(fact["country"])}</div>'
+                    f'<div class="atlas-card-city">{html.escape(fact["city"])}</div>'
+                    + outline_svg(outline_for(fact["key"], table))
+                    + f'<div class="atlas-card-meta">{summary["Saved races"]} saved races · '
+                    f'{html.escape(summary["Coverage"])}</div>')
+            st.button(f"Open {fact['city']}", key=f"compare-open-{fact['slug']}", on_click=navigate,
+                      args=(fact["region"], fact["slug"]), width="stretch")
+    metric = st.segmented_control("Compare metric", ["Length (km)", "Typical pit loss (s)", "SC races (%)",
+                                                     "Stops per finisher"], default="Length (km)", required=True,
+                                   key="atlas_compare_metric", width="stretch", wrap=True)
+    valid = data[data[metric].notna()]
+    if valid.empty:
+        st.info("This metric isn't available for the selected saved races. Try circuit length or save more races.")
+    else:
+        colors = dict(zip(data["Circuit"], palette))
+        coverage = valid["Coverage"] if metric != "Length (km)" else ["Circuit reference layout"] * len(valid)
+        fig = go.Figure(go.Bar(x=valid[metric], y=valid["Circuit"], orientation="h",
+                               marker_color=[colors[c] for c in valid["Circuit"]], customdata=coverage,
+                               text=valid[metric].map(lambda x: f"{x:.2f}"), textposition="auto",
+                               hovertemplate="<b>%{y}</b><br>" + metric + ": %{x:.2f}<br>%{customdata}<extra></extra>"))
+        zeros = valid[valid[metric].eq(0)]
+        if not zeros.empty:
+            fig.add_trace(go.Scatter(x=zeros[metric], y=zeros["Circuit"], mode="markers+text",
+                                     marker=dict(size=8, color=[colors[c] for c in zeros["Circuit"]]),
+                                     text=["0.00"] * len(zeros), textposition="middle right", cliponaxis=False,
+                                     customdata=zeros["Coverage"], showlegend=False,
+                                     hovertemplate="<b>%{y}</b><br>" + metric + ": 0.00<br>%{customdata}<extra></extra>"))
+            fig.update_traces(showlegend=False)
+        fig.update_layout(height=max(230, 85 * len(valid)), margin=dict(l=8, r=15, t=10, b=10))
+        fig.update_xaxes(title=metric, rangemode="tozero")
+        fig.update_yaxes(autorange="reversed")
+        st.plotly_chart(plotstyle.apply(fig), width="stretch", key="atlas_comparison_chart")
+    ui.note("Strategy metrics use only each venue's saved Grands Prix. Safety-car percentage means races with "
+            "at least one full safety car; pit loss is the median reference; stops are weighted by finishers. "
+            "Different years and sample sizes limit direct comparisons.")
+    st.dataframe(data.set_index("Circuit").T.map(lambda v: "—" if pd.isna(v) else str(v)), width="stretch")
+    ui.note("Race lap records belong to different layouts and cannot rank the circuits by car performance.")
 
 
 def map_view(region: str, selected: str | None = None) -> None:
@@ -177,6 +260,8 @@ def render_fact(fact: dict) -> None:
     with st.container(horizontal=True, gap="small"):
         st.button("World atlas", on_click=navigate, icon=":material/public:")
         st.button(REGIONS[region]["name"], on_click=navigate, args=(region,), icon=":material/arrow_back:")
+        st.button("Compare this circuit", on_click=open_comparison, args=(fact["slug"],),
+                  icon=":material/compare_arrows:")
     ui.header(f"Circuit file · {fact['country']}", fact["city"], fact["name"])
     ui.strip([ui.stat("Circuit length", f"{fact['length_km']:.3f} km"),
               ui.stat("Grand Prix laps", str(fact["laps"])),
@@ -185,8 +270,21 @@ def render_fact(fact: dict) -> None:
     table = circuits(cached_races())
     left, right = st.columns([6, 5], gap="large")
     with left, st.container(border=True, key="card-atlas-profile"):
-        ui.label("The circuit")
-        st.html('<div class="atlas-profile-outline">' + outline_svg(outline_for(fact["key"], table)) + '</div>')
+        ui.label("Explore every corner")
+        tour = corner_tour(fact["slug"])
+        if tour:
+            corner_guide(tour, fact["name"], key=f"corner-guide-{fact['slug']}")
+            ref = tour["reference"]
+            if tour["telemetry"]:
+                lap_time = f"{int(ref['time'] // 60)}:{ref['time'] % 60:06.3f}"
+                st.caption(f"Reference: {ref['year']} {ref['event']} · {ref['driver']} L{ref['lap']} · {lap_time}. "
+                           "Corner geometry: MultiViewer; sampled telemetry: OpenF1. A reference lap, not the lap record.")
+            else:
+                st.caption(f"Geometry reference: {ref['year']} {ref['event']} · MultiViewer. Telemetry unavailable.")
+            if tour.get("name_source"):
+                st.markdown(f"[Corner names · venue course guide]({tour['name_source']})")
+        else:
+            st.html('<div class="atlas-profile-outline">' + outline_svg(outline_for(fact["key"], table)) + '</div>')
         st.write(fact["description"])
     with right:
         map_view(region, fact["slug"])
@@ -210,9 +308,10 @@ def render_fact(fact: dict) -> None:
             leaders = history[field]
             st.html(f'<div class="atlas-record-count">{leaders[0]["count"] if leaders else "–"}</div>')
             st.write(record_holders(leaders))
-            for leader in leaders:
-                years = ", ".join(map(str, leader["years"]))
-                st.caption((leader["driver"] + ": " if len(leaders) > 1 else "") + years)
+            with st.expander("Winning years" if field == "wins" else "Pole years"):
+                for leader in leaders:
+                    years = ", ".join(map(str, leader["years"]))
+                    st.caption((leader["driver"] + ": " if len(leaders) > 1 else "") + years)
     with st.expander("Sources and record definitions"):
         st.markdown(f"Layout facts and race lap record: [Formula 1]({fact['facts_source']}). "
                     f"Historical wins and starting grids: [Jolpica results]({history['wins_source']}) · "
@@ -318,7 +417,17 @@ def inject_atlas_css() -> None:
       .atlas-record-time { color:#bd8aff;font-size:36px;font-weight:800;letter-spacing:-1.5px;margin:12px 0 }
       .atlas-record-count { font-size:42px;font-weight:850;letter-spacing:-2px;margin:6px 0 }
       .atlas-region-name { font-size:16px;font-weight:750;min-height:42px }
-      [class*="st-key-card-atlas-circuit-"] { transition:border-color .18s,background .18s }
-      [class*="st-key-card-atlas-circuit-"]:hover { border-color:#a73b37;background:rgba(255,40,32,.025) }
+      [class*="st-key-card-atlas-circuit-"], [class*="st-key-card-atlas-compare-"] {
+        transition:transform .18s,border-color .18s,background .18s,box-shadow .18s }
+      [class*="st-key-card-atlas-circuit-"]:is(:hover,:focus-within,.atlas-linked),
+      [class*="st-key-card-atlas-compare-"]:is(:hover,:focus-within,.atlas-linked) {
+        transform:translateY(-4px);border-color:#d74942;background:rgba(255,40,32,.055);box-shadow:0 12px 28px #0003 }
+      [class*="st-key-card-atlas-"]:is(:hover,:focus-within,.atlas-linked) .atlas-outline {
+        filter:drop-shadow(0 0 7px #ff373a65);transition:filter .18s,transform .18s;transform:scale(1.045) }
+      [class*="st-key-card-atlas-region-"]:hover { border-color:#d74942 }
+      @media(prefers-reduced-motion:reduce) {
+        [class*="st-key-card-atlas-"] { transition:none!important;transform:none!important }
+        .atlas-outline { transition:none!important;transform:none!important }
+      }
       @media(max-width:750px) { .atlas-record-time { font-size:28px } }
     </style>''')

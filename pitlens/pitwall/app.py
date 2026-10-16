@@ -24,6 +24,7 @@ from pitlens.pitwall import (
 from pitlens.pitwall.data import FIRST_SEASON, RaceData, completed_races, lap_clock, load_race
 from pitlens.pitwall.events import fastest_lap_candidates, fastest_sectors, neutralised_banner, situation
 from pitlens.pitwall.navigation import driver_codes, integer, replay_params, select_season, url
+from pitlens.pitwall.timeline import event_timeline, known_events
 from pitlens.pitwall.timing import format_lap_time, neutralised_periods, timing_tower
 from pitlens.pitwall.tower import timing_tower as tower_component
 from pitlens.radio import transcribe, translate
@@ -273,6 +274,11 @@ def notify(race: RaceData, lap: int) -> None:
 
 def race_view(race: RaceData) -> None:
     ss = st.session_state
+    pending = ss.pop("timeline_jump", None)
+    if pending and pending[0] == ss.race_key:
+        ss.lap = pending[1]
+        ss.notes = []
+        ss.shown_lap = None
     interval = SPEEDS[ss.speed]
     if ss.get("timer") != (ss.playing, interval):
         st.rerun()  # play/pause or speed changed: rebuild the fragment with the right timer
@@ -291,6 +297,16 @@ def race_view(race: RaceData) -> None:
     periods = neutralised_periods(laps)
     tower = timing_tower(race.laps, lap, race.retired, race.entrants, stops=race.stops)
     status_strip(race, laps, tower, lap)
+    with st.container(border=True, key="card-event-timeline"):
+        events = known_events(race.events, lap, ss.no_spoilers)
+        action = event_timeline(events, lap, race.total_laps, ss.no_spoilers, key=f"timeline-{ss.race_key}")
+        allowed = {(e["event"], e["lap"]) for e in events}
+        if isinstance(action, dict) and action.get("id") and action["id"] != ss.get("timeline_click") \
+                and (action.get("event"), action.get("lap")) in allowed:
+            ss.timeline_click = action["id"]
+            ss.timeline_jump = (ss.race_key, action["lap"])
+            ss.playing = False
+            st.rerun()
 
     left, right = st.columns([6, 7], gap="large")
     with left, st.container(border=True, key="card-tower"):

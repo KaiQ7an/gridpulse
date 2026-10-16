@@ -39,6 +39,9 @@ falling away, with the cleaning rules written down and tested.
 - **Replay**: a player bar under the header. Press Play and the whole dashboard advances a lap at a
   time (1×, 2× or 4×), drag the slider, or type a lap number to jump straight to it. A status strip shows the lap,
   leader, track status, fastest lap so far and the weather.
+- **Event timeline**: hover or focus a pit stop, pass, fastest lap, retirement or track-status
+  change; click to pause and jump to that lap. Filter by event type or use the event picker on
+  crowded laps. Spoiler-free mode only sends events through the current replay lap to the browser.
 - **Timing tower**: running order with a green ▲ or red ▼ for places gained or lost on the lap
   (against the starting grid on lap 1), gap to the leader, interval (green when within a second), last
   lap, tyre compound and age, stops, lapped cars and retirements, with a pit flag on the lap a car
@@ -117,6 +120,16 @@ falling away, with the cleaning rules written down and tested.
 - An interactive world globe with circuit markers, rotation, zoom and four regional maps:
   Europe & Caucasus, the Americas, Asia-Pacific and the Middle East. Select a marker, browse
   a region or search by circuit, city or country; circuit facts work without saved race data.
+- Hover or focus a circuit card to rotate the globe toward it and preview its facts; map markers
+  highlight the corresponding card and country without a page reload.
+- **Corner guide**: hover the racing line or numbered turns, pin a corner, step with the arrow
+  buttons/keys, or play a lap tour. Speed, gear and approximate brake-on approach distance come
+  from an explicitly labelled reference lap. Missing telemetry or numbered geometry stays unavailable;
+  the tour animation is a visual guide, not a real-time replay. Reference tours are bundled offline;
+  rebuild them with `.venv/bin/python tools/update_corner_tours.py` using saved races and source caches.
+- **Compare circuits**: select up to three venues and switch between length, median reference pit
+  loss, the percentage of saved races with a full safety car, and stops per classified finisher.
+  Each venue's saved years and sample size remain visible. Share `/circuits?compare=monza,suzuka`.
 - Each circuit has layout length, race laps, first Grand Prix, a track outline and an introduction,
   plus F1's published race lap record and the drivers with the most wins and pole starts at that
   venue. Historical records include tied leaders, years, source links and a reference date;
@@ -135,9 +148,13 @@ falling away, with the cleaning rules written down and tested.
   Map geometry is public-domain [Natural Earth](https://www.naturalearthdata.com/),
   rendered with the bundled [D3](https://d3js.org/) library (ISC license in the component directory).
 
-**`onboard`: fastest-lap telemetry comparison** (available now)
+**`onboard`: telemetry lap comparison** (available now)
 
 - Any two drivers in any session, defaulting to the fastest driver and their teammate.
+- In the dashboard, switch to **Choose laps** for any two valid timed laps, including two laps from
+  the same driver. The lap pickers show time, compound and tyre age; deleted laps are excluded.
+  Team colours and solid/dashed lines distinguish teammates or two laps from the same driver.
+  Links preserve both choices: `/onboard?year=2025&round=4&session=R&drivers=HAM,HAM&mode=laps&lap_a=10&lap_b=20`.
 - A plain-English summary of where the lap was won: sectors, and the corners with the biggest gains.
 - Speed, throttle, brake and gear against distance, with a gap trace shaded in the colour of
   whoever is ahead, corner numbers and sector lines, and a zoom into each sector.
