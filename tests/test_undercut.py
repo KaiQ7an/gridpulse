@@ -153,6 +153,14 @@ def test_drive_through_on_the_same_tyres_is_not_a_stop(undercut_race):
     assert stops["Driver"].tolist() == ["A"]
 
 
+def test_tyre_change_while_the_race_is_stopped_is_not_a_stop(undercut_race):
+    laps = undercut_race.copy()
+    b_in = laps["PitInTime"].notna() & (laps["Driver"] == "B")
+    laps["TrackStatus"] = laps["TrackStatus"].astype(str)
+    laps.loc[b_in, "TrackStatus"] = "15"  # red flag on B's in-lap: into the pit lane because the race stopped
+    assert pit_stops(laps)["Driver"].tolist() == ["A"]
+
+
 def test_implausibly_short_pit_lane_times():
     from pitlens.undercut.analysis import plausible_lane_times
 

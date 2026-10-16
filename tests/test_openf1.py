@@ -85,6 +85,36 @@ def test_stop_lap_is_the_in_lap_where_the_pit_lane_crosses_the_line():
     assert in_laps(pits, stints).tolist() == [20, 1, 0]  # 0: started from the pit lane
 
 
+def test_a_stop_at_the_end_of_lap_1_is_not_a_pit_lane_start():
+    from pitlens.sources.openf1 import first_lap_stops, in_laps
+
+    # Monaco 2025: Tsunoda pits at the end of lap 1 and leaves the pits on lap 2, but OpenF1 ends his
+    # soft stint at lap 0 and starts the hards on lap 1. Gasly really does start from the pit lane.
+    stints = pd.DataFrame({"driver_number": [22, 22, 10, 10], "stint_number": [1, 2, 1, 2],
+                           "lap_start": [1, 1, 1, 1], "lap_end": [0, 72, 0, 70],
+                           "compound": ["SOFT", "HARD", "SOFT", "HARD"]})
+    out_laps = {(22, 2), (10, 1)}
+    fixed = first_lap_stops(stints, out_laps)
+    assert fixed[fixed["driver_number"] == 22][["lap_start", "lap_end"]].values.tolist() == [[1, 1], [2, 72]]
+    assert fixed[fixed["driver_number"] == 10][["lap_start", "lap_end"]].values.tolist() == [[1, 0], [1, 70]]
+    pits = pd.DataFrame({"driver_number": [22, 10], "lap_number": [1, 1]})
+    assert in_laps(pits, fixed, out_laps).tolist() == [1, 0]
+
+
+def test_a_stop_at_the_end_of_lap_1_without_pit_records():
+    from pitlens.sources.openf1 import first_lap_stops, pits_from_stints
+
+    # Monaco 2023, before OpenF1 had pit records: Perez's first stint reads lap 1 to 1 and the next
+    # starts on lap 1 as well; he left the pits on lap 2.
+    stints = pd.DataFrame({"driver_number": [11, 11], "stint_number": [1, 2], "lap_start": [1, 1],
+                           "lap_end": [1, 34], "compound": ["MEDIUM", "HARD"]})
+    fixed = first_lap_stops(stints, {(11, 2)})
+    assert fixed[["lap_start", "lap_end"]].values.tolist() == [[1, 1], [2, 34]]
+    laps = pd.DataFrame({"driver_number": [11, 11], "lap_number": [1, 2],
+                         "date_start": ["2023-05-28T13:03:00", "2023-05-28T13:05:00"]})
+    assert pits_from_stints(fixed, laps)["lap_number"].tolist() == [1]
+
+
 def test_stops_from_stints_when_there_are_no_pit_records():
     from pitlens.sources.openf1 import pits_from_stints
 

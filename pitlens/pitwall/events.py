@@ -14,17 +14,20 @@ TOP = 10  # only passes for points-paying positions, so the feed stays readable
 
 
 def fastest_lap_candidates(laps: pd.DataFrame) -> pd.DataFrame:
-    """Laps that can count as a fastest lap: timed, not lap 1, not deleted, no pit lane, no SC/VSC/red
-    flag, and not implausibly quick."""
+    """Laps that can count as a fastest lap: timed, not lap 1, not deleted, not out of the pit lane, not
+    run into a red flag, and not implausibly quick.
+
+    Officially any lap counts. So does an in-lap (Norris's fastest lap in Australia 2025 was the lap he
+    pitted at the end of), and so does a lap on which a VSC or safety car was called after the car had
+    gone through most of it (Alonso in China 2024, Norris in Qatar 2024)."""
     timed = laps.dropna(subset=["LapTime"])
     if "Deleted" in timed:
         timed = timed[timed["Deleted"] != True]  # noqa: E712 (column holds True/False/NaN)
-    for col in ("PitInTime", "PitOutTime"):
-        if col in timed:
-            timed = timed[timed[col].isna()]
-    neutral = timed["TrackStatus"].astype(str).str.contains("[4567]", regex=True)
+    if "PitOutTime" in timed:
+        timed = timed[timed["PitOutTime"].isna()]
+    stopped = timed["TrackStatus"].astype(str).str.contains("5")
     # Lap 1 starts from the grid, so it's never representative.
-    return plausible(timed[~neutral & (timed["LapNumber"] > 1)])
+    return plausible(timed[~stopped & (timed["LapNumber"] > 1)])
 
 
 def fastest_sectors(laps: pd.DataFrame, top: int = 5) -> list[list[tuple[str, float, int]]]:

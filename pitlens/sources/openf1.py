@@ -150,7 +150,7 @@ def pits_from_stints(stints: pd.DataFrame, laps: pd.DataFrame) -> pd.DataFrame:
                                        "stop_duration"])
 
 
-def in_laps(pits: pd.DataFrame, stints: pd.DataFrame) -> pd.Series:
+def in_laps(pits: pd.DataFrame, stints: pd.DataFrame, out_laps: set | None = None) -> pd.Series:
     """The in-lap of each pit stop.
 
     OpenF1's `lap_number` is the lap the stop was made on. Where the pit boxes
@@ -158,13 +158,51 @@ def in_laps(pits: pd.DataFrame, stints: pd.DataFrame) -> pd.Series:
     the pit lane crosses the line (Montreal, Melbourne) the stop falls on the
     next lap, the out-lap, and the new tyre stint starts on that same lap.
     `stints` should already have drive-throughs merged away
-    (`merge_continuing_stints`). 0 means the car started from the pit lane.
+    (`merge_continuing_stints`). 0 means the car started from the pit lane,
+    unless `out_laps` ((car, lap) pairs flagged as pit-out laps) shows it left
+    the pits at the start of lap 2: then it stopped at the end of lap 1 (see
+    `first_lap_stops`).
     """
     starts = stints.groupby("driver_number")["lap_start"].apply(set).to_dict() if not stints.empty else {}
-    return pd.Series(
-        [int(n) - 1 if n in starts.get(d, set()) else int(n) for d, n in zip(pits["driver_number"], pits["lap_number"])],
-        index=pits.index,
-    )
+    out_laps = out_laps or set()
+
+    def in_lap(d, n) -> int:
+        lap = int(n) - 1 if n in starts.get(d, set()) else int(n)
+        if lap == 0 and (d, 2) in out_laps and (d, 1) not in out_laps:
+            return 1
+        return lap
+
+    return pd.Series([in_lap(d, n) for d, n in zip(pits["driver_number"], pits["lap_number"])], index=pits.index)
+
+
+def pit_out_laps(laps: pd.DataFrame) -> set:
+    """(car number, lap) for every lap OpenF1 flags as starting in the pit lane."""
+    if laps.empty or "is_pit_out_lap" not in laps:
+        return set()
+    flagged = laps[laps["is_pit_out_lap"].eq(True)]
+    return set(zip(flagged["driver_number"], flagged["lap_number"].astype(int)))
+
+
+def first_lap_stops(stints: pd.DataFrame, out_laps: set) -> pd.DataFrame:
+    """Put a stop made at the end of lap 1 back on lap 1.
+
+    For a car that pits at the end of the first lap (often under a lap-1 safety
+    car), OpenF1 can start the next stint on lap 1 too, ending the first at lap
+    0 (or at lap 1, in early 2023), as if the car had started from the pit lane.
+    The pit-out flags tell the two apart: a pit-lane start leaves the pits on
+    lap 1, this car only on lap 2.
+    """
+    if stints.empty or not out_laps:
+        return stints
+    stints = stints.sort_values(["driver_number", "stint_number"]).reset_index(drop=True)
+    for i in range(len(stints) - 1):
+        s, nxt = stints.loc[i], stints.loc[i + 1]
+        d = s["driver_number"]
+        if nxt["driver_number"] == d and s["lap_start"] == 1 and s["lap_end"] in (0, 1) and nxt["lap_start"] == 1 \
+                and (d, 2) in out_laps and (d, 1) not in out_laps:
+            stints.loc[i, "lap_end"] = 1
+            stints.loc[i + 1, "lap_start"] = 2
+    return stints
 
 
 def starting_grid(session: dict, session_name: str = "Race") -> dict[int, int]:
@@ -299,13 +337,14 @@ def race_parts(year: int, race_date_utc, session_name: str = "Race") -> dict:
     ).reset_index(drop=True)
 
     # Pit stops: the in-lap carries PitInTime, the out-lap after it PitOutTime.
-    stints = merge_continuing_stints(stints)
+    out_laps = pit_out_laps(laps)
+    stints = merge_continuing_stints(first_lap_stops(stints, out_laps))
     out["PitInTime"] = pd.Series(pd.NaT, index=out.index, dtype="timedelta64[ns]")
     out["PitOutTime"] = pd.Series(pd.NaT, index=out.index, dtype="timedelta64[ns]")
     if pits.empty and not stints.empty:
         pits = pits_from_stints(stints, laps)  # OpenF1 has no pit data for some races (early 2023)
     if not pits.empty:
-        pits["in_lap"] = in_laps(pits, stints)
+        pits["in_lap"] = in_laps(pits, stints, out_laps)
     for p in pits.itertuples() if not pits.empty else []:
         if p.in_lap < 1:
             continue  # started from the pit lane: handled with the pit-out laps below
@@ -402,7 +441,7 @@ def race_parts(year: int, race_date_utc, session_name: str = "Race") -> dict:
 
     return {
         "laps": out,
-        "stationary": stationary_from(pits, abbr, stints),
+        "stationary": stationary_from(pits, abbr, stints, out_laps),
         "results": results,
         "messages": messages,
         "weather": wx,
@@ -416,7 +455,8 @@ def race_parts(year: int, race_date_utc, session_name: str = "Race") -> dict:
     }
 
 
-def stationary_from(pits: pd.DataFrame, abbr: dict, stints: pd.DataFrame | None = None) -> pd.DataFrame:
+def stationary_from(pits: pd.DataFrame, abbr: dict, stints: pd.DataFrame | None = None,
+                    out_laps: set | None = None) -> pd.DataFrame:
     """How long each car stood still in its pit box (s), by driver and in-lap, where the feed has it.
 
     F1's timing only started publishing this in 2024 and it's patchy since:
@@ -425,7 +465,7 @@ def stationary_from(pits: pd.DataFrame, abbr: dict, stints: pd.DataFrame | None 
     """
     if pits.empty or "stop_duration" not in pits:
         return pd.DataFrame(columns=["Driver", "Lap", "Stationary"])
-    laps = in_laps(pits, merge_continuing_stints(stints)) if stints is not None else pits["lap_number"]
+    laps = in_laps(pits, merge_continuing_stints(stints), out_laps) if stints is not None else pits["lap_number"]
     out = pd.DataFrame(
         {
             "Driver": pits["driver_number"].map(abbr),
@@ -477,7 +517,8 @@ def stationary_times(year: int, race_date_utc, numbers: dict[int, str], session_
     session = find_session(year, race_date_utc, session_name)
     pits = pd.DataFrame(get("pit", session_key=session["session_key"]))
     stints = pd.DataFrame(get("stints", session_key=session["session_key"]))
-    return stationary_from(pits, numbers, stints)
+    out_laps = pit_out_laps(pd.DataFrame(get("laps", session_key=session["session_key"])))
+    return stationary_from(pits, numbers, first_lap_stops(stints, out_laps), out_laps)
 
 
 # ---------------------------------------------------------------- onboard (single laps)

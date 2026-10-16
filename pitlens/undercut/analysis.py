@@ -31,7 +31,8 @@ def pit_stops(laps: pd.DataFrame, stationary: pd.DataFrame | None = None) -> pd.
     """One row per pit stop: in-lap, how long it took, tyres, the time it cost and places lost.
 
     A stop is an in-lap (PitInTime set) followed by an out-lap (PitOutTime set)
-    on a new stint; driving through the pit lane on the same tyres isn't one.
+    on a new stint; driving through the pit lane on the same tyres isn't one, and
+    nor is changing tyres in the pit lane while the race is stopped (red flag).
     `LaneTime` is pit entry to pit exit; `Stationary` is how long the car stood
     in its box, where the timing feed has it (`stationary`: Driver, Lap,
     Stationary). `Loss` compares the in-lap plus out-lap with the same two
@@ -62,6 +63,8 @@ def pit_stops(laps: pd.DataFrame, stationary: pd.DataFrame | None = None) -> pd.
             if inlap.get("Stint") == outlap.get("Stint") and pd.notna(inlap.get("Stint")) \
                     and pd.isna(still.get((driver, int(lap)))):
                 continue  # drove through the pit lane on the same tyres: a penalty, or sent through under SC
+            if track_status(str(inlap["TrackStatus"])) == "Red flag":
+                continue  # into the pit lane because the race was stopped: a tyre change, not a pit stop
             status = track_status(str(inlap["TrackStatus"]) + str(outlap["TrackStatus"]))
             rows.append(
                 {

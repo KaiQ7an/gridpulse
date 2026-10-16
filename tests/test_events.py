@@ -60,14 +60,15 @@ def test_neutralised_banner_counts_laps_under_the_same_status():
     assert neutralised_banner(status, 6) == {"kind": "vsc", "text": "Virtual safety car", "laps": 1}
 
 
-def test_laps_under_safety_car_or_in_the_pits_cannot_be_fastest():
+def test_laps_into_a_red_flag_or_out_of_the_pits_cannot_be_fastest():
     from pitlens.pitwall.events import fastest_lap_candidates
 
-    laps = pd.DataFrame(car("A", [80, 70, 79, 81, 40, 75], pit_in=6, status={2: "4"}))
-    laps["PitOutTime"] = pd.NaT
+    laps = pd.DataFrame(car("A", [80, 70, 79, 81, 40, 78, 75], pit_in=6, status={2: "5", 3: "14"}))
+    laps["PitOutTime"] = [pd.to_timedelta(500, unit="s") if n == 7 else pd.NaT for n in laps["LapNumber"]]
     fast = fastest_lap_candidates(laps)
-    # lap 1 from the grid, lap 2 under SC, lap 5 a 40 s data glitch, lap 6 an in-lap
-    assert fast["LapNumber"].tolist() == [3, 4]
+    # lap 1 from the grid, lap 2 into a red flag, lap 5 a 40 s data glitch, lap 7 out of the pits;
+    # lap 3 (a safety car called near its end) and lap 6 (the in-lap) count, as they do officially
+    assert fast["LapNumber"].tolist() == [3, 4, 6]
 
 
 def test_tower_lists_a_first_lap_retirement():

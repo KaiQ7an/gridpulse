@@ -17,8 +17,13 @@ from pitlens.sources import openf1
 from pitlens.style import FALLBACK_TEAM_COLOR
 
 SESSIONS = {"Q": "Qualifying", "SQ": "Sprint Qualifying"}
+SHOOTOUT_YEARS = (2023,)  # sprint qualifying ran as the Sprint Shootout, FastF1 session "SS"
 PARTS = ("Q1", "Q2", "Q3")
 _DELETED = re.compile(r"CAR (\d+) \((\w+)\).*DELETED.*?\bLAP (\d+)")
+
+
+def session_name(year: int, kind: str) -> str:
+    return "Sprint Shootout" if kind == "SQ" and year in SHOOTOUT_YEARS else SESSIONS[kind]
 
 
 @dataclass
@@ -105,7 +110,7 @@ def _seconds(values) -> pd.Series:
 
 
 def _from_fastf1(year: int, round_number: int, kind: str) -> QualiData:
-    session = load_session(year, round_number, kind)
+    session = load_session(year, round_number, "SS" if kind == "SQ" and year in SHOOTOUT_YEARS else kind)
     res = session.results.sort_values("Position")
     results = pd.DataFrame({
         "Position": res["Position"].to_numpy(),
@@ -129,8 +134,9 @@ def _from_fastf1(year: int, round_number: int, kind: str) -> QualiData:
     colors = {r.Abbreviation: f"#{r.TeamColor}" if isinstance(r.TeamColor, str) and len(r.TeamColor) == 6
               else FALLBACK_TEAM_COLOR for r in res.itertuples()}
     event = session.event
-    return QualiData(name=f"{year} {event['EventName']}", event_name=event["EventName"], session_name=SESSIONS[kind],
-                     year=year, round_number=round_number, location=event["Location"], date=session.date,
+    return QualiData(name=f"{year} {event['EventName']}", event_name=event["EventName"],
+                     session_name=session_name(year, kind), year=year, round_number=round_number,
+                     location=event["Location"], date=session.date,
                      source="F1 live timing", results=results, laps=laps, team_colors=colors)
 
 
@@ -185,6 +191,7 @@ def _from_openf1(year: int, round_number: int, kind: str) -> QualiData:
         "Compound": None,
     }).reset_index(drop=True)
     return QualiData(name=f"{year} {event['EventName']}", event_name=event["EventName"],
-                     session_name=SESSIONS[kind], year=year, round_number=round_number, location=event["Location"],
-                     date=pd.Timestamp(session["date_start"]), source="OpenF1", results=results, laps=laps,
+                     session_name=session_name(year, kind), year=year, round_number=round_number,
+                     location=event["Location"], date=pd.Timestamp(session["date_start"]), source="OpenF1",
+                     results=results, laps=laps,
                      team_colors=colors)
