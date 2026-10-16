@@ -1,4 +1,4 @@
-"""PitLens pit wall: replay any race lap by lap, the way a strategy desk sees it.
+"""GridPulse pit wall: replay any race lap by lap, the way a strategy desk sees it.
 
 Run with `pitlens pitwall` (or `streamlit run pitlens/pitwall/app.py`).
 """
@@ -9,6 +9,7 @@ import pandas as pd
 import streamlit as st
 
 from pitlens import snapshots
+from pitlens.branding import CURRENT_SERIES, NAME
 from pitlens.pitwall import (
     about_page,
     charts,
@@ -447,7 +448,7 @@ def race_page() -> None:
 
 
 def main() -> None:
-    st.set_page_config(page_title="F1 PitLens · Pit wall", page_icon="🏁", layout="wide")
+    st.set_page_config(page_title=f"{NAME} · {CURRENT_SERIES}", page_icon="🏁", layout="wide")
     ui.inject_css()
     pages = [
         st.Page(race_page, title="Race replay", icon=":material/sports_score:", default=True),

@@ -196,7 +196,7 @@ def load_race(year: int, round_number: int, kind: str = "R") -> RaceData:
     archive, or from OpenF1 when the archive won't serve it."""
     parts = snapshots.load_race(year, round_number, kind)
     if parts is None and snapshots.offline():
-        raise TimingUnavailable(f"No saved copy of {year} round {round_number}, and PitLens is running offline.")
+        raise TimingUnavailable(f"No saved copy of {year} round {round_number}, and GridPulse is running offline.")
     if parts is None:
         parts = fetch_race_parts(year, round_number, kind)
     return build_race(year, round_number, parts)

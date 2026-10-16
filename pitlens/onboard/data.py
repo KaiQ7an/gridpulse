@@ -253,7 +253,7 @@ class OpenF1Weekend:
 def load_weekend(year: int, round_number: int, kind: str):
     """F1's archive (with car telemetry) if it answers, otherwise OpenF1."""
     if snapshots.offline():
-        raise TimingUnavailable("Onboard laps aren't saved with the snapshots, and PitLens is running offline.")
+        raise TimingUnavailable("Onboard laps aren't saved with the snapshots, and GridPulse is running offline.")
     key = f"{year}-{round_number}-{kind}"
     archive_error = TimingUnavailable(f"F1's live-timing archive refused {year} round {round_number} recently.")
     # On a public server the archive's telemetry (about 100 MB a session) is too heavy when OpenF1

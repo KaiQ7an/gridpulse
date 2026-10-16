@@ -1,4 +1,4 @@
-"""Where PitLens is running. On a public server a few things are switched off: the local speech and
+"""Where GridPulse is running. On a public server a few things are switched off: the local speech and
 translation models (too heavy for a small shared machine) and anything that would spend an API key.
 """
 

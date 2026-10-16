@@ -37,5 +37,16 @@ def in_region(region: str) -> list[dict]:
     return [c for c in catalog() if region == "world" or c["region"] == region]
 
 
+def browse_circuits(region: str, search: str = "", kind: str = "All", sort: str = "Atlas order") -> list[dict]:
+    """Filter a region's venues without changing the shared reference catalog."""
+    query = search.strip().casefold()
+    facts = [c for c in in_region(region)
+             if (kind == "All" or c["kind"] == kind)
+             and query in f"{c['name']} {c['city']} {c['country']} {c['slug']}".casefold()]
+    order = {"Name": lambda c: c["city"].casefold(), "Longest first": lambda c: -c["length_km"],
+             "Oldest first": lambda c: (c["first_gp"], c["city"])}
+    return sorted(facts, key=order[sort]) if sort in order else facts
+
+
 def record_holders(records: list[dict]) -> str:
     return " / ".join(r["driver"] for r in records) or "No classified result yet"

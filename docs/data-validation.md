@@ -1,6 +1,6 @@
 # Checking 131 races against the official results
 
-PitLens rebuilds every race from lap timing: who crossed the line when, on which lap, on which
+GridPulse rebuilds every race from lap timing: who crossed the line when, on which lap, on which
 tyres. The timing comes from F1's live-timing archive (through FastF1) or, when the archive
 refuses a session, from OpenF1. Neither source is the official result. So the obvious test of
 the whole pipeline is whether the replay's final lap agrees with the classification.
@@ -72,7 +72,7 @@ This one was only caught when the check started comparing laps down, not just th
 
 **Pit stops on the wrong lap.** OpenF1 records a stop on the lap it was made. That's the in-lap
 where the pit boxes come before the timing line (Baku, Singapore), but the out-lap where the pit
-lane crosses it (Montreal, Melbourne). PitLens had assumed the in-lap everywhere, so the 2026
+lane crosses it (Montreal, Melbourne). GridPulse had assumed the in-lap everywhere, so the 2026
 Canadian Grand Prix showed no stops at all. The tyre stints tell the two cases apart: where the
 pit lane crosses the line, the new stint starts on the recorded lap.
 
@@ -90,7 +90,7 @@ pit-out flag tells the two apart: a pit-lane start leaves the pits on lap 1, the
 lap 2. Tyres changed in the pit lane while the race is stopped under a red flag aren't counted as
 stops either, as in F1's own pit stop summaries.
 
-**Fastest laps.** Officially any lap counts, and PitLens had been stricter. Norris's fastest lap
+**Fastest laps.** Officially any lap counts, and GridPulse had been stricter. Norris's fastest lap
 in Australia 2025 was the lap he pitted at the end of, and leaving in-laps out had given it to
 Lawson. Alonso's in China 2024 and Norris's in Qatar 2024 were laps on which a VSC came out near
 the end, and leaving out every lap with a neutralisation on it had given both to Verstappen. Only
@@ -104,7 +104,7 @@ lane time left unknown and the Pit stops view saying so.
 
 **A results API that sometimes doesn't answer.** For archive races FastF1 takes positions and
 statuses from the Ergast/Jolpica API. When that times out, the classification comes back empty
-or with blank statuses, and every lapped car looked retired. PitLens now fills the
+or with blank statuses, and every lapped car looked retired. GridPulse now fills the
 classification from OpenF1 where it has the race. Otherwise it fails with "try again in a
 minute"; failed loads aren't cached, so the next attempt retries.
 

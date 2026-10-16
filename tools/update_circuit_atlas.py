@@ -30,7 +30,7 @@ def fetch(url: str) -> str:
     if path.exists() and not REFRESH:
         return path.read_text()
     for attempt in range(4):
-        response = requests.get(url, timeout=40, headers={"User-Agent": "PitLens/0.1 circuit reference updater"})
+        response = requests.get(url, timeout=40, headers={"User-Agent": "GridPulse/0.1 circuit reference updater"})
         if response.status_code in (429, 500, 502, 503, 504):
             time.sleep(2 * (attempt + 1))
             continue

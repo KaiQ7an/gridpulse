@@ -15,7 +15,7 @@ import requests
 from pitlens.session import CACHE_DIR
 
 CACHE = CACHE_DIR / "weather"
-HEADERS = {"User-Agent": "PitLens/0.1 (+https://github.com/KaiQ7an/pitlens)"}
+HEADERS = {"User-Agent": "GridPulse/0.1 (+https://github.com/KaiQ7an/pitlens)"}
 
 # Circuit locations (FastF1 "Location" names) -> latitude, longitude.
 CIRCUITS = {

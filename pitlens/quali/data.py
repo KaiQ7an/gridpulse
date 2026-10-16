@@ -45,7 +45,7 @@ def load_quali(year: int, round_number: int, kind: str = "Q") -> QualiData:
     if saved is not None:
         return saved
     if snapshots.offline():
-        raise TimingUnavailable(f"No saved copy of {year} round {round_number} {SESSIONS[kind]}, and PitLens is "
+        raise TimingUnavailable(f"No saved copy of {year} round {round_number} {SESSIONS[kind]}, and GridPulse is "
                                 "running offline.")
     return fetch_quali(year, round_number, kind)
 

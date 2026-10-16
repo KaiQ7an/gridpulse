@@ -21,7 +21,7 @@ from pitlens.session import CACHE_DIR
 API = "https://api.openf1.org/v1/"
 FIRST_SEASON = 2023  # OpenF1 has data from the 2023 season on
 # Identify ourselves honestly; some APIs refuse the anonymous python-requests default.
-HEADERS = {"User-Agent": "PitLens/0.1 (+https://github.com/KaiQ7an/pitlens)"}
+HEADERS = {"User-Agent": "GridPulse/0.1 (+https://github.com/KaiQ7an/pitlens)"}
 CACHE = CACHE_DIR / "openf1"
 _last_call = 0.0
 

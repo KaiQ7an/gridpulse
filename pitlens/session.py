@@ -16,7 +16,7 @@ def enable_cache() -> None:
     """Point FastF1 at ./cache so repeat runs don't re-download data."""
     CACHE_DIR.mkdir(exist_ok=True)
     fastf1.Cache.enable_cache(str(CACHE_DIR))
-    # FastF1 logs every request, and a warning for each part of a session the archive refuses; PitLens
+    # FastF1 logs every request, and a warning for each part of a session the archive refuses; GridPulse
     # reports that itself (and falls back to OpenF1), so only its errors are worth showing.
     fastf1.set_log_level("ERROR")
 

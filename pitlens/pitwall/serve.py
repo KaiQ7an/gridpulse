@@ -59,7 +59,7 @@ def run(args: argparse.Namespace) -> None:
     # and put it on the path so the app can import pitlens however it was installed.
     env = {**os.environ, "PYTHONPATH": os.pathsep.join(filter(None, [str(PROJECT_ROOT), os.environ.get("PYTHONPATH")]))}
     proc = subprocess.Popen(cmd, cwd=PROJECT_ROOT, env=env)
-    print(f"PitLens pit wall: {url}  (Ctrl+C to stop)", flush=True)
+    print(f"GridPulse pit wall: {url}  (Ctrl+C to stop)", flush=True)
     if _wait_until_up(url) and not args.no_browser:
         webbrowser.open(url)
     try:

@@ -9,6 +9,7 @@ import html
 import pandas as pd
 import streamlit as st
 
+from pitlens.branding import NAME, TAGLINE
 from pitlens.style import COMPOUND_COLORS
 
 ACCENT = "#E10600"
@@ -53,7 +54,8 @@ h1, h2, h3 { letter-spacing: -0.01em; }
    light-dark() follows Streamlit's theme (it sets color-scheme on the app), not the OS. */
 .pl-stat.sec { position: relative; min-width: 0; padding: 11px 14px 12px; cursor: default; }
 .pl-stat.sec .v { font-size: 0.98rem; margin-top: 6px; }
-.pl-stat.sec:hover .pl-pop { display: block; }
+.pl-stat.sec:is(:hover,:focus-within) .pl-pop { display: block; }
+.pl-stat.sec:focus-visible { outline: 2px solid #55bfff; outline-offset: 3px; }
 
 .pl-pop { display: none; position: absolute; top: calc(100% + 6px); left: 0; z-index: 50; min-width: 190px;
   padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(128,128,128,0.28);
@@ -276,6 +278,7 @@ h1, h2, h3 { letter-spacing: -0.01em; }
 .pl-brand .name { font-family: "Titillium Web", sans-serif; font-weight: 700; font-size: 1.45rem; letter-spacing: 0.01em;
   line-height: 1; }
 .pl-brand .tag { font-size: 0.72rem; opacity: 0.55; margin-top: 3px; }
+.pl-brand .context { font-size: 0.66rem; opacity: 0.45; margin-top: 5px; }
 .pl-foot { font-size: 0.72rem; opacity: 0.5; line-height: 1.45; }
 
 /* Cards (keyed containers) get a little more air */
@@ -297,6 +300,7 @@ h1, h2, h3 { letter-spacing: -0.01em; }
   .pl-stat { min-width: 0; padding: 9px 12px 10px; }
   .pl-stat .v { font-size: 1.02rem; overflow: hidden; text-overflow: ellipsis; }
   .pl-stat.sec .v { font-size: 0.9rem; }
+  .pl-stat.sec:last-child .pl-pop { left: auto; right: 0; }
   [class*="st-key-card-"] { padding: 6px 4px; }
   .st-key-pl-notes { right: 10px; top: 56px; width: 236px; }
 }
@@ -310,8 +314,8 @@ def inject_css() -> None:
 
 def sidebar_brand(tagline: str) -> None:
     st.sidebar.html(
-        f'<div class="pl-brand"><div class="mark"></div><div><div class="name">F1 PitLens</div>'
-        f'<div class="tag">{html.escape(tagline)}</div></div></div>'
+        f'<div class="pl-brand"><div class="mark"></div><div><div class="name">{NAME}</div>'
+        f'<div class="tag">{TAGLINE}</div><div class="context">{html.escape(tagline)}</div></div></div>'
     )
 
 
@@ -457,7 +461,7 @@ def sector_stats(rankings: list[list[tuple[str, float, int]]], colors: dict[str,
         )
         pop = f'<div class="pl-pop"><div class="pl-label">Sector {n}</div>{rows}</div>' if rows else ""
         out.append(
-            f'<div class="pl-stat sec"><div class="k">Best S{n}</div><div class="v">'
+            f'<div class="pl-stat sec" tabindex="0"><div class="k">Best S{n}</div><div class="v">'
             f'{driver_dot(colors.get(driver, "#999"))}{html.escape(driver)} <span style="color:#A855F7">{secs:.3f}</span>'
             f"<small>L{lap}</small></div>{pop}</div>"
         )

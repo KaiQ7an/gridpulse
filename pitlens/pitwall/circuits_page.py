@@ -14,12 +14,15 @@ from pitlens.onboard.compare import rotate
 from pitlens.pitwall import charts, ui
 from pitlens.pitwall.atlas_map import atlas_map
 from pitlens.pitwall.corner_guide import corner_guide
-from pitlens.season.atlas import REGIONS, catalog, circuit_fact, in_region, record_holders
+from pitlens.pitwall.navigation import url
+from pitlens.season.atlas import REGIONS, browse_circuits, catalog, circuit_fact, in_region, record_holders
 from pitlens.season.circuits import circuit_years, circuits, saved_races
 from pitlens.season.comparison import comparison_slugs, comparison_table
-from pitlens.season.tours import corner_tour
+from pitlens.season.tours import corner_label, corner_tour
 
 NEW_RULES = 2026  # the year the cars changed: lap times before it aren't comparable
+COMPARE_METRICS = {"length": "Length (km)", "pit-loss": "Typical pit loss (s)",
+                   "safety-cars": "SC races (%)", "stops": "Stops per finisher"}
 
 
 def cached_races() -> pd.DataFrame:
@@ -68,6 +71,8 @@ def render() -> None:
     canonical = {"region": region} if region != "world" else {}
     if fact:
         canonical["circuit"] = fact["slug"]
+        if label := corner_label(corner_tour(fact["slug"]), st.query_params.get("corner")):
+            canonical["corner"] = label
     if dict(st.query_params) != canonical:
         st.query_params.from_dict(canonical)
 
@@ -116,15 +121,27 @@ def render_comparison() -> None:
     if ss.get("atlas_compare_link") != incoming or "atlas_compared" not in ss:
         ss.atlas_compared = comparison_slugs(incoming)
         ss.atlas_compare_link = incoming
+    metric_code = st.query_params.get("metric", "length")
+    metric_code = metric_code if metric_code in COMPARE_METRICS else "length"
+    if ss.get("atlas_metric_link") != (incoming, metric_code) or "atlas_compare_metric" not in ss:
+        ss.atlas_compare_metric = COMPARE_METRICS[metric_code]
+        ss.atlas_metric_link = (incoming, metric_code)
     st.button("World atlas", on_click=navigate, icon=":material/public:")
     ui.header("Circuit atlas · compare", "Different tracks. Different demands.",
               "Choose two or three venues. Hover the bars to inspect values and saved-race coverage.")
     selected = st.multiselect("Circuits to compare", [c["slug"] for c in catalog()], key="atlas_compared",
                              max_selections=3, format_func=lambda s: f"{circuit_fact(s)['city']} · {circuit_fact(s)['country']}")
+    metric = st.segmented_control("Compare metric", list(COMPARE_METRICS.values()), required=True,
+                                   key="atlas_compare_metric", width="stretch", wrap=True)
+    metric_code = next(k for k, v in COMPARE_METRICS.items() if v == metric)
     current = ",".join(selected)
-    if current != incoming:
-        st.query_params.from_dict({"compare": current})
-        ss.atlas_compare_link = current
+    params = {"compare": current}
+    if metric_code != "length":
+        params["metric"] = metric_code
+    if dict(st.query_params) != params:
+        st.query_params.from_dict(params)
+    ss.atlas_compare_link = current
+    ss.atlas_metric_link = (current, metric_code)
     if len(selected) < 2:
         st.info("Select at least two circuits to compare, up to three.")
     if not selected:
@@ -144,9 +161,6 @@ def render_comparison() -> None:
                     f'{html.escape(summary["Coverage"])}</div>')
             st.button(f"Open {fact['city']}", key=f"compare-open-{fact['slug']}", on_click=navigate,
                       args=(fact["region"], fact["slug"]), width="stretch")
-    metric = st.segmented_control("Compare metric", ["Length (km)", "Typical pit loss (s)", "SC races (%)",
-                                                     "Stops per finisher"], default="Length (km)", required=True,
-                                   key="atlas_compare_metric", width="stretch", wrap=True)
     valid = data[data[metric].notna()]
     if valid.empty:
         st.info("This metric isn't available for the selected saved races. Try circuit length or save more races.")
@@ -173,6 +187,10 @@ def render_comparison() -> None:
             "at least one full safety car; pit loss is the median reference; stops are weighted by finishers. "
             "Different years and sample sizes limit direct comparisons.")
     st.dataframe(data.set_index("Circuit").T.map(lambda v: "—" if pd.isna(v) else str(v)), width="stretch")
+    st.download_button("Download comparison CSV", data.to_csv(index=False).encode("utf-8-sig"),
+                       file_name="gridpulse-circuit-comparison.csv", mime="text/csv", on_click="ignore",
+                       icon=":material/download:", key="atlas_compare_download")
+    st.caption("The page link keeps your selected circuits and metric. The CSV includes every metric and its coverage.")
     ui.note("Race lap records belong to different layouts and cannot rank the circuits by car performance.")
 
 
@@ -208,11 +226,26 @@ def render_atlas(region: str) -> None:
                 st.button(f"Explore {info['name']}", key=f"atlas-region-{key}", on_click=navigate, args=(key,),
                           icon=":material/arrow_outward:", width="stretch")
     ui.label("Find your next circuit")
-    search = st.text_input("Find a circuit", placeholder="Search by circuit, city or country", icon=":material/search:",
-                           label_visibility="collapsed", key="atlas_search").strip().casefold()
-    facts = [c for c in facts if search in f"{c['name']} {c['city']} {c['country']}".casefold()]
+    saved_filters = st.session_state.get("atlas_filters", {})
+    for key, default in (("atlas_search", ""), ("atlas_sort", "Atlas order"), ("atlas_kind", "All")):
+        if key not in st.session_state:
+            st.session_state[key] = saved_filters.get(key, default)
+    search_col, sort_col = st.columns([3, 2])
+    with search_col:
+        search = st.text_input("Find a circuit", placeholder="Search by circuit, city or country",
+                               icon=":material/search:", key="atlas_search")
+    with sort_col:
+        sort = st.selectbox("Sort circuits", ["Atlas order", "Name", "Longest first", "Oldest first"], key="atlas_sort")
+    kind = st.pills("Circuit type", ["All", "Permanent", "Street", "Hybrid"],
+                    key="atlas_kind") or "All"
+    st.session_state.atlas_filters = {"atlas_search": search, "atlas_sort": sort, "atlas_kind": kind}
+    total = len(facts)
+    facts = browse_circuits(region, search, kind, sort)
+    st.caption(f"{len(facts)} of {total} circuits in {REGIONS[region]['name']}. Filters apply to the cards below.")
+    if search.strip() or kind != "All" or sort != "Atlas order":
+        st.button("Clear filters", key="atlas_reset", on_click=reset_filters, icon=":material/filter_alt_off:")
     if not facts:
-        st.info("No matching circuits in this region. Try another name or choose World.")
+        st.info("No matching circuits. Clear the filters or choose another region.")
         return
     table = circuits(cached_races())
     for start in range(0, len(facts), 3):
@@ -228,6 +261,11 @@ def render_atlas(region: str) -> None:
                         f' <span>·</span> Since {c["first_gp"]}</div>')
                 st.button(f"Explore {c['city']}", key=f"atlas-open-{c['slug']}", on_click=navigate,
                           args=(c["region"], c["slug"]), icon=":material/arrow_forward:", width="stretch")
+
+
+def reset_filters() -> None:
+    st.session_state.update(atlas_search="", atlas_kind="All", atlas_sort="Atlas order")
+    st.session_state.atlas_filters = {}
 
 
 def outline_for(key: int, table: pd.DataFrame) -> dict | None:
@@ -273,7 +311,7 @@ def render_fact(fact: dict) -> None:
         ui.label("Explore every corner")
         tour = corner_tour(fact["slug"])
         if tour:
-            corner_guide(tour, fact["name"], key=f"corner-guide-{fact['slug']}")
+            render_corner_guide(fact, tour)
             ref = tour["reference"]
             if tour["telemetry"]:
                 lap_time = f"{int(ref['time'] // 60)}:{ref['time'] % 60:06.3f}"
@@ -327,6 +365,23 @@ def render_fact(fact: dict) -> None:
         return
     here = rows.iloc[0]
     render_saved_history(fact["key"], here)
+
+
+def render_corner_guide(fact: dict, tour: dict) -> None:
+    key = f"corner-guide-{fact['slug']}"
+    event = corner_guide(tour, fact["name"], key=key,
+                         selected=corner_label(tour, st.query_params.get("corner")),
+                         share_path=url("circuits", region=fact["region"], circuit=fact["slug"]))
+    if not isinstance(event, dict) or not event.get("id"):
+        return
+    consumed = dict(st.session_state.get("atlas_corner_clicks", {}))
+    if consumed.get(key) == event["id"]:
+        return
+    consumed[key] = event["id"]
+    st.session_state.atlas_corner_clicks = consumed
+    if label := corner_label(tour, event.get("corner")):
+        st.query_params["corner"] = label
+        st.rerun()
 
 
 def render_saved_history(circuit: int, here) -> None:

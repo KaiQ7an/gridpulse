@@ -84,3 +84,9 @@ def _tours(revision: int) -> dict:
 def corner_tour(slug: str) -> dict | None:
     path = Path(__file__).with_name("corner_tours.json")
     return _tours(path.stat().st_mtime_ns).get(slug) if path.exists() else None
+
+
+def corner_label(tour: dict | None, value: str | None) -> str | None:
+    """Only numbered markers in this venue may be restored from a shared link."""
+    label = str(value or "").strip().upper()
+    return label if tour and any(c["label"] == label for c in tour["corners"]) else None

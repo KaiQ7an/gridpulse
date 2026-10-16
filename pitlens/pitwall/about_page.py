@@ -1,7 +1,8 @@
-"""About page: what PitLens is, how to use it, and some races worth opening first."""
+"""About page: what GridPulse is, how to use it, and some races worth opening first."""
 
 import streamlit as st
 
+from pitlens.branding import NAME, TAGLINE
 from pitlens.pitwall import ui
 
 REPO = "https://github.com/KaiQ7an/pitlens"
@@ -22,7 +23,7 @@ WEEKEND = [
                     "undercuts, and team radio with transcripts. Sprints too."),
     ("Qualifying", "The knockout from Q1 to Q3, each driver's ideal lap from their best sectors, and where the time "
                    "went sector by sector."),
-    ("Onboard", "Two drivers' fastest laps side by side: speed, throttle, brake and gear along the lap, the gap "
+    ("Onboard", "Two selected laps or drivers' fastest laps side by side: speed, throttle, brake and gear along the lap, the gap "
                 "building corner by corner, and a track map of who was faster where."),
 ]
 SEASON = [
@@ -33,7 +34,8 @@ SEASON = [
     ("Drivers", "One driver's season: grid to flag at every Grand Prix, points against the teammate and the "
                 "leader, and the standout numbers, from the best comeback to the longest run in the points."),
     ("Circuits", "Explore a world globe and regional maps, then open each circuit's facts and historical records: "
-                 "race lap record, most wins and pole starts. Saved races add year-by-year results and strategy."),
+                 "race lap record, most wins and pole starts. Filter venues, compare tracks, explore each corner "
+                 "with a lap tour and share a pinned corner. Saved races add year-by-year results and strategy."),
 ]
 
 # Set by the app: its pages by title, so the cards and featured races can link to them.
@@ -43,8 +45,8 @@ pages: dict = {}
 def render() -> None:
     ui.sidebar_brand("A race engineer's view of F1 data")
     ui.sidebar_footer()
-    ui.header("Unofficial F1 data project", "F1 PitLens",
-              "Replay any race from 2018 on the way a strategy desk sees it, lap by lap.")
+    ui.header("Motorsport data & analysis", NAME, TAGLINE)
+    st.caption("Current coverage: Formula 1 from 2018. Other championships will be added over time.")
     ui.insight("Pick a race, press Play, and the whole pit wall moves on a lap at a time: the timing tower, "
                "the gaps, tyres, pit stops, strategy and team radio, with what was known at that lap and "
                "nothing after it.")

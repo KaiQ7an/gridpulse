@@ -1,11 +1,14 @@
 <div align="center">
 
-# F1 PitLens
+# GridPulse
 
-**A race engineer's view of public Formula 1 data.**
+**Motorsport, lap by lap.**
 
 Replay any race from the pit wall, lap by lap, and measure what the tyres were really doing:<br>
 the same questions a strategy desk asks on a Sunday afternoon.
+
+Current data coverage is **Formula 1**. GridPulse is the multi-series platform name; DTM,
+GT World Challenge and other championships are planned additions.
 
 [![Tests](https://github.com/KaiQ7an/pitlens/actions/workflows/test.yml/badge.svg)](https://github.com/KaiQ7an/pitlens/actions/workflows/test.yml)
 ![Python](https://img.shields.io/badge/python-3.12%2B-3776AB?logo=python&logoColor=white)
@@ -13,19 +16,19 @@ the same questions a strategy desk asks on a Sunday afternoon.
 ![Streamlit](https://img.shields.io/badge/dashboard-Streamlit-FF4B4B?logo=streamlit&logoColor=white)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-[Open F1 PitLens](https://f1-pitlens.streamlit.app/) · [Quick start](#quick-start) · [macOS / Homebrew](#macos-with-homebrew) · [Pit wall](#pit-wall) · [Onboard](#onboard) · [Pit stops](#pit-stops) · [Strategy](#strategy) · [Tyre analysis](#tyre-analysis) · [How it works](#how-it-works) · [Roadmap](ROADMAP.md)
+[Open GridPulse](https://gridpulse-racing.streamlit.app/) · [Quick start](#quick-start) · [macOS / Homebrew](#macos-with-homebrew) · [Pit wall](#pit-wall) · [Onboard](#onboard) · [Pit stops](#pit-stops) · [Strategy](#strategy) · [Tyre analysis](#tyre-analysis) · [How it works](#how-it-works) · [Roadmap](ROADMAP.md)
 
 </div>
 
 <p align="center">
-  <img src="docs/images/pitwall_replay.gif" alt="The PitLens pit wall replaying the last laps of the 2026 Azerbaijan Grand Prix" width="870">
+  <img src="docs/images/pitwall_replay.gif" alt="The GridPulse pit wall replaying the last laps of the 2026 Azerbaijan Grand Prix" width="870">
   <br><sub><b>Pit wall</b> · replaying the last laps of the 2026 Azerbaijan Grand Prix, which Russell won by 0.196 s</sub>
 </p>
 
 ## Why
 
 Lap times on a broadcast tower are noisy: in-laps, safety cars, traffic and a car that gets
-lighter every lap all hide what the tyres are actually doing. PitLens turns the public F1 timing
+lighter every lap all hide what the tyres are actually doing. GridPulse turns the public F1 timing
 feed (via [FastF1](https://github.com/theOehrly/Fast-F1)) into what a race engineer would want on
 their screens: who is where and on what tyre, how gaps are moving, and how fast each stint is
 falling away, with the cleaning rules written down and tested.
@@ -120,16 +123,23 @@ falling away, with the cleaning rules written down and tested.
 - An interactive world globe with circuit markers, rotation, zoom and four regional maps:
   Europe & Caucasus, the Americas, Asia-Pacific and the Middle East. Select a marker, browse
   a region or search by circuit, city or country; circuit facts work without saved race data.
+- Filter circuit cards by permanent, street or hybrid layouts; sort by name, length or first
+  Grand Prix. A result count and Clear filters action make it easy to recover an empty search.
 - Hover or focus a circuit card to rotate the globe toward it and preview its facts; map markers
   highlight the corresponding card and country without a page reload.
 - **Corner guide**: hover the racing line or numbered turns, pin a corner, step with the arrow
-  buttons/keys, or play a lap tour. Speed, gear and approximate brake-on approach distance come
+  buttons/keys, or play a lap tour. Drag the progress bar, pause and resume, and choose 0.5×,
+  1× or 2× preview speed. Copy a pinned corner link to restore it on another visit, for example
+  `/circuits?region=asia-pacific&circuit=suzuka&corner=T15`.
+  Speed, gear and approximate brake-on approach distance come
   from an explicitly labelled reference lap. Missing telemetry or numbered geometry stays unavailable;
   the tour animation is a visual guide, not a real-time replay. Reference tours are bundled offline;
   rebuild them with `.venv/bin/python tools/update_corner_tours.py` using saved races and source caches.
 - **Compare circuits**: select up to three venues and switch between length, median reference pit
   loss, the percentage of saved races with a full safety car, and stops per classified finisher.
-  Each venue's saved years and sample size remain visible. Share `/circuits?compare=monza,suzuka`.
+  Each venue's saved years and sample size remain visible. Export all metrics and coverage as
+  CSV; shared links retain the selected metric, for example
+  `/circuits?compare=monza,suzuka&metric=safety-cars`.
 - Each circuit has layout length, race laps, first Grand Prix, a track outline and an introduction,
   plus F1's published race lap record and the drivers with the most wins and pole starts at that
   venue. Historical records include tied leaders, years, source links and a reference date;
@@ -218,7 +228,7 @@ works too.
 ### macOS with Homebrew
 
 Install [Homebrew](https://brew.sh/) first if `brew` is not available. Then install Git and
-[Python 3.12](https://formulae.brew.sh/formula/python@3.12), and create a separate environment for PitLens:
+[Python 3.12](https://formulae.brew.sh/formula/python@3.12), and create a separate environment for GridPulse:
 
 ```bash
 brew install git python@3.12
@@ -231,8 +241,8 @@ cd pitlens
 ```
 
 The `brew --prefix` command locates Python on both Apple Silicon and Intel Macs. Homebrew installs
-the prerequisites; PitLens is installed from this repository into `.venv`. There is no published
-PitLens Homebrew formula or tap at present.
+the prerequisites; GridPulse is installed from this repository into `.venv`. There is no published
+GridPulse Homebrew formula or tap at present.
 
 On later runs, open a terminal in the `pitlens` folder and run `.venv/bin/python -m pitlens pitwall`.
 To update, stop the server, run `git pull --ff-only` and `.venv/bin/python -m pip install -e .`, then
@@ -243,7 +253,7 @@ start it again. Local source changes should be committed or stashed before pulli
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/images/pitwall_dark.png">
-    <img src="docs/images/pitwall_light.png" alt="The PitLens pit wall at the end of the 2026 Singapore Grand Prix" width="900">
+    <img src="docs/images/pitwall_light.png" alt="The GridPulse pit wall at the end of the 2026 Singapore Grand Prix" width="900">
   </picture>
 </p>
 
@@ -518,9 +528,9 @@ Run the tests with `.venv/bin/pip install -r requirements-dev.txt && .venv/bin/p
 
 ## Hosting
 
-The public deployment is [F1 PitLens](https://f1-pitlens.streamlit.app/). It follows this
+The public deployment is [GridPulse](https://gridpulse-racing.streamlit.app/). It follows this
 repository's `main` branch on Streamlit Community Cloud, uses Python 3.12, and updates when
-changes are pushed to GitHub. The display name is F1 PitLens; the package and CLI remain `pitlens`.
+changes are pushed to GitHub. The display name is GridPulse; the package and CLI remain `pitlens`.
 
 The pit wall runs on [Streamlit Community Cloud](https://share.streamlit.io) as it is: create an
 app from this repository with `pitlens/pitwall/app.py` as the main file and Python 3.12 in the
@@ -552,13 +562,13 @@ project outside iCloud Drive (for example `~/Developer`).
 
 **"F1's live-timing archive didn't return timing data".** FastF1 downloads each session from F1's
 public archive the first time you open it. When the archive refuses a request (it has been
-answering HTTP 401), PitLens switches to OpenF1 automatically; you only see this message if
+answering HTTP 401), GridPulse switches to OpenF1 automatically; you only see this message if
 neither source has the session.
 
 ## Data
 
 Timing data comes from the public F1 live-timing archive via [FastF1](https://github.com/theOehrly/Fast-F1).
-When the archive won't serve a session, PitLens falls back to [OpenF1](https://openf1.org)'s free
+When the archive won't serve a session, GridPulse falls back to [OpenF1](https://openf1.org)'s free
 historical API (laps, stints, pit stops, results, race control, weather, team radio and car
 telemetry) with corner positions from the MultiViewer circuit API, reshaped into the same tables
 so every page and command works the same. The page header says which source a race came from.
