@@ -423,7 +423,7 @@ little coarser. Track status (safety car, VSC, red flag, yellows) is rebuilt per
 control messages.
 
 Every Grand Prix from 2021 to the 2026 Singapore Grand Prix (131 races) and every sprint since 2023
-(24) has been checked against the official result: the replay's final timing tower has the same winner, the same top ten in the same
+(24) has been checked against the official result ([how, and what it caught](docs/data-validation.md)): the replay's final timing tower has the same winner, the same top ten in the same
 order and every finisher the same number of laps down. To run the check yourself:
 
 ```bash
