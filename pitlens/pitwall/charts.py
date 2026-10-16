@@ -314,3 +314,35 @@ def _bar_layout(fig: go.Figure, n: int, title: str, values: pd.Series) -> go.Fig
     fig.update_xaxes(title=title)
     fig.update_yaxes(title=None)
     return fig
+
+
+def pit_window_chart(window: pd.DataFrame, lap: int, total_laps: int, best, actual: int | None = None,
+                     stay_lost: float | None = None) -> go.Figure:
+    """Time lost against the best plan by the lap a car stops on, one line per compound it could fit."""
+    fig = go.Figure()
+    for compound in [c for c in COMPOUND_ORDER if c in set(window["Compound"])]:
+        w = window[window["Compound"] == compound]
+        fig.add_trace(go.Scatter(
+            x=lap + w["LapsMore"], y=w["Lost"], mode="lines", name=compound.title(),
+            line=dict(color=COMPOUND_COLORS[compound], width=2.5),
+            hovertemplate="Stop at the end of lap %{x}<br>%{y:.1f} s slower than the best plan"
+                          f"<extra>{compound.title()}</extra>",
+        ))
+    fig.add_vrect(x0=lap + best["From"] - 0.5, x1=lap + best["To"] + 0.5, line_width=0, layer="below",
+                  fillcolor=COMPOUND_COLORS.get(best["Compound"], "#888888"), opacity=0.12,
+                  annotation_text="window", annotation_position="top left", annotation_font_size=10)
+    if stay_lost is not None and stay_lost < 20:
+        fig.add_hline(y=stay_lost, line=dict(color=CONTEXT_GREY, width=1.5, dash="dash"),
+                      annotation_text="no more stops", annotation_position="top right", annotation_font_size=10)
+    if actual is not None:
+        fig.add_vline(x=actual, line=dict(color="#E10600", width=1.5, dash="dot"),
+                      annotation_text=f"actual stop, lap {actual}", annotation_position="bottom right",
+                      annotation_font=dict(size=10, color="#E10600"))
+    top = min(15.0, float(window["Lost"].max())) if len(window) else 10.0
+    fig.update_layout(height=320, margin=dict(l=10, r=20, t=30, b=10), hovermode="x unified",
+                      legend=dict(orientation="h", yanchor="bottom", y=1.0, x=0))
+    plotstyle.apply(fig)
+    fig.update_xaxes(title="Stop at the end of lap", range=[lap + 0.5, total_laps + 0.5])
+    fig.update_yaxes(title="Slower than the best plan (s)", range=[-0.3, max(top, 3.0)], zeroline=True,
+                     zerolinecolor=plotstyle.AXIS)
+    return fig

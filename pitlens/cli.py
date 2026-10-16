@@ -8,6 +8,7 @@ from pitlens.pitwall import serve as pitwall_serve
 from pitlens.radio import report as radio_report
 from pitlens.session import TimingUnavailable, enable_cache
 from pitlens.stints import report as stints_report
+from pitlens.undercut import backtest as pitwindow_backtest
 from pitlens.undercut import report as undercut_report
 
 
@@ -34,6 +35,10 @@ def main(argv: list[str] | None = None) -> None:
     pitwall = modules.add_parser("pitwall", help="Race-day dashboard in the browser (replay any race)")
     pitwall_serve.add_arguments(pitwall)
     pitwall.set_defaults(run=pitwall_serve.run)
+
+    pitwindow = modules.add_parser("pitwindow", help="Backtest the pit window model against the stops teams made")
+    pitwindow_backtest.add_arguments(pitwindow)
+    pitwindow.set_defaults(run=pitwindow_backtest.run)
 
     check = modules.add_parser("check", help="Check each replayed race's finish against the official result")
     checks.add_arguments(check)
