@@ -78,6 +78,11 @@
   .banner.red .bar { background: #E10600; color: #fff; }
   .banner.red .bar::before { background: repeating-linear-gradient(-45deg, rgba(255,255,255,.75) 0 5px, transparent 5px 10px); }
 
+  /* A narrow card (a laptop screen next to the charts): the last lap goes, so gaps keep every digit */
+  @media (max-width: 500px) {
+    .head, .row { grid-template-columns: 3px 26px 22px 50px minmax(0, 1fr) minmax(0, 1fr) 56px 30px; column-gap: 8px; }
+    .lastcol { display: none; }
+  }
   @media (max-width: 400px) {
     .head, .row { grid-template-columns: 3px 26px 18px 46px minmax(0, 1fr) minmax(0, 1fr) 50px 28px; column-gap: 6px; }
     .lastcol { display: none; }

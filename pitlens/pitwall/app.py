@@ -8,7 +8,7 @@ import time
 import pandas as pd
 import streamlit as st
 
-from pitlens.pitwall import charts, onboard_page, quali_page, ui, views
+from pitlens.pitwall import about_page, charts, onboard_page, quali_page, ui, views
 from pitlens.pitwall.data import FIRST_SEASON, RaceData, completed_races, lap_clock, load_race
 from pitlens.pitwall.events import fastest_lap_candidates, fastest_sectors, neutralised_banner, situation
 from pitlens.pitwall.timing import format_lap_time, neutralised_periods, timing_tower
@@ -31,21 +31,50 @@ def cached_race(year: int, round_number: int, kind: str = "R") -> RaceData:
     return load_race(year, round_number, kind)
 
 
+def apply_link() -> None:
+    """Open the race a link names (?year=2026&round=15, &session=sprint), once per link."""
+    ss = st.session_state
+    params = st.query_params
+    wanted = (params.get("year"), params.get("round"), params.get("session"))
+    if not wanted[0] or ss.get("link_applied") == wanted:
+        return
+    ss.link_applied = wanted
+    try:
+        year, round_number = int(wanted[0]), int(wanted[1]) if wanted[1] else None
+    except ValueError:
+        return
+    if FIRST_SEASON <= year <= pd.Timestamp.now().year:
+        ss.race_year = year
+        if round_number:
+            ss.race_pick = round_number
+        ss.race_session = "Sprint" if wanted[2] == "sprint" else "Race"
+
+
 def choose_race() -> tuple[int, int, str]:
+    ss = st.session_state
+    apply_link()
     this_year = pd.Timestamp.now().year
     year = st.sidebar.selectbox("Season", range(this_year, FIRST_SEASON - 1, -1), key="race_year")
     races = cached_races(year)
     if races.empty:
         st.info(f"No {year} races have finished yet. Pick an earlier season.")
         st.stop()
-    labels = [f"R{r.RoundNumber} · {r.EventName}" for r in races.itertuples()]
-    i = st.sidebar.selectbox("Grand Prix", range(len(races)), index=len(races) - 1, format_func=lambda i: labels[i])
+    rounds = races["RoundNumber"].astype(int).tolist()
+    labels = {int(r.RoundNumber): f"R{r.RoundNumber} · {r.EventName}" for r in races.itertuples()}
+    if ss.get("race_pick") not in rounds:
+        ss.race_pick = rounds[-1]  # the latest race
+    round_number = st.sidebar.selectbox("Grand Prix", rounds, format_func=labels.get, key="race_pick")
     kind = "R"
-    if "sprint" in str(races.loc[i, "EventFormat"]):  # sprint weekends have a second race to replay
-        session = st.sidebar.segmented_control("Session", ["Race", "Sprint"], key="race_session", default="Race",
-                                               required=True)
+    if "sprint" in str(races.set_index("RoundNumber").loc[round_number, "EventFormat"]):
+        ss.setdefault("race_session", "Race")  # set here, not as a default, since a link may set it too
+        session = st.sidebar.segmented_control("Session", ["Race", "Sprint"], key="race_session", required=True)
         kind = "S" if session == "Sprint" else "R"
-    return year, int(races.loc[i, "RoundNumber"]), kind
+    # Keep the address bar pointing at this race, so it can be shared.
+    link = {"year": str(year), "round": str(round_number), **({"session": "sprint"} if kind == "S" else {})}
+    if dict(st.query_params) != link:
+        st.query_params.from_dict(link)
+        ss.link_applied = (link["year"], link["round"], link.get("session"))
+    return year, round_number, kind
 
 
 def reset_for_new_race(key, race: RaceData) -> None:
@@ -224,11 +253,11 @@ def race_view(race: RaceData) -> None:
                     "stops, shaded laps ran under safety car or VSC.")
             gaps = race.gaps[race.gaps["LapNumber"] <= lap]
             fig = charts.gap_chart(gaps, focus, race.team_colors, race.total_laps)
-            st.plotly_chart(charts.shade_periods(fig, periods), width="stretch", key="chart_trace")
+            st.plotly_chart(charts.shade_periods(fig, periods, lap), width="stretch", key="chart_trace")
         elif view == "Positions":
             ui.note("Running order at the end of each lap.")
             fig = charts.position_chart(laps, focus, race.team_colors, race.total_laps)
-            st.plotly_chart(charts.shade_periods(fig, periods), width="stretch", key="chart_positions")
+            st.plotly_chart(charts.shade_periods(fig, periods, lap), width="stretch", key="chart_positions")
         elif view == "Tyres":
             views.tyres_view(race, laps, tower, lap, focus)
         elif view == "Pit stops":
@@ -321,10 +350,13 @@ def race_page() -> None:
 def main() -> None:
     st.set_page_config(page_title="PitLens · Pit wall", page_icon="🏁", layout="wide")
     ui.inject_css()
+    replay = st.Page(race_page, title="Race replay", icon=":material/sports_score:", default=True)
+    about_page.replay_page = replay
     pages = [
-        st.Page(race_page, title="Race replay", icon=":material/sports_score:", default=True),
+        replay,
         st.Page(quali_page.render, title="Qualifying", icon=":material/timer:", url_path="qualifying"),
         st.Page(onboard_page.render, title="Onboard", icon=":material/speed:", url_path="onboard"),
+        st.Page(about_page.render, title="About", icon=":material/info:", url_path="about"),
     ]
     st.navigation(pages, position="top").run()
 

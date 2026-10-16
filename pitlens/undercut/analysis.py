@@ -104,6 +104,8 @@ def plausible_lane_times(stops: pd.DataFrame) -> pd.Series:
 def ordinary_stationary_times(stops: pd.DataFrame) -> pd.Series:
     """False for stationary times far longer than the race's usual stop (more than twice the median):
     a stop-and-go penalty served, or repairs. NaN times count as ordinary."""
+    if stops["Stationary"].isna().all():  # no stationary times for this race
+        return pd.Series(True, index=stops.index)
     typical = stops["Stationary"].median()
     return stops["Stationary"].isna() | (stops["Stationary"] <= 2 * typical)
 

@@ -1,0 +1,3 @@
+# For hosting the pit wall (Streamlit Community Cloud installs from this file).
+# Editable, so the app finds the snapshots/ saved in the repository.
+-e .

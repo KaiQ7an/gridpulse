@@ -6,6 +6,8 @@ import fastf1
 import pandas as pd
 from fastf1.exceptions import DataNotLoadedError
 
+from pitlens import snapshots
+from pitlens.deploy import hosted
 from pitlens.onboard.compare import corner_distances
 from pitlens.session import TimingUnavailable, enable_cache, load_session, refused_recently, remember_refusal
 from pitlens.sources import openf1
@@ -183,9 +185,14 @@ class OpenF1Weekend:
 
 def load_weekend(year: int, round_number: int, kind: str):
     """F1's archive (with car telemetry) if it answers, otherwise OpenF1."""
+    if snapshots.offline():
+        raise TimingUnavailable("Onboard laps aren't saved with the snapshots, and PitLens is running offline.")
     key = f"{year}-{round_number}-{kind}"
     archive_error = TimingUnavailable(f"F1's live-timing archive refused {year} round {round_number} recently.")
-    if not refused_recently(key):
+    # On a public server the archive's telemetry (about 100 MB a session) is too heavy when OpenF1
+    # can serve just the two laps compared.
+    light = hosted() and year >= openf1.FIRST_SEASON
+    if not light and not refused_recently(key):
         try:
             return FastF1Weekend(load_session_with_telemetry(year, round_number, kind), year, round_number, kind)
         except TimingUnavailable as exc:

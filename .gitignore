@@ -15,3 +15,6 @@ cache/
 # Generated charts and CSVs (re-create with the CLI)
 outputs/
 .claude/
+
+# Never commit secrets (API keys); on Streamlit Cloud they go in the app's settings
+.streamlit/secrets.toml

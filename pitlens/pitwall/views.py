@@ -7,6 +7,7 @@ happened up to that lap.
 import pandas as pd
 import streamlit as st
 
+from pitlens.deploy import hosted
 from pitlens.pitwall import charts, ui
 from pitlens.pitwall.data import RaceData
 from pitlens.pitwall.timing import stint_timeline
@@ -70,11 +71,13 @@ def radio_view(race: RaceData, lap: int, focus: list[str]) -> None:
     shown = clips.sort_values("SessionTime", ascending=False).head(12)
     texts = {c.Url: (transcribe.cached(c.Url) or {}).get("text") for c in shown.itertuples()}
     missing = [c for c in shown.itertuples() if texts[c.Url] is None]
-    engines = translate.available_engines()
+    public = hosted()  # no local models or API keys on a public server: show what was made in advance
+    engines = [] if public else translate.available_engines()
 
     ui.note(f"{len(clips)} clips up to lap {lap}, newest first. A red microphone in the timing tower marks a "
-            "driver with a clip on the current lap.")
-    if missing:
+            "driver with a clip on the current lap."
+            + (" Transcripts and translations appear where they were made in advance." if public else ""))
+    if missing and not public:
         if transcribe.available():
             if st.button(f"Transcribe {len(missing)} clip{'s' if len(missing) > 1 else ''}",
                          icon=":material/subtitles:", key="transcribe_btn",
@@ -89,7 +92,7 @@ def radio_view(race: RaceData, lap: int, focus: list[str]) -> None:
         else:
             ui.note('To turn clips into text, install the speech model: pip install -e ".[transcribe]"')
 
-    if chinese:
+    if chinese and not public:
         untranslated = [c for c in shown.itertuples() if texts[c.Url] and translate.cached(c.Url) is None]
         if not engines:
             ui.note('To translate, install the translation model: pip install -e ".[translate]"')

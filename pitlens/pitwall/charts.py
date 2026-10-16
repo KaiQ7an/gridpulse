@@ -82,13 +82,18 @@ def _spread_end_labels(fig: go.Figure, y_span: float, min_px: float = 15) -> Non
 PERIOD_STYLE = {"Safety car": ("SC", "rgba(240,180,0,0.18)"), "VSC": ("VSC", "rgba(240,180,0,0.10)"), "Red flag": ("RED", "rgba(225,6,0,0.15)")}
 
 
-def shade_periods(fig: go.Figure, periods) -> go.Figure:
-    """Shade safety car, VSC and red flag laps behind the lines."""
+def shade_periods(fig: go.Figure, periods, lap: int | None = None) -> go.Figure:
+    """Shade safety car, VSC and red flag laps behind the lines.
+
+    A period still running at `lap` (the right-hand end of the lines) gets no label: it would sit on
+    the drivers' end-of-line labels, and the status strip and tower banner already say it.
+    """
     for status, first, last in periods:
         label, color = PERIOD_STYLE[status]
         fig.add_vrect(
             x0=first - 0.5, x1=last + 0.5, fillcolor=color, line_width=0, layer="below",
-            annotation_text=label, annotation_position="top left", annotation_font_size=10,
+            annotation_text="" if lap is not None and last >= lap - 1 else label,
+            annotation_position="top left", annotation_font_size=10,
         )
     return fig
 

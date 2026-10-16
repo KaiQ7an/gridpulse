@@ -18,11 +18,8 @@ the same questions a strategy desk asks on a Sunday afternoon.
 </div>
 
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/images/pitwall_dark.png">
-    <img src="docs/images/pitwall_light.png" alt="The PitLens pit wall replaying the 2026 Singapore Grand Prix" width="900">
-  </picture>
-  <br><sub><b>Pit wall</b> · timing tower and race trace at the end of the 2026 Singapore Grand Prix</sub>
+  <img src="docs/images/pitwall_replay.gif" alt="The PitLens pit wall replaying the last laps of the 2026 Azerbaijan Grand Prix" width="870">
+  <br><sub><b>Pit wall</b> · replaying the last laps of the 2026 Azerbaijan Grand Prix, which Russell won by 0.196 s</sub>
 </p>
 
 ## Why
@@ -150,6 +147,16 @@ With the virtual environment activated (`source .venv/bin/activate`) the shorter
 works too.
 
 ## Pit wall
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/images/pitwall_dark.png">
+    <img src="docs/images/pitwall_light.png" alt="The PitLens pit wall at the end of the 2026 Singapore Grand Prix" width="900">
+  </picture>
+</p>
+
+Any race opens from a link: `?year=2026&round=15` (add `&session=sprint` for a sprint), and the
+address bar keeps pointing at the race on screen, so it can be shared.
 
 | Option | Default | Meaning |
 |---|---|---|
@@ -348,6 +355,8 @@ pitlens/
 │   ├── openf1.py      OpenF1 fallback, reshaped into FastF1's columns; circuit outline
 │   └── weather.py     hourly rainfall (mm) at the circuit from Open-Meteo
 ├── checks.py          the `check` command: replayed finishes against the official results
+├── snapshots.py       races saved ahead of time (`snapshot` command), so they open offline
+├── deploy.py          what a hosted copy switches off
 ├── htmlreport.py      self-contained HTML reports shared by the commands
 ├── plotstyle.py       one look for every plotly chart, light and dark
 ├── pitwall/
@@ -360,10 +369,12 @@ pitlens/
 │   ├── app.py         the Streamlit dashboard: race replay page
 │   ├── views.py       its views: tyres, pit stops, strategy, radio, race control
 │   ├── quali_page.py  the Qualifying page
+│   ├── about_page.py  the About page, with races worth opening first
 │   ├── onboard_page.py  the Onboard page
 │   └── serve.py       the `pitwall` command
 └── cli.py             `pitlens <module>`
-tests/                 unit tests on synthetic races, run in CI
+tests/                 unit tests on synthetic races, and every page rendered on the snapshots, run in CI
+snapshots/             saved races and qualifying sessions
 ```
 
 - **Tyre degradation.** `clean_race_laps` keeps representative laps,
@@ -394,6 +405,28 @@ tests/                 unit tests on synthetic races, run in CI
   quicker, which a comparison with the car's own earlier laps would not.
 
 Run the tests with `.venv/bin/pip install -r requirements-dev.txt && .venv/bin/python -m pytest`.
+
+## Hosting
+
+The pit wall runs on [Streamlit Community Cloud](https://share.streamlit.io) as it is: create an
+app from this repository with `pitlens/pitwall/app.py` as the main file and Python 3.12 in the
+advanced settings. No secrets are needed. It installs from `requirements.txt`.
+
+A fresh server has none of the cache a local copy builds up, so the recent races ship with the
+repository as snapshots in `snapshots/` (laps, results, race control, weather, radio and its
+transcripts, about 100 KB a race). They open instantly and don't depend on F1's archive or
+OpenF1 answering; anything else loads from the sources as usual. After a race weekend, add it
+and commit:
+
+```bash
+.venv/bin/python -m pitlens snapshot --year 2026 --round 18
+```
+
+Each saved race is loaded straight back and checked against the official result before it's
+kept. On a hosted copy (Streamlit Cloud, or `PITLENS_HOSTED=1`) the local speech and translation
+models and the Claude translation are switched off, so radio shows the transcripts saved with
+the snapshots, and Onboard takes its two laps from OpenF1 rather than downloading a whole
+session's telemetry.
 
 ## Troubleshooting
 
