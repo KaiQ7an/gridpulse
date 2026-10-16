@@ -346,3 +346,58 @@ def pit_window_chart(window: pd.DataFrame, lap: int, total_laps: int, best, actu
     fig.update_yaxes(title="Slower than the best plan (s)", range=[-0.3, max(top, 3.0)], zeroline=True,
                      zerolinecolor=plotstyle.AXIS)
     return fig
+
+
+def sector_gaps_chart(ideal: pd.DataFrame, order: list[str], dark: bool = True) -> go.Figure:
+    """Each driver's best S1, S2 and S3 against the fastest of the session, as a heat map (redder: slower).
+
+    Opaque colours for the page's theme, so plotly can pick readable text for each cell.
+    """
+    rows = ideal.set_index("Driver").reindex([d for d in order if d in set(ideal["Driver"])])
+    gaps = rows[["S1", "S2", "S3"]] - rows[["S1", "S2", "S3"]].min()
+    text = gaps.map(lambda g: "fastest" if g == 0 else ("" if pd.isna(g) else f"+{g:.3f}"))
+    fig = go.Figure(go.Heatmap(
+        z=gaps.to_numpy(), x=["Sector 1", "Sector 2", "Sector 3"], y=gaps.index, text=text.to_numpy(),
+        texttemplate="%{text}", textfont=dict(size=11),
+        colorscale=[[0, "#7C3AED" if dark else "#A855F7"], [0.0001, "#1E222A" if dark else "#F1F2F5"],
+                    [1, "#C81E14" if dark else "#E5483F"]],
+        zmin=0, zmax=max(float(np.nanmax(gaps.to_numpy())) if gaps.size else 0.5, 0.3), showscale=False,
+        hovertemplate="<b>%{y}</b> %{x}<br>%{text}<extra></extra>", xgap=3, ygap=3,
+    ))
+    fig.update_layout(height=max(260, 26 * len(gaps) + 60), margin=dict(l=10, r=10, t=10, b=10))
+    plotstyle.apply(fig)
+    fig.update_yaxes(autorange="reversed", showgrid=False)
+    fig.update_xaxes(side="top", showgrid=False)
+    return fig
+
+
+def quali_evolution_chart(laps: pd.DataFrame, colors: dict[str, str], highlight: list[str]) -> go.Figure:
+    """Every valid push lap through the session; the highlighted drivers in team colours."""
+    valid = laps[~laps["Deleted"]].dropna(subset=["LapTime", "Minute"])
+    valid = valid[valid["LapTime"] < 1.07 * valid["LapTime"].min()] if not valid.empty else valid
+    fig = go.Figure()
+    others = valid[~valid["Driver"].isin(highlight)]
+    fig.add_trace(go.Scatter(x=others["Minute"], y=others["LapTime"], mode="markers", name="Others",
+                             marker=dict(size=6, color=CONTEXT_GREY), customdata=others[["Driver"]],
+                             hovertemplate="%{customdata[0]} %{y:.3f} s<extra></extra>"))
+    seen = set()
+    for driver in highlight:
+        d = valid[valid["Driver"] == driver]
+        if d.empty:
+            continue
+        color = colors.get(driver, "#999")
+        symbol = "diamond" if color in seen else "circle"  # teammates share a colour
+        seen.add(color)
+        fig.add_trace(go.Scatter(x=d["Minute"], y=d["LapTime"], mode="markers+lines", name=driver,
+                                 line=dict(color=color, width=1, dash="dot"),
+                                 marker=dict(size=9, color=color, symbol=symbol),
+                                 hovertemplate=f"{driver} %{{y:.3f}} s<extra></extra>"))
+    fig.update_layout(height=340, margin=dict(l=10, r=10, t=30, b=10),
+                      legend=dict(orientation="h", yanchor="bottom", y=1.0, x=0))
+    plotstyle.apply(fig)
+    fig.update_xaxes(title="Minutes into the session")
+    if not valid.empty:
+        lo, hi = valid["LapTime"].min(), valid["LapTime"].max()
+        ticks = np.arange(np.floor(lo * 2) / 2, hi + 0.5, 0.5 if hi - lo < 4 else 1.0)
+        fig.update_yaxes(title=None, autorange="reversed", tickvals=ticks, ticktext=[_minutes(t, 1) for t in ticks])
+    return fig

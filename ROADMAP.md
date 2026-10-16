@@ -41,6 +41,7 @@ pace, tyres and strategy as the race unfolds. It is built in layers, each useful
 - [x] Race-control messages, track status and weather alongside the charts
 - [x] Mark safety car and VSC periods on the race trace
 - [x] Replay sprints as well as Grands Prix
+- [x] Qualifying page: knockout classification, ideal laps, sector gaps and the session's evolution
 
 ## 5. `radio` (done)
 

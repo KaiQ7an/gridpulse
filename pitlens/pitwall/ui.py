@@ -159,6 +159,27 @@ h1, h2, h3 { letter-spacing: -0.01em; }
 }
 .st-key-card-views .pl-stat { padding: 10px 14px 11px; min-width: 0; }
 
+/* Qualifying classification: Q1/Q2/Q3 times with the knockout lines between the groups */
+.pl-qwrap { container-type: inline-size; }
+.pl-q { display: grid; grid-template-columns: 32px 60px repeat(3, minmax(62px, 1fr)) 64px 126px; gap: 8px;
+  align-items: center; padding: 7px 6px; border-bottom: 1px solid rgba(128,128,128,0.14); font-size: 0.9rem;
+  font-variant-numeric: tabular-nums; }
+.pl-q.head { font-size: 0.64rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.55;
+  border-bottom: 1px solid rgba(128,128,128,0.3); padding-top: 0; }
+.pl-q .num { text-align: right; }
+.pl-q .pos { opacity: 0.6; text-align: right; }
+.pl-q .best { color: #A855F7; font-weight: 700; }
+.pl-q .muted { opacity: 0.4; }
+.pl-q.out { opacity: 0.72; }
+.pl-q .left { font-size: 0.76rem; opacity: 0.6; margin-left: 4px; }
+.pl-qcut { display: flex; align-items: center; gap: 8px; margin: 2px 0; font-size: 0.62rem; font-weight: 800;
+  letter-spacing: 0.12em; text-transform: uppercase; color: #E10600; }
+.pl-qcut::after { content: ""; flex: 1; border-top: 1.5px dashed rgba(225,6,0,0.6); }
+@container (max-width: 560px) {
+  .pl-q { grid-template-columns: 26px 52px repeat(3, minmax(54px, 1fr)) 60px; gap: 5px; font-size: 0.8rem; }
+  .pl-q .ideal { display: none; }
+}
+
 /* Sidebar brand */
 .pl-brand { display: flex; align-items: center; gap: 10px; margin: 0 0 6px; }
 .pl-brand .mark { width: 8px; height: 30px; border-radius: 2px; background: #E10600; transform: skewX(-14deg); }
@@ -483,3 +504,50 @@ def pit_table(stops, colors: dict[str, str], lap: int) -> None:
             + f'<span class="num">{cost}</span><span>{places}</span></div>'
         )
     st.html(f'<div class="pl-pits-wrap">{head}<div class="pl-pits">{"".join(rows)}</div></div>')
+
+
+def _laptime(seconds) -> str:
+    if pd.isna(seconds):
+        return ""
+    minutes, rest = divmod(round(float(seconds), 3), 60)
+    return f"{int(minutes)}:{rest:06.3f}"
+
+
+def quali_table(results, ideal, colors: dict[str, str]) -> None:
+    """Qualifying classification: Q1/Q2/Q3 times (fastest of each part in purple), gap to pole, and the
+    ideal lap from each driver's best sectors with what was left on the table; dashed lines mark the
+    knockouts."""
+    best = {q: results[q].min() for q in ("Q1", "Q2", "Q3")}
+    pole = results["Q3"].min() if results["Q3"].notna().any() else results[["Q1", "Q2", "Q3"]].min().min()
+    ideal = ideal.set_index("Driver") if len(ideal) else ideal
+    head = ('<div class="pl-q head"><span class="num">Pos</span><span>Driver</span><span class="num">Q1</span>'
+            '<span class="num">Q2</span><span class="num">Q3</span><span class="num">Gap</span>'
+            '<span class="num ideal">Ideal lap</span></div>')
+    rows, group = [], ""
+    for r in results.itertuples():
+        if r.Out != group:
+            rows.append(f'<div class="pl-qcut">Out in {r.Out}</div>')
+            group = r.Out
+        cells = []
+        for q in ("Q1", "Q2", "Q3"):
+            t = getattr(r, q)
+            cls = "num best" if pd.notna(t) and t == best[q] else "num"
+            cells.append(f'<span class="{cls}">{_laptime(t) or "<span class=muted>–</span>"}</span>')
+        own = min((getattr(r, q) for q in ("Q1", "Q2", "Q3") if pd.notna(getattr(r, q))), default=float("nan"))
+        if r.Out == "":
+            final = r.Q3 if pd.notna(r.Q3) else own
+        else:
+            final = getattr(r, r.Out)
+        gap = "" if pd.isna(final) or pd.isna(pole) else ("Pole" if final == pole else f"+{final - pole:.3f}")
+        lap = ideal.loc[r.Driver] if r.Driver in getattr(ideal, "index", []) else None
+        ideal_html = ""
+        if lap is not None and pd.notna(lap["Ideal"]):
+            left = f'<span class="left">−{lap["LeftOnTable"]:.3f}</span>' if lap["LeftOnTable"] > 0.0005 else ""
+            ideal_html = f"{_laptime(lap['Ideal'])}{left}"
+        pos = "" if pd.isna(r.Position) else int(r.Position)
+        rows.append(
+            f'<div class="pl-q{" out" if r.Out else ""}"><span class="pos">{pos}</span>'
+            f'<span>{driver_dot(colors.get(r.Driver, "#999"))}<b>{html.escape(str(r.Driver))}</b></span>'
+            + "".join(cells) + f'<span class="num">{gap}</span><span class="num ideal">{ideal_html}</span></div>'
+        )
+    st.html(f'<div class="pl-qwrap">{head}{"".join(rows)}</div>')

@@ -76,6 +76,16 @@ falling away, with the cleaning rules written down and tested.
   local Whisper model, and another translates them into Chinese; transcribed radio also appears as
   quotes in the race feed.
 
+**Qualifying** (a page in the pit wall)
+
+- The knockout classification: Q1, Q2 and Q3 times with the fastest of each part in purple,
+  dashed lines where cars went out, gap to pole, and each driver's ideal lap (their best three
+  sectors added up) with the time they left on the table.
+- Where the time went: every driver's best sector against the fastest of the session.
+- Every push lap through the session, showing the track getting quicker as it rubbers in.
+- Sprint qualifying on sprint weekends. Deleted laps are left out (from race control's
+  "TIME ... DELETED" messages when the data comes from OpenF1).
+
 **`onboard`: fastest-lap telemetry comparison** (available now)
 
 - Any two drivers in any session, defaulting to the fastest driver and their teammate.
@@ -332,6 +342,8 @@ pitlens/
 │   ├── transcribe.py  local Whisper transcription with an F1 prompt, cached
 │   ├── translate.py   transcripts into Chinese: offline model + F1 glossary, or Claude
 │   └── report.py      the `radio` command
+├── quali/
+│   └── data.py        one qualifying session: Q1/Q2/Q3, knockouts, ideal laps, deleted laps
 ├── sources/
 │   ├── openf1.py      OpenF1 fallback, reshaped into FastF1's columns; circuit outline
 │   └── weather.py     hourly rainfall (mm) at the circuit from Open-Meteo
@@ -347,6 +359,7 @@ pitlens/
 │   ├── ui.py          page header, status strip and shared CSS
 │   ├── app.py         the Streamlit dashboard: race replay page
 │   ├── views.py       its views: tyres, pit stops, strategy, radio, race control
+│   ├── quali_page.py  the Qualifying page
 │   ├── onboard_page.py  the Onboard page
 │   └── serve.py       the `pitwall` command
 └── cli.py             `pitlens <module>`
