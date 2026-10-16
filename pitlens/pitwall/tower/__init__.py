@@ -23,8 +23,11 @@ def timing_tower(
     on_radio: set[str] = frozenset(),
     focus: list[str] = (),
     banner: dict | None = None,
+    changes: dict[str, int] | None = None,
     key: str = "tower",
 ):
+    """`changes`: places each driver gained (+) or lost (-) on this lap, shown as an arrow by the position."""
+    changes = changes or {}
     rows = []
     for r in tower.itertuples():
         age = "" if pd.isna(r.TyreAge) else int(r.TyreAge)
@@ -45,6 +48,7 @@ def timing_tower(
                 "pit": bool(r.Pit),
                 "out": bool(r.Out),
                 "radio": r.Driver in on_radio,
+                "change": int(changes.get(r.Driver, 0)),
             }
         )
     return _component(

@@ -148,3 +148,17 @@ def test_winner_alone_on_the_lead_lap():
     events = race_events(laps, retired={"D"}, total_laps=6)
     assert events.loc[events["Kind"] == "FLAG", "Text"].tolist() == ["B wins"]
     assert situation(timing_tower(laps, 6, {"D"}), 6, 6) == "Chequered flag: B wins."
+
+
+def test_places_gained_on_the_lap_and_against_the_grid():
+    from types import SimpleNamespace
+
+    from pitlens.pitwall.app import places_gained
+
+    laps = make_race()
+    race = SimpleNamespace(laps=laps, retired={"D"}, entrants=None, stops=None,
+                           results=pd.DataFrame({"Abbreviation": ["A", "B", "C", "D"], "GridPosition": [2, 1, 3, 0]}))
+    # B passes A on lap 4.
+    assert places_gained(race, timing_tower(laps, 4, {"D"}), 4) == {"B": 1, "A": -1, "C": 0}
+    # Lap 1 against the grid; D started from the pit lane (0) and has no arrow.
+    assert places_gained(race, timing_tower(laps, 1, {"D"}), 1) == {"A": 1, "B": -1, "C": 0}

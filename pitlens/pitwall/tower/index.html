@@ -18,7 +18,7 @@
   /* Every row is its own grid, so columns must not size to their content or
      rows would disagree. minmax(0, …) and fixed tracks keep them identical. */
   .head, .row { display: grid; align-items: center; column-gap: 10px; height: 38px; padding: 0 8px 0 0;
-    grid-template-columns: 3px 26px 56px minmax(0, 1fr) minmax(0, 1fr) 76px 56px 30px; }
+    grid-template-columns: 3px 26px 22px 52px minmax(0, 1fr) minmax(0, 1fr) 76px 56px 30px; }
   .head > *, .row > * { white-space: nowrap; overflow: hidden; }
   .head { height: 32px; color: var(--muted); font-size: 10px; font-weight: 600; letter-spacing: .12em;
     text-transform: uppercase; border-bottom: 1px solid var(--rule); }
@@ -32,6 +32,13 @@
 
   .bar { height: 18px; border-radius: 2px; }
   .pos { text-align: right; color: var(--muted); font-weight: 500; }
+  /* Places gained or lost on this lap: a small triangle, with the count when it's more than one */
+  .chg { font-size: 9.5px; font-weight: 800; letter-spacing: -.02em; display: flex; align-items: center; gap: 1px;
+    margin-left: -4px; }
+  .chg.up { color: var(--close); }
+  .chg.down { color: var(--accent); }
+  .chg.fresh { animation: chgin 500ms ease-out; }
+  @keyframes chgin { from { opacity: 0; transform: translateY(var(--from, 0)); } }
   .drv { font-weight: 700; letter-spacing: .03em; display: flex; align-items: center; gap: 4px; }
   .mic { width: 12px; height: 12px; flex: none; color: var(--accent); opacity: 0; transition: opacity 250ms; }
   .mic.on { opacity: 1; }
@@ -72,12 +79,12 @@
   .banner.red .bar::before { background: repeating-linear-gradient(-45deg, rgba(255,255,255,.75) 0 5px, transparent 5px 10px); }
 
   @media (max-width: 400px) {
-    .head, .row { grid-template-columns: 3px 26px 50px minmax(0, 1fr) minmax(0, 1fr) 50px 28px; column-gap: 6px; }
+    .head, .row { grid-template-columns: 3px 26px 18px 46px minmax(0, 1fr) minmax(0, 1fr) 50px 28px; column-gap: 6px; }
     .lastcol { display: none; }
   }
   @media (max-width: 320px) {
     html, body { font-size: 12.5px; }
-    .head, .row { grid-template-columns: 3px 26px 48px minmax(0, 1fr) 48px 28px; column-gap: 5px; }
+    .head, .row { grid-template-columns: 3px 26px 16px 44px minmax(0, 1fr) 48px 28px; column-gap: 5px; }
     .head { letter-spacing: .06em; }
     .intcol { display: none; }
   }
@@ -87,7 +94,7 @@
 <div class="banner" id="banner"><div class="bar"><span class="light"></span><span class="text"></span>
   <span class="laps"></span></div></div>
 <div class="tower">
-  <div class="head"><span></span><span class="num">Pos</span><span>Driver</span><span class="num">Gap</span>
+  <div class="head"><span></span><span class="num">Pos</span><span></span><span>Driver</span><span class="num">Gap</span>
     <span class="num intcol">Int</span><span class="num lastcol">Last lap</span><span>Tyre</span><span class="num">Stp</span></div>
   <div class="rows" id="rows"></div>
 </div>
@@ -100,6 +107,19 @@ const shownGap = new Map();    // driver -> gap currently displayed (for tweenin
 const shownInt = new Map();    // driver -> interval currently displayed
 const lastPos = new Map();     // driver -> previous position
 let lastLap = null;
+const lastChange = new Map();  // driver -> places gained on the lap shown before
+
+// ▲ green for places gained on this lap, ▼ red for places lost (with the count when more than one).
+function setChange(el, change, before, driver) {
+  el.className = "chg" + (change > 0 ? " up" : change < 0 ? " down" : "");
+  el.textContent = change > 0 ? "▲" + (change > 1 ? change : "") : change < 0 ? "▼" + (change < -1 ? -change : "") : "";
+  if (change !== 0 && change !== before) {
+    el.style.setProperty("--from", change > 0 ? "4px" : "-4px");
+    void el.offsetWidth;  // restart the animation
+    el.classList.add("fresh");
+  }
+  lastChange.set(driver, change);
+}
 const ROW_H = 38;
 
 function applyTheme(theme) {
@@ -140,7 +160,7 @@ function setNumber(el, shown, driver, text, seconds, ms, animate) {
 function makeRow(driver) {
   const el = document.createElement("div");
   el.className = "row";
-  el.innerHTML = `<span class="bar"></span><span class="pos num"></span>
+  el.innerHTML = `<span class="bar"></span><span class="pos num"></span><span class="chg"></span>
     <span class="drv"><span class="code"></span><svg class="mic" viewBox="0 0 24 24" aria-label="team radio"
       fill="currentColor"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6
       6.93V21h2v-3.07A7 7 0 0 0 19 11h-2z"/></svg></span>
@@ -168,6 +188,7 @@ function render(args) {
     el.classList.toggle("focus", focus.has(r.driver));
     el.querySelector(".bar").style.background = r.team_color;
     el.querySelector(".pos").textContent = r.pos;
+    setChange(el.querySelector(".chg"), r.change || 0, lastChange.get(r.driver), r.driver);
     el.querySelector(".last").textContent = r.last_lap;
     el.querySelector(".stops").textContent = r.stops ?? "";
     el.querySelector(".mic").classList.toggle("on", !!r.radio);

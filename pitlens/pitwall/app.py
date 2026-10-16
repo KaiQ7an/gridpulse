@@ -202,7 +202,8 @@ def race_view(race: RaceData) -> None:
         move_ms = int(interval * 1000 * 0.85) if ss.playing else 450
         on_radio = set(race.radio.loc[race.radio["Lap"] == lap, "Driver"])
         banner = neutralised_banner(race.lap_status, lap)
-        tower_component(tower, race.team_colors, lap, move_ms, on_radio, focus, banner)
+        tower_component(tower, race.team_colors, lap, move_ms, on_radio, focus, banner,
+                        places_gained(race, tower, lap))
 
     if race.track:
         with left, st.container(border=True, key="card-map"):
@@ -248,6 +249,19 @@ def race_view(race: RaceData) -> None:
         ui.label("Race feed")
         feed = with_radio(race.events, race.radio, lap).iloc[::-1]
         ui.race_feed(situation(tower, lap, race.total_laps), feed, lap)
+
+
+def places_gained(race: RaceData, tower: pd.DataFrame, lap: int) -> dict[str, int]:
+    """Places each running car gained (+) or lost (-) on this lap; on lap 1, against the grid."""
+    if lap > 1:
+        before = timing_tower(race.laps, lap - 1, race.retired, race.entrants, stops=race.stops)
+        before = dict(zip(before.loc[~before["Out"], "Driver"], before.loc[~before["Out"], "Pos"]))
+    elif "GridPosition" in race.results:  # F1's archive has the grid; OpenF1's results don't
+        grid = race.results.set_index("Abbreviation")["GridPosition"]
+        before = {d: int(g) for d, g in grid.items() if pd.notna(g) and g > 0}  # 0: started from the pit lane
+    else:
+        return {}
+    return {r.Driver: int(before[r.Driver] - r.Pos) for r in tower.itertuples() if not r.Out and r.Driver in before}
 
 
 def with_radio(events: pd.DataFrame, radio: pd.DataFrame, lap: int) -> pd.DataFrame:
