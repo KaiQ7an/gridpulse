@@ -15,8 +15,29 @@ FEATURED = [
     (2026, 5, "", "2026 Canadian Grand Prix", "A wet start: the leader pits for slicks on lap 1."),
 ]
 
-# Set by the app to its race replay page, so the links can open a race there.
-replay_page = None
+# What each page does, as (page title, what it shows): a race weekend, then a season.
+WEEKEND = [
+    ("Race replay", "Timing tower with places gained and lost, the race trace, tyre stints, every pit stop with how "
+                    "long it took and what it cost, a pit window from a tyre model fitted on the race so far, "
+                    "undercuts, and team radio with transcripts. Sprints too."),
+    ("Qualifying", "The knockout from Q1 to Q3, each driver's ideal lap from their best sectors, and where the time "
+                   "went sector by sector."),
+    ("Onboard", "Two drivers' fastest laps side by side: speed, throttle, brake and gear along the lap, the gap "
+                "building corner by corner, and a track map of who was faster where."),
+]
+SEASON = [
+    ("Season", "The championship round by round: the standings, the points race, who led when, every result in "
+               "one grid, and each round's pole, winner and fastest lap."),
+    ("Teams", "A season team by team: points, wins and poles, each driver's numbers, the teammate battle in "
+              "qualifying and races, and how quick the pit crew is against the rest."),
+    ("Drivers", "One driver's season: grid to flag at every Grand Prix, points against the teammate and the "
+                "leader, and the standout numbers, from the best comeback to the longest run in the points."),
+    ("Circuits", "One track across the years: who won and from where, pole and fastest lap times, safety cars "
+                 "and red flags, and how many times the field stopped."),
+]
+
+# Set by the app: its pages by title, so the cards and featured races can link to them.
+pages: dict = {}
 
 
 def render() -> None:
@@ -28,24 +49,10 @@ def render() -> None:
                "the gaps, tyres, pit stops, strategy and team radio, with what was known at that lap and "
                "nothing after it.")
 
-    left, middle, teams, right = st.columns(4, gap="medium")
-    with left, st.container(border=True, key="card-about-replay"):
-        ui.label("Race replay")
-        ui.note("Timing tower with places gained and lost, the race trace, tyre stints, every pit stop with "
-                "how long it took and what it cost, a pit window from a tyre model fitted on the race so far, "
-                "undercuts, and team radio with transcripts. Sprints too.")
-    with middle, st.container(border=True, key="card-about-quali"):
-        ui.label("Qualifying")
-        ui.note("The knockout from Q1 to Q3, each driver's ideal lap from their best sectors, and where the "
-                "time went sector by sector.")
-    with teams, st.container(border=True, key="card-about-teams"):
-        ui.label("Teams")
-        ui.note("A season team by team: points, wins and poles, each driver's numbers, the teammate battle in "
-                "qualifying and races, and how quick the pit crew is against the rest.")
-    with right, st.container(border=True, key="card-about-onboard"):
-        ui.label("Onboard")
-        ui.note("Two drivers' fastest laps side by side: speed, throttle, brake and gear along the lap, the gap "
-                "building corner by corner, and a track map of who was faster where.")
+    ui.label("A race weekend")
+    cards(WEEKEND)
+    ui.label("Across a season")
+    cards(SEASON)
 
     ui.label("Races worth a look")
     cols = st.columns(len(FEATURED), gap="small")
@@ -53,16 +60,27 @@ def render() -> None:
         with col, st.container(border=True, key=f"card-featured-{year}-{round_number}"):
             st.html(f'<div style="font-weight:700;margin-bottom:4px">{title}</div>'
                     f'<div class="pl-note" style="margin-bottom:6px">{why}</div>')
-            if replay_page is not None:
+            if "Race replay" in pages:
                 params = {"year": str(year), "round": str(round_number), **({"session": session} if session else {})}
-                st.page_link(replay_page, label="Open the replay", icon=":material/play_arrow:", query_params=params)
+                st.page_link(pages["Race replay"], label="Open the replay", icon=":material/play_arrow:",
+                             query_params=params)
 
     ui.label("How far to trust it")
     ui.note("The data is F1's public live-timing archive (through FastF1), or OpenF1 when the archive won't "
             "serve a session. Every Grand Prix from 2021 on, and every sprint since 2023, has been checked "
             "against the official result: the same winner, the same top ten and every finisher the same "
-            "number of laps down. The checks, and the data problems they caught, are written up on GitHub.")
+            "number of laps down, and the 2023 to 2025 championships add up to the official final standings "
+            "point for point. The checks, and the data problems they caught, are written up on GitHub.")
     st.markdown(f"[Source code and the data checks on GitHub]({REPO}) · "
                 f"[How the data was checked]({REPO}/blob/main/docs/data-validation.md)")
     ui.note("Unofficial: not associated with Formula 1 or any team. Circuit maps and pit loss figures from "
             "MultiViewer, rainfall from Open-Meteo.")
+
+
+def cards(items: list[tuple[str, str]]) -> None:
+    for col, (title, what) in zip(st.columns(len(items), gap="medium"), items):
+        with col, st.container(border=True, key=f"card-about-{title.lower().replace(' ', '-')}"):
+            ui.label(title)
+            ui.note(what)
+            if title in pages:
+                st.page_link(pages[title], label="Open", icon=":material/arrow_forward:")

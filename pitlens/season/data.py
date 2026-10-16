@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 
 from pitlens import snapshots
+from pitlens.pitwall.events import fastest_lap_candidates
 from pitlens.undercut.analysis import ordinary_stationary_times, pit_stops
 
 RACE_POINTS = [25, 18, 15, 12, 10, 8, 6, 4, 2, 1]
@@ -24,6 +25,8 @@ class Season:
     results: pd.DataFrame  # Round, Kind (R/S), Driver, FullName, Team, Grid, Position, Status, Points, Classified, Dsq
     quali: pd.DataFrame  # Round, Driver, Team, Position, Part (furthest part reached), Q1, Q2, Q3 (s)
     stops: pd.DataFrame  # Round, Driver, Team, LaneTime, Stationary, StillOk
+    led: pd.DataFrame  # Round, Kind, Driver, Laps (laps completed in the lead)
+    fastest: pd.DataFrame  # Round, Driver, LapTime (s): each Grand Prix's fastest lap
     colors: dict[str, str]  # team -> "#rrggbb"
     missing: list[int]  # finished rounds with no saved race
 
@@ -32,6 +35,9 @@ def seasons_saved() -> list[int]:
     """Seasons with saved races, newest first."""
     years = [int(p.name) for p in snapshots.SNAPSHOT_DIR.glob("*") if p.name.isdigit()]
     return sorted((y for y in years if len(snapshots.races(y)) >= 3), reverse=True)
+
+
+FASTEST_LAP_POINT = range(2019, 2025)  # a point for the fastest lap, to a driver who finished in the top ten
 
 
 def points_for(position, kind: str) -> int:
@@ -43,7 +49,7 @@ def points_for(position, kind: str) -> int:
 
 def load_season(year: int) -> Season:
     rounds = snapshots.races(year).sort_values("RoundNumber")
-    result_rows, quali_rows, stop_rows, colors, missing = [], [], [], {}, []
+    result_rows, quali_rows, stop_rows, led_rows, fastest_rows, colors, missing = [], [], [], [], [], {}, []
     for r in rounds.itertuples():
         for kind in ("R", "S"):
             parts = snapshots.load_race(year, int(r.RoundNumber), kind)
@@ -51,8 +57,24 @@ def load_season(year: int) -> Season:
                 if kind == "R":
                     missing.append(int(r.RoundNumber))
                 continue
-            result_rows.append(_results(parts["results"], int(r.RoundNumber), kind))
+            rows = _results(parts["results"], int(r.RoundNumber), kind)
+            result_rows.append(rows)
             colors.update(_colors(parts["results"]))
+            laps = parts["laps"]
+            if "Position" in laps:
+                led = laps[laps["Position"] == 1].groupby("Driver").size()
+                led_rows += [{"Round": int(r.RoundNumber), "Kind": kind, "Driver": d, "Laps": int(n)}
+                             for d, n in led.items()]
+            if kind == "R":
+                # A disqualified driver's laps are struck from the result, fastest lap included.
+                dsq = rows.loc[rows["Dsq"], "Driver"]
+                candidates = fastest_lap_candidates(laps[~laps["Driver"].isin(dsq)])
+                if not candidates.empty:
+                    best = candidates.loc[candidates["LapTime"].idxmin()]
+                    fastest_rows.append({"Round": int(r.RoundNumber), "Driver": best["Driver"],
+                                         "LapTime": best["LapTime"].total_seconds()})
+                    if year in FASTEST_LAP_POINT and not _has_points(parts["results"]):
+                        rows.loc[(rows["Driver"] == best["Driver"]) & (rows["Position"] <= 10), "Points"] += 1
             stops = pit_stops(parts["laps"], parts.get("stationary"))
             if not stops.empty:
                 team = dict(zip(parts["results"]["Abbreviation"], parts["results"]["TeamName"]))
@@ -71,6 +93,8 @@ def load_season(year: int) -> Season:
                            "Location": rounds["Location"],
                            "Sprint": rounds["EventFormat"].astype(str).str.contains("sprint")})
     return Season(year=year, rounds=rounds.reset_index(drop=True), results=results, quali=quali, stops=stops,
+                  led=pd.DataFrame(led_rows, columns=["Round", "Kind", "Driver", "Laps"]),
+                  fastest=pd.DataFrame(fastest_rows, columns=["Round", "Driver", "LapTime"]),
                   colors=colors, missing=missing)
 
 
@@ -94,12 +118,76 @@ def _results(res: pd.DataFrame, round_number: int, kind: str) -> pd.DataFrame:
     })
 
 
+def _has_points(res: pd.DataFrame) -> bool:
+    """Whether the results carry the official points (F1's archive does, OpenF1 doesn't)."""
+    return "Points" in res and pd.to_numeric(res["Points"], errors="coerce").notna().any()
+
+
 def _colors(res: pd.DataFrame) -> dict[str, str]:
     out = {}
     for team, color in zip(res["TeamName"], res.get("TeamColor", pd.Series([None] * len(res)))):
         if isinstance(color, str) and len(color.lstrip("#")) == 6:
             out[team] = "#" + color.lstrip("#")
     return out
+
+
+# ---------------------------------------------------------------- championship
+
+
+def driver_standings(season: Season) -> pd.DataFrame:
+    """Drivers' points so far with wins, podiums, poles, fastest laps and laps led, leader first."""
+    results = season.results
+    gp = results[results["Kind"] == "R"]
+    latest = results.sort_values("Round").groupby("Driver").tail(1).set_index("Driver")
+    table = results.groupby("Driver")["Points"].sum().to_frame()
+    table["FullName"] = latest["FullName"]
+    table["Team"] = latest["Team"]
+    counts = {
+        "Wins": gp[gp["Position"] == 1].groupby("Driver").size(),
+        "Podiums": gp[gp["Position"] <= 3].groupby("Driver").size(),
+        "Poles": pole_sitters(season).value_counts(),
+        "FastestLaps": season.fastest.groupby("Driver").size(),
+        "LapsLed": season.led[season.led["Kind"] == "R"].groupby("Driver")["Laps"].sum(),
+    }
+    for name, count in counts.items():
+        table[name] = count.reindex(table.index, fill_value=0).astype(int)
+    return table.sort_values(["Points", "Wins"], ascending=False).reset_index()
+
+
+def pole_sitters(season: Season) -> pd.Series:
+    """Round -> driver on pole. F1 credits pole to the car that starts first, so after a grid penalty
+    it isn't the fastest qualifier (Leclerc in Belgium 2023, Verstappen fastest); qualifying stands
+    in where the grid isn't known."""
+    gp = season.results[(season.results["Kind"] == "R") & (season.results["Grid"] == 1)]
+    grid = gp.drop_duplicates("Round").set_index("Round")["Driver"]
+    quali = season.quali[season.quali["Position"] == 1].set_index("Round")["Driver"]
+    quali = quali[~quali.index.isin(grid.index)]
+    return pd.concat([x for x in (grid, quali) if len(x)] or [grid]).sort_index()
+
+
+def points_by_round(season: Season, by: str = "Driver") -> pd.DataFrame:
+    """Cumulative points after each round (sprint included), one column per driver (or team)."""
+    per_round = season.results.pivot_table(index="Round", columns=by, values="Points", aggfunc="sum")
+    return per_round.reindex(season.rounds["Round"]).fillna(0).cumsum()
+
+
+def round_winners(season: Season) -> pd.DataFrame:
+    """Every round: Round, Event, Location, Sprint (bool), Pole, Winner, Fastest, SprintWinner (drivers)."""
+    results = season.results
+    won = results[results["Position"] == 1]
+    winner = won[won["Kind"] == "R"].set_index("Round")["Driver"]
+    sprint = won[won["Kind"] == "S"].set_index("Round")["Driver"]
+    rounds = season.rounds.copy()
+    rounds["Pole"] = rounds["Round"].map(pole_sitters(season))
+    rounds["Winner"] = rounds["Round"].map(winner)
+    rounds["Fastest"] = rounds["Round"].map(season.fastest.set_index("Round")["Driver"])
+    rounds["SprintWinner"] = rounds["Round"].map(sprint)
+    return rounds[rounds["Winner"].notna()].reset_index(drop=True)
+
+
+def leaders_by_round(progress: pd.DataFrame) -> pd.Series:
+    """Round -> who led the championship after it (the first in the column order on a tie)."""
+    return progress.idxmax(axis=1)
 
 
 # ---------------------------------------------------------------- per team
@@ -184,3 +272,66 @@ def pit_crews(season: Season, min_stops: int = 5) -> pd.DataFrame:
     s = s[s["StillOk"]] if "StillOk" in s else s
     table = s.groupby("Team")["Stationary"].agg(Stops="size", Median="median", Best="min")
     return table[table["Stops"] >= min_stops].sort_values("Median").reset_index()
+
+
+# ---------------------------------------------------------------- per driver
+
+
+def driver_season(season: Season, driver: str) -> pd.DataFrame:
+    """A driver's weekends: Round, Event, Team, Grid, Position, Status, Classified, Dsq, Points (race and
+    sprint), Quali (position), Pole, Fastest (fastest lap of the Grand Prix), Sprint (sprint finish)."""
+    gp = season.results[(season.results["Driver"] == driver) & (season.results["Kind"] == "R")]
+    sprint = season.results[(season.results["Driver"] == driver) & (season.results["Kind"] == "S")]
+    sprint = sprint.set_index("Round")["Position"].where(sprint.set_index("Round")["Classified"])
+    weekend_points = season.results[season.results["Driver"] == driver].groupby("Round")["Points"].sum()
+    quali = season.quali[season.quali["Driver"] == driver].set_index("Round")["Position"]
+    fastest = set(season.fastest.loc[season.fastest["Driver"] == driver, "Round"])
+    events = season.rounds.set_index("Round")["Event"]
+    rows = gp.assign(
+        Event=gp["Round"].map(events).str.replace(" Grand Prix", ""),
+        Points=gp["Round"].map(weekend_points).fillna(0),
+        Quali=gp["Round"].map(quali),
+        Pole=gp["Round"].map(pole_sitters(season)).eq(driver),
+        Fastest=gp["Round"].isin(fastest),
+        Sprint=gp["Round"].map(sprint),
+    )
+    return rows[["Round", "Event", "Team", "Grid", "Position", "Status", "Classified", "Dsq", "Points", "Quali",
+                 "Pole", "Fastest", "Sprint"]].sort_values("Round").reset_index(drop=True)
+
+
+def driver_highlights(rows: pd.DataFrame) -> list[tuple[str, str, str]]:
+    """The standout numbers of a driver's season from `driver_season` rows, as (label, value, detail);
+    a highlight that doesn't apply (no wins, no comeback) is left out."""
+    out = []
+    finished = rows[rows["Classified"] & rows["Position"].notna()]
+    started = finished[finished["Grid"] > 0]
+    if len(started):
+        gains = started["Grid"] - started["Position"]
+        best = started.loc[gains.idxmax()]
+        if gains.max() > 0:
+            out.append(("Best comeback", f"+{gains.max():.0f} places",
+                        f"{best['Event']}: P{best['Grid']:.0f} to P{best['Position']:.0f}"))
+    wins = finished[finished["Position"] == 1]
+    if len(wins):
+        back = wins.loc[wins["Grid"].where(wins["Grid"] > 0).idxmax()] if (wins["Grid"] > 0).any() else None
+        if back is not None and back["Grid"] > 1:
+            out.append(("Win from furthest back", f"P{back['Grid']:.0f}", back["Event"]))
+    poles = rows[rows["Pole"]]
+    if len(poles):
+        out.append(("Poles turned into wins", f"{int((poles['Position'] == 1).sum())} of {len(poles)}", ""))
+    hat_tricks = rows[rows["Pole"] & (rows["Position"] == 1) & rows["Fastest"]]
+    if len(hat_tricks):
+        out.append(("Hat-tricks", str(len(hat_tricks)), "pole, win and fastest lap: " + ", ".join(hat_tricks["Event"])))
+    scored = (rows["Classified"] & (rows["Position"] <= 10)).tolist()
+    run, best_run, end = 0, 0, None
+    for i, s in enumerate(scored):
+        run = run + 1 if s else 0
+        if run > best_run:
+            best_run, end = run, i
+    if best_run > 1:
+        first, last = rows.iloc[end - best_run + 1], rows.iloc[end]
+        out.append(("Longest run in the points", f"{best_run} races", f"{first['Event']} to {last['Event']}"))
+    if len(finished):
+        worst = finished.loc[finished["Position"].idxmax()]
+        out.append(("Lowest finish", f"P{worst['Position']:.0f}", worst["Event"]))
+    return out

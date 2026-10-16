@@ -8,7 +8,18 @@ import time
 import pandas as pd
 import streamlit as st
 
-from pitlens.pitwall import about_page, charts, onboard_page, quali_page, teams_page, ui, views
+from pitlens.pitwall import (
+    about_page,
+    charts,
+    circuits_page,
+    drivers_page,
+    onboard_page,
+    quali_page,
+    season_page,
+    teams_page,
+    ui,
+    views,
+)
 from pitlens.pitwall.data import FIRST_SEASON, RaceData, completed_races, lap_clock, load_race
 from pitlens.pitwall.events import fastest_lap_candidates, fastest_sectors, neutralised_banner, situation
 from pitlens.pitwall.timing import format_lap_time, neutralised_periods, timing_tower
@@ -350,15 +361,17 @@ def race_page() -> None:
 def main() -> None:
     st.set_page_config(page_title="PitLens · Pit wall", page_icon="🏁", layout="wide")
     ui.inject_css()
-    replay = st.Page(race_page, title="Race replay", icon=":material/sports_score:", default=True)
-    about_page.replay_page = replay
     pages = [
-        replay,
+        st.Page(race_page, title="Race replay", icon=":material/sports_score:", default=True),
         st.Page(quali_page.render, title="Qualifying", icon=":material/timer:", url_path="qualifying"),
-        st.Page(teams_page.render, title="Teams", icon=":material/groups:", url_path="teams"),
         st.Page(onboard_page.render, title="Onboard", icon=":material/speed:", url_path="onboard"),
+        st.Page(season_page.render, title="Season", icon=":material/emoji_events:", url_path="season"),
+        st.Page(teams_page.render, title="Teams", icon=":material/groups:", url_path="teams"),
+        st.Page(drivers_page.render, title="Drivers", icon=":material/sports_motorsports:", url_path="drivers"),
+        st.Page(circuits_page.render, title="Circuits", icon=":material/route:", url_path="circuits"),
         st.Page(about_page.render, title="About", icon=":material/info:", url_path="about"),
     ]
+    about_page.pages = {page.title: page for page in pages}
     st.navigation(pages, position="top").run()
 
 

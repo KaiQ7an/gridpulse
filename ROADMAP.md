@@ -9,7 +9,8 @@ pace, tyres and strategy as the race unfolds. It is built in layers, each useful
 - [x] Fuel correction and per-stint degradation fit
 - [x] Pace and degradation charts, CSV export, unit tests, CI
 - [ ] Separate track evolution from tyre wear (compare drivers on different tyre ages in the same laps)
-- [ ] Run across a whole season and compare circuits
+- [ ] Run across a whole season and compare circuits (the Circuits page compares results, not
+      degradation, yet)
 
 ## 2. `onboard`: teammate telemetry comparison (done)
 
@@ -43,6 +44,10 @@ pace, tyres and strategy as the race unfolds. It is built in layers, each useful
 - [x] Replay sprints as well as Grands Prix
 - [x] Qualifying page: knockout classification, ideal laps, sector gaps and the session's evolution
 - [x] Teams page: a season per team, its drivers, the teammate battle and the pit crew
+- [x] Season page: standings, the points race, who led when, every result in one grid
+- [x] Drivers page: a driver's season weekend by weekend, against the teammate, with highlights
+- [x] Circuits page: one track across the saved years (winners, pole and fastest lap, neutralisations,
+      pit stops and tyres)
 
 ## 5. `radio` (done)
 

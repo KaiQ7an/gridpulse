@@ -82,6 +82,22 @@ look like tyre changes in the timing tower, the race feed and the pit stop list.
 same compound whose tyre age carries straight on (to within a lap, because of the timing-line
 quirk above) is folded into the one before; stop-and-go penalties go the same way.
 
+**A stop on lap 1 read as a pit-lane start.** When a car pits at the end of the first lap (often
+under a lap-1 safety car, as in Jeddah 2025, or for a cheap first stop in Monaco 2025, where two
+were compulsory), OpenF1 can end its first tyre stint at lap 0 and start the next on lap 1, which
+is what a pit-lane start looks like. Twenty-two saved races lost one or more stops this way. OpenF1's
+pit-out flag tells the two apart: a pit-lane start leaves the pits on lap 1, these cars only on
+lap 2. Tyres changed in the pit lane while the race is stopped under a red flag aren't counted as
+stops either, as in F1's own pit stop summaries.
+
+**Fastest laps.** Officially any lap counts, and PitLens had been stricter. Norris's fastest lap
+in Australia 2025 was the lap he pitted at the end of, and leaving in-laps out had given it to
+Lawson. Alonso's in China 2024 and Norris's in Qatar 2024 were laps on which a VSC came out near
+the end, and leaving out every lap with a neutralisation on it had given both to Verstappen. Only
+laps run into a red flag (and glitch times) are left out now. A disqualified driver's laps are
+struck from the season tables with the rest of their result (Hamilton's quickest lap in China
+2025). The championship check below is what found these.
+
 **No pit data at all.** OpenF1 has tyre stints but no pit records for the first six races of
 2023, and loading them crashed. Stops are now worked out from the stint changes, with the pit
 lane time left unknown and the Pit stops view saying so.
@@ -96,6 +112,14 @@ minute"; failed loads aren't cached, so the next attempt retries.
 final order still checks out, but the replay can't be right on the missing laps, so any race
 with less than 95% of its laps carries a warning above the replay.
 
+## The championship tables
+
+The Season, Teams and Drivers pages add up points from the saved races. F1's archive gives the
+points; OpenF1 doesn't, so they're worked out from the results, including the sprints and, from
+2019 to 2024, the point for the fastest lap. The final drivers' and constructors' standings for
+2023, 2024 and 2025 come out exactly as the official ones, which also checks every scoring
+fastest lap. That's a test in `tests/test_standings.py`, run on the saved races in CI.
+
 ## What the check doesn't cover
 
 - The order mid-race is only checked through what it does at the flag. Gaps mid-race come from
@@ -104,6 +128,12 @@ with less than 95% of its laps carries a warning above the replay.
 - There's no official list of pit stops to check against. The timing tower, the race feed and
   the Pit stops view now count stops from the same list, so at least they agree with each other.
 - Stationary times only exist where F1 published them, which is patchy from 2024 on.
+- OpenF1 doesn't always mark a pit-lane start: Verstappen started the 2025 São Paulo Grand Prix
+  from the pit lane, and the saved race still has him on the grid slot he qualified in (16th).
+  Races from F1's archive show a pit-lane start as such.
+- Pole goes to the car that starts first, as F1 credits it: after a grid penalty that isn't the
+  fastest qualifier (Verstappen was fastest in Belgium in 2023 and 2024 and in Qatar 2024).
+  Qualifying stands in where the starting grid isn't known.
 
 ## The same idea for the pit window
 

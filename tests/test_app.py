@@ -86,12 +86,15 @@ def test_about_page_links_to_featured_races():
         from pitlens.pitwall import about_page, ui
 
         ui.inject_css()
-        about_page.replay_page = st.Page(lambda: None, title="Race replay", url_path="replay")
+        titles = [title for title, _ in about_page.WEEKEND + about_page.SEASON]
+        about_page.pages = {t: st.Page(lambda: None, title=t, url_path=t.lower().replace(" ", "-")) for t in titles}
         about_page.render()
 
     at = AppTest.from_function(about, default_timeout=60).run()
     assert not at.exception
-    assert len(at.get("page_link")) == len(FEATURED)
+    from pitlens.pitwall.about_page import SEASON, WEEKEND
+
+    assert len(at.get("page_link")) == len(WEEKEND) + len(SEASON) + len(FEATURED)
 
 
 def test_teams_page():
@@ -109,3 +112,33 @@ def test_teams_page():
     assert not at.exception
     text = page_text(at)
     assert "McLaren" in text and "Lando Norris" in text and "Against their teammate" in text
+
+
+def render_page(module: str, **link) -> AppTest:
+    """Run one page on its own, opened from a link with `link` as its query parameters."""
+    at = AppTest.from_string(f"from pitlens.pitwall import ui, {module}\nui.inject_css()\n{module}.render()\n",
+                             default_timeout=180)
+    for key, value in link.items():
+        at.query_params[key] = value
+    return at.run()
+
+
+def test_season_page():
+    at = render_page("season_page", year="2025")
+    assert not at.exception
+    text = page_text(at)
+    assert "Lando Norris champion by 2 points from Max Verstappen" in text and "Round by round" in text
+
+
+def test_drivers_page():
+    at = render_page("drivers_page", year="2025", driver="VER")
+    assert not at.exception
+    text = page_text(at)
+    assert "Max Verstappen" in text and "Best comeback" in text and "Abu Dhabi" in text
+
+
+def test_circuits_page():
+    at = render_page("circuits_page", circuit="monte-carlo")
+    assert not at.exception
+    text = page_text(at)
+    assert "Monte Carlo" in text and "Year by year" in text

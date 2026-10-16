@@ -192,6 +192,84 @@ h1, h2, h3 { letter-spacing: -0.01em; }
 .pl-drv .h2h { margin-top: 10px; font-size: 0.86rem; opacity: 0.85; }
 .pl-drv .h2h b { font-variant-numeric: tabular-nums; }
 
+/* Finishing positions as coloured cells (driver results, the season matrix) */
+.pl-pos { display: inline-grid; place-items: center; min-width: 34px; height: 24px; padding: 0 5px; border-radius: 5px;
+  font-size: 0.8rem; font-weight: 700; font-variant-numeric: tabular-nums; background: rgba(128,128,128,0.10); }
+.pl-pos.p1 { background: #E8B931; color: #111; }
+.pl-pos.p2 { background: #C4CAD3; color: #111; }
+.pl-pos.p3 { background: #C9824A; color: #111; }
+.pl-pos.pts { background: rgba(34,197,94,0.22); }
+.pl-pos.out { background: rgba(225,6,0,0.18); color: #E10600; }
+.pl-pos.none { background: transparent; opacity: 0.35; }
+.pl-pos.pole { box-shadow: inset 0 0 0 2px #A855F7; }
+.pl-pos.fl { text-decoration: underline 2px #A855F7; text-underline-offset: 3px; }
+
+/* A driver's season, race by race */
+.pl-res { display: grid; grid-template-columns: 30px minmax(0, 1fr) 44px 40px 52px 48px; gap: 8px; align-items: center;
+  padding: 6px 4px; border-bottom: 1px solid rgba(128,128,128,0.12); font-size: 0.88rem; font-variant-numeric: tabular-nums; }
+.pl-res.sprints { grid-template-columns: 30px minmax(0, 1fr) 44px 40px 52px 48px 48px; }
+.pl-res > span:nth-child(2) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 520px) {
+  .pl-res, .pl-res.sprints { grid-template-columns: 20px minmax(0, 1fr) 34px 30px 40px 40px; gap: 5px; font-size: 0.8rem; }
+  .pl-res.sprints { grid-template-columns: 20px minmax(0, 1fr) 34px 30px 40px 40px 38px; }
+  .pl-res.head { font-size: 0.52rem; letter-spacing: 0.06em; }
+}
+/* The championship: standings, the results grid and the round-by-round winners */
+.pl-std { display: grid; grid-template-columns: 26px minmax(0, 1fr) 40px 52px 52px; gap: 8px; align-items: center;
+  padding: 6px 4px; border-bottom: 1px solid rgba(128,128,128,0.12); font-size: 0.88rem; font-variant-numeric: tabular-nums; }
+.pl-std.head, .pl-rw.head { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+  opacity: 0.55; border-bottom: 1px solid rgba(128,128,128,0.3); }
+.pl-std .num, .pl-rw .num { text-align: right; }
+.pl-std > span:nth-child(2) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pl-std .team { font-size: 0.78rem; opacity: 0.5; margin-left: 6px; }
+.pl-std a, .pl-rw a, .pl-mx a { color: inherit; text-decoration: none; }
+.pl-std a:hover, .pl-rw a:hover, .pl-mx a:hover { text-decoration: underline; }
+.pl-std .muted, .pl-rw .muted { opacity: 0.45; }
+.pl-mx { overflow-x: auto; }
+.pl-mx table { border-collapse: collapse; font-size: 0.78rem; font-variant-numeric: tabular-nums; }
+.pl-mx th { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.06em; opacity: 0.6; padding: 0 1px 6px; text-align: center; }
+.pl-mx td { padding: 1px; text-align: center; }
+.pl-mx td.who, .pl-mx th.who { text-align: left; padding-right: 8px; white-space: nowrap; font-weight: 700;
+  position: sticky; left: 0; background: light-dark(#F5F6F8, #0B0D11); z-index: 1; }
+.pl-mx td.pts { padding-left: 8px; text-align: right; font-weight: 700; }
+.pl-mx .pl-pos { min-width: 27px; height: 21px; font-size: 0.72rem; padding: 0 3px; border-radius: 4px; }
+.pl-rw { display: grid; grid-template-columns: 26px minmax(0, 1.6fr) repeat(4, minmax(0, 1fr)); gap: 8px; align-items: center;
+  padding: 6px 4px; border-bottom: 1px solid rgba(128,128,128,0.12); font-size: 0.86rem; }
+.pl-rw > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 520px) {
+  .pl-std .team { display: none; }
+  .pl-rw { grid-template-columns: 20px minmax(0, 1.3fr) repeat(4, minmax(0, 1fr)); gap: 4px; font-size: 0.76rem; }
+  .pl-rw.head { font-size: 0.5rem; letter-spacing: 0.04em; }
+}
+/* A circuit, year by year */
+.pl-cy { display: grid; grid-template-columns: 46px repeat(3, minmax(0, 1fr)) minmax(0, 1.2fr) 96px; gap: 10px;
+  align-items: center; padding: 8px 4px; border-bottom: 1px solid rgba(128,128,128,0.12); font-size: 0.86rem;
+  font-variant-numeric: tabular-nums; }
+.pl-cy.head { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.55;
+  border-bottom: 1px solid rgba(128,128,128,0.3); }
+.pl-cy > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pl-cy > span:nth-child(5), .pl-cy > span:nth-child(6) { white-space: normal; }
+.pl-cy small { opacity: 0.55; margin-left: 4px; }
+.pl-cy a { color: inherit; font-weight: 700; }
+.pl-cy .muted { opacity: 0.45; }
+.pl-cy .pl-tyre { margin-right: 2px; }
+@media (max-width: 620px) {
+  .pl-cy { grid-template-columns: 38px repeat(3, minmax(0, 1fr)) 70px; gap: 6px; font-size: 0.78rem; }
+  .pl-cy > span:nth-child(5) { display: none; }
+  .pl-cy small { display: block; margin-left: 0; }
+}
+.pl-hl { padding: 10px 0; border-bottom: 1px solid rgba(128,128,128,0.12); }
+.pl-hl:last-child { border-bottom: none; }
+.pl-hl .k { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.6; }
+.pl-hl .v { font-size: 1.25rem; font-weight: 700; margin-top: 2px; font-variant-numeric: tabular-nums; }
+.pl-hl .d { font-size: 0.84rem; opacity: 0.7; margin-top: 1px; }
+.pl-res.head { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.55;
+  border-bottom: 1px solid rgba(128,128,128,0.3); }
+.pl-res .num { text-align: right; }
+.pl-res a { color: inherit; text-decoration: none; }
+.pl-res a:hover { text-decoration: underline; }
+.pl-res .muted { opacity: 0.45; }
+
 /* Sidebar brand */
 .pl-brand { display: flex; align-items: center; gap: 10px; margin: 0 0 6px; }
 .pl-brand .mark { width: 8px; height: 30px; border-radius: 2px; background: #E10600; transform: skewX(-14deg); }
@@ -589,3 +667,155 @@ def team_drivers(drivers, battles, color: str) -> None:
         cards.append(f'<div class="pl-drv"><div class="name">{driver_dot(color)}{html.escape(d.FullName)}'
                      f'<span class="code">{html.escape(d.Driver)}</span></div><div class="nums">{cells}</div>{h2h}</div>')
     st.html("".join(cards))
+
+
+def position_cell(position, classified: bool = True, dsq: bool = False, pole: bool = False,
+                  fastest: bool = False, points_from: int = 10) -> str:
+    """A finishing position as a small coloured cell: gold, silver and bronze for the podium, green in the
+    points, red for a retirement; a purple ring for pole, a purple underline for the fastest lap."""
+    extra = (" pole" if pole else "") + (" fl" if fastest else "")
+    if dsq:
+        return f'<span class="pl-pos out{extra}" title="Disqualified">DSQ</span>'
+    if not classified or pd.isna(position):
+        return f'<span class="pl-pos out{extra}" title="Did not finish">DNF</span>'
+    p = int(position)
+    cls = {1: "p1", 2: "p2", 3: "p3"}.get(p, "pts" if p <= points_from else "")
+    return f'<span class="pl-pos {cls}{extra}">{p}</span>'
+
+
+def driver_results_table(rows, year: int) -> None:
+    """A driver's season: one row per Grand Prix with grid, finish, points and qualifying; each race
+    links to its replay."""
+    sprints = "Sprint" in rows and rows["Sprint"].notna().any()
+    cls = "pl-res sprints" if sprints else "pl-res"
+    head = (f'<div class="{cls} head"><span>Rd</span><span>Grand Prix</span><span class="num">Quali</span>'
+            '<span class="num">Grid</span><span class="num">Finish</span>'
+            + ('<span class="num">Sprint</span>' if sprints else "") + '<span class="num">Points</span></div>')
+    out = []
+    for r in rows.itertuples():
+        grid = "" if pd.isna(r.Grid) else ('<span class="muted">pit</span>' if r.Grid <= 0 else int(r.Grid))
+        quali = "" if pd.isna(r.Quali) else int(r.Quali)
+        points = f"{r.Points:g}" if r.Points else '<span class="muted">0</span>'
+        sprint = "" if not sprints or pd.isna(r.Sprint) else int(r.Sprint)
+        out.append(
+            f'<div class="{cls}"><span class="muted">{r.Round}</span>'
+            f'<span><a href="./?year={year}&round={r.Round}" target="_self">{html.escape(r.Event)}</a></span>'
+            f'<span class="num">{quali}</span><span class="num">{grid}</span>'
+            f'<span class="num">{position_cell(r.Position, r.Classified, r.Dsq, r.Pole, r.Fastest)}</span>'
+            + (f'<span class="num">{sprint}</span>' if sprints else "") + f'<span class="num">{points}</span></div>'
+        )
+    st.html(f"{head}{''.join(out)}")
+
+
+def highlights(items: list[tuple[str, str, str]]) -> None:
+    """A short list of standout numbers: label, value and a line of detail."""
+    rows = "".join(f'<div class="pl-hl"><div class="k">{html.escape(k)}</div><div class="v">{html.escape(v)}</div>'
+                   + (f'<div class="d">{html.escape(d)}</div>' if d else "") + "</div>" for k, v, d in items)
+    st.html(rows)
+
+
+def standings_table(table, colors: dict[str, str], year: int) -> None:
+    """The drivers' championship: position, driver (opening their Drivers page), team, wins, points and
+    the gap to the leader."""
+    lead = table["Points"].iloc[0] if len(table) else 0
+    head = ('<div class="pl-std head"><span>Pos</span><span>Driver</span><span class="num">Wins</span>'
+            '<span class="num">Points</span><span class="num">Gap</span></div>')
+    rows = []
+    for i, r in enumerate(table.itertuples(), start=1):
+        gap = "" if i == 1 else f"-{lead - r.Points:g}"
+        rows.append(
+            f'<div class="pl-std"><span class="muted">{i}</span>'
+            f'<span>{driver_dot(colors.get(r.Team, "#888888"))}'
+            f'<a href="./drivers?year={year}&driver={r.Driver}" target="_self">{html.escape(r.FullName)}</a>'
+            f'<span class="team">{html.escape(r.Team)}</span></span>'
+            f'<span class="num">{r.Wins or ""}</span><span class="num"><b>{r.Points:g}</b></span>'
+            f'<span class="num muted">{gap}</span></div>'
+        )
+    st.html(head + "".join(rows))
+
+
+def results_matrix(results, table, rounds, poles, fastest, colors: dict[str, str], year: int) -> None:
+    """Every Grand Prix finish in one grid: drivers down the side in championship order, rounds across
+    (each opening its replay), points at the end."""
+    gp = results[results["Kind"] == "R"].set_index(["Driver", "Round"])
+    events = dict(zip(rounds["Round"], rounds["Event"]))
+    head = '<th class="who"></th>' + "".join(
+        f'<th><a href="./?year={year}&round={r}" target="_self" title="{html.escape(events[r])}">{r}</a></th>'
+        for r in rounds["Round"]) + '<th class="pts">Pts</th>'
+    body = []
+    for d in table.itertuples():
+        cells = []
+        for r in rounds["Round"]:
+            if (d.Driver, r) not in gp.index:
+                cells.append("<td></td>")
+                continue
+            x = gp.loc[(d.Driver, r)]
+            if isinstance(x, pd.DataFrame):
+                x = x.iloc[0]
+            cell = position_cell(x["Position"], x["Classified"], x["Dsq"], poles.get(r) == d.Driver,
+                                 fastest.get(r) == d.Driver)
+            cells.append(f'<td title="{html.escape(events[r])}">{cell}</td>')
+        who = (f'<td class="who">{driver_dot(colors.get(d.Team, "#888888"))}'
+               f'<a href="./drivers?year={year}&driver={d.Driver}" target="_self" title="{html.escape(d.FullName)}">'
+               f'{html.escape(d.Driver)}</a></td>')
+        body.append(f"<tr>{who}{''.join(cells)}<td class=\"pts\">{d.Points:g}</td></tr>")
+    st.html(f'<div class="pl-mx"><table><thead><tr>{head}</tr></thead><tbody>{"".join(body)}</tbody></table></div>')
+
+
+def round_winners_table(winners, results, colors: dict[str, str], year: int) -> None:
+    """Round by round: pole, winner, fastest lap and the sprint winner, each Grand Prix opening its replay."""
+    team = results.drop_duplicates(["Round", "Driver"]).set_index(["Round", "Driver"])["Team"]
+
+    def who(rnd, driver) -> str:
+        if not isinstance(driver, str):
+            return '<span class="muted">–</span>'
+        return driver_dot(colors.get(team.get((rnd, driver)), "#888888")) + html.escape(driver)
+
+    sprints = winners["SprintWinner"].notna().any()
+    head = ('<div class="pl-rw head"><span>Rd</span><span>Grand Prix</span><span>Pole</span><span>Winner</span>'
+            '<span>Fastest lap</span><span>' + ("Sprint" if sprints else "") + "</span></div>")
+    rows = []
+    for w in winners.itertuples():
+        event = html.escape(w.Event.replace(" Grand Prix", ""))
+        rows.append(
+            f'<div class="pl-rw"><span class="muted">{w.Round}</span>'
+            f'<span><a href="./?year={year}&round={w.Round}" target="_self">{event}</a></span>'
+            f"<span>{who(w.Round, w.Pole)}</span><span><b>{who(w.Round, w.Winner)}</b></span>"
+            f"<span>{who(w.Round, w.Fastest)}</span>"
+            f"<span>{who(w.Round, w.SprintWinner) if w.Sprint else ''}</span></div>"
+        )
+    st.html(head + "".join(rows))
+
+
+def circuit_years_table(years) -> None:
+    """A circuit's Grands Prix, one row per year: winner (and where they started), pole, fastest lap,
+    safety cars and red flags, and the winner's tyres. Each year opens its replay."""
+    letters = {v: k for k, v in TYRE_LETTERS.items()}
+
+    def who(driver, color, extra="") -> str:
+        if not isinstance(driver, str):
+            return '<span class="muted">–</span>'
+        return f"{driver_dot(color or '#888888')}{html.escape(driver)}{extra}"
+
+    head = ('<div class="pl-cy head"><span>Year</span><span>Winner</span><span>Pole</span><span>Fastest lap</span>'
+            "<span>Neutralised</span><span>Winner's tyres</span></div>")
+    rows = []
+    for y in years.itertuples():
+        grid = f"<small>from P{y.WinnerGrid}</small>" if y.WinnerGrid else ""
+        pole = f"<small>{_laptime(y.PoleTime)}</small>" if pd.notna(y.PoleTime) else ""
+        fastest = f"<small>{_laptime(y.FastestTime)}</small>" if pd.notna(y.FastestTime) else ""
+        flags = [f"{n} {name}{'s' if n > 1 and name != 'VSC' else ''}" for n, name in
+                 ((y.SafetyCars, "safety car"), (y.VSCs, "VSC"), (y.RedFlags, "red flag")) if n]
+        if y.Wet:
+            flags.append("wet")
+        if y.Laps < y.Scheduled:
+            flags.append(f"{y.Laps} of {y.Scheduled} laps")
+        tyres = "".join(tyre(letters.get(c, "UNKNOWN")) for c in y.WinnerTyres.split("-") if c)
+        rows.append(
+            f'<div class="pl-cy"><span><a href="./?year={y.Year}&round={y.Round}" target="_self">{y.Year}</a></span>'
+            f"<span><b>{who(y.Winner, y.WinnerColor, grid)}</b></span><span>{who(y.Pole, y.PoleColor, pole)}</span>"
+            f"<span>{who(y.Fastest, y.FastestColor, fastest)}</span>"
+            f'<span>{html.escape(", ".join(flags)) if flags else "<span class=muted>none</span>"}</span>'
+            f"<span>{tyres}</span></div>"
+        )
+    st.html(head + "".join(rows))

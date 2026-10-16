@@ -6,8 +6,17 @@ import pandas as pd
 import streamlit as st
 
 from pitlens.pitwall import charts, ui
-from pitlens.teams.facts import facts
-from pitlens.teams.season import Season, drivers_of, load_season, pit_crews, seasons_saved, standings, teammate_battles
+from pitlens.season.data import (
+    Season,
+    drivers_of,
+    load_season,
+    pit_crews,
+    pole_sitters,
+    seasons_saved,
+    standings,
+    teammate_battles,
+)
+from pitlens.season.facts import facts
 
 
 @st.cache_resource(show_spinner=False, max_entries=3)
@@ -103,7 +112,8 @@ def render() -> None:
 
 def strip(season: Season, team: str, row, drivers: pd.DataFrame) -> None:
     gp = season.results[(season.results["Team"] == team) & (season.results["Kind"] == "R")]
-    poles = int((season.quali[season.quali["Team"] == team]["Position"] == 1).sum())
+    pole = pole_sitters(season)
+    poles = sum(pole.get(r) in set(w["Driver"]) for r, w in gp.groupby("Round"))
     best = int(gp["Position"].min()) if gp["Position"].notna().any() else None
     dnfs = int((~gp["Classified"] & ~gp["Dsq"]).sum())
     both = gp.groupby("Round").filter(lambda w: (w["Position"] <= 10).sum() == 2)["Round"].nunique()

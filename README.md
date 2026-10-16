@@ -95,6 +95,33 @@ falling away, with the cleaning rules written down and tested.
 - Base, power unit, history and constructors' titles for each team on the 2025 and 2026 grids.
   Links open a team directly: `/teams?year=2025&team=McLaren`.
 
+**Season** (a page in the pit wall)
+
+- The championship from the saved races: drivers' and constructors' standings with the gap to
+  the leader, the points race through the year, and who led the championship after which rounds.
+- Every Grand Prix finish in one grid, drivers in championship order and rounds across, coloured
+  for the podium, points and retirements, with pole and fastest lap marked.
+- Round by round: pole, winner, fastest lap and sprint winner, each opening its replay.
+
+**Drivers** (a page in the pit wall)
+
+- One driver's season: points, wins, podiums, poles, fastest laps, laps led and retirements, the
+  average grid slot and finish, places gained a race, and the teammate battle.
+- Grid to flag at every Grand Prix, points through the year against the teammate and the leader,
+  and every weekend's qualifying, grid, finish, sprint and points.
+- Highlights picked from the season: best comeback, the win from furthest back, poles turned into
+  wins, hat-tricks (pole, win and fastest lap), the longest run in the points.
+
+**Circuits** (a page in the pit wall)
+
+- One track across the saved years, matched by circuit rather than name (Monaco and Monte Carlo
+  are the same place): winner and where they started, pole and fastest race lap times, safety
+  cars, VSCs, red flags and rain, and the winner's tyres.
+- Pole and fastest lap year on year, how many times the finishers stopped, the most used tyre
+  run, and the circuit's pit stop cost.
+- Pages open from links: `/season?year=2025`, `/drivers?year=2025&driver=NOR`,
+  `/circuits?circuit=monza`.
+
 **`onboard`: fastest-lap telemetry comparison** (available now)
 
 - Any two drivers in any session, defaulting to the fastest driver and their teammate.
@@ -368,8 +395,9 @@ pitlens/
 │   └── weather.py     hourly rainfall (mm) at the circuit from Open-Meteo
 ├── checks.py          the `check` command: replayed finishes against the official results
 ├── snapshots.py       races saved ahead of time (`snapshot` command), so they open offline
-├── teams/
-│   ├── season.py      a season team by team: points, teammate battles, pit crews
+├── season/
+│   ├── data.py        a season from the saved races: standings, teammate battles, pit crews, drivers
+│   ├── circuits.py    every saved Grand Prix at a circuit, year by year
 │   └── facts.py       base, power unit and history for each team
 ├── deploy.py          what a hosted copy switches off
 ├── htmlreport.py      self-contained HTML reports shared by the commands
@@ -385,7 +413,10 @@ pitlens/
 │   ├── views.py       its views: tyres, pit stops, strategy, radio, race control
 │   ├── quali_page.py  the Qualifying page
 │   ├── about_page.py  the About page, with races worth opening first
+│   ├── season_page.py the Season page
 │   ├── teams_page.py  the Teams page
+│   ├── drivers_page.py  the Drivers page
+│   ├── circuits_page.py the Circuits page
 │   ├── onboard_page.py  the Onboard page
 │   └── serve.py       the `pitwall` command
 └── cli.py             `pitlens <module>`
@@ -473,9 +504,10 @@ control messages.
 
 Every Grand Prix from 2021 to the 2026 Singapore Grand Prix (131 races) and every sprint since 2023
 (24) has been checked against the official result: the replay's final timing tower has the same
-winner, the same top ten in the same order and every finisher the same number of laps down. How,
-and what it caught along the way: [docs/data-validation.md](docs/data-validation.md). To run the
-check yourself:
+winner, the same top ten in the same order and every finisher the same number of laps down. The
+2023, 2024 and 2025 championship tables added up from the saved races match the official final
+standings point for point. How, and what it caught along the way:
+[docs/data-validation.md](docs/data-validation.md). To run the check yourself:
 
 ```bash
 .venv/bin/python -m pitlens check --year 2025

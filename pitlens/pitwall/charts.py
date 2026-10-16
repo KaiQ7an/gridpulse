@@ -68,9 +68,9 @@ def _driver_lines(df: pd.DataFrame, y: str, focus, colors, hover: str) -> go.Fig
     return fig
 
 
-def _spread_end_labels(fig: go.Figure, y_span: float, min_px: float = 15) -> None:
+def _spread_end_labels(fig: go.Figure, y_span: float, min_px: float = 15, height: int = HEIGHT) -> None:
     """Nudge apart end-of-line labels that would overlap (cars finishing a few tenths apart)."""
-    step = y_span * min_px / (HEIGHT - 80)  # data units per label, from the plot's height in pixels
+    step = y_span * min_px / (height - 80)  # data units per label, from the plot's height in pixels
     labels = sorted((a for a in fig.layout.annotations if a.xanchor == "left"), key=lambda a: (a.x, a.y))
     prev = None
     for a in labels:
@@ -447,12 +447,13 @@ def team_results_chart(results: pd.DataFrame, rounds: pd.DataFrame, drivers: lis
 
 
 def _team_bars(table: pd.DataFrame, value: str, colors: dict[str, str], team: str, fmt: str, title: str) -> go.Figure:
-    """Horizontal bars, first row of `table` on top, `team` in full colour and the rest faded."""
+    """Horizontal bars, first row of `table` on top, `team` in full colour and the rest faded (all in
+    full colour when `team` is None)."""
     t = table.iloc[::-1]
     fig = go.Figure(go.Bar(
         x=t[value], y=t["Team"], orientation="h",
         marker=dict(color=[colors.get(x, "#888888") for x in t["Team"]],
-                    opacity=[1.0 if x == team else 0.35 for x in t["Team"]]),
+                    opacity=[1.0 if team is None or x == team else 0.35 for x in t["Team"]]),
         text=[fmt.format(v) for v in t[value]], textposition="outside", cliponaxis=False,
         hovertemplate="<b>%{y}</b><br>" + fmt.replace("{:", "%{x:").replace("}", "}") + "<extra></extra>",
         showlegend=False,
@@ -460,7 +461,7 @@ def _team_bars(table: pd.DataFrame, value: str, colors: dict[str, str], team: st
     return _bar_layout(fig, len(t), title, t[value])
 
 
-def constructors_chart(table: pd.DataFrame, colors: dict[str, str], team: str) -> go.Figure:
+def constructors_chart(table: pd.DataFrame, colors: dict[str, str], team: str | None = None) -> go.Figure:
     """Constructors' points so far, this team in full colour."""
     return _team_bars(table, "Points", colors, team, "{:.0f}", "Points")
 
@@ -468,3 +469,126 @@ def constructors_chart(table: pd.DataFrame, colors: dict[str, str], team: str) -
 def pit_crews_chart(table: pd.DataFrame, colors: dict[str, str], team: str) -> go.Figure:
     """Every team's median stationary time this season, quickest on top, this team in full colour."""
     return _team_bars(table.sort_values("Median"), "Median", colors, team, "{:.2f} s", "Median time stood still (s)")
+
+
+def driver_results_chart(rows: pd.DataFrame, color: str) -> go.Figure:
+    """Grid slot to finishing position for every Grand Prix: a line up in green for places gained,
+    down in red for places lost; a cross at the foot for a retirement."""
+    floor = 23
+    fig = go.Figure()
+    for r in rows.itertuples():
+        if pd.isna(r.Grid) or r.Grid <= 0 or not r.Classified or pd.isna(r.Position):
+            continue
+        gained = r.Grid - r.Position
+        fig.add_trace(go.Scatter(x=[r.Round, r.Round], y=[r.Grid, r.Position], mode="lines", showlegend=False,
+                                 hoverinfo="skip",
+                                 line=dict(width=3, color="#16A34A" if gained > 0 else "#E10600" if gained < 0
+                                           else CONTEXT_GREY)))
+    grid = rows[rows["Grid"].notna() & (rows["Grid"] > 0)]
+    fig.add_trace(go.Scatter(x=grid["Round"], y=grid["Grid"], mode="markers", name="Grid",
+                             marker=dict(size=8, color="rgba(0,0,0,0)", line=dict(width=1.5, color=CONTEXT_GREY)),
+                             customdata=grid[["Event"]], hovertemplate="%{customdata[0]}<br>started P%{y:.0f}<extra></extra>"))
+    done = rows[rows["Classified"] & rows["Position"].notna()]
+    fig.add_trace(go.Scatter(x=done["Round"], y=done["Position"], mode="markers", name="Finish",
+                             marker=dict(size=10, color=color), customdata=done[["Event"]],
+                             hovertemplate="%{customdata[0]}<br>finished P%{y:.0f}<extra></extra>"))
+    out = rows[~rows["Classified"] | rows["Position"].isna()]
+    fig.add_trace(go.Scatter(x=out["Round"], y=[floor] * len(out), mode="markers", name="Retired",
+                             marker=dict(size=11, color=color, symbol="x"), customdata=out[["Event", "Status"]],
+                             hovertemplate="%{customdata[0]}<br>%{customdata[1]}<extra></extra>"))
+    fig.update_layout(height=340, margin=dict(l=10, r=10, t=30, b=10), hovermode="closest",
+                      legend=dict(orientation="h", yanchor="bottom", y=1.0, x=0))
+    plotstyle.apply(fig)
+    ticks = [1, 3, 5, 10, 15, 20]
+    fig.update_yaxes(autorange=False, range=[floor + 0.8, 0.2], tickvals=ticks + [floor],
+                     ticktext=[f"P{t}" for t in ticks] + ["DNF"], title=None)
+    fig.update_xaxes(title=None, tickvals=rows["Round"], ticktext=[f"R{r}" for r in rows["Round"]])
+    return fig
+
+
+def points_progress_chart(progress: pd.DataFrame, lines: list[tuple[str, str, str]], rounds: pd.DataFrame,
+                          legend: bool = True) -> go.Figure:
+    """Cumulative points after each round. `lines`: (column, label, colour), drawn in order; a colour
+    repeated (teammates) is dashed. Each line is named at its end, by its column with the legend or by
+    its label without one."""
+    names = dict(zip(rounds["Round"], rounds["Location"]))
+    fig = go.Figure()
+    seen = set()
+    for column, label, color in lines:
+        if column not in progress:
+            continue
+        dash = "dash" if color in seen else "solid"
+        seen.add(color)
+        y = progress[column]
+        fig.add_trace(go.Scatter(x=progress.index, y=y, mode="lines", name=label,
+                                 line=dict(color=color, width=2.5, dash=dash),
+                                 customdata=[names.get(r, "") for r in progress.index],
+                                 hovertemplate=f"<b>{label}</b> after %{{customdata}}<br>%{{y:.0f}} points<extra></extra>"))
+        fig.add_annotation(x=progress.index[-1], y=y.iloc[-1], text=column if legend else label, showarrow=False,
+                           xanchor="left", xshift=6, font=dict(size=11, color=color))
+    top = max((progress[c].max() for c, _, _ in lines if c in progress), default=0)
+    _spread_end_labels(fig, max(top, 1), height=340)
+    longest = max((len(c if legend else label) for c, label, _ in lines), default=3)
+    fig.update_layout(height=340, margin=dict(l=10, r=max(48, 7 * longest + 14), t=30 if legend else 10, b=10),
+                      hovermode="x unified", showlegend=legend, legend=dict(orientation="h", yanchor="bottom", y=1.0, x=0))
+    plotstyle.apply(fig)
+    fig.update_xaxes(title=None, tickvals=list(progress.index), ticktext=[f"R{r}" for r in progress.index])
+    fig.update_yaxes(title="Points", rangemode="tozero")
+    return fig
+
+
+def _minute_ticks(values: pd.Series) -> dict:
+    """Y-axis ticks in m:ss for lap times in seconds: whole seconds, about five of them."""
+    lo, hi = float(values.min()), float(values.max())
+    step = max(1, int(np.ceil((hi - lo) / 5)))
+    ticks = np.arange(np.floor(lo) - step, np.ceil(hi) + 2 * step, step)
+    return dict(tickvals=ticks, ticktext=[f"{int(t // 60)}:{int(t % 60):02d}" for t in ticks])
+
+
+def circuit_laps_chart(years: pd.DataFrame) -> go.Figure:
+    """Pole and the race's fastest lap at one circuit, year by year."""
+    fig = go.Figure()
+    shown = []
+    for column, driver, name, color in (("PoleTime", "Pole", "Pole", "#A855F7"),
+                                        ("FastestTime", "Fastest", "Fastest race lap", "#F5B700")):
+        y = years[column]
+        if y.isna().all():
+            continue
+        shown.append(y.dropna())
+        fig.add_trace(go.Scatter(
+            x=years["Year"].astype(str), y=y, mode="lines+markers+text", name=name,
+            line=dict(color=color, width=2.5), marker=dict(size=9, color=color),
+            text=[f"{_minutes(v)} {d}" if pd.notna(v) else "" for v, d in zip(y, years[driver])],
+            textposition="top center", textfont=dict(size=10), cliponaxis=False,
+            hovertemplate="%{x}: %{text}<extra>" + name + "</extra>",
+        ))
+    fig.update_layout(height=320, margin=dict(l=10, r=40, t=30, b=10),
+                      legend=dict(orientation="h", yanchor="bottom", y=1.0, x=0))
+    plotstyle.apply(fig)
+    fig.update_xaxes(title=None, type="category", range=[-0.6, len(years) - 0.4])  # room for the end labels
+    if shown:
+        fig.update_yaxes(title="Lap time", **_minute_ticks(pd.concat(shown)))
+    return fig
+
+
+STOP_BANDS = [(0, "No stop", "#9CA3AF"), (1, "1 stop", "#22C55E"), (2, "2 stops", "#F5B700"), (3, "3 or more", "#E10600")]
+
+
+def circuit_stops_chart(years: pd.DataFrame) -> go.Figure:
+    """How many times the finishers stopped at one circuit, a bar per year."""
+    fig = go.Figure()
+    for stops, name, color in STOP_BANDS:
+        counts = [sum(n for s, n in by.items() if (s >= stops if stops == 3 else s == stops)) for by in years["Stops"]]
+        if not any(counts):
+            continue
+        fig.add_trace(go.Bar(
+            y=years["Year"].astype(str), x=counts, orientation="h", name=name, marker_color=color,
+            text=[c or "" for c in counts], textposition="inside", insidetextanchor="middle",
+            hovertemplate="%{y}: %{x} finishers<extra>" + name + "</extra>",
+        ))
+    fig.update_layout(barmode="stack", height=max(170, 52 * len(years) + 90), margin=dict(l=10, r=10, t=30, b=10),
+                      bargap=0.35, legend=dict(orientation="h", yanchor="bottom", y=1.0, x=0, traceorder="normal"))
+    plotstyle.apply(fig)
+    fig.update_xaxes(title="Finishers")
+    fig.update_yaxes(title=None, type="category", autorange="reversed")
+    return fig
