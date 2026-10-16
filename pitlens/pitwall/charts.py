@@ -438,8 +438,9 @@ def team_results_chart(results: pd.DataFrame, rounds: pd.DataFrame, drivers: lis
     fig.update_layout(height=320, margin=dict(l=10, r=10, t=30, b=10), hovermode="closest",
                       legend=dict(orientation="h", yanchor="bottom", y=1.0, x=0))
     plotstyle.apply(fig)
-    fig.update_yaxes(title="Finished", autorange=False, range=[floor + 0.7, 0.3], tickvals=[1, 3, 5, 10, 15, 20, floor],
-                     ticktext=["P1", "P3", "P5", "P10", "P15", "P20", "DNF"])
+    ticks = [t for t in (1, 3, 5, 10, 15, 20) if t <= floor - 2]  # keep P20 clear of the DNF row
+    fig.update_yaxes(title="Finished", autorange=False, range=[floor + 0.7, 0.3], tickvals=ticks + [floor],
+                     ticktext=[f"P{t}" for t in ticks] + ["DNF"])
     fig.update_xaxes(title=None, tickvals=rounds["Round"], ticktext=[f"R{r}" for r in rounds["Round"]],
                      range=[0.5, rounds["Round"].max() + 0.5] if len(rounds) else None)
     return fig
