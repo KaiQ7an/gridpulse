@@ -29,7 +29,8 @@ pace, tyres and strategy as the race unfolds. It is built in layers, each useful
 - [x] Circuit reference pit loss (green, VSC, SC) until this race has three green-flag stops of its own
 - [x] Stationary time per stop (from OpenF1, where F1 publishes it), places lost, quickest stops and crews
 - [x] Leave out drives through the pit lane on the same tyres (penalties, field sent through under SC)
-- [ ] Tyre-offset model: when does a fresher tyre catch the car ahead
+- [x] Tyre model and pit window: best lap to stop, the window, and when a fresher tyre catches the car
+      ahead; backtested against every last stop of 2024 and 2025 (`pitlens pitwindow`)
 
 ## 4. `pitwall`: race-day dashboard with replay (done)
 

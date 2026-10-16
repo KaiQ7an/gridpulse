@@ -67,7 +67,9 @@ falling away, with the cleaning rules written down and tested.
   crews by team; and what each stop cost lap by lap. Drives through the pit lane on the same tyres
   (a penalty, or the field sent through behind the safety car) aren't counted as stops.
 - **Strategy**: the typical pit loss, where each car would rejoin if it pitted at the end of this
-  lap, and every undercut and overcut so far with its outcome.
+  lap and how many laps on new tyres it would take to close on the car ahead, a **pit window**
+  (the best lap to stop and what stopping earlier or later costs, from a tyre model fitted on the
+  race's laps so far), and every undercut and overcut so far with its outcome.
 - **Radio**: team radio clips up to the current lap, playable in the page, with a microphone in
   the timing tower when a driver's clip comes in. One click turns the clips into text with a
   local Whisper model, and another translates them into Chinese; transcribed radio also appears as
@@ -210,6 +212,25 @@ undercut failed.
 | `--max-gap` | `3.5` | Cars within this many seconds count as a battle |
 | `--open` | off | Open the HTML report when done (macOS) |
 
+### Pit window
+
+The pit window comes from a tyre model fitted on the race's clean laps up to the lap being shown:
+each lap is driver pace + compound offset + wear × tyre age + a trend for fuel and track that is
+the same for every car. Fresh tyres after a stop are what separate wear from that trend, and
+typical figures act as weak priors, so a compound nobody has run yet still gets sensible numbers.
+For every lap a car could stop on and every compound it could fit, it adds up the time to the
+flag; the lowest is the best plan, and laps within a second of it are the window.
+
+It knows tyres and pit loss only, not traffic, undercut threats, safety cars or tyre-life limits,
+so it's a guide rather than an answer. Backtested on every last green-flag stop of 2024 and 2025
+(625 stops), deciding ten laps ahead, its best lap was within five laps of the team's choice 61 to
+66% of the time and the real stop fell inside its window 52 to 56% of the time, a little better
+than splitting the remaining laps evenly between the two stints (57 to 62%). Run it yourself:
+
+```bash
+.venv/bin/python -m pitlens pitwindow --year 2025
+```
+
 ## Team radio
 
 ```bash
@@ -302,6 +323,7 @@ pitlens/
 │   └── report.py      the `onboard` command (HTML report)
 ├── undercut/
 │   ├── analysis.py    pit stops, pit loss, undercut battles, rejoin projection
+│   ├── window.py      tyre model and pit window, with its backtest (`pitwindow` command)
 │   ├── charts.py      battle gap chart and pit-loss chart
 │   └── report.py      the `undercut` command (HTML report)
 ├── radio/
