@@ -36,6 +36,8 @@ include = ["pitlens*"]
 
 [tool.setuptools.package-data]
 "pitlens.pitwall.tower" = ["index.html"]
+"pitlens.pitwall.atlas_map" = ["index.html", "d3.min.js", "D3-LICENSE", "world.json"]
+"pitlens.season" = ["atlas.json"]
 
 [tool.ruff]
 line-length = 120

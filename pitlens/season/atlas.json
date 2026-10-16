@@ -1,0 +1,1653 @@
+{
+  "updated": "2026-10-16",
+  "circuits": [
+    {
+      "key": 10,
+      "slug": "melbourne",
+      "name": "Albert Park Grand Prix Circuit",
+      "city": "Melbourne",
+      "country": "Australia",
+      "region": "asia-pacific",
+      "jolpica_id": "albert_park",
+      "f1_path": "2026/australia",
+      "kind": "Street",
+      "description": "A fast lakeside lap with flowing changes of direction and close walls. The Australian venue has hosted Formula 1 since 1996.",
+      "lat": -37.8497,
+      "lon": 144.968,
+      "length_km": 5.278,
+      "first_gp": 1996,
+      "laps": 58,
+      "facts_source": "https://www.formula1.com/en/racing/2026/australia",
+      "record": {
+        "time": "1:19.813",
+        "driver": "Charles Leclerc",
+        "year": 2024
+      },
+      "history": {
+        "wins": [
+          {
+            "driver": "Michael Schumacher",
+            "count": 4,
+            "years": [
+              2000,
+              2001,
+              2002,
+              2004
+            ]
+          }
+        ],
+        "poles": [
+          {
+            "driver": "Lewis Hamilton",
+            "count": 8,
+            "years": [
+              2008,
+              2012,
+              2014,
+              2015,
+              2016,
+              2017,
+              2018,
+              2019
+            ]
+          }
+        ],
+        "as_of": "2026-10-16",
+        "wins_source": "https://api.jolpi.ca/ergast/f1/circuits/albert_park/results/1.json?limit=100",
+        "poles_source": "https://api.jolpi.ca/ergast/f1/circuits/albert_park/grid/1/results.json?limit=100",
+        "races": 29,
+        "first_year": 1996
+      }
+    },
+    {
+      "key": 49,
+      "slug": "shanghai",
+      "name": "Shanghai International Circuit",
+      "city": "Shanghai",
+      "country": "China",
+      "region": "asia-pacific",
+      "jolpica_id": "shanghai",
+      "f1_path": "2026/china",
+      "kind": "Permanent",
+      "description": "A tightening opening complex feeds into long-radius corners and a long back straight. Front-tyre management and traction matter here.",
+      "lat": 31.3389,
+      "lon": 121.22,
+      "length_km": 5.451,
+      "first_gp": 2004,
+      "laps": 56,
+      "facts_source": "https://www.formula1.com/en/racing/2026/china",
+      "record": {
+        "time": "1:32.238",
+        "driver": "Michael Schumacher",
+        "year": 2004
+      },
+      "history": {
+        "wins": [
+          {
+            "driver": "Lewis Hamilton",
+            "count": 6,
+            "years": [
+              2008,
+              2011,
+              2014,
+              2015,
+              2017,
+              2019
+            ]
+          }
+        ],
+        "poles": [
+          {
+            "driver": "Lewis Hamilton",
+            "count": 6,
+            "years": [
+              2007,
+              2008,
+              2013,
+              2014,
+              2015,
+              2017
+            ]
+          }
+        ],
+        "as_of": "2026-10-16",
+        "wins_source": "https://api.jolpi.ca/ergast/f1/circuits/shanghai/results/1.json?limit=100",
+        "poles_source": "https://api.jolpi.ca/ergast/f1/circuits/shanghai/grid/1/results.json?limit=100",
+        "races": 19,
+        "first_year": 2004
+      }
+    },
+    {
+      "key": 46,
+      "slug": "suzuka",
+      "name": "Suzuka International Racing Course",
+      "city": "Suzuka",
+      "country": "Japan",
+      "region": "asia-pacific",
+      "jolpica_id": "suzuka",
+      "f1_path": "2026/japan",
+      "kind": "Permanent",
+      "description": "A figure-of-eight layout built around the S Curves, Degner and 130R. Fast direction changes reward a balanced car and committed driving.",
+      "lat": 34.8431,
+      "lon": 136.541,
+      "length_km": 5.807,
+      "first_gp": 1987,
+      "laps": 53,
+      "facts_source": "https://www.formula1.com/en/racing/2026/japan",
+      "record": {
+        "time": "1:30.965",
+        "driver": "Kimi Antonelli",
+        "year": 2025
+      },
+      "history": {
+        "wins": [
+          {
+            "driver": "Michael Schumacher",
+            "count": 6,
+            "years": [
+              1995,
+              1997,
+              2000,
+              2001,
+              2002,
+              2004
+            ]
+          }
+        ],
+        "poles": [
+          {
+            "driver": "Michael Schumacher",
+            "count": 8,
+            "years": [
+              1994,
+              1995,
+              1998,
+              1999,
+              2000,
+              2001,
+              2002,
+              2004
+            ]
+          }
+        ],
+        "as_of": "2026-10-16",
+        "wins_source": "https://api.jolpi.ca/ergast/f1/circuits/suzuka/results/1.json?limit=100",
+        "poles_source": "https://api.jolpi.ca/ergast/f1/circuits/suzuka/grid/1/results.json?limit=100",
+        "races": 36,
+        "first_year": 1987
+      }
+    },
+    {
+      "key": 151,
+      "slug": "miami-gardens",
+      "name": "Miami International Autodrome",
+      "city": "Miami",
+      "country": "United States",
+      "region": "americas",
+      "jolpica_id": "miami",
+      "f1_path": "2026/miami",
+      "kind": "Hybrid",
+      "description": "A temporary circuit around Hard Rock Stadium, mixing fast sweeps with a narrow technical section and long overtaking straights.",
+      "lat": 25.9581,
+      "lon": -80.2389,
+      "length_km": 5.412,
+      "first_gp": 2022,
+      "laps": 57,
+      "facts_source": "https://www.formula1.com/en/racing/2026/miami",
+      "record": {
+        "time": "1:29.708",
+        "driver": "Max Verstappen",
+        "year": 2023
+      },
+      "history": {
+        "wins": [
+          {
+            "driver": "Max Verstappen",
+            "count": 2,
+            "years": [
+              2022,
+              2023
+            ]
+          }
+        ],
+        "poles": [
+          {
+            "driver": "Max Verstappen",
+            "count": 2,
+            "years": [
+              2024,
+              2025
+            ]
+          }
+        ],
+        "as_of": "2026-10-16",
+        "wins_source": "https://api.jolpi.ca/ergast/f1/circuits/miami/results/1.json?limit=100",
+        "poles_source": "https://api.jolpi.ca/ergast/f1/circuits/miami/grid/1/results.json?limit=100",
+        "races": 5,
+        "first_year": 2022
+      }
+    },
+    {
+      "key": 23,
+      "slug": "montreal",
+      "name": "Circuit Gilles-Villeneuve",
+      "city": "Montréal",
+      "country": "Canada",
+      "region": "americas",
+      "jolpica_id": "villeneuve",
+      "f1_path": "2026/canada",
+      "kind": "Street",
+      "description": "An island circuit defined by chicanes, heavy braking and close barriers. Traction out of the hairpin sets up the run to the final chicane.",
+      "lat": 45.5,
+      "lon": -73.5228,
+      "length_km": 4.361,
+      "first_gp": 1978,
+      "laps": 70,
+      "facts_source": "https://www.formula1.com/en/racing/2026/canada",
+      "record": {
+        "time": "1:13.078",
+        "driver": "Valtteri Bottas",
+        "year": 2019
+      },
+      "history": {
+        "wins": [
+          {
+            "driver": "Lewis Hamilton",
+            "count": 7,
+            "years": [
+              2007,
+              2010,
+              2012,
+              2015,
+              2016,
+              2017,
+              2019
+            ]
+          },
+          {
+            "driver": "Michael Schumacher",
+            "count": 7,
+            "years": [
+              1994,
+              1997,
+              1998,
+              2000,
+              2002,
+              2003,
+              2004
+            ]
+          }
+        ],
+        "poles": [
+          {
+            "driver": "Lewis Hamilton",
+            "count": 6,
+            "years": [
+              2007,
+              2008,
+              2010,
+              2015,
+              2016,
+              2017
+            ]
+          },
+          {
+            "driver": "Michael Schumacher",
+            "count": 6,
+            "years": [
+              1994,
+              1995,
+              1997,
+              1999,
+              2000,
+              2001
+            ]
+          }
+        ],
+        "as_of": "2026-10-16",
+        "wins_source": "https://api.jolpi.ca/ergast/f1/circuits/villeneuve/results/1.json?limit=100",
+        "poles_source": "https://api.jolpi.ca/ergast/f1/circuits/villeneuve/grid/1/results.json?limit=100",
+        "races": 45,
+        "first_year": 1978
+      }
+    },
+    {
+      "key": 22,
+      "slug": "monte-carlo",
+      "name": "Circuit de Monaco",
+      "city": "Monte Carlo",
+      "country": "Monaco",
+      "region": "europe",
+      "jolpica_id": "monaco",
+      "f1_path": "2026/monaco",
+      "kind": "Street",
+      "description": "A narrow street circuit where precision and qualifying position carry unusual weight. The hairpin, tunnel and harbour remain its defining landmarks.",
+      "lat": 43.7347,
+      "lon": 7.42056,
+      "length_km": 3.337,
+      "first_gp": 1950,
+      "laps": 78,
+      "facts_source": "https://www.formula1.com/en/racing/2026/monaco",
+      "record": {
+        "time": "1:12.909",
+        "driver": "Lewis Hamilton",
+        "year": 2021
+      },
+      "history": {
+        "wins": [
+          {
+            "driver": "Ayrton Senna",
+            "count": 6,
+            "years": [
+              1987,
+              1989,
+              1990,
+              1991,
+              1992,
+              1993
+            ]
+          }
+        ],
+        "poles": [
+          {
+            "driver": "Ayrton Senna",
+            "count": 5,
+            "years": [
+              1985,
+              1988,
+              1989,
+              1990,
+              1991
+            ]
+          }
+        ],
+        "as_of": "2026-10-16",
+        "wins_source": "https://api.jolpi.ca/ergast/f1/circuits/monaco/results/1.json?limit=100",
+        "poles_source": "https://api.jolpi.ca/ergast/f1/circuits/monaco/grid/1/results.json?limit=100",
+        "races": 72,
+        "first_year": 1950
+      }
+    },
+    {
+      "key": 15,
+      "slug": "barcelona",
+      "name": "Circuit de Barcelona-Catalunya",
+      "city": "Barcelona",
+      "country": "Spain",
+      "region": "europe",
+      "jolpica_id": "catalunya",
+      "f1_path": "2025/spain",
+      "kind": "Permanent",
+      "description": "A benchmark for aerodynamic balance, combining long loaded corners with heavy braking. The fast final sector returned to Formula 1 in 2023.",
+      "lat": 41.57,
+      "lon": 2.26111,
+      "length_km": 4.657,
+      "first_gp": 1991,
+      "laps": 66,
+      "facts_source": "https://www.formula1.com/en/racing/2025/spain",
+      "record": {
+        "time": "1:15.743",
+        "driver": "Oscar Piastri",
+        "year": 2025
+      },
+      "history": {
+        "wins": [
+          {
+            "driver": "Lewis Hamilton",
+            "count": 7,
+            "years": [
+              2014,
+              2017,
+              2018,
+              2019,
+              2020,
+              2021,
+              2026
+            ]
+          }
+        ],
+        "poles": [
+          {
+            "driver": "Michael Schumacher",
+            "count": 7,
+            "years": [
+              1994,
+              1995,
+              2000,
+              2001,
+              2002,
+              2003,
+              2004
+            ]
+          }
+        ],
+        "as_of": "2026-10-16",
+        "wins_source": "https://api.jolpi.ca/ergast/f1/circuits/catalunya/results/1.json?limit=100",
+        "poles_source": "https://api.jolpi.ca/ergast/f1/circuits/catalunya/grid/1/results.json?limit=100",
+        "races": 36,
+        "first_year": 1991
+      }
+    },
+    {
+      "key": 19,
+      "slug": "spielberg",
+      "name": "Red Bull Ring",
+      "city": "Spielberg",
+      "country": "Austria",
+      "region": "europe",
+      "jolpica_id": "red_bull_ring",
+      "f1_path": "2026/austria",
+      "kind": "Permanent",
+      "description": "A short lap through the Styrian hills, with three big braking zones followed by a fast downhill sequence. Small mistakes cost positions quickly.",
+      "lat": 47.2197,
+      "lon": 14.7647,
+      "length_km": 4.326,
+      "first_gp": 1970,
+      "laps": 71,
+      "facts_source": "https://www.formula1.com/en/racing/2026/austria",
+      "record": {
+        "time": "1:07.924",
+        "driver": "Oscar Piastri",
+        "year": 2025
+      },
+      "history": {
+        "wins": [
+          {
+            "driver": "Max Verstappen",
+            "count": 5,
+            "years": [
+              2018,
+              2019,
+              2021,
+              2021,
+              2023
+            ]
+          }
+        ],
+        "poles": [
+          {
+            "driver": "Max Verstappen",
+            "count": 5,
+            "years": [
+              2021,
+              2021,
+              2022,
+              2023,
+              2024
+            ]
+          }
+        ],
+        "as_of": "2026-10-16",
+        "wins_source": "https://api.jolpi.ca/ergast/f1/circuits/red_bull_ring/results/1.json?limit=100",
+        "poles_source": "https://api.jolpi.ca/ergast/f1/circuits/red_bull_ring/grid/1/results.json?limit=100",
+        "races": 40,
+        "first_year": 1970
+      }
+    },
+    {
+      "key": 2,
+      "slug": "silverstone",
+      "name": "Silverstone Circuit",
+      "city": "Silverstone",
+      "country": "United Kingdom",
+      "region": "europe",
+      "jolpica_id": "silverstone",
+      "f1_path": "2026/great-britain",
+      "kind": "Permanent",
+      "description": "The home of the first World Championship Grand Prix. Copse, Maggotts, Becketts and Stowe make high-speed confidence central to the lap.",
+      "lat": 52.0786,
+      "lon": -1.01694,
+      "length_km": 5.891,
+      "first_gp": 1950,
+      "laps": 52,
+      "facts_source": "https://www.formula1.com/en/racing/2026/great-britain",
+      "record": {
+        "time": "1:27.097",
+        "driver": "Max Verstappen",
+        "year": 2020
+      },
+      "history": {
+        "wins": [
+          {
+            "driver": "Lewis Hamilton",
+            "count": 9,
+            "years": [
+              2008,
+              2014,
+              2015,
+              2016,
+              2017,
+              2019,
+              2020,
+              2021,
+              2024
+            ]
+          }
+        ],
+        "poles": [
+          {
+            "driver": "Lewis Hamilton",
+            "count": 7,
+            "years": [
+              2007,
+              2013,
+              2015,
+              2016,
+              2017,
+              2018,
+              2020
+            ]
+          }
+        ],
+        "as_of": "2026-10-16",
+        "wins_source": "https://api.jolpi.ca/ergast/f1/circuits/silverstone/results/1.json?limit=100",
+        "poles_source": "https://api.jolpi.ca/ergast/f1/circuits/silverstone/grid/1/results.json?limit=100",
+        "races": 61,
+        "first_year": 1950
+      }
+    },
+    {
+      "key": 7,
+      "slug": "spa-francorchamps",
+      "name": "Circuit de Spa-Francorchamps",
+      "city": "Spa-Francorchamps",
+      "country": "Belgium",
+      "region": "europe",
+      "jolpica_id": "spa",
+      "f1_path": "2026/belgium",
+      "kind": "Permanent",
+      "description": "A long, undulating lap through the Ardennes. Eau Rouge, Raidillon and Pouhon test commitment, while changeable weather can divide the circuit.",
+      "lat": 50.4372,
+      "lon": 5.97139,
+      "length_km": 7.004,
+      "first_gp": 1950,
+      "laps": 44,
+      "facts_source": "https://www.formula1.com/en/racing/2026/belgium",
+      "record": {
+        "time": "1:44.701",
+        "driver": "Sergio Perez",
+        "year": 2024
+      },
+      "history": {
+        "wins": [
+          {
+            "driver": "Michael Schumacher",
+            "count": 6,
+            "years": [
+              1992,
+              1995,
+              1996,
+              1997,
+              2001,
+              2002
+            ]
+          }
+        ],
+        "poles": [
+          {
+            "driver": "Lewis Hamilton",
+            "count": 6,
+            "years": [
+              2008,
+              2013,
+              2015,
+              2017,
+              2018,
+              2020
+            ]
+          }
+        ],
+        "as_of": "2026-10-16",
+        "wins_source": "https://api.jolpi.ca/ergast/f1/circuits/spa/results/1.json?limit=100",
+        "poles_source": "https://api.jolpi.ca/ergast/f1/circuits/spa/grid/1/results.json?limit=100",
+        "races": 59,
+        "first_year": 1950
+      }
+    },
+    {
+      "key": 4,
+      "slug": "budapest",
+      "name": "Hungaroring",
+      "city": "Budapest",
+      "country": "Hungary",
+      "region": "europe",
+      "jolpica_id": "hungaroring",
+      "f1_path": "2026/hungary",
+      "kind": "Permanent",
+      "description": "A twisting lap with little time to recover between corners. Track position, front-end response and tyre temperature are central to race strategy.",
+      "lat": 47.5789,
+      "lon": 19.2486,
+      "length_km": 4.381,
+      "first_gp": 1986,
+      "laps": 70,
+      "facts_source": "https://www.formula1.com/en/racing/2026/hungary",
+      "record": {
+        "time": "1:16.627",
+        "driver": "Lewis Hamilton",
+        "year": 2020
+      },
+      "history": {
+        "wins": [
+          {
+            "driver": "Lewis Hamilton",
+            "count": 8,
+            "years": [
+              2007,
+              2009,
+              2012,
+              2013,
+              2016,
+              2018,
+              2019,
+              2020
+            ]
+          }
+        ],
+        "poles": [
+          {
+            "driver": "Lewis Hamilton",
+            "count": 9,
+            "years": [
+              2007,
+              2008,
+              2012,
+              2013,
+              2015,
+              2018,
+              2020,
+              2021,
+              2023
+            ]
+          }
+        ],
+        "as_of": "2026-10-16",
+        "wins_source": "https://api.jolpi.ca/ergast/f1/circuits/hungaroring/results/1.json?limit=100",
+        "poles_source": "https://api.jolpi.ca/ergast/f1/circuits/hungaroring/grid/1/results.json?limit=100",
+        "races": 41,
+        "first_year": 1986
+      }
+    },
+    {
+      "key": 55,
+      "slug": "zandvoort",
+      "name": "Circuit Zandvoort",
+      "city": "Zandvoort",
+      "country": "Netherlands",
+      "region": "europe",
+      "jolpica_id": "zandvoort",
+      "f1_path": "2026/netherlands",
+      "kind": "Permanent",
+      "description": "A narrow, flowing circuit through the dunes. Steep banking and elevation changes give the lap a character unlike a conventional flat circuit.",
+      "lat": 52.3888,
+      "lon": 4.54092,
+      "length_km": 4.259,
+      "first_gp": 1952,
+      "laps": 72,
+      "facts_source": "https://www.formula1.com/en/racing/2026/netherlands",
+      "record": {
+        "time": "1:11.097",
+        "driver": "Lewis Hamilton",
+        "year": 2021
+      },
+      "history": {
+        "wins": [
+          {
+            "driver": "Jim Clark",
+            "count": 4,
+            "years": [
+              1963,
+              1964,
+              1965,
+              1967
+            ]
+          }
+        ],
+        "poles": [
+          {
+            "driver": "René Arnoux",
+            "count": 3,
+            "years": [
+              1979,
+              1980,
+              1982
+            ]
+          },
+          {
+            "driver": "Max Verstappen",
+            "count": 3,
+            "years": [
+              2021,
+              2022,
+              2023
+            ]
+          }
+        ],
+        "as_of": "2026-10-16",
+        "wins_source": "https://api.jolpi.ca/ergast/f1/circuits/zandvoort/results/1.json?limit=100",
+        "poles_source": "https://api.jolpi.ca/ergast/f1/circuits/zandvoort/grid/1/results.json?limit=100",
+        "races": 36,
+        "first_year": 1952
+      }
+    },
+    {
+      "key": 39,
+      "slug": "monza",
+      "name": "Autodromo Nazionale Monza",
+      "city": "Monza",
+      "country": "Italy",
+      "region": "europe",
+      "jolpica_id": "monza",
+      "f1_path": "2026/italy",
+      "kind": "Permanent",
+      "description": "The Temple of Speed trades downforce for straight-line performance. Chicanes, Ascari and Parabolica demand braking accuracy and clean exits.",
+      "lat": 45.6156,
+      "lon": 9.28111,
+      "length_km": 5.793,
+      "first_gp": 1950,
+      "laps": 53,
+      "facts_source": "https://www.formula1.com/en/racing/2026/italy",
+      "record": {
+        "time": "1:20.901",
+        "driver": "Lando Norris",
+        "year": 2025
+      },
+      "history": {
+        "wins": [
+          {
+            "driver": "Lewis Hamilton",
+            "count": 5,
+            "years": [
+              2012,
+              2014,
+              2015,
+              2017,
+              2018
+            ]
+          },
+          {
+            "driver": "Michael Schumacher",
+            "count": 5,
+            "years": [
+              1996,
+              1998,
+              2000,
+              2003,
+              2006
+            ]
+          }
+        ],
+        "poles": [
+          {
+            "driver": "Lewis Hamilton",
+            "count": 7,
+            "years": [
+              2009,
+              2012,
+              2014,
+              2015,
+              2016,
+              2017,
+              2020
+            ]
+          }
+        ],
+        "as_of": "2026-10-16",
+        "wins_source": "https://api.jolpi.ca/ergast/f1/circuits/monza/results/1.json?limit=100",
+        "poles_source": "https://api.jolpi.ca/ergast/f1/circuits/monza/grid/1/results.json?limit=100",
+        "races": 76,
+        "first_year": 1950
+      }
+    },
+    {
+      "key": 153,
+      "slug": "madrid",
+      "name": "Madring",
+      "city": "Madrid",
+      "country": "Spain",
+      "region": "europe",
+      "jolpica_id": "madring",
+      "f1_path": "2026/spain",
+      "kind": "Hybrid",
+      "description": "A new venue around IFEMA Madrid, combining permanent sections and public roads. La Monumental is the layout’s signature banked corner.",
+      "lat": 40.46528,
+      "lon": -3.61528,
+      "length_km": 5.414,
+      "first_gp": 2026,
+      "laps": 57,
+      "facts_source": "https://www.formula1.com/en/racing/2026/spain",
+      "record": {
+        "time": "1:35.587",
+        "driver": "George Russell",
+        "year": 2026
+      },
+      "history": {
+        "wins": [
+          {
+            "driver": "Andrea Kimi Antonelli",
+            "count": 1,
+            "years": [
+              2026
+            ]
+          }
+        ],
+        "poles": [
+          {
+            "driver": "Lando Norris",
+            "count": 1,
+            "years": [
+              2026
+            ]
+          }
+        ],
+        "as_of": "2026-10-16",
+        "wins_source": "https://api.jolpi.ca/ergast/f1/circuits/madring/results/1.json?limit=100",
+        "poles_source": "https://api.jolpi.ca/ergast/f1/circuits/madring/grid/1/results.json?limit=100",
+        "races": 1,
+        "first_year": 2026
+      }
+    },
+    {
+      "key": 144,
+      "slug": "baku",
+      "name": "Baku City Circuit",
+      "city": "Baku",
+      "country": "Azerbaijan",
+      "region": "europe",
+      "jolpica_id": "baku",
+      "f1_path": "2026/azerbaijan",
+      "kind": "Street",
+      "description": "A long flat-out waterfront section meets a tight old-city climb. Straight-line speed and precision through the castle section pull setup in different directions.",
+      "lat": 40.3725,
+      "lon": 49.8533,
+      "length_km": 6.003,
+      "first_gp": 2016,
+      "laps": 51,
+      "facts_source": "https://www.formula1.com/en/racing/2026/azerbaijan",
+      "record": {
+        "time": "1:43.009",
+        "driver": "Charles Leclerc",
+        "year": 2019
+      },
+      "history": {
+        "wins": [
+          {
+            "driver": "Max Verstappen",
+            "count": 2,
+            "years": [
+              2022,
+              2025
+            ]
+          },
+          {
+            "driver": "Sergio Pérez",
+            "count": 2,
+            "years": [
+              2021,
+              2023
+            ]
+          }
+        ],
+        "poles": [
+          {
+            "driver": "Charles Leclerc",
+            "count": 4,
+            "years": [
+              2021,
+              2022,
+              2023,
+              2024
+            ]
+          }
+        ],
+        "as_of": "2026-10-16",
+        "wins_source": "https://api.jolpi.ca/ergast/f1/circuits/baku/results/1.json?limit=100",
+        "poles_source": "https://api.jolpi.ca/ergast/f1/circuits/baku/grid/1/results.json?limit=100",
+        "races": 10,
+        "first_year": 2016
+      }
+    },
+    {
+      "key": 12,
+      "slug": "kuala-lumpur",
+      "name": "Sepang International Circuit",
+      "city": "Sepang",
+      "country": "Malaysia",
+      "region": "asia-pacific",
+      "jolpica_id": "sepang",
+      "f1_path": "2017/malaysia",
+      "kind": "Permanent",
+      "description": "Wide corners, linked high-speed turns and two long straights define this Malaysian venue. Tropical heat and sudden rain are part of its history.",
+      "facts_override": {
+        "length_km": 5.543,
+        "first_gp": 1999,
+        "laps": 56,
+        "record": {
+          "time": "1:34.080",
+          "driver": "Sebastian Vettel",
+          "year": 2017
+        },
+        "facts_source": "https://www.formula1.com/en/latest/article/circuit-guide-everything-you-need-to-know-about-the-sepang-international-circuit.2KTLvyxBXmwVftSJxmYeZ2"
+      },
+      "lat": 2.76083,
+      "lon": 101.738,
+      "length_km": 5.543,
+      "first_gp": 1999,
+      "laps": 56,
+      "record": {
+        "time": "1:34.080",
+        "driver": "Sebastian Vettel",
+        "year": 2017
+      },
+      "facts_source": "https://www.formula1.com/en/latest/article/circuit-guide-everything-you-need-to-know-about-the-sepang-international-circuit.2KTLvyxBXmwVftSJxmYeZ2",
+      "history": {
+        "wins": [
+          {
+            "driver": "Sebastian Vettel",
+            "count": 4,
+            "years": [
+              2010,
+              2011,
+              2013,
+              2015
+            ]
+          }
+        ],
+        "poles": [
+          {
+            "driver": "Lewis Hamilton",
+            "count": 5,
+            "years": [
+              2012,
+              2014,
+              2015,
+              2016,
+              2017
+            ]
+          },
+          {
+            "driver": "Michael Schumacher",
+            "count": 5,
+            "years": [
+              1999,
+              2000,
+              2001,
+              2002,
+              2004
+            ]
+          }
+        ],
+        "as_of": "2026-10-16",
+        "wins_source": "https://api.jolpi.ca/ergast/f1/circuits/sepang/results/1.json?limit=100",
+        "poles_source": "https://api.jolpi.ca/ergast/f1/circuits/sepang/grid/1/results.json?limit=100",
+        "races": 20,
+        "first_year": 1999
+      }
+    },
+    {
+      "key": 61,
+      "slug": "marina-bay",
+      "name": "Marina Bay Street Circuit",
+      "city": "Singapore",
+      "country": "Singapore",
+      "region": "asia-pacific",
+      "jolpica_id": "marina_bay",
+      "f1_path": "2026/singapore",
+      "kind": "Street",
+      "description": "A floodlit street race with repeated braking and acceleration. Heat, humidity and long stints against the barriers make concentration a defining challenge.",
+      "lat": 1.2914,
+      "lon": 103.864,
+      "length_km": 4.927,
+      "first_gp": 2008,
+      "laps": 62,
+      "facts_source": "https://www.formula1.com/en/racing/2026/singapore",
+      "record": {
+        "time": "1:33.808",
+        "driver": "Lewis Hamilton",
+        "year": 2025
+      },
+      "history": {
+        "wins": [
+          {
+            "driver": "Sebastian Vettel",
+            "count": 5,
+            "years": [
+              2011,
+              2012,
+              2013,
+              2015,
+              2019
+            ]
+          }
+        ],
+        "poles": [
+          {
+            "driver": "Lewis Hamilton",
+            "count": 4,
+            "years": [
+              2009,
+              2012,
+              2014,
+              2018
+            ]
+          },
+          {
+            "driver": "Sebastian Vettel",
+            "count": 4,
+            "years": [
+              2011,
+              2013,
+              2015,
+              2017
+            ]
+          }
+        ],
+        "as_of": "2026-10-16",
+        "wins_source": "https://api.jolpi.ca/ergast/f1/circuits/marina_bay/results/1.json?limit=100",
+        "poles_source": "https://api.jolpi.ca/ergast/f1/circuits/marina_bay/grid/1/results.json?limit=100",
+        "races": 17,
+        "first_year": 2008
+      }
+    },
+    {
+      "key": 63,
+      "slug": "sakhir",
+      "name": "Bahrain International Circuit",
+      "city": "Sakhir",
+      "country": "Bahrain",
+      "region": "middle-east",
+      "jolpica_id": "bahrain",
+      "f1_path": "2025/bahrain",
+      "kind": "Permanent",
+      "description": "A desert circuit with long straights and traction-heavy exits. Abrasive asphalt makes tyre degradation an important part of the race.",
+      "lat": 26.0325,
+      "lon": 50.5106,
+      "length_km": 5.412,
+      "first_gp": 2004,
+      "laps": 57,
+      "facts_source": "https://www.formula1.com/en/racing/2025/bahrain",
+      "record": {
+        "time": "1:31.447",
+        "driver": "Pedro de la Rosa",
+        "year": 2005
+      },
+      "history": {
+        "wins": [
+          {
+            "driver": "Lewis Hamilton",
+            "count": 5,
+            "years": [
+              2014,
+              2015,
+              2019,
+              2020,
+              2021
+            ]
+          }
+        ],
+        "poles": [
+          {
+            "driver": "Lewis Hamilton",
+            "count": 3,
+            "years": [
+              2015,
+              2016,
+              2020
+            ]
+          },
+          {
+            "driver": "Max Verstappen",
+            "count": 3,
+            "years": [
+              2021,
+              2023,
+              2024
+            ]
+          },
+          {
+            "driver": "Sebastian Vettel",
+            "count": 3,
+            "years": [
+              2010,
+              2012,
+              2018
+            ]
+          }
+        ],
+        "as_of": "2026-10-16",
+        "wins_source": "https://api.jolpi.ca/ergast/f1/circuits/bahrain/results/1.json?limit=100",
+        "poles_source": "https://api.jolpi.ca/ergast/f1/circuits/bahrain/grid/1/results.json?limit=100",
+        "races": 22,
+        "first_year": 2004
+      }
+    },
+    {
+      "key": 149,
+      "slug": "jeddah",
+      "name": "Jeddah Corniche Circuit",
+      "city": "Jeddah",
+      "country": "Saudi Arabia",
+      "region": "middle-east",
+      "jolpica_id": "jeddah",
+      "f1_path": "2025/saudi-arabia",
+      "kind": "Street",
+      "description": "A very fast street layout along the Red Sea. Flowing blind corners, close barriers and long full-throttle sections demand sustained precision.",
+      "lat": 21.6319,
+      "lon": 39.1044,
+      "length_km": 6.174,
+      "first_gp": 2021,
+      "laps": 50,
+      "facts_source": "https://www.formula1.com/en/racing/2025/saudi-arabia",
+      "record": {
+        "time": "1:30.734",
+        "driver": "Lewis Hamilton",
+        "year": 2021
+      },
+      "history": {
+        "wins": [
+          {
+            "driver": "Max Verstappen",
+            "count": 2,
+            "years": [
+              2022,
+              2024
+            ]
+          }
+        ],
+        "poles": [
+          {
+            "driver": "Max Verstappen",
+            "count": 2,
+            "years": [
+              2024,
+              2025
+            ]
+          },
+          {
+            "driver": "Sergio Pérez",
+            "count": 2,
+            "years": [
+              2022,
+              2023
+            ]
+          }
+        ],
+        "as_of": "2026-10-16",
+        "wins_source": "https://api.jolpi.ca/ergast/f1/circuits/jeddah/results/1.json?limit=100",
+        "poles_source": "https://api.jolpi.ca/ergast/f1/circuits/jeddah/grid/1/results.json?limit=100",
+        "races": 5,
+        "first_year": 2021
+      }
+    },
+    {
+      "key": 6,
+      "slug": "imola",
+      "name": "Autodromo Enzo e Dino Ferrari",
+      "city": "Imola",
+      "country": "Italy",
+      "region": "europe",
+      "jolpica_id": "imola",
+      "f1_path": "2025/emiliaromagna",
+      "kind": "Permanent",
+      "description": "An old-school, narrow circuit with elevation changes and demanding kerbs. The run from Acque Minerali to Rivazza rewards rhythm and commitment.",
+      "lat": 44.3439,
+      "lon": 11.7167,
+      "length_km": 4.909,
+      "first_gp": 1980,
+      "laps": 63,
+      "facts_source": "https://www.formula1.com/en/racing/2025/emiliaromagna",
+      "record": {
+        "time": "1:15.484",
+        "driver": "Lewis Hamilton",
+        "year": 2020
+      },
+      "history": {
+        "wins": [
+          {
+            "driver": "Michael Schumacher",
+            "count": 7,
+            "years": [
+              1994,
+              1999,
+              2000,
+              2002,
+              2003,
+              2004,
+              2006
+            ]
+          }
+        ],
+        "poles": [
+          {
+            "driver": "Ayrton Senna",
+            "count": 8,
+            "years": [
+              1985,
+              1986,
+              1987,
+              1988,
+              1989,
+              1990,
+              1991,
+              1994
+            ]
+          }
+        ],
+        "as_of": "2026-10-16",
+        "wins_source": "https://api.jolpi.ca/ergast/f1/circuits/imola/results/1.json?limit=100",
+        "poles_source": "https://api.jolpi.ca/ergast/f1/circuits/imola/grid/1/results.json?limit=100",
+        "races": 32,
+        "first_year": 1980
+      }
+    },
+    {
+      "key": 9,
+      "slug": "austin",
+      "name": "Circuit of The Americas",
+      "city": "Austin",
+      "country": "United States",
+      "region": "americas",
+      "jolpica_id": "americas",
+      "f1_path": "2026/united-states",
+      "kind": "Permanent",
+      "description": "A steep climb to Turn 1 leads to fast linked corners, a long straight and a technical final sector. It asks the car to perform across a wide range of speeds.",
+      "lat": 30.1328,
+      "lon": -97.6411,
+      "length_km": 5.513,
+      "first_gp": 2012,
+      "laps": 56,
+      "facts_source": "https://www.formula1.com/en/racing/2026/united-states",
+      "record": {
+        "time": "1:36.169",
+        "driver": "Charles Leclerc",
+        "year": 2019
+      },
+      "history": {
+        "wins": [
+          {
+            "driver": "Lewis Hamilton",
+            "count": 5,
+            "years": [
+              2012,
+              2014,
+              2015,
+              2016,
+              2017
+            ]
+          }
+        ],
+        "poles": [
+          {
+            "driver": "Lewis Hamilton",
+            "count": 3,
+            "years": [
+              2016,
+              2017,
+              2018
+            ]
+          }
+        ],
+        "as_of": "2026-10-16",
+        "wins_source": "https://api.jolpi.ca/ergast/f1/circuits/americas/results/1.json?limit=100",
+        "poles_source": "https://api.jolpi.ca/ergast/f1/circuits/americas/grid/1/results.json?limit=100",
+        "races": 13,
+        "first_year": 2012
+      }
+    },
+    {
+      "key": 65,
+      "slug": "mexico-city",
+      "name": "Autódromo Hermanos Rodríguez",
+      "city": "Mexico City",
+      "country": "Mexico",
+      "region": "americas",
+      "jolpica_id": "rodriguez",
+      "f1_path": "2026/mexico",
+      "kind": "Permanent",
+      "description": "A high-altitude venue where thin air changes cooling, downforce and drag. The stadium section is the lap’s signature setting.",
+      "lat": 19.4042,
+      "lon": -99.0907,
+      "length_km": 4.304,
+      "first_gp": 1963,
+      "laps": 71,
+      "facts_source": "https://www.formula1.com/en/racing/2026/mexico",
+      "record": {
+        "time": "1:17.774",
+        "driver": "Valtteri Bottas",
+        "year": 2021
+      },
+      "history": {
+        "wins": [
+          {
+            "driver": "Max Verstappen",
+            "count": 5,
+            "years": [
+              2017,
+              2018,
+              2021,
+              2022,
+              2023
+            ]
+          }
+        ],
+        "poles": [
+          {
+            "driver": "Jim Clark",
+            "count": 4,
+            "years": [
+              1963,
+              1964,
+              1965,
+              1967
+            ]
+          }
+        ],
+        "as_of": "2026-10-16",
+        "wins_source": "https://api.jolpi.ca/ergast/f1/circuits/rodriguez/results/1.json?limit=100",
+        "poles_source": "https://api.jolpi.ca/ergast/f1/circuits/rodriguez/grid/1/results.json?limit=100",
+        "races": 25,
+        "first_year": 1963
+      }
+    },
+    {
+      "key": 14,
+      "slug": "sao-paulo",
+      "name": "Autódromo José Carlos Pace",
+      "city": "São Paulo",
+      "country": "Brazil",
+      "region": "americas",
+      "jolpica_id": "interlagos",
+      "f1_path": "2026/brazil",
+      "kind": "Permanent",
+      "description": "A compact, undulating anti-clockwise lap. The Senna S, technical infield and uphill run to the line create contrasting setup demands.",
+      "lat": -23.7036,
+      "lon": -46.6997,
+      "length_km": 4.309,
+      "first_gp": 1973,
+      "laps": 71,
+      "facts_source": "https://www.formula1.com/en/racing/2026/brazil",
+      "record": {
+        "time": "1:10.540",
+        "driver": "Valtteri Bottas",
+        "year": 2018
+      },
+      "history": {
+        "wins": [
+          {
+            "driver": "Michael Schumacher",
+            "count": 4,
+            "years": [
+              1994,
+              1995,
+              2000,
+              2002
+            ]
+          }
+        ],
+        "poles": [
+          {
+            "driver": "Rubens Barrichello",
+            "count": 3,
+            "years": [
+              2003,
+              2004,
+              2009
+            ]
+          },
+          {
+            "driver": "Mika Häkkinen",
+            "count": 3,
+            "years": [
+              1998,
+              1999,
+              2000
+            ]
+          },
+          {
+            "driver": "Lewis Hamilton",
+            "count": 3,
+            "years": [
+              2012,
+              2016,
+              2018
+            ]
+          },
+          {
+            "driver": "Felipe Massa",
+            "count": 3,
+            "years": [
+              2006,
+              2007,
+              2008
+            ]
+          },
+          {
+            "driver": "Ayrton Senna",
+            "count": 3,
+            "years": [
+              1990,
+              1991,
+              1994
+            ]
+          }
+        ],
+        "as_of": "2026-10-16",
+        "wins_source": "https://api.jolpi.ca/ergast/f1/circuits/interlagos/results/1.json?limit=100",
+        "poles_source": "https://api.jolpi.ca/ergast/f1/circuits/interlagos/grid/1/results.json?limit=100",
+        "races": 42,
+        "first_year": 1973
+      }
+    },
+    {
+      "key": 152,
+      "slug": "las-vegas",
+      "name": "Las Vegas Strip Circuit",
+      "city": "Las Vegas",
+      "country": "United States",
+      "region": "americas",
+      "jolpica_id": "vegas",
+      "f1_path": "2026/las-vegas",
+      "kind": "Street",
+      "description": "A night-time street race built around long straights and heavy braking. The run down the Strip puts a premium on low drag and strong tyre preparation.",
+      "lat": 36.1147,
+      "lon": -115.173,
+      "length_km": 6.201,
+      "first_gp": 2023,
+      "laps": 50,
+      "facts_source": "https://www.formula1.com/en/racing/2026/las-vegas",
+      "record": {
+        "time": "1:33.365",
+        "driver": "Max Verstappen",
+        "year": 2025
+      },
+      "history": {
+        "wins": [
+          {
+            "driver": "Max Verstappen",
+            "count": 2,
+            "years": [
+              2023,
+              2025
+            ]
+          }
+        ],
+        "poles": [
+          {
+            "driver": "Charles Leclerc",
+            "count": 1,
+            "years": [
+              2023
+            ]
+          },
+          {
+            "driver": "Lando Norris",
+            "count": 1,
+            "years": [
+              2025
+            ]
+          },
+          {
+            "driver": "George Russell",
+            "count": 1,
+            "years": [
+              2024
+            ]
+          }
+        ],
+        "as_of": "2026-10-16",
+        "wins_source": "https://api.jolpi.ca/ergast/f1/circuits/vegas/results/1.json?limit=100",
+        "poles_source": "https://api.jolpi.ca/ergast/f1/circuits/vegas/grid/1/results.json?limit=100",
+        "races": 3,
+        "first_year": 2023
+      }
+    },
+    {
+      "key": 150,
+      "slug": "lusail",
+      "name": "Lusail International Circuit",
+      "city": "Lusail",
+      "country": "Qatar",
+      "region": "middle-east",
+      "jolpica_id": "losail",
+      "f1_path": "2026/qatar",
+      "kind": "Permanent",
+      "description": "Fast, linked corners keep the tyres loaded for much of the lap. The circuit began as a motorcycle venue before hosting Formula 1 in 2021.",
+      "lat": 25.49,
+      "lon": 51.4542,
+      "length_km": 5.419,
+      "first_gp": 2021,
+      "laps": 57,
+      "facts_source": "https://www.formula1.com/en/racing/2026/qatar",
+      "record": {
+        "time": "1:22.384",
+        "driver": "Lando Norris",
+        "year": 2024
+      },
+      "history": {
+        "wins": [
+          {
+            "driver": "Max Verstappen",
+            "count": 3,
+            "years": [
+              2023,
+              2024,
+              2025
+            ]
+          }
+        ],
+        "poles": [
+          {
+            "driver": "Lewis Hamilton",
+            "count": 1,
+            "years": [
+              2021
+            ]
+          },
+          {
+            "driver": "Max Verstappen",
+            "count": 1,
+            "years": [
+              2023
+            ]
+          },
+          {
+            "driver": "Oscar Piastri",
+            "count": 1,
+            "years": [
+              2025
+            ]
+          },
+          {
+            "driver": "George Russell",
+            "count": 1,
+            "years": [
+              2024
+            ]
+          }
+        ],
+        "as_of": "2026-10-16",
+        "wins_source": "https://api.jolpi.ca/ergast/f1/circuits/losail/results/1.json?limit=100",
+        "poles_source": "https://api.jolpi.ca/ergast/f1/circuits/losail/grid/1/results.json?limit=100",
+        "races": 4,
+        "first_year": 2021
+      }
+    },
+    {
+      "key": 70,
+      "slug": "yas-island",
+      "name": "Yas Marina Circuit",
+      "city": "Abu Dhabi",
+      "country": "United Arab Emirates",
+      "region": "middle-east",
+      "jolpica_id": "yas_marina",
+      "f1_path": "2026/united-arab-emirates",
+      "kind": "Permanent",
+      "description": "A dusk-to-night lap around Yas Island. Long straights and the faster layout introduced in 2021 shape the modern circuit’s rhythm.",
+      "lat": 24.4672,
+      "lon": 54.6031,
+      "length_km": 5.281,
+      "first_gp": 2009,
+      "laps": 58,
+      "facts_source": "https://www.formula1.com/en/racing/2026/united-arab-emirates",
+      "record": {
+        "time": "1:25.637",
+        "driver": "Kevin Magnussen",
+        "year": 2024
+      },
+      "history": {
+        "wins": [
+          {
+            "driver": "Lewis Hamilton",
+            "count": 5,
+            "years": [
+              2011,
+              2014,
+              2016,
+              2018,
+              2019
+            ]
+          },
+          {
+            "driver": "Max Verstappen",
+            "count": 5,
+            "years": [
+              2020,
+              2021,
+              2022,
+              2023,
+              2025
+            ]
+          }
+        ],
+        "poles": [
+          {
+            "driver": "Lewis Hamilton",
+            "count": 5,
+            "years": [
+              2009,
+              2012,
+              2016,
+              2018,
+              2019
+            ]
+          },
+          {
+            "driver": "Max Verstappen",
+            "count": 5,
+            "years": [
+              2020,
+              2021,
+              2022,
+              2023,
+              2025
+            ]
+          }
+        ],
+        "as_of": "2026-10-16",
+        "wins_source": "https://api.jolpi.ca/ergast/f1/circuits/yas_marina/results/1.json?limit=100",
+        "poles_source": "https://api.jolpi.ca/ergast/f1/circuits/yas_marina/grid/1/results.json?limit=100",
+        "races": 17,
+        "first_year": 2009
+      }
+    }
+  ]
+}

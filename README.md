@@ -114,6 +114,13 @@ falling away, with the cleaning rules written down and tested.
 
 **Circuits** (a page in the pit wall)
 
+- An interactive world globe with circuit markers, rotation, zoom and four regional maps:
+  Europe & Caucasus, the Americas, Asia-Pacific and the Middle East. Select a marker, browse
+  a region or search by circuit, city or country; circuit facts work without saved race data.
+- Each circuit has layout length, race laps, first Grand Prix, a track outline and an introduction,
+  plus F1's published race lap record and the drivers with the most wins and pole starts at that
+  venue. Historical records include tied leaders, years, source links and a reference date;
+  they are separate from the locally saved race statistics below.
 - One track across the saved years, matched by circuit rather than name (Monaco and Monte Carlo
   are the same place): winner and where they started, pole and fastest race lap times, safety
   cars, VSCs, red flags and rain, and the winner's tyres.
@@ -121,6 +128,12 @@ falling away, with the cleaning rules written down and tested.
   run, and the circuit's pit stop cost.
 - Pages open from links: `/season?year=2025`, `/drivers?year=2025&driver=NOR`,
   `/circuits?circuit=monza`.
+- Open the atlas at `/circuits`, or a regional map at `/circuits?region=asia-pacific`.
+  Facts and records are bundled for offline use. Refresh the reference data from the repository
+  root with `.venv/bin/python tools/update_circuit_atlas.py --as-of YYYY-MM-DD`.
+  The updater caches source responses in `cache/atlas`; add `--refresh` when updating the reference.
+  Map geometry is public-domain [Natural Earth](https://www.naturalearthdata.com/),
+  rendered with the bundled [D3](https://d3js.org/) library (ISC license in the component directory).
 
 **`onboard`: fastest-lap telemetry comparison** (available now)
 

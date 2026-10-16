@@ -32,8 +32,8 @@ SEASON = [
               "qualifying and races, and how quick the pit crew is against the rest."),
     ("Drivers", "One driver's season: grid to flag at every Grand Prix, points against the teammate and the "
                 "leader, and the standout numbers, from the best comeback to the longest run in the points."),
-    ("Circuits", "One track across the years: who won and from where, pole and fastest lap times, safety cars "
-                 "and red flags, and how many times the field stopped."),
+    ("Circuits", "Explore a world globe and regional maps, then open each circuit's facts and historical records: "
+                 "race lap record, most wins and pole starts. Saved races add year-by-year results and strategy."),
 ]
 
 # Set by the app: its pages by title, so the cards and featured races can link to them.
