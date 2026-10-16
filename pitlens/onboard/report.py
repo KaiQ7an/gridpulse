@@ -2,16 +2,15 @@
 
 import argparse
 import platform
-
-import fastf1
 import subprocess
 
+import fastf1
 import pandas as pd
 
+from pitlens.htmlreport import table, text, write_report
 from pitlens.onboard.charts import telemetry_figure, track_map
 from pitlens.onboard.compare import align, corner_speeds, minisectors
 from pitlens.onboard.data import SESSION_NAMES, OnboardData, load_weekend, teammate_of
-from pitlens.htmlreport import table, text, write_report
 from pitlens.pitwall.timing import format_lap_time
 from pitlens.session import OUTPUT_DIR
 

@@ -5,8 +5,8 @@ import argparse
 from pitlens import checks
 from pitlens.onboard import report as onboard_report
 from pitlens.pitwall import serve as pitwall_serve
-from pitlens.session import TimingUnavailable, enable_cache
 from pitlens.radio import report as radio_report
+from pitlens.session import TimingUnavailable, enable_cache
 from pitlens.stints import report as stints_report
 from pitlens.undercut import report as undercut_report
 

@@ -15,8 +15,8 @@ from pitlens.onboard.data import (
 )
 from pitlens.pitwall import ui
 from pitlens.pitwall.data import FIRST_SEASON, completed_races
-from pitlens.session import TimingUnavailable
 from pitlens.pitwall.timing import format_lap_time
+from pitlens.session import TimingUnavailable
 
 
 @st.cache_data(ttl=3600, show_spinner=False)

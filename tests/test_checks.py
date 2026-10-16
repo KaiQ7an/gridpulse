@@ -1,8 +1,8 @@
 import pandas as pd
+from test_events import make_race
 
 from pitlens.checks import check_race
 from pitlens.pitwall.data import RaceData
-from test_events import make_race
 
 
 def race_with(results: pd.DataFrame) -> RaceData:

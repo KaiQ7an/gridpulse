@@ -36,3 +36,12 @@ include = ["pitlens*"]
 
 [tool.setuptools.package-data]
 "pitlens.pitwall.tower" = ["index.html"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+# pyflakes, syntax errors, bugbear, pyupgrade, import order
+select = ["F", "E9", "B", "UP", "I"]
+ignore = ["B905"]  # zip(strict=...) adds noise where lengths are equal by construction
