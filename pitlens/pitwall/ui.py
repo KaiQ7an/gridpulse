@@ -180,6 +180,18 @@ h1, h2, h3 { letter-spacing: -0.01em; }
   .pl-q .ideal { display: none; }
 }
 
+/* Team page: one card per driver */
+.pl-drv { padding: 12px 2px 14px; border-bottom: 1px solid rgba(128,128,128,0.14); }
+.pl-drv:last-child { border-bottom: none; }
+.pl-drv .name { font-family: "Titillium Web", sans-serif; font-weight: 700; font-size: 1.25rem; line-height: 1.1; }
+.pl-drv .code { font-size: 0.78rem; font-weight: 700; opacity: 0.5; margin-left: 6px; letter-spacing: 0.06em; }
+.pl-drv .nums { display: grid; grid-template-columns: repeat(auto-fill, minmax(78px, 1fr)); gap: 6px 10px; margin-top: 10px; }
+.pl-drv .nums div { font-size: 0.66rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.55; }
+.pl-drv .nums b { display: block; font-size: 1.05rem; letter-spacing: 0; text-transform: none; opacity: 1;
+  font-variant-numeric: tabular-nums; margin-top: 2px; }
+.pl-drv .h2h { margin-top: 10px; font-size: 0.86rem; opacity: 0.85; }
+.pl-drv .h2h b { font-variant-numeric: tabular-nums; }
+
 /* Sidebar brand */
 .pl-brand { display: flex; align-items: center; gap: 10px; margin: 0 0 6px; }
 .pl-brand .mark { width: 8px; height: 30px; border-radius: 2px; background: #E10600; transform: skewX(-14deg); }
@@ -551,3 +563,29 @@ def quali_table(results, ideal, colors: dict[str, str]) -> None:
             + "".join(cells) + f'<span class="num">{gap}</span><span class="num ideal">{ideal_html}</span></div>'
         )
     st.html(f'<div class="pl-qwrap">{head}{"".join(rows)}</div>')
+
+
+def team_drivers(drivers, battles, color: str) -> None:
+    """A card per driver of a team: season numbers and how they fared against their teammate."""
+    battle = battles.set_index("Driver") if len(battles) else battles
+    cards = []
+    for d in drivers.itertuples():
+        nums = [("Races", d.Races), ("Points", f"{d.Points:.0f}"), ("Wins", d.Wins), ("Podiums", d.Podiums),
+                ("Best", f"P{d.Best}" if d.Best else "–"),
+                ("Avg finish", f"{d.AverageFinish:.1f}" if pd.notna(d.AverageFinish) else "–"), ("DNFs", d.Dnf)]
+        h2h = ""
+        if d.Driver in getattr(battle, "index", []):
+            b = battle.loc[d.Driver]
+            parts = []
+            if b["QualiOf"]:
+                parts.append(f"qualifying <b>{int(b['QualiWon'])}–{int(b['QualiOf'] - b['QualiWon'])}</b>")
+            if b["RaceOf"]:
+                parts.append(f"races <b>{int(b['RaceWon'])}–{int(b['RaceOf'] - b['RaceWon'])}</b>")
+            if pd.notna(b["QualiGap"]):
+                parts.append(f"qualifying gap <b>{b['QualiGap']:+.3f} s</b>")
+            if parts:
+                h2h = f'<div class="h2h">Against their teammate: {" · ".join(parts)}</div>'
+        cells = "".join(f"<div>{html.escape(k)}<b>{v}</b></div>" for k, v in nums)
+        cards.append(f'<div class="pl-drv"><div class="name">{driver_dot(color)}{html.escape(d.FullName)}'
+                     f'<span class="code">{html.escape(d.Driver)}</span></div><div class="nums">{cells}</div>{h2h}</div>')
+    st.html("".join(cards))

@@ -92,3 +92,20 @@ def test_about_page_links_to_featured_races():
     at = AppTest.from_function(about, default_timeout=60).run()
     assert not at.exception
     assert len(at.get("page_link")) == len(FEATURED)
+
+
+def test_teams_page():
+    def teams():
+        import streamlit as st
+
+        from pitlens.pitwall import teams_page, ui
+
+        ui.inject_css()
+        st.query_params["year"] = "2025"
+        st.query_params["team"] = "McLaren"
+        teams_page.render()
+
+    at = AppTest.from_function(teams, default_timeout=180).run()
+    assert not at.exception
+    text = page_text(at)
+    assert "McLaren" in text and "Lando Norris" in text and "Against their teammate" in text

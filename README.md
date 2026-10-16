@@ -83,6 +83,18 @@ falling away, with the cleaning rules written down and tested.
 - Sprint qualifying on sprint weekends. Deleted laps are left out (from race control's
   "TIME ... DELETED" messages when the data comes from OpenF1).
 
+**Teams** (a page in the pit wall)
+
+- A season team by team, from the saved races: constructors' points, wins, podiums, poles, both
+  cars in the points and retirements, and each driver's numbers, tied to a team race by race so
+  mid-season swaps land in the right place.
+- The teammate battle: who finished ahead and who out-qualified whom, and the median qualifying
+  gap in the last part both set a time in.
+- Every Grand Prix finish for both drivers, the constructors' table, and the pit crew's median
+  stationary time against every other team's.
+- Base, power unit, history and constructors' titles for each team on the 2025 and 2026 grids.
+  Links open a team directly: `/teams?year=2025&team=McLaren`.
+
 **`onboard`: fastest-lap telemetry comparison** (available now)
 
 - Any two drivers in any session, defaulting to the fastest driver and their teammate.
@@ -356,6 +368,9 @@ pitlens/
 │   └── weather.py     hourly rainfall (mm) at the circuit from Open-Meteo
 ├── checks.py          the `check` command: replayed finishes against the official results
 ├── snapshots.py       races saved ahead of time (`snapshot` command), so they open offline
+├── teams/
+│   ├── season.py      a season team by team: points, teammate battles, pit crews
+│   └── facts.py       base, power unit and history for each team
 ├── deploy.py          what a hosted copy switches off
 ├── htmlreport.py      self-contained HTML reports shared by the commands
 ├── plotstyle.py       one look for every plotly chart, light and dark
@@ -370,6 +385,7 @@ pitlens/
 │   ├── views.py       its views: tyres, pit stops, strategy, radio, race control
 │   ├── quali_page.py  the Qualifying page
 │   ├── about_page.py  the About page, with races worth opening first
+│   ├── teams_page.py  the Teams page
 │   ├── onboard_page.py  the Onboard page
 │   └── serve.py       the `pitwall` command
 └── cli.py             `pitlens <module>`

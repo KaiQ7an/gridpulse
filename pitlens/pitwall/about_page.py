@@ -28,7 +28,7 @@ def render() -> None:
                "the gaps, tyres, pit stops, strategy and team radio, with what was known at that lap and "
                "nothing after it.")
 
-    left, middle, right = st.columns(3, gap="large")
+    left, middle, teams, right = st.columns(4, gap="medium")
     with left, st.container(border=True, key="card-about-replay"):
         ui.label("Race replay")
         ui.note("Timing tower with places gained and lost, the race trace, tyre stints, every pit stop with "
@@ -38,6 +38,10 @@ def render() -> None:
         ui.label("Qualifying")
         ui.note("The knockout from Q1 to Q3, each driver's ideal lap from their best sectors, and where the "
                 "time went sector by sector.")
+    with teams, st.container(border=True, key="card-about-teams"):
+        ui.label("Teams")
+        ui.note("A season team by team: points, wins and poles, each driver's numbers, the teammate battle in "
+                "qualifying and races, and how quick the pit crew is against the rest.")
     with right, st.container(border=True, key="card-about-onboard"):
         ui.label("Onboard")
         ui.note("Two drivers' fastest laps side by side: speed, throttle, brake and gear along the lap, the gap "

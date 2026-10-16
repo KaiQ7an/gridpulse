@@ -8,7 +8,7 @@ import time
 import pandas as pd
 import streamlit as st
 
-from pitlens.pitwall import about_page, charts, onboard_page, quali_page, ui, views
+from pitlens.pitwall import about_page, charts, onboard_page, quali_page, teams_page, ui, views
 from pitlens.pitwall.data import FIRST_SEASON, RaceData, completed_races, lap_clock, load_race
 from pitlens.pitwall.events import fastest_lap_candidates, fastest_sectors, neutralised_banner, situation
 from pitlens.pitwall.timing import format_lap_time, neutralised_periods, timing_tower
@@ -355,6 +355,7 @@ def main() -> None:
     pages = [
         replay,
         st.Page(quali_page.render, title="Qualifying", icon=":material/timer:", url_path="qualifying"),
+        st.Page(teams_page.render, title="Teams", icon=":material/groups:", url_path="teams"),
         st.Page(onboard_page.render, title="Onboard", icon=":material/speed:", url_path="onboard"),
         st.Page(about_page.render, title="About", icon=":material/info:", url_path="about"),
     ]

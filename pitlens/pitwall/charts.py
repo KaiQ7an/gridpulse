@@ -406,3 +406,64 @@ def quali_evolution_chart(laps: pd.DataFrame, colors: dict[str, str], highlight:
         ticks = np.arange(np.floor(lo * 2) / 2, hi + 0.5, 0.5 if hi - lo < 4 else 1.0)
         fig.update_yaxes(title=None, autorange="reversed", tickvals=ticks, ticktext=[_minutes(t, 1) for t in ticks])
     return fig
+
+
+def team_results_chart(results: pd.DataFrame, rounds: pd.DataFrame, drivers: list[str], color: str) -> go.Figure:
+    """Each driver's Grand Prix finishing position round by round; a cross at the foot for a DNF."""
+    names = dict(zip(rounds["Round"], rounds["Location"]))
+    gp = results[(results["Kind"] == "R") & results["Driver"].isin(drivers)]
+    floor = int(results["Position"].max()) + 1 if results["Position"].notna().any() else 21
+    fig = go.Figure()
+    for i, driver in enumerate(drivers):
+        d = gp[gp["Driver"] == driver].sort_values("Round")
+        if d.empty:
+            continue
+        done = d[d["Classified"]]
+        out = d[~d["Classified"]]
+        dash = "solid" if i == 0 else "dash"
+        fig.add_trace(go.Scatter(
+            x=done["Round"], y=done["Position"], mode="lines+markers", name=driver,
+            line=dict(color=color, width=2, dash=dash), marker=dict(size=8, color=color,
+                                                                    symbol="circle" if i == 0 else "diamond"),
+            customdata=[names.get(r, "") for r in done["Round"]],
+            hovertemplate=f"<b>{driver}</b> %{{customdata}}<br>P%{{y:.0f}}<extra></extra>",
+        ))
+        if not out.empty:
+            fig.add_trace(go.Scatter(
+                x=out["Round"], y=[floor] * len(out), mode="markers", showlegend=False,
+                marker=dict(size=10, color=color, symbol="x"),
+                customdata=[[names.get(r, ""), s] for r, s in zip(out["Round"], out["Status"])],
+                hovertemplate=f"<b>{driver}</b> %{{customdata[0]}}<br>%{{customdata[1]}}<extra></extra>",
+            ))
+    fig.update_layout(height=320, margin=dict(l=10, r=10, t=30, b=10), hovermode="closest",
+                      legend=dict(orientation="h", yanchor="bottom", y=1.0, x=0))
+    plotstyle.apply(fig)
+    fig.update_yaxes(title="Finished", autorange=False, range=[floor + 0.7, 0.3], tickvals=[1, 3, 5, 10, 15, 20, floor],
+                     ticktext=["P1", "P3", "P5", "P10", "P15", "P20", "DNF"])
+    fig.update_xaxes(title=None, tickvals=rounds["Round"], ticktext=[f"R{r}" for r in rounds["Round"]],
+                     range=[0.5, rounds["Round"].max() + 0.5] if len(rounds) else None)
+    return fig
+
+
+def _team_bars(table: pd.DataFrame, value: str, colors: dict[str, str], team: str, fmt: str, title: str) -> go.Figure:
+    """Horizontal bars, first row of `table` on top, `team` in full colour and the rest faded."""
+    t = table.iloc[::-1]
+    fig = go.Figure(go.Bar(
+        x=t[value], y=t["Team"], orientation="h",
+        marker=dict(color=[colors.get(x, "#888888") for x in t["Team"]],
+                    opacity=[1.0 if x == team else 0.35 for x in t["Team"]]),
+        text=[fmt.format(v) for v in t[value]], textposition="outside", cliponaxis=False,
+        hovertemplate="<b>%{y}</b><br>" + fmt.replace("{:", "%{x:").replace("}", "}") + "<extra></extra>",
+        showlegend=False,
+    ))
+    return _bar_layout(fig, len(t), title, t[value])
+
+
+def constructors_chart(table: pd.DataFrame, colors: dict[str, str], team: str) -> go.Figure:
+    """Constructors' points so far, this team in full colour."""
+    return _team_bars(table, "Points", colors, team, "{:.0f}", "Points")
+
+
+def pit_crews_chart(table: pd.DataFrame, colors: dict[str, str], team: str) -> go.Figure:
+    """Every team's median stationary time this season, quickest on top, this team in full colour."""
+    return _team_bars(table.sort_values("Median"), "Median", colors, team, "{:.2f} s", "Median time stood still (s)")
