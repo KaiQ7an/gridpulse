@@ -2,7 +2,7 @@
 
 import argparse
 
-from pitlens import checks
+from pitlens import checks, snapshots
 from pitlens.onboard import report as onboard_report
 from pitlens.pitwall import serve as pitwall_serve
 from pitlens.radio import report as radio_report
@@ -39,6 +39,10 @@ def main(argv: list[str] | None = None) -> None:
     pitwindow = modules.add_parser("pitwindow", help="Backtest the pit window model against the stops teams made")
     pitwindow_backtest.add_arguments(pitwindow)
     pitwindow.set_defaults(run=pitwindow_backtest.run)
+
+    snapshot = modules.add_parser("snapshot", help="Save races and qualifying so the pit wall opens them offline")
+    snapshots.add_arguments(snapshot)
+    snapshot.set_defaults(run=snapshots.run)
 
     check = modules.add_parser("check", help="Check each replayed race's finish against the official result")
     checks.add_arguments(check)

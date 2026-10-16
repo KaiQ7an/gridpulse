@@ -11,6 +11,7 @@ import fastf1
 import numpy as np
 import pandas as pd
 
+from pitlens import snapshots
 from pitlens.session import TimingUnavailable, enable_cache, load_session, refused_recently, remember_refusal
 from pitlens.sources import openf1
 from pitlens.style import FALLBACK_TEAM_COLOR
@@ -36,7 +37,18 @@ class QualiData:
 
 
 def load_quali(year: int, round_number: int, kind: str = "Q") -> QualiData:
-    """A qualifying (kind "Q") or sprint qualifying ("SQ") session."""
+    """A qualifying (kind "Q") or sprint qualifying ("SQ") session, from a snapshot if there is one."""
+    saved = snapshots.load_quali(year, round_number, kind)
+    if saved is not None:
+        return saved
+    if snapshots.offline():
+        raise TimingUnavailable(f"No saved copy of {year} round {round_number} {SESSIONS[kind]}, and PitLens is "
+                                "running offline.")
+    return fetch_quali(year, round_number, kind)
+
+
+def fetch_quali(year: int, round_number: int, kind: str = "Q") -> QualiData:
+    """A qualifying session from the data sources (not a snapshot)."""
     key = f"{year}-{round_number}-{kind}"
     archive_error = TimingUnavailable(f"F1's live-timing archive refused {year} round {round_number} recently.")
     if not refused_recently(key):
@@ -150,7 +162,9 @@ def _from_openf1(year: int, round_number: int, kind: str) -> QualiData:
     results["Out"] = eliminated_in(results)
 
     raw = pd.DataFrame(openf1.get("laps", session_key=sk))
-    raw = raw[raw["lap_duration"].notna()] if not raw.empty else raw
+    if raw.empty or "lap_duration" not in raw:
+        raise openf1.OpenF1Error("OpenF1 has no laps for this session")
+    raw = raw[raw["lap_duration"].notna()]
     t0 = pd.Timestamp(session["date_start"])
     rc = pd.DataFrame(openf1.get("race_control", session_key=sk))
     deleted = set()

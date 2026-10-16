@@ -5,6 +5,7 @@ from dataclasses import dataclass
 import fastf1
 import pandas as pd
 
+from pitlens import snapshots
 from pitlens.pitwall.events import lap_status, race_events
 from pitlens.pitwall.timing import (
     classify_finish,
@@ -73,9 +74,15 @@ class RaceData:
 
 
 def completed_races(year: int) -> pd.DataFrame:
-    """Rounds of `year` whose race has already finished, latest last."""
+    """Rounds of `year` whose race has already finished, latest last (the saved ones when offline or
+    when the schedule can't be fetched)."""
+    if snapshots.offline():
+        return snapshots.races(year)
     enable_cache()
-    schedule = fastf1.get_event_schedule(year, include_testing=False)
+    try:
+        schedule = fastf1.get_event_schedule(year, include_testing=False)
+    except Exception:  # no network, or the schedule API is down: offer what's saved
+        return snapshots.races(year)
     race_start = pd.to_datetime(schedule["Session5DateUtc"], utc=True)
     done = schedule[race_start + pd.Timedelta(hours=3) < pd.Timestamp.now(tz="UTC")]
     return done[["RoundNumber", "EventName", "Location", "EventDate", "EventFormat"]].reset_index(drop=True)
@@ -172,8 +179,18 @@ def _openf1_parts(year: int, round_number: int, kind: str = "R") -> dict:
 
 
 def load_race(year: int, round_number: int, kind: str = "R") -> RaceData:
-    """One race (or, with kind="S", the sprint) from F1's archive, or from OpenF1 when the archive
-    won't serve it."""
+    """One race (or, with kind="S", the sprint): from a snapshot if there is one, else from F1's
+    archive, or from OpenF1 when the archive won't serve it."""
+    parts = snapshots.load_race(year, round_number, kind)
+    if parts is None and snapshots.offline():
+        raise TimingUnavailable(f"No saved copy of {year} round {round_number}, and PitLens is running offline.")
+    if parts is None:
+        parts = fetch_race_parts(year, round_number, kind)
+    return build_race(year, round_number, parts)
+
+
+def fetch_race_parts(year: int, round_number: int, kind: str = "R") -> dict:
+    """A race's parts from the data sources (not a snapshot)."""
     key = f"{year}-{round_number}-{kind}"
     archive_error = TimingUnavailable(f"F1's live-timing archive refused {year} round {round_number} recently.")
     parts = None
@@ -191,7 +208,17 @@ def load_race(year: int, round_number: int, kind: str = "R") -> RaceData:
         except openf1.OpenF1Error as exc:
             raise TimingUnavailable(f"{archive_error} OpenF1 couldn't provide it either: {exc}") from None
     parts["session_name"] = SESSIONS[kind]
-    return build_race(year, round_number, parts)
+    return parts
+
+
+def with_extras(year: int, parts: dict) -> dict:
+    """Fetch what building a race would otherwise fetch (map, pit loss, rainfall), for a snapshot."""
+    return {**parts, "track": _track(year, parts), "pit_loss_ref": _pit_loss_ref(year, parts),
+            "rain_mm": weather.hourly_rain(parts["location"], parts.get("race_utc"))}
+
+
+def _pit_loss_ref(year: int, parts: dict) -> dict | None:
+    return openf1.circuit_pit_loss(parts["circuit_key"], year) if parts.get("circuit_key") else None
 
 
 def build_race(year: int, round_number: int, parts: dict) -> RaceData:
@@ -230,7 +257,7 @@ def build_race(year: int, round_number: int, parts: dict) -> RaceData:
         stops=stops,
         battles=pit_battles(laps, stops),
         pit_loss=pit_loss(stops),
-        pit_loss_ref=openf1.circuit_pit_loss(parts["circuit_key"], year) if parts.get("circuit_key") else None,
+        pit_loss_ref=parts["pit_loss_ref"] if "pit_loss_ref" in parts else _pit_loss_ref(year, parts),
         radio=parts["radio"],
         events=race_events(laps, retired, total_laps, entrants, stops),
         lap_status=lap_status(laps),
@@ -241,8 +268,8 @@ def build_race(year: int, round_number: int, parts: dict) -> RaceData:
         finish_order=results["Abbreviation"].tolist(),
         retired=retired,
         entrants=entrants,
-        track=_track(year, parts),
-        rain_mm=weather.hourly_rain(parts["location"], parts.get("race_utc")),
+        track=parts["track"] if "track" in parts else _track(year, parts),
+        rain_mm=parts["rain_mm"] if "rain_mm" in parts else weather.hourly_rain(parts["location"], parts.get("race_utc")),
         coverage=lap_coverage(laps, results),
         start_utc=pd.Timestamp(parts["race_utc"]) if parts.get("race_utc") is not None else None,
     )
