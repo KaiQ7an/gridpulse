@@ -43,7 +43,7 @@ falling away, with the cleaning rules written down and tested.
   time (1×, 2× or 4×), drag the slider, or type a lap number to jump straight to it. A status strip shows the lap,
   leader, track status, fastest lap so far and the weather.
 - **Timing tower**: running order with a green ▲ or red ▼ for places gained or lost on the lap
-  (against the grid on lap 1), gap to the leader, interval (green when within a second), last
+  (against the starting grid on lap 1), gap to the leader, interval (green when within a second), last
   lap, tyre compound and age, stops, lapped cars and retirements, with a pit flag on the lap a car
   boxes and your focus drivers highlighted. Under a safety car, VSC or red flag a banner slides in
   above it with the number of laps run so far. During a replay rows

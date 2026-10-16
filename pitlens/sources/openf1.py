@@ -167,6 +167,24 @@ def in_laps(pits: pd.DataFrame, stints: pd.DataFrame) -> pd.Series:
     )
 
 
+def starting_grid(session: dict, session_name: str = "Race") -> dict[int, int]:
+    """Car number -> grid slot for a race or sprint, from the qualifying session that set it.
+
+    OpenF1 keeps the grid per meeting; a sprint weekend has two (Qualifying for the race, Sprint
+    Qualifying or the older Sprint Shootout for the sprint). Empty if OpenF1 has none.
+    """
+    try:
+        rows = pd.DataFrame(get("starting_grid", meeting_key=session["meeting_key"]))
+        names = {s.get("session_key"): s.get("session_name") for s in get("sessions", meeting_key=session["meeting_key"])}
+    except OpenF1Error:
+        return {}
+    if rows.empty or "session_key" not in rows:
+        return {}
+    wanted = ("Qualifying",) if session_name == "Race" else ("Sprint Qualifying", "Sprint Shootout")
+    rows = rows[rows["session_key"].map(names).isin(wanted)]
+    return {int(r.driver_number): int(r.position) for r in rows.itertuples() if pd.notna(r.position)}
+
+
 def _classification(result: pd.DataFrame) -> pd.DataFrame:
     """OpenF1 session_result rows as FastF1-style result columns: DriverNumber, Position, GapToLeader
     (seconds, lead-lap finishers), Laps and Status."""
@@ -341,7 +359,10 @@ def race_parts(year: int, race_date_utc, session_name: str = "Race") -> dict:
             "FullName": [f"{first.get(n, '')} {str(last.get(n, '')).title()}".strip() for n in result["driver_number"]],
             "LastName": [str(last.get(n, "")).title() for n in result["driver_number"]],
         }
-    ).join(_classification(result)).sort_values("Position", na_position="last").reset_index(drop=True)
+    ).join(_classification(result))
+    grid = starting_grid(session, session_name)
+    results["GridPosition"] = pd.to_numeric(results["DriverNumber"], errors="coerce").map(grid)
+    results = results.sort_values("Position", na_position="last").reset_index(drop=True)
 
     messages = pd.DataFrame(
         {

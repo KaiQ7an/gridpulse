@@ -94,3 +94,14 @@ def test_stops_from_stints_when_there_are_no_pit_records():
     pits = pits_from_stints(stints, laps)
     assert pits[["driver_number", "lap_number", "date"]].values.tolist() == [[1, 14, "2023-03-05T15:41:40+00:00"]]
     assert pits["lane_duration"].isna().all()
+
+
+def test_starting_grid_comes_from_the_matching_qualifying(monkeypatch):
+    from pitlens.sources import openf1
+
+    grids = [{"position": 1, "driver_number": 63, "session_key": 10}, {"position": 2, "driver_number": 1, "session_key": 10},
+             {"position": 1, "driver_number": 1, "session_key": 20}]
+    sessions = [{"session_key": 10, "session_name": "Qualifying"}, {"session_key": 20, "session_name": "Sprint Qualifying"}]
+    monkeypatch.setattr(openf1, "get", lambda endpoint, **p: grids if endpoint == "starting_grid" else sessions)
+    assert openf1.starting_grid({"meeting_key": 7}, "Race") == {63: 1, 1: 2}
+    assert openf1.starting_grid({"meeting_key": 7}, "Sprint") == {1: 1}
