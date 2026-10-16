@@ -2,6 +2,7 @@
 
 import argparse
 import os
+import socket
 import subprocess
 import sys
 import time
@@ -30,11 +31,26 @@ def _wait_until_up(url: str, timeout: float = 30) -> bool:
     return False
 
 
+def _in_use(port: int) -> bool:
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        return s.connect_ex(("127.0.0.1", port)) == 0
+
+
 def run(args: argparse.Namespace) -> None:
-    url = f"http://localhost:{args.port}"
+    port = args.port
+    if _in_use(port):
+        url = f"http://localhost:{port}"
+        if _wait_until_up(url, timeout=2):  # a Streamlit app answers there: most likely the pit wall already
+            print(f"The pit wall is already running: {url}")
+            if not args.no_browser:
+                webbrowser.open(url)
+            return
+        port = next(p for p in range(port + 1, port + 50) if not _in_use(p))
+        print(f"Port {args.port} is taken by another program, using {port}.", flush=True)
+    url = f"http://localhost:{port}"
     cmd = [
         sys.executable, "-m", "streamlit", "run", str(APP),
-        "--server.port", str(args.port),
+        "--server.port", str(port),
         "--server.address", "localhost",  # only this computer, not the whole network
         "--server.headless", "true",  # we open the browser ourselves, no first-run prompt
         "--browser.gatherUsageStats", "false",
@@ -43,8 +59,8 @@ def run(args: argparse.Namespace) -> None:
     # and put it on the path so the app can import pitlens however it was installed.
     env = {**os.environ, "PYTHONPATH": os.pathsep.join(filter(None, [str(PROJECT_ROOT), os.environ.get("PYTHONPATH")]))}
     proc = subprocess.Popen(cmd, cwd=PROJECT_ROOT, env=env)
-    print(f"PitLens pit wall: {url}  (Ctrl+C to stop)")
-    if not args.no_browser and _wait_until_up(url):
+    print(f"PitLens pit wall: {url}  (Ctrl+C to stop)", flush=True)
+    if _wait_until_up(url) and not args.no_browser:
         webbrowser.open(url)
     try:
         proc.wait()
