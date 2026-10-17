@@ -7,8 +7,8 @@
 Replay any race from the pit wall, lap by lap, and measure what the tyres were really doing:<br>
 the same questions a strategy desk asks on a Sunday afternoon.
 
-Current data coverage is **Formula 1**. GridPulse is the multi-series platform name; DTM,
-GT World Challenge and other championships are planned additions.
+Current data coverage is **Formula 1** and **DTM (2023–2026)**. GT World Challenge
+and other championships are planned additions.
 
 [![Tests](https://github.com/KaiQ7an/gridpulse/actions/workflows/test.yml/badge.svg)](https://github.com/KaiQ7an/gridpulse/actions/workflows/test.yml)
 ![Python](https://img.shields.io/badge/python-3.12%2B-3776AB?logo=python&logoColor=white)
@@ -34,6 +34,24 @@ their screens: who is where and on what tyre, how gaps are moving, and how fast 
 falling away, with the cleaning rules written down and tested.
 
 ## Features
+
+**DTM** (`/dtm`)
+
+- Use the **Racing series** switcher at the top left to move between Formula 1 and DTM.
+  Each championship has its own navigation and retains its selections when you switch away.
+- Official 2023–2026 driver, team and manufacturer standings, retaining published order,
+  race points and qualifying points. Interactive cumulative points charts with hover details
+  and selectable entries; manufacturer colours and distinct line patterns.
+- A clickable calendar opens each weekend's practice, qualifying groups, Race 1 and Race 2
+  classifications, with lap times, gaps, pit-stop counts and DNF/DNS/DSQ statuses.
+- Compare up to four drivers: points, wins, podiums and classified finishes through the season.
+  Share links retain the season, view, weekend, session and compared drivers. Export tables as CSV.
+- Official data from [dtm.com](https://www.dtm.com/en/results). The current season refreshes
+  every 30 minutes while in use; a refresh button checks any supported year. Bundled official
+  snapshots keep the section usable offline or during an upstream failure. The fetched time
+  and provisional status are shown. This section provides classifications, not telemetry replay.
+- Refresh a checked-in snapshot with `python -m pitlens.dtm.refresh --year 2026`.
+  See [DTM data coverage](docs/dtm-data.md) for adapter boundaries and verification.
 
 **`pitwall`: race-day dashboard** (available now)
 

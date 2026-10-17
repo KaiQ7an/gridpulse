@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "pitlens"
 version = "0.1.0"
-description = "GridPulse motorsport replay and analysis, currently powered by public F1 data"
+description = "GridPulse motorsport replay and analysis, with Formula 1 and DTM data"
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.12"
@@ -44,6 +44,7 @@ include = ["pitlens*"]
 "pitlens.pitwall.timeline" = ["index.html"]
 "pitlens.pitwall.corner_guide" = ["index.html", "guide.js"]
 "pitlens.season" = ["atlas.json", "corner_tours.json"]
+"pitlens.dtm" = ["snapshots/*.json"]
 
 [tool.ruff]
 line-length = 120

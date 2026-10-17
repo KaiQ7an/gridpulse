@@ -86,15 +86,15 @@ def test_about_page_links_to_featured_races():
         from pitlens.pitwall import about_page, ui
 
         ui.inject_css()
-        titles = [title for title, _ in about_page.WEEKEND + about_page.SEASON]
+        titles = [title for title, _ in about_page.WEEKEND + about_page.SEASON + about_page.DTM_GUIDE]
         about_page.pages = {t: st.Page(lambda: None, title=t, url_path=t.lower().replace(" ", "-")) for t in titles}
         about_page.render()
 
     at = AppTest.from_function(about, default_timeout=60).run()
     assert not at.exception
-    from pitlens.pitwall.about_page import SEASON, WEEKEND
+    from pitlens.pitwall.about_page import DTM_GUIDE, SEASON, WEEKEND
 
-    assert len(at.get("page_link")) == len(WEEKEND) + len(SEASON) + len(FEATURED)
+    assert len(at.get("page_link")) == len(WEEKEND) + len(SEASON) + len(DTM_GUIDE) + len(FEATURED)
 
 
 def test_teams_page():

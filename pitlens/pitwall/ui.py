@@ -319,7 +319,14 @@ def sidebar_brand(tagline: str) -> None:
     )
 
 
-def sidebar_footer() -> None:
+def sidebar_footer(series: str = "Formula 1") -> None:
+    if series == "DTM":
+        st.sidebar.html(
+            '<div class="pl-foot">Unofficial project. DTM classifications and standings from dtm.com. '
+            'Not associated with DTM, ADAC or any team.<br>'
+            '<a href="https://github.com/KaiQ7an/gridpulse" target="_blank" style="color:inherit">Source on GitHub</a></div>'
+        )
+        return
     st.sidebar.html(
         '<div class="pl-foot">Unofficial project. Timing data from the public F1 live-timing archive via FastF1, '
         "or from OpenF1 when the archive is unavailable. "

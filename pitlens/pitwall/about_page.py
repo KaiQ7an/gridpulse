@@ -37,24 +37,28 @@ SEASON = [
                  "race lap record, most wins and pole starts. Filter venues, compare tracks, explore each corner "
                  "with a lap tour and share a pinned corner. Saved races add year-by-year results and strategy."),
 ]
+DTM_GUIDE = [("DTM", "2023–2026 official driver, team and manufacturer standings, interactive points charts, "
+                     "race calendar, practice and qualifying classifications, both weekend races, "
+                     "driver comparisons and CSV exports.")]
 
 # Set by the app: its pages by title, so the cards and featured races can link to them.
 pages: dict = {}
 
 
 def render() -> None:
-    ui.sidebar_brand("A race engineer's view of F1 data")
-    ui.sidebar_footer()
+    ui.sidebar_brand("Motorsport data & analysis")
+    ui.sidebar_footer(st.session_state.get("racing_series", "Formula 1"))
     ui.header("Motorsport data & analysis", NAME, TAGLINE)
-    st.caption("Current coverage: Formula 1 from 2018. Other championships will be added over time.")
-    ui.insight("Pick a race, press Play, and the whole pit wall moves on a lap at a time: the timing tower, "
-               "the gaps, tyres, pit stops, strategy and team radio, with what was known at that lap and "
-               "nothing after it.")
+    st.caption("Current coverage: Formula 1 from 2018; DTM classifications and championships from 2023 to 2026.")
+    ui.insight("Choose your championship in Racing series at the top left. Formula 1 offers lap-by-lap replay, "
+               "telemetry and strategy; DTM brings official championship tables, both weekend races and driver comparisons.")
 
-    ui.label("A race weekend")
+    ui.label("Formula 1 · a race weekend")
     cards(WEEKEND)
-    ui.label("Across a season")
+    ui.label("Formula 1 · across a season")
     cards(SEASON)
+    ui.label("DTM · championship & race weekends")
+    cards(DTM_GUIDE)
 
     ui.label("Races worth a look")
     cols = st.columns(len(FEATURED), gap="small")

@@ -9,12 +9,13 @@ import pandas as pd
 import streamlit as st
 
 from pitlens import snapshots
-from pitlens.branding import CURRENT_SERIES, NAME
+from pitlens.branding import NAME
 from pitlens.pitwall import (
     about_page,
     charts,
     circuits_page,
     drivers_page,
+    dtm_page,
     onboard_page,
     quali_page,
     season_page,
@@ -448,20 +449,44 @@ def race_page() -> None:
 
 
 def main() -> None:
-    st.set_page_config(page_title=f"{NAME} · {CURRENT_SERIES}", page_icon="🏁", layout="wide")
+    st.set_page_config(page_title=f"{NAME} · Motorsport", page_icon="🏁", layout="wide")
     ui.inject_css()
+    ss = st.session_state
+    ss.setdefault("racing_series", "Formula 1")
+    f1_visibility = "visible" if ss.racing_series == "Formula 1" else "hidden"
+    dtm_visibility = "visible" if ss.racing_series == "DTM" else "hidden"
     pages = [
-        st.Page(race_page, title="Race replay", icon=":material/sports_score:", default=True),
-        st.Page(quali_page.render, title="Qualifying", icon=":material/timer:", url_path="qualifying"),
-        st.Page(onboard_page.render, title="Onboard", icon=":material/speed:", url_path="onboard"),
-        st.Page(season_page.render, title="Season", icon=":material/emoji_events:", url_path="season"),
-        st.Page(teams_page.render, title="Teams", icon=":material/groups:", url_path="teams"),
-        st.Page(drivers_page.render, title="Drivers", icon=":material/sports_motorsports:", url_path="drivers"),
-        st.Page(circuits_page.render, title="Circuits", icon=":material/route:", url_path="circuits"),
+        st.Page(race_page, title="Race replay", icon=":material/sports_score:", default=True, visibility=f1_visibility),
+        st.Page(quali_page.render, title="Qualifying", icon=":material/timer:", url_path="qualifying", visibility=f1_visibility),
+        st.Page(onboard_page.render, title="Onboard", icon=":material/speed:", url_path="onboard", visibility=f1_visibility),
+        st.Page(season_page.render, title="Season", icon=":material/emoji_events:", url_path="season", visibility=f1_visibility),
+        st.Page(teams_page.render, title="Teams", icon=":material/groups:", url_path="teams", visibility=f1_visibility),
+        st.Page(drivers_page.render, title="Drivers", icon=":material/sports_motorsports:", url_path="drivers", visibility=f1_visibility),
+        st.Page(circuits_page.render, title="Circuits", icon=":material/route:", url_path="circuits", visibility=f1_visibility),
+        st.Page(dtm_page.render, title="DTM", icon=":material/directions_car:", url_path="dtm", visibility=dtm_visibility),
         st.Page(about_page.render, title="About", icon=":material/info:", url_path="about"),
     ]
     about_page.pages = {page.title: page for page in pages}
-    st.navigation(pages, position="top").run()
+    current = st.navigation(pages, position="top")
+    if ss.pop("switch_racing_series", False):
+        target = "dtm" if ss.racing_series == "DTM" else ss.get("last_f1_page", "")
+        st.switch_page(next(page for page in pages if page.url_path == target))
+    if current.url_path != "about":
+        actual_series = "DTM" if current.url_path == "dtm" else "Formula 1"
+        if ss.racing_series != actual_series:
+            # A direct or cross-series page link also updates the switcher and visible menu.
+            ss.racing_series = actual_series
+            st.rerun()
+        if actual_series == "Formula 1":
+            ss.last_f1_page = current.url_path
+
+    def switch_series():
+        ss.switch_racing_series = True
+        ss.playing = False
+
+    st.sidebar.selectbox("Racing series", ["Formula 1", "DTM"], key="racing_series",
+                         on_change=switch_series, help="Switch championships. Each series keeps its own selections.")
+    current.run()
 
 
 if __name__ == "__main__":

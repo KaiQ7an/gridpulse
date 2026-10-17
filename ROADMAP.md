@@ -75,3 +75,12 @@ pace, tyres and strategy as the race unfolds. It is built in layers, each useful
       F1 TV subscription login (FastF1's `SignalRClient`); OpenF1 offers real-time data on a paid plan
 - [ ] Live tyre-degradation estimate and pit-window projection
 - [ ] Optional public deployment on Streamlit Community Cloud
+
+## 8. Multi-series: DTM (first release)
+
+- [x] Independent adapter for DTM's public classifications and official standings, 2023–2026
+- [x] Driver, team and manufacturer standings; interactive points progress and CSV export
+- [x] Clickable calendar with practice, grouped qualifying and both weekend races
+- [x] Driver comparisons, shareable selections and saved snapshots for offline use
+- [ ] Lap-by-lap DTM replay, once a reliable public timing source is available
+- [ ] GT World Challenge and other ADAC series adapters
