@@ -186,13 +186,28 @@ def championship(season: dict):
                                "Manufacturer": meta.get(r["key"], {}).get("manufacturer", "")} if category == "drivers" else {}),
                            "Race pts": r["race_points"], "Quali pts": r["qualifying_points"]}
                           for r in board])
-    left, right = st.columns([5, 7], gap="large")
-    with left, st.container(border=True):
-        ui.label(f"{category} · official order")
-        st.dataframe(table, hide_index=True, width="stretch", height=460,
-                     column_config={"Quali pts": st.column_config.NumberColumn(help="Published qualifying points, already included in Points.")})
+    with st.container(border=True):
+        ui.label(f"{season['year']} · {category} standings")
+        st.caption("Official classification · total points include race and qualifying points.")
+        name_label = {"drivers": "Driver", "teams": "Team", "manufacturers": "Manufacturer"}[category]
+        columns = ["Pos", "Name"] + (["Team", "Car model"] if category == "drivers" else [])
+        columns += ["Race pts", "Quali pts", "Points"]
+        styled = table.style.set_properties(subset=["Points"], **{"font-weight": "700"})
+        st.dataframe(styled, hide_index=True, width="stretch", row_height=46,
+                     height=max(200, min(1050, 46 * len(table) + 48)), column_order=columns,
+                     column_config={
+                         "Pos": st.column_config.NumberColumn("Pos", width="small", format="%d"),
+                         "Name": st.column_config.TextColumn(name_label, width="medium"),
+                         "Team": st.column_config.TextColumn("Team", width="large"),
+                         "Car model": st.column_config.TextColumn("Car model", width="large"),
+                         "Manufacturer": None,
+                         "Race pts": st.column_config.NumberColumn("Race", width="small", format="%g"),
+                         "Quali pts": st.column_config.NumberColumn("Qualifying", width="small", format="%g",
+                             help="Published qualifying points, already included in Total points."),
+                         "Points": st.column_config.NumberColumn("Total points", width="small", format="%g"),
+                     })
         st.download_button("Download standings", table.to_csv(index=False), f"dtm-{season['year']}-{category}.csv", "text/csv")
-    with right, st.container(border=True):
+    with st.container(border=True):
         ui.label("The points race")
         options = [r["key"] for r in board]
         names = {r["key"]: r["name"] + (f" · {meta[r['key']]['team']}"
