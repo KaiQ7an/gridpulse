@@ -1,10 +1,10 @@
 import pandas as pd
 
-from pitlens.sources.openf1 import track_status_by_lap
+from gridpulse.sources.openf1 import track_status_by_lap
 
 
 def test_deleted_laps_use_time_and_completion_and_respect_reinstatement():
-    from pitlens.sources.openf1 import deleted_lap_mask
+    from gridpulse.sources.openf1 import deleted_lap_mask
 
     laps = pd.DataFrame({"driver_number": [11, 11, 1, 1, 1], "lap_number": [12, 16, 14, 17, 19],
                          "lap_duration": [128.539, 73.334, 95.081, 94.718, 94.718],
@@ -21,8 +21,8 @@ def test_deleted_laps_use_time_and_completion_and_respect_reinstatement():
 
 
 def test_onboard_never_selects_a_deleted_fastest_lap(monkeypatch):
-    from pitlens.onboard.data import OpenF1Weekend
-    from pitlens.sources import openf1
+    from gridpulse.onboard.data import OpenF1Weekend
+    from gridpulse.sources import openf1
 
     weekend = OpenF1Weekend.__new__(OpenF1Weekend)
     weekend.session = {"session_key": 1}
@@ -80,7 +80,7 @@ def test_sector_yellows_until_cleared():
 
 
 def test_stints_on_the_same_tyres_are_merged():
-    from pitlens.sources.openf1 import merge_continuing_stints
+    from gridpulse.sources.openf1 import merge_continuing_stints
 
     stints = pd.DataFrame(
         [
@@ -100,7 +100,7 @@ def test_stints_on_the_same_tyres_are_merged():
 
 
 def test_stationary_times():
-    from pitlens.sources.openf1 import stationary_from
+    from gridpulse.sources.openf1 import stationary_from
 
     pits = pd.DataFrame({"driver_number": [44, 1, 16], "lap_number": [11, 12, 13], "stop_duration": [2.2, None, 3.1]})
     out = stationary_from(pits, {44: "HAM", 1: "VER", 16: "LEC"})
@@ -109,7 +109,7 @@ def test_stationary_times():
 
 
 def test_stop_lap_is_the_in_lap_where_the_pit_lane_crosses_the_line():
-    from pitlens.sources.openf1 import in_laps
+    from gridpulse.sources.openf1 import in_laps
 
     # Baku: boxes before the line, stop on lap 20, new tyres from lap 21.
     # Montreal: the stop falls on lap 2, which the new stint starts.
@@ -119,7 +119,7 @@ def test_stop_lap_is_the_in_lap_where_the_pit_lane_crosses_the_line():
 
 
 def test_a_stop_at_the_end_of_lap_1_is_not_a_pit_lane_start():
-    from pitlens.sources.openf1 import first_lap_stops, in_laps
+    from gridpulse.sources.openf1 import first_lap_stops, in_laps
 
     # Monaco 2025: Tsunoda pits at the end of lap 1 and leaves the pits on lap 2, but OpenF1 ends his
     # soft stint at lap 0 and starts the hards on lap 1. Gasly really does start from the pit lane.
@@ -135,7 +135,7 @@ def test_a_stop_at_the_end_of_lap_1_is_not_a_pit_lane_start():
 
 
 def test_a_stop_at_the_end_of_lap_1_without_pit_records():
-    from pitlens.sources.openf1 import first_lap_stops, pits_from_stints
+    from gridpulse.sources.openf1 import first_lap_stops, pits_from_stints
 
     # Monaco 2023, before OpenF1 had pit records: Perez's first stint reads lap 1 to 1 and the next
     # starts on lap 1 as well; he left the pits on lap 2.
@@ -149,7 +149,7 @@ def test_a_stop_at_the_end_of_lap_1_without_pit_records():
 
 
 def test_stops_from_stints_when_there_are_no_pit_records():
-    from pitlens.sources.openf1 import pits_from_stints
+    from gridpulse.sources.openf1 import pits_from_stints
 
     stints = pd.DataFrame({"driver_number": [1, 1, 44], "stint_number": [1, 2, 1], "lap_start": [1, 15, 1]})
     laps = pd.DataFrame({"driver_number": [1, 1], "lap_number": [14, 15],
@@ -160,7 +160,7 @@ def test_stops_from_stints_when_there_are_no_pit_records():
 
 
 def test_starting_grid_comes_from_the_matching_qualifying(monkeypatch):
-    from pitlens.sources import openf1
+    from gridpulse.sources import openf1
 
     grids = [{"position": 1, "driver_number": 63, "session_key": 10}, {"position": 2, "driver_number": 1, "session_key": 10},
              {"position": 1, "driver_number": 1, "session_key": 20}]

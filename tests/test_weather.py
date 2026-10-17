@@ -1,6 +1,6 @@
 import pandas as pd
 
-from pitlens.sources.weather import coordinates, rain_at
+from gridpulse.sources.weather import coordinates, rain_at
 
 
 def test_coordinates_ignore_case_and_cover_aliases():

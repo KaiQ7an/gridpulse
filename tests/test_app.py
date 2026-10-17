@@ -7,15 +7,15 @@ from pathlib import Path
 import pytest
 from streamlit.testing.v1 import AppTest
 
-from pitlens.pitwall.about_page import FEATURED
-from pitlens.pitwall.app import VIEWS
+from gridpulse.pitwall.about_page import FEATURED
+from gridpulse.pitwall.app import VIEWS
 
-APP = str(Path(__file__).resolve().parent.parent / "pitlens" / "pitwall" / "app.py")
+APP = str(Path(__file__).resolve().parent.parent / "gridpulse" / "pitwall" / "app.py")
 
 
 @pytest.fixture(autouse=True)
 def offline(monkeypatch):
-    monkeypatch.setenv("PITLENS_OFFLINE", "1")
+    monkeypatch.setenv("GRIDPULSE_OFFLINE", "1")
 
 
 def page_text(at: AppTest) -> str:
@@ -53,7 +53,7 @@ def test_sprint_replay():
 
 def test_qualifying_page():
     def qualifying():
-        from pitlens.pitwall import quali_page, ui
+        from gridpulse.pitwall import quali_page, ui
 
         ui.inject_css()
         quali_page.render()
@@ -67,7 +67,7 @@ def test_qualifying_page():
 
 def test_onboard_page_offline_says_why():
     def onboard():
-        from pitlens.pitwall import onboard_page, ui
+        from gridpulse.pitwall import onboard_page, ui
 
         ui.inject_css()
         onboard_page.render()
@@ -83,7 +83,7 @@ def test_about_page_links_to_featured_races():
     def about():
         import streamlit as st
 
-        from pitlens.pitwall import about_page, ui
+        from gridpulse.pitwall import about_page, ui
 
         ui.inject_css()
         titles = [title for title, _ in about_page.WEEKEND + about_page.SEASON + about_page.DTM_GUIDE]
@@ -92,7 +92,7 @@ def test_about_page_links_to_featured_races():
 
     at = AppTest.from_function(about, default_timeout=60).run()
     assert not at.exception
-    from pitlens.pitwall.about_page import DTM_GUIDE, SEASON, WEEKEND
+    from gridpulse.pitwall.about_page import DTM_GUIDE, SEASON, WEEKEND
 
     assert len(at.get("page_link")) == len(WEEKEND) + len(SEASON) + len(DTM_GUIDE) + len(FEATURED)
 
@@ -101,7 +101,7 @@ def test_teams_page():
     def teams():
         import streamlit as st
 
-        from pitlens.pitwall import teams_page, ui
+        from gridpulse.pitwall import teams_page, ui
 
         ui.inject_css()
         st.query_params["year"] = "2025"
@@ -116,7 +116,7 @@ def test_teams_page():
 
 def render_page(module: str, **link) -> AppTest:
     """Run one page on its own, opened from a link with `link` as its query parameters."""
-    at = AppTest.from_string(f"from pitlens.pitwall import ui, {module}\nui.inject_css()\n{module}.render()\n",
+    at = AppTest.from_string(f"from gridpulse.pitwall import ui, {module}\nui.inject_css()\n{module}.render()\n",
                              default_timeout=180)
     for key, value in link.items():
         at.query_params[key] = value
@@ -166,8 +166,8 @@ def test_replay_link_clamps_lap_and_filters_unknown_and_duplicate_drivers():
 
 
 def test_spoiler_free_mode_starts_at_lap_one_and_uses_starting_order():
-    from pitlens.pitwall.app import starting_order
-    from pitlens.pitwall.data import load_race
+    from gridpulse.pitwall.app import starting_order
+    from gridpulse.pitwall.data import load_race
 
     at = replay(year="2026", round="17", mode="replay")
     assert not at.exception
@@ -195,7 +195,7 @@ def test_driver_race_links_keep_the_selected_driver():
 
 def test_new_page_inherits_the_selected_season():
     at = AppTest.from_string(
-        "from pitlens.pitwall import drivers_page\ndrivers_page.render()", default_timeout=180)
+        "from gridpulse.pitwall import drivers_page\ndrivers_page.render()", default_timeout=180)
     at.session_state["selected_year"] = 2024
     at.run()
     assert not at.exception
@@ -205,7 +205,7 @@ def test_new_page_inherits_the_selected_season():
 def test_replay_survives_widget_cleanup_when_visiting_drivers():
     at = AppTest.from_string('''
 import streamlit as st
-from pitlens.pitwall import app, drivers_page
+from gridpulse.pitwall import app, drivers_page
 st.radio("Page", ["Race", "Drivers"], key="test_page", on_change=st.query_params.clear)
 if st.session_state.test_page == "Race":
     app.race_page()
@@ -230,8 +230,8 @@ else:
 def test_onboard_link_failure_does_not_override_recovery_selection(monkeypatch):
     import pandas as pd
 
-    from pitlens.pitwall import onboard_page
-    from pitlens.session import TimingUnavailable
+    from gridpulse.pitwall import onboard_page
+    from gridpulse.session import TimingUnavailable
 
     calls = []
     monkeypatch.setattr(onboard_page, "cached_races", lambda year: pd.DataFrame(
@@ -248,3 +248,14 @@ def test_onboard_link_failure_does_not_override_recovery_selection(monkeypatch):
     at.selectbox(key="ob_year").set_value(2024).run()
     assert not at.exception
     assert calls == [(2025, 1, "Q"), (2025, 1, "R"), (2025, 2, "R"), (2024, 2, "R")]
+
+
+def test_the_old_entry_point_still_starts_the_app():
+    """The hosted app was set up with pitlens/pitwall/app.py as its main file (see that file)."""
+    old = Path(__file__).resolve().parent.parent / "pitlens" / "pitwall" / "app.py"
+    at = AppTest.from_file(str(old), default_timeout=180)
+    at.query_params["year"] = "2026"
+    at.query_params["round"] = "15"
+    at.run()
+    assert not at.exception
+    assert "Azerbaijan Grand Prix" in page_text(at)

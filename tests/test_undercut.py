@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 
-from pitlens.undercut.analysis import pair_gap, pit_battles, pit_loss, pit_stops, rejoin_projection
+from gridpulse.undercut.analysis import pair_gap, pit_battles, pit_loss, pit_stops, rejoin_projection
 
 
 def make_car(driver, lap_times, offset=0.0, pit_in=None, status=None):
@@ -118,7 +118,7 @@ def test_stop_under_vsc_is_measured_against_cars_also_under_vsc():
 
 
 def test_pit_loss_now_starts_from_the_circuit_reference_and_switches_to_this_race():
-    from pitlens.undercut.analysis import pit_loss_now
+    from gridpulse.undercut.analysis import pit_loss_now
 
     ref = {"normal": 22.0, "vsc": 15.0, "sc": 11.0}
     none = pd.DataFrame(columns=["Loss", "Neutralised"])
@@ -162,7 +162,7 @@ def test_tyre_change_while_the_race_is_stopped_is_not_a_stop(undercut_race):
 
 
 def test_implausibly_short_pit_lane_times():
-    from pitlens.undercut.analysis import plausible_lane_times
+    from gridpulse.undercut.analysis import plausible_lane_times
 
     stops = pd.DataFrame({"LaneTime": [20.6, 20.9, 21.3, 15.1, 23.6, 2154.1]})
     assert plausible_lane_times(stops).tolist() == [True, True, True, False, True, False]
@@ -175,7 +175,7 @@ def test_rejoin_projection_with_no_timed_cars_is_an_empty_table():
 
 
 def test_long_stationary_times_are_not_ordinary_stops():
-    from pitlens.undercut.analysis import ordinary_stationary_times
+    from gridpulse.undercut.analysis import ordinary_stationary_times
 
     stops = pd.DataFrame({"Stationary": [2.3, 2.5, 2.8, 10.4, None, 16.9]})
     assert ordinary_stationary_times(stops).tolist() == [True, True, True, False, True, False]

@@ -3,7 +3,7 @@ requires = ["setuptools>=69"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "pitlens"
+name = "gridpulse"
 version = "0.1.0"
 description = "GridPulse motorsport replay and analysis, with Formula 1 and DTM data"
 readme = "README.md"
@@ -29,24 +29,24 @@ translate = ["ctranslate2>=4", "sentencepiece>=0.2"]
 claude = ["anthropic>=1.0"]
 
 [project.scripts]
-pitlens = "pitlens.cli:main"
+gridpulse = "gridpulse.cli:main"
 
 [project.urls]
 Homepage = "https://gridpulse-racing.streamlit.app/"
 Repository = "https://github.com/KaiQ7an/gridpulse"
 
 [tool.setuptools.packages.find]
-include = ["pitlens*"]
+include = ["gridpulse*"]
 
 [tool.setuptools.package-data]
-"pitlens" = ["milestones.json"]
-"pitlens.pitwall.tower" = ["index.html"]
-"pitlens.pitwall.atlas_map" = ["index.html", "bridge.html", "d3.min.js", "D3-LICENSE", "world.json"]
-"pitlens.pitwall.timeline" = ["index.html"]
-"pitlens.pitwall.corner_guide" = ["index.html", "guide.js"]
-"pitlens.season" = ["atlas.json", "corner_tours.json"]
-"pitlens.dtm" = ["snapshots/*.json", "cars.json", "teams.json", "badges.json", "circuits.json"]
-"pitlens.drivers" = ["f1.json", "dtm.json"]
+"gridpulse" = ["milestones.json"]
+"gridpulse.pitwall.tower" = ["index.html"]
+"gridpulse.pitwall.atlas_map" = ["index.html", "bridge.html", "d3.min.js", "D3-LICENSE", "world.json"]
+"gridpulse.pitwall.timeline" = ["index.html"]
+"gridpulse.pitwall.corner_guide" = ["index.html", "guide.js"]
+"gridpulse.season" = ["atlas.json", "corner_tours.json"]
+"gridpulse.dtm" = ["snapshots/*.json", "cars.json", "teams.json", "badges.json", "circuits.json"]
+"gridpulse.drivers" = ["f1.json", "dtm.json"]
 
 [tool.ruff]
 line-length = 120

@@ -1,7 +1,7 @@
 import pandas as pd
 
-from pitlens.pitwall.events import race_events, situation
-from pitlens.pitwall.timing import timing_tower
+from gridpulse.pitwall.events import race_events, situation
+from gridpulse.pitwall.timing import timing_tower
 
 
 def car(driver, lap_times, offset=0.0, pit_in=None, status=None):
@@ -50,7 +50,7 @@ def test_situation():
 
 
 def test_neutralised_banner_counts_laps_under_the_same_status():
-    from pitlens.pitwall.events import neutralised_banner
+    from gridpulse.pitwall.events import neutralised_banner
 
     status = pd.Series({1: "Green", 2: "Safety car", 3: "Safety car", 4: "Safety car", 5: "Green", 6: "VSC"})
     assert neutralised_banner(status, 1) is None
@@ -61,7 +61,7 @@ def test_neutralised_banner_counts_laps_under_the_same_status():
 
 
 def test_laps_into_a_red_flag_or_out_of_the_pits_cannot_be_fastest():
-    from pitlens.pitwall.events import fastest_lap_candidates
+    from gridpulse.pitwall.events import fastest_lap_candidates
 
     laps = pd.DataFrame(car("A", [80, 70, 79, 81, 40, 78, 75], pit_in=6, status={2: "5", 3: "14"}))
     laps["PitOutTime"] = [pd.to_timedelta(500, unit="s") if n == 7 else pd.NaT for n in laps["LapNumber"]]
@@ -80,7 +80,7 @@ def test_tower_lists_a_first_lap_retirement():
 
 
 def test_fastest_sectors():
-    from pitlens.pitwall.events import fastest_sectors
+    from gridpulse.pitwall.events import fastest_sectors
 
     laps = pd.DataFrame(car("A", [80, 80, 80]) + car("B", [80, 80, 80]))
     sectors = {("A", 2): (25.0, 30.0, 25.0), ("A", 3): (26.0, 29.0, 25.0), ("B", 2): (24.5, 30.5, 25.2),
@@ -103,7 +103,7 @@ def test_drive_through_is_not_reported_as_a_pit_stop():
 
 
 def test_penalty_after_the_flag_is_a_classification_note_not_a_pass():
-    from pitlens.pitwall.timing import classify_finish
+    from gridpulse.pitwall.timing import classify_finish
 
     laps = make_race()
     # C crosses the line third, behind B and A... but A is classified behind C after a penalty.
@@ -119,7 +119,7 @@ def test_penalty_after_the_flag_is_a_classification_note_not_a_pass():
 
 
 def test_disqualified_drivers_drop_to_the_bottom_marked_dsq():
-    from pitlens.pitwall.timing import classify_finish
+    from gridpulse.pitwall.timing import classify_finish
 
     results = pd.DataFrame({"Abbreviation": ["A", "C", "B", "D"], "Position": [1.0, 2.0, None, None],
                             "GapToLeader": [0.0, None, None, None],
@@ -154,7 +154,7 @@ def test_winner_alone_on_the_lead_lap():
 def test_places_gained_on_the_lap_and_against_the_grid():
     from types import SimpleNamespace
 
-    from pitlens.pitwall.app import places_gained
+    from gridpulse.pitwall.app import places_gained
 
     laps = make_race()
     race = SimpleNamespace(laps=laps, retired={"D"}, entrants=None, stops=None,

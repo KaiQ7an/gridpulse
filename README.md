@@ -62,7 +62,7 @@ falling away, with the cleaning rules written down and tested.
   every 30 minutes while in use; a refresh button checks any supported year. Bundled official
   snapshots keep the section usable offline or during an upstream failure. The fetched time
   and provisional status are shown. This section provides classifications, not telemetry replay.
-- Refresh a checked-in snapshot with `python -m pitlens.dtm.refresh --year 2026`.
+- Refresh a checked-in snapshot with `python -m gridpulse.dtm.refresh --year 2026`.
   See [DTM data coverage](docs/dtm-data.md) for adapter boundaries and verification.
 
 **`pitwall`: race-day dashboard** (available now)
@@ -246,14 +246,14 @@ python3 -m venv .venv
 Then, from the project folder:
 
 ```bash
-.venv/bin/python -m pitlens pitwall
+.venv/bin/python -m gridpulse pitwall
 ```
 
 The pit wall opens in your browser at <http://localhost:8501>. Press **Ctrl+C** in the terminal to
 stop it. The first load of each race downloads its timing data into `cache/` (gitignored), which
 takes up to a minute; after that it opens instantly.
 
-With the virtual environment activated (`source .venv/bin/activate`) the shorter `pitlens pitwall`
+With the virtual environment activated (`source .venv/bin/activate`) the shorter `gridpulse pitwall`
 works too.
 
 ### macOS with Homebrew
@@ -268,14 +268,14 @@ cd gridpulse
 "$(brew --prefix python@3.12)/bin/python3.12" -m venv .venv
 .venv/bin/python -m pip install --upgrade pip
 .venv/bin/python -m pip install -e .
-.venv/bin/python -m pitlens pitwall
+.venv/bin/python -m gridpulse pitwall
 ```
 
 The `brew --prefix` command locates Python on both Apple Silicon and Intel Macs. Homebrew installs
 the prerequisites; GridPulse is installed from this repository into `.venv`. There is no published
 GridPulse Homebrew formula or tap at present.
 
-On later runs, open a terminal in the `pitlens` folder and run `.venv/bin/python -m pitlens pitwall`.
+On later runs, open a terminal in the `gridpulse` folder and run `.venv/bin/python -m gridpulse pitwall`.
 To update, stop the server, run `git pull --ff-only` and `.venv/bin/python -m pip install -e .`, then
 start it again. Local source changes should be committed or stashed before pulling an update.
 
@@ -317,7 +317,7 @@ The server only listens on this computer (`localhost`).
 In the pit wall, open **Onboard** in the sidebar. From the command line:
 
 ```bash
-.venv/bin/python -m pitlens onboard --year 2025 --event Hungary --session Q --drivers LEC HAM --open
+.venv/bin/python -m gridpulse onboard --year 2025 --event Hungary --session Q --drivers LEC HAM --open
 ```
 
 | Option | Default | Meaning |
@@ -360,7 +360,7 @@ Barcelona Grand Prix Albon's crew turned him round in 2.1 s on lap 29.
 In the pit wall, pick **Strategy** above the charts. From the command line:
 
 ```bash
-.venv/bin/python -m pitlens undercut --year 2025 --event Hungary --open
+.venv/bin/python -m gridpulse undercut --year 2025 --event Hungary --open
 ```
 
 In the 2025 Hungarian Grand Prix the typical stop cost 20.2 s. Piastri pitted on lap 18, 2.5 s
@@ -389,13 +389,13 @@ so it's a guide rather than an answer. Backtested on every last green-flag stop 
 than splitting the remaining laps evenly between the two stints (57 to 62%). Run it yourself:
 
 ```bash
-.venv/bin/python -m pitlens pitwindow --year 2025
+.venv/bin/python -m gridpulse pitwindow --year 2025
 ```
 
 ## Team radio
 
 ```bash
-.venv/bin/python -m pitlens radio --year 2025 --event Hungary --drivers NOR PIA
+.venv/bin/python -m gridpulse radio --year 2025 --event Hungary --drivers NOR PIA
 ```
 
 Lists each clip with its lap and audio link. Add `--download` to save the mp3s into
@@ -405,7 +405,7 @@ To turn radio into text, install the optional speech model once, then add `--tra
 
 ```bash
 .venv/bin/pip install -e ".[transcribe]"
-.venv/bin/python -m pitlens radio --year 2026 --event Singapore --drivers VER --transcribe
+.venv/bin/python -m gridpulse radio --year 2026 --event Singapore --drivers VER --transcribe
 ```
 
 Transcription runs [faster-whisper](https://github.com/SYSTRAN/faster-whisper) (`small.en`) on your
@@ -417,10 +417,10 @@ Add `--translate` for a Chinese line under each transcript. Two engines:
 
 ```bash
 .venv/bin/pip install -e ".[translate]"   # offline: Argos Translate's model via CTranslate2 (~70 MB)
-.venv/bin/python -m pitlens radio --year 2026 --event Singapore --translate
+.venv/bin/python -m gridpulse radio --year 2026 --event Singapore --translate
 
 .venv/bin/pip install -e ".[claude]"      # Claude: needs ANTHROPIC_API_KEY, far better on noisy radio
-.venv/bin/python -m pitlens radio --year 2026 --event Singapore --translate --engine claude
+.venv/bin/python -m gridpulse radio --year 2026 --event Singapore --translate --engine claude
 ```
 
 Small offline models don't know F1, so before translating, the jargon is swapped for placeholders
@@ -432,7 +432,7 @@ the same glossary in its instructions. Translations are cached per engine next t
 ## Tyre analysis
 
 ```bash
-.venv/bin/python -m pitlens stints --year 2025 --event Hungary --open
+.venv/bin/python -m gridpulse stints --year 2025 --event Hungary --open
 ```
 
 | Option | Default | Meaning |
@@ -470,7 +470,7 @@ traffic, and the fuel effect is a rule of thumb. The roadmap lists how to tighte
 ## How it works
 
 ```
-pitlens/
+gridpulse/
 ├── session.py         load a FastF1 session with the local cache; remember archive refusals
 ├── style.py           compound colours and symbols shared by every chart
 ├── stints/
@@ -523,7 +523,7 @@ pitlens/
 │   ├── circuits_page.py the Circuits page
 │   ├── onboard_page.py  the Onboard page
 │   └── serve.py       the `pitwall` command
-└── cli.py             `pitlens <module>`
+└── cli.py             `gridpulse <module>`
 tests/                 unit tests on synthetic races, and every page rendered on the snapshots, run in CI
 snapshots/             saved races and qualifying sessions
 ```
@@ -561,11 +561,15 @@ Run the tests with `.venv/bin/pip install -r requirements-dev.txt && .venv/bin/p
 
 The public deployment is [GridPulse](https://gridpulse-racing.streamlit.app/). It follows this
 repository's `main` branch on Streamlit Community Cloud, uses Python 3.12, and updates when
-changes are pushed to GitHub. The display name is GridPulse; the package and CLI remain `pitlens`.
+changes are pushed to GitHub. The package and the command are called `gridpulse` as well.
 
 The pit wall runs on [Streamlit Community Cloud](https://share.streamlit.io) as it is: create an
-app from this repository with `pitlens/pitwall/app.py` as the main file and Python 3.12 in the
+app from this repository with `gridpulse/pitwall/app.py` as the main file and Python 3.12 in the
 advanced settings. No secrets are needed. It installs from `requirements.txt`.
+
+The current deployment dates from when the package was called `pitlens`, and Community Cloud can't
+change an app's main file, so it still points at `pitlens/pitwall/app.py`. That file only starts
+`gridpulse/pitwall/app.py`; once the app is redeployed with the new path it can be deleted.
 
 A fresh server has none of the cache a local copy builds up, so the recent races ship with the
 repository as snapshots in `snapshots/` (laps, results, race control, weather, radio and its
@@ -574,21 +578,21 @@ OpenF1 answering; anything else loads from the sources as usual. After a race we
 and commit:
 
 ```bash
-.venv/bin/python -m pitlens snapshot --year 2026 --round 18
+.venv/bin/python -m gridpulse snapshot --year 2026 --round 18
 ```
 
 Each saved race is loaded straight back and checked against the official result before it's
-kept. On a hosted copy (Streamlit Cloud, or `PITLENS_HOSTED=1`) the local speech and translation
+kept. On a hosted copy (Streamlit Cloud, or `GRIDPULSE_HOSTED=1`) the local speech and translation
 models and the Claude translation are switched off, so radio shows the transcripts saved with
 the snapshots, and Onboard takes its two laps from OpenF1 rather than downloading a whole
 session's telemetry.
 
 ## Troubleshooting
 
-**`No module named 'pitlens'` when running `pitlens ...`.** On macOS, if the project sits in an
+**`No module named 'gridpulse'` when running `gridpulse ...`.** On macOS, if the project sits in an
 iCloud-synced folder (Desktop or Documents with iCloud Drive), iCloud marks files inside `.venv`
 as hidden, and Python 3.13+ then skips the file that makes the editable install importable. Run
-`.venv/bin/python -m pitlens ...` from the project folder instead, which always works, or keep the
+`.venv/bin/python -m gridpulse ...` from the project folder instead, which always works, or keep the
 project outside iCloud Drive (for example `~/Developer`).
 
 **"F1's live-timing archive didn't return timing data".** FastF1 downloads each session from F1's
@@ -618,7 +622,7 @@ standings point for point. How, and what it caught along the way:
 [docs/data-validation.md](docs/data-validation.md). To run the check yourself:
 
 ```bash
-.venv/bin/python -m pitlens check --year 2025
+.venv/bin/python -m gridpulse check --year 2025
 ```
 
 Add `--sprint` for the sprints, or `--round 15` for one race.

@@ -9,7 +9,7 @@ from dataclasses import replace
 
 import pytest
 
-from pitlens.season.data import driver_standings, load_season, standings
+from gridpulse.season.data import driver_standings, load_season, standings
 
 OFFICIAL = {
     2023: ({"VER": 575, "PER": 285, "HAM": 234, "ALO": 206, "LEC": 206, "NOR": 205, "SAI": 200, "RUS": 175,
@@ -27,7 +27,7 @@ OFFICIAL = {
 
 @pytest.mark.parametrize("year", sorted(OFFICIAL))
 def test_final_standings_match_the_official_ones(year, monkeypatch):
-    monkeypatch.setenv("PITLENS_OFFLINE", "1")
+    monkeypatch.setenv("GRIDPULSE_OFFLINE", "1")
     season = load_season(year)
     assert not season.missing
     drivers, teams = OFFICIAL[year]
@@ -39,17 +39,17 @@ def test_final_standings_match_the_official_ones(year, monkeypatch):
 
 
 def test_poles_go_to_the_car_that_starts_first(monkeypatch):
-    monkeypatch.setenv("PITLENS_OFFLINE", "1")
+    monkeypatch.setenv("GRIDPULSE_OFFLINE", "1")
     poles = driver_standings(load_season(2023)).set_index("Driver")["Poles"]
     # Verstappen was fastest in qualifying 13 times, but a gearbox penalty in Belgium gave Leclerc pole.
     assert poles[poles > 0].to_dict() == {"VER": 12, "LEC": 5, "PER": 2, "SAI": 2, "HAM": 1}
 
 
 def test_partial_season_and_missing_sprint_do_not_claim_a_champion(monkeypatch):
-    from pitlens.pitwall.season_page import headline
-    from pitlens.season.data import round_winners
+    from gridpulse.pitwall.season_page import headline
+    from gridpulse.season.data import round_winners
 
-    monkeypatch.setenv("PITLENS_OFFLINE", "1")
+    monkeypatch.setenv("GRIDPULSE_OFFLINE", "1")
     season = load_season(2025)
     assert season.complete
     partial = replace(season, results=season.results[season.results["Round"] <= 19],
@@ -65,9 +65,9 @@ def test_partial_season_and_missing_sprint_do_not_claim_a_champion(monkeypatch):
 
 
 def test_missing_rounds_are_found_against_the_completed_calendar(monkeypatch):
-    from pitlens import snapshots
+    from gridpulse import snapshots
 
-    monkeypatch.setenv("PITLENS_OFFLINE", "1")
+    monkeypatch.setenv("GRIDPULSE_OFFLINE", "1")
     saved = snapshots.races(2025)
     monkeypatch.setattr(snapshots, "races", lambda year: saved[saved.RoundNumber != 24])
     season = load_season(2025)

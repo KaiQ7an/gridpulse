@@ -7,7 +7,7 @@ the whole pipeline is whether the replay's final lap agrees with the classificat
 
 ## The check
 
-For every race, `pitlens check` builds the timing tower at the flag and compares it with the
+For every race, `gridpulse check` builds the timing tower at the flag and compares it with the
 official classification:
 
 - the same winner;
@@ -15,9 +15,9 @@ official classification:
 - every classified finisher the same number of laps down.
 
 ```bash
-.venv/bin/python -m pitlens check --year 2025            # every Grand Prix of a season
-.venv/bin/python -m pitlens check --year 2025 --sprint   # the sprints
-.venv/bin/python -m pitlens check --year 2026 --round 15 # one race
+.venv/bin/python -m gridpulse check --year 2025            # every Grand Prix of a season
+.venv/bin/python -m gridpulse check --year 2025 --sprint   # the sprints
+.venv/bin/python -m gridpulse check --year 2026 --round 15 # one race
 ```
 
 | Season | Grands Prix | Sprints | Data |
@@ -137,7 +137,7 @@ fastest lap. That's a test in `tests/test_standings.py`, run on the saved races 
 
 ## The same idea for the pit window
 
-The pit window model is tested the same way, against what teams did. `pitlens pitwindow` takes
+The pit window model is tested the same way, against what teams did. `gridpulse pitwindow` takes
 every driver's last green-flag stop in a season. It fits the tyre model only on the laps up to
 ten laps before the stop, asks for the best lap to stop, and compares that with the lap the team
 chose. A rule of thumb that needs no model serves as the baseline: split the remaining laps

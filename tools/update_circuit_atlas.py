@@ -19,7 +19,7 @@ import requests
 
 ROOT = Path(__file__).resolve().parents[1]
 CACHE = ROOT / "cache" / "atlas"
-DATA = ROOT / "pitlens" / "season" / "atlas.json"
+DATA = ROOT / "gridpulse" / "season" / "atlas.json"
 REFRESH = False
 
 

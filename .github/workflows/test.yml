@@ -15,5 +15,5 @@ jobs:
           python-version: "3.12"
           cache: pip
       - run: pip install -e . -r requirements-dev.txt
-      - run: ruff check pitlens tests
+      - run: ruff check gridpulse tests
       - run: pytest -q

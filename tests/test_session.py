@@ -1,7 +1,7 @@
 import json
 import time
 
-from pitlens import session
+from gridpulse import session
 
 
 def test_archive_refusals_are_remembered_for_a_while(tmp_path, monkeypatch):
@@ -17,9 +17,9 @@ def test_archive_refusals_are_remembered_for_a_while(tmp_path, monkeypatch):
 
 
 def test_hosted_flag(monkeypatch):
-    from pitlens import deploy
+    from gridpulse import deploy
 
-    monkeypatch.setenv("PITLENS_HOSTED", "1")
+    monkeypatch.setenv("GRIDPULSE_HOSTED", "1")
     assert deploy.hosted()
-    monkeypatch.setenv("PITLENS_HOSTED", "0")
+    monkeypatch.setenv("GRIDPULSE_HOSTED", "0")
     assert not deploy.hosted()

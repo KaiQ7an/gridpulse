@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 
-from pitlens.season.data import (
+from gridpulse.season.data import (
     Season,
     driver_highlights,
     driver_season,

@@ -12,12 +12,12 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from pitlens import snapshots
-from pitlens.season.atlas import catalog
-from pitlens.season.circuits import circuits, saved_races
-from pitlens.season.tours import build_tour
-from pitlens.session import enable_cache
-from pitlens.sources import openf1
+from gridpulse import snapshots
+from gridpulse.season.atlas import catalog
+from gridpulse.season.circuits import circuits, saved_races
+from gridpulse.season.tours import build_tour
+from gridpulse.session import enable_cache
+from gridpulse.sources import openf1
 
 
 def main():
@@ -55,7 +55,7 @@ def main():
             print(f"Telemetry unavailable for {fact['slug']}: {exc}", flush=True)
         output[fact["slug"]] = build_tour(circuit, telemetry, track, reference, fact["slug"])
         print(f"{fact['slug']}: {len(output[fact['slug']]['corners'])} markers, telemetry={telemetry is not None}", flush=True)
-    path = Path(__file__).resolve().parents[1] / "pitlens" / "season" / "corner_tours.json"
+    path = Path(__file__).resolve().parents[1] / "gridpulse" / "season" / "corner_tours.json"
     path.write_text(json.dumps(output, ensure_ascii=False, separators=(",", ":"), allow_nan=False) + "\n")
 
 

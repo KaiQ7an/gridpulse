@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pitlens.undercut.window import (
+from gridpulse.undercut.window import (
     TYPICAL_OFFSET,
     TyreModel,
     best_plan,

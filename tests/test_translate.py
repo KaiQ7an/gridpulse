@@ -1,4 +1,4 @@
-from pitlens.radio.translate import only_placeholders, protect, restore, sentences, tidy
+from gridpulse.radio.translate import only_placeholders, protect, restore, sentences, tidy
 
 
 def test_protect_swaps_f1_terms_for_placeholders():

@@ -2,8 +2,8 @@
 
 from streamlit.testing.v1 import AppTest
 
-from pitlens.dtm import data, teams
-from pitlens.dtm.badges import catalog, marks
+from gridpulse.dtm import data, teams
+from gridpulse.dtm.badges import catalog, marks
 
 
 def test_every_published_manufacturer_is_covered_without_inventing_unknown_logos():
@@ -16,14 +16,14 @@ def test_every_published_manufacturer_is_covered_without_inventing_unknown_logos
 
 
 def test_driver_and_team_marks_follow_selected_season(monkeypatch):
-    monkeypatch.setenv("PITLENS_OFFLINE", "1")
+    monkeypatch.setenv("GRIDPULSE_OFFLINE", "1")
     for year, brand in [(2024, "Audi"), (2026, "Lamborghini")]:
         season = data.saved(year)
         active = teams.participants(season)["abt"]
         rows = data.race_rows(season)
         brands = list(rows[rows.team.isin(active["entries"])].manufacturer.unique())
         assert brands == [brand]
-        at = AppTest.from_string("from pitlens.pitwall.dtm_page import render\nrender()", default_timeout=60)
+        at = AppTest.from_string("from gridpulse.pitwall.dtm_page import render\nrender()", default_timeout=60)
         entry = next(e for e in data.entrants(season).values() if e["manufacturer"] == brand)
         at.query_params.update(year=str(year), view="drivers", driver=entry["driver"])
         at.run()
@@ -34,8 +34,8 @@ def test_driver_and_team_marks_follow_selected_season(monkeypatch):
 
 
 def test_driver_badge_links_to_same_season_team_and_keeps_official_source(monkeypatch):
-    monkeypatch.setenv("PITLENS_OFFLINE", "1")
-    at = AppTest.from_string("from pitlens.pitwall.dtm_page import render\nrender()", default_timeout=60)
+    monkeypatch.setenv("GRIDPULSE_OFFLINE", "1")
+    at = AppTest.from_string("from gridpulse.pitwall.dtm_page import render\nrender()", default_timeout=60)
     at.query_params.update(year="2024", view="drivers", driver="wittmann-marco")
     at.run()
     assert not at.exception
@@ -46,7 +46,7 @@ def test_driver_badge_links_to_same_season_team_and_keeps_official_source(monkey
 
 
 def test_logo_frames_stay_within_source_and_keep_original_colours():
-    from pitlens.pitwall.identity_badges import artwork
+    from gridpulse.pitwall.identity_badges import artwork
 
     for category in catalog().values():
         if not isinstance(category, dict):

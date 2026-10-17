@@ -3,7 +3,7 @@
 import pandas as pd
 from streamlit.testing.v1 import AppTest
 
-from pitlens.dtm import data, teams
+from gridpulse.dtm import data, teams
 
 
 def test_car_count_deduplicates_replacements_and_sponsor_aliases(monkeypatch):
@@ -18,10 +18,10 @@ def test_car_count_deduplicates_replacements_and_sponsor_aliases(monkeypatch):
 
 
 def test_manufacturer_standings_show_car_counts_instead_of_qualifying_column(monkeypatch):
-    monkeypatch.setenv("PITLENS_OFFLINE", "1")
+    monkeypatch.setenv("GRIDPULSE_OFFLINE", "1")
     season = data.saved(2026)
     assert len(teams.car_entries(season)) == 22
-    at = AppTest.from_string("from pitlens.pitwall.dtm_page import render\nrender()", default_timeout=60)
+    at = AppTest.from_string("from gridpulse.pitwall.dtm_page import render\nrender()", default_timeout=60)
     at.query_params.update(year="2026", view="championship")
     at.run().segmented_control[0].set_value("manufacturers").run()
     assert not at.exception

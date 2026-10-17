@@ -1,4 +1,4 @@
-# PitLens look: a pit-wall screen. Dense, quiet surfaces, F1 red only for
+# GridPulse look: a pit-wall screen. Dense, quiet surfaces, F1 red only for
 # what needs attention. Separate light and dark sections keep Streamlit
 # following the system theme; both are tuned, dark is the hero.
 

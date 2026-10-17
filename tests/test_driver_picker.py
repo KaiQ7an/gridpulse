@@ -15,7 +15,7 @@ def test_full_names_keep_driver_codes_and_teammate_selection():
         import pandas as pd
         import streamlit as st
 
-        from pitlens.pitwall.onboard_page import pick_drivers
+        from gridpulse.pitwall.onboard_page import pick_drivers
 
         drivers = pd.DataFrame(st.session_state.test_drivers)
         st.write(pick_drivers(drivers))
@@ -39,7 +39,7 @@ def test_full_names_keep_driver_codes_and_teammate_selection():
 def test_code_only_source_falls_back_to_verified_full_name():
     at = AppTest.from_string('''
 import pandas as pd
-from pitlens.pitwall.onboard_page import pick_drivers
+from gridpulse.pitwall.onboard_page import pick_drivers
 pick_drivers(pd.DataFrame({"Driver": ["LEC", "HAM"], "Team": ["Ferrari", "Ferrari"]}))
 ''')
     at.run()

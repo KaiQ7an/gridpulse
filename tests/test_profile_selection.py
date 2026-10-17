@@ -6,11 +6,11 @@ from streamlit.testing.v1 import AppTest
 
 @pytest.fixture(autouse=True)
 def offline(monkeypatch):
-    monkeypatch.setenv("PITLENS_OFFLINE", "1")
+    monkeypatch.setenv("GRIDPULSE_OFFLINE", "1")
 
 
 def page(**params):
-    at = AppTest.from_string("from pitlens.pitwall.dtm_page import render\nrender()", default_timeout=60)
+    at = AppTest.from_string("from gridpulse.pitwall.dtm_page import render\nrender()", default_timeout=60)
     at.query_params.update(params)
     return at.run()
 

@@ -5,14 +5,14 @@ from dataclasses import replace
 import pandas as pd
 import pytest
 
-from pitlens.pitwall.data import load_race
-from pitlens.undercut.analysis import pair_gap
-from pitlens.undercut.charts import battle_chart
+from gridpulse.pitwall.data import load_race
+from gridpulse.undercut.analysis import pair_gap
+from gridpulse.undercut.charts import battle_chart
 
 
 @pytest.fixture
 def race(monkeypatch):
-    monkeypatch.setenv("PITLENS_OFFLINE", "1")
+    monkeypatch.setenv("GRIDPULSE_OFFLINE", "1")
     return load_race(2026, 17)
 
 
@@ -48,7 +48,7 @@ def test_battle_chart_does_not_reveal_five_future_laps(race):
 
 
 def test_an_unknown_grid_does_not_fall_back_to_the_final_classification(race):
-    from pitlens.pitwall.app import starting_order
+    from gridpulse.pitwall.app import starting_order
 
     results = race.results.assign(GridPosition=float("nan"))
     unknown_grid = replace(race, results=results)

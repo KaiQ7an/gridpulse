@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 
-from pitlens.stints.pace import MIN_LAPS_FOR_FIT, add_fuel_corrected_time, stint_degradation
+from gridpulse.stints.pace import MIN_LAPS_FOR_FIT, add_fuel_corrected_time, stint_degradation
 
 
 def make_stint(driver="AAA", stint=1, start_lap=2, n=10, base=80.0, deg=0.1, compound="MEDIUM"):

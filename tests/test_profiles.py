@@ -6,21 +6,21 @@ from pathlib import Path
 import pytest
 from streamlit.testing.v1 import AppTest
 
-from pitlens.drivers.profiles import birth_date, catalog, profile, public_url
-from pitlens.dtm import data, teams
-from pitlens.dtm.cars import model
-from pitlens.dtm.cars import profile as car_profile
-from pitlens.season.data import load_season, seasons_saved
-from pitlens.season.facts import facts
+from gridpulse.drivers.profiles import birth_date, catalog, profile, public_url
+from gridpulse.dtm import data, teams
+from gridpulse.dtm.cars import model
+from gridpulse.dtm.cars import profile as car_profile
+from gridpulse.season.data import load_season, seasons_saved
+from gridpulse.season.facts import facts
 
 
 @pytest.fixture(autouse=True)
 def offline(monkeypatch):
-    monkeypatch.setenv("PITLENS_OFFLINE", "1")
+    monkeypatch.setenv("GRIDPULSE_OFFLINE", "1")
 
 
 def page(module, **params):
-    at = AppTest.from_string(f"from pitlens.pitwall.{module} import render\nrender()", default_timeout=60)
+    at = AppTest.from_string(f"from gridpulse.pitwall.{module} import render\nrender()", default_timeout=60)
     at.query_params.update(params)
     return at.run()
 
@@ -123,7 +123,7 @@ def test_f1_team_history_has_era_specific_honours_and_no_future_teams():
 
 
 def test_empty_optional_dtm_widget_state_recovers():
-    at = AppTest.from_string("from pitlens.pitwall.dtm_page import render\nrender()", default_timeout=60)
+    at = AppTest.from_string("from gridpulse.pitwall.dtm_page import render\nrender()", default_timeout=60)
     at.session_state["dtm_category"] = None
     at.session_state["dtm_view"] = None
     at.session_state["dtm_year"] = None
@@ -157,14 +157,14 @@ def test_f1_introduction_retains_selected_historical_team_and_labels_current_por
 
 def test_new_reference_data_is_declared_as_package_data():
     root = Path(__file__).resolve().parent.parent
-    for file in ("pitlens/milestones.json", "pitlens/dtm/cars.json", "pitlens/dtm/teams.json", "pitlens/drivers/f1.json", "pitlens/drivers/dtm.json"):
+    for file in ("gridpulse/milestones.json", "gridpulse/dtm/cars.json", "gridpulse/dtm/teams.json", "gridpulse/drivers/f1.json", "gridpulse/drivers/dtm.json"):
         assert json.loads((root / file).read_text())
     config = (root / "pyproject.toml").read_text()
-    assert '"pitlens.drivers" = ["f1.json", "dtm.json"]' in config
+    assert '"gridpulse.drivers" = ["f1.json", "dtm.json"]' in config
 
 
 def test_career_milestones_are_not_limited_to_saved_seasons_or_inherited_identities():
-    from pitlens import milestones
+    from gridpulse import milestones
 
     def record(series, kind, key, field, year=2026):
         status, result = milestones.milestone(series, kind, key, field, year)
@@ -185,7 +185,7 @@ def test_career_milestones_are_not_limited_to_saved_seasons_or_inherited_identit
 
 
 def test_dtm_milestones_count_real_awards_and_do_not_claim_partial_archive_firsts():
-    from pitlens import milestones
+    from gridpulse import milestones
 
     status, points = milestones.milestone("dtm", "drivers", "bortolotti-mirko", "first_points", 2026)
     assert status == "achieved" and points["year"] == 2022  # 2021 guest podium scored zero

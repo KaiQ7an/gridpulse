@@ -8,17 +8,17 @@ import pytest
 import requests
 from streamlit.testing.v1 import AppTest
 
-from pitlens.dtm import data
-from pitlens.pitwall import dtm_page
+from gridpulse.dtm import data
+from gridpulse.pitwall import dtm_page
 
 
 @pytest.fixture(autouse=True)
 def offline(monkeypatch):
-    monkeypatch.setenv("PITLENS_OFFLINE", "1")
+    monkeypatch.setenv("GRIDPULSE_OFFLINE", "1")
 
 
 def page(**params):
-    at = AppTest.from_string("from pitlens.pitwall.dtm_page import render\nrender()", default_timeout=30)
+    at = AppTest.from_string("from gridpulse.pitwall.dtm_page import render\nrender()", default_timeout=30)
     at.query_params.update(params)
     return at.run()
 
@@ -137,7 +137,7 @@ def test_bad_links_and_season_changes_do_not_trap_the_pickers():
 
 
 def test_f1_spoiler_free_replay_survives_dtm_and_dtm_selection_survives_f1():
-    app = Path(__file__).resolve().parent.parent / "pitlens" / "pitwall" / "app.py"
+    app = Path(__file__).resolve().parent.parent / "gridpulse" / "pitwall" / "app.py"
     at = AppTest.from_file(str(app), default_timeout=90)
     at.query_params.update(year="2025", round="4", lap="23", drivers="HAM,LEC", view="Tyres", mode="replay")
     at.run()

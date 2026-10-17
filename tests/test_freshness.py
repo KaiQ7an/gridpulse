@@ -2,7 +2,7 @@
 
 import pytest
 
-from pitlens.pitwall.freshness import LOADED, commit, forget_stale_modules
+from gridpulse.pitwall.freshness import LOADED, commit, forget_stale_modules
 
 OLD, NEW = "a" * 40, "b" * 40
 
@@ -42,8 +42,8 @@ def test_commit_in_a_worktree(tmp_path):
 @pytest.fixture
 def loaded(monkeypatch):
     monkeypatch.delenv(LOADED, raising=False)
-    return {"pitlens": 1, "pitlens.pitwall": 1, "pitlens.pitwall.freshness": 1, "pitlens.pitwall.ui": 1,
-            "pitlens.season.data": 1, "pandas": 1, "pitlensish": 1}
+    return {"gridpulse": 1, "gridpulse.pitwall": 1, "gridpulse.pitwall.freshness": 1, "gridpulse.pitwall.ui": 1,
+            "gridpulse.season.data": 1, "pandas": 1, "gridpulseish": 1}
 
 
 def forget(root, modules, hosted=False):
@@ -53,25 +53,25 @@ def forget(root, modules, hosted=False):
     return did
 
 
-def test_new_commit_forgets_every_pitlens_module_and_the_caches(tmp_path, loaded):
+def test_new_commit_forgets_every_gridpulse_module_and_the_caches(tmp_path, loaded):
     root = checkout(tmp_path, OLD)
     assert not forget(root, loaded)  # first run: the modules were loaded at this commit
     assert not forget(root, loaded)  # every later run at the same commit
     checkout(tmp_path, NEW)  # Community Cloud pulls a new commit into the running server
     assert forget(root, loaded)
-    assert sorted(loaded) == ["pandas", "pitlensish"]
+    assert sorted(loaded) == ["gridpulseish", "pandas"]
     assert not forget(root, loaded)
 
 
 def test_on_a_server_modules_from_before_this_check_are_forgotten(tmp_path, loaded):
     root = checkout(tmp_path, NEW)
-    assert forget(root, loaded, hosted=True)  # pitlens.pitwall.ui was already loaded: unknown commit
-    assert sorted(loaded) == ["pandas", "pitlensish"]
+    assert forget(root, loaded, hosted=True)  # gridpulse.pitwall.ui was already loaded: unknown commit
+    assert sorted(loaded) == ["gridpulseish", "pandas"]
 
 
 def test_a_fresh_server_keeps_what_this_check_just_imported(tmp_path, monkeypatch):
     monkeypatch.delenv(LOADED, raising=False)
-    fresh = {"pitlens": 1, "pitlens.pitwall": 1, "pitlens.pitwall.freshness": 1}
+    fresh = {"gridpulse": 1, "gridpulse.pitwall": 1, "gridpulse.pitwall.freshness": 1}
     assert not forget(checkout(tmp_path, NEW), fresh, hosted=True)
     assert len(fresh) == 3
 

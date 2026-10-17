@@ -5,17 +5,17 @@ from copy import deepcopy
 import pytest
 from streamlit.testing.v1 import AppTest
 
-from pitlens.dtm import data
-from pitlens.pitwall.weekend_overview import sections, top_three
+from gridpulse.dtm import data
+from gridpulse.pitwall.weekend_overview import sections, top_three
 
 
 @pytest.fixture(autouse=True)
 def offline(monkeypatch):
-    monkeypatch.setenv("PITLENS_OFFLINE", "1")
+    monkeypatch.setenv("GRIDPULSE_OFFLINE", "1")
 
 
 def page(year, event):
-    at = AppTest.from_string("from pitlens.pitwall.dtm_page import render\nrender()", default_timeout=60)
+    at = AppTest.from_string("from gridpulse.pitwall.dtm_page import render\nrender()", default_timeout=60)
     at.query_params.update(year=str(year), view="weekend", event=str(event), session="race-2")
     return at.run()
 

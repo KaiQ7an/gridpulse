@@ -3,8 +3,8 @@ from types import SimpleNamespace
 import pandas as pd
 import pytest
 
-from pitlens.pitwall import data
-from pitlens.session import ResultsUnavailable
+from gridpulse.pitwall import data
+from gridpulse.session import ResultsUnavailable
 
 
 def session_with_empty_classification():

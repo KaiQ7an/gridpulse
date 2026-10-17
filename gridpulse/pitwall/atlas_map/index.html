@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <script src="./d3.min.js"></script>
+  <style>
+    :root { color-scheme: dark; --red:#ff302b; --ink:#f3f4f7; --muted:#9299a5; }
+    * { box-sizing:border-box }
+    body { margin:0; background:transparent; font-family:Arial,Helvetica,sans-serif; color:var(--ink) }
+    #stage { position:relative; overflow:hidden; border:1px solid #252c36; border-radius:14px;
+      background:radial-gradient(ellipse at 68% 52%,#15202c 0,#0d131b 46%,#0a0e14 80%); }
+    #stage::after { content:""; pointer-events:none; position:absolute; inset:0; opacity:.12;
+      background:repeating-linear-gradient(0deg,transparent 0,transparent 3px,#000 4px); }
+    svg { display:block; width:100%; height:100%; touch-action:pan-y }
+    .intro { position:absolute; pointer-events:none; top:47%; left:5%; transform:translateY(-50%); z-index:2; max-width:31% }
+    .eyebrow { font:10px ui-monospace,monospace; text-transform:uppercase; letter-spacing:2.5px; color:#ff524d }
+    h1 { font-size:clamp(27px,4.5vw,65px); font-weight:900; line-height:.99; letter-spacing:-2px; margin:18px 0 20px }
+    .intro p { font-size:13px; line-height:1.7; color:#a0a9b7; max-width:250px; margin:0 }
+    .intro .count { margin-top:30px; font:12px ui-monospace,monospace; color:#e4e9f0 }
+    .count strong { color:#ff403b; font-size:26px; margin-right:7px }
+    .corner { position:absolute; z-index:2; font:9px ui-monospace,monospace; letter-spacing:1.3px; color:#828e9d; pointer-events:none }
+    .top { left:24px; top:20px; color:#b1bccb } .bottom { left:24px; bottom:18px; max-width:65% }
+    .controls { display:flex; position:absolute; right:18px; bottom:15px; gap:5px; z-index:4 }
+    .controls button { color:#dbe2ed; background:#151d28; border:1px solid #344050; border-radius:5px; min-width:32px;
+      height:30px; cursor:pointer; font:12px ui-monospace,monospace }
+    button:hover { background:#263447 } button:focus-visible,.pin:focus-visible,.region-target:focus-visible { outline:2px solid #fff; outline-offset:4px }
+    .pin { cursor:pointer } .pin .hit,.pin .label-hit { fill:transparent; stroke:none } .pin .dot { fill:#ff3933; stroke:#ffd4d1; stroke-width:1.5 }
+    .pin .ring { fill:none; stroke:#ff423c; stroke-width:1; opacity:.35 } .pin text { fill:#dde4ef; font:10px ui-monospace,monospace; pointer-events:none; paint-order:stroke; stroke:#0c121c; stroke-width:4px; stroke-linejoin:round }
+    .pin:hover .dot,.pin:focus .dot,.pin.active .dot { fill:#fff; stroke:#ff3933; stroke-width:3 }
+    .pin:hover text,.pin:focus text,.pin.active text { fill:#fff; font-weight:bold }
+    .pin.previewing .dot { fill:#fff;stroke:#ff3933;stroke-width:3 }
+    .pin.previewing .ring { r:13;opacity:.9;stroke-width:2;filter:drop-shadow(0 0 5px #ff4d48) }
+    .land.highlight { fill:#435d79!important;stroke:#d88683!important;stroke-opacity:.95!important }
+    #preview { display:none;pointer-events:auto;max-width:30%;width:310px }
+    #preview h2 { font-size:31px;letter-spacing:-1px;margin:13px 0 8px;line-height:1.05 }
+    #preview .name { font-size:11px;color:#aeb8c7;line-height:1.5;margin-bottom:20px }
+    .preview-grid { display:grid;grid-template-columns:1fr 1fr;gap:14px;border-top:1px solid #3b485a;padding-top:16px }
+    .preview-grid small { color:#8391a4;font:9px ui-monospace,monospace;letter-spacing:1px;display:block;margin-bottom:6px }
+    .preview-grid strong { font-size:19px;letter-spacing:-.5px }
+    #preview .record { margin-top:20px;line-height:1.6;color:#c1ccda;font-size:11px }
+    #preview .record b { color:#bc96ff;font-size:18px;display:block }
+    #preview-open { margin-top:18px;border:1px solid #b63c37;color:#ffd8d5;background:#4d2025;padding:9px 14px;border-radius:5px;font-size:11px }
+    #preview-close { position:absolute;top:-6px;right:0;color:#9caabc;background:none;border:0;font-size:20px;cursor:pointer }
+    .region-target { cursor:pointer } .region-target rect { fill:#101b29; fill-opacity:.88; stroke:#4b6075; rx:5 }
+    .region-target:hover rect,.region-target:focus rect { fill:#321d25; stroke:#ff413b }
+    .region-target text { fill:#d7e0ec; font:10px ui-monospace,monospace; letter-spacing:1px }
+    #tooltip { position:absolute; z-index:5; display:none; padding:13px 16px; background:#101924; border:1px solid #506075;
+      border-left:3px solid #ff3c35; border-radius:5px; pointer-events:none; max-width:270px; box-shadow:0 10px 35px #0008 }
+    #tooltip b { display:block; font-size:15px; margin-bottom:5px } #tooltip span { color:#a9b6c6; font-size:11px }
+    #tooltip small { display:block; margin-top:8px; font:9px ui-monospace,monospace; color:#ff756f; letter-spacing:1px }
+    .compact .intro,.compact #preview { display:none!important } .compact .bottom { font-size:8px } .compact .top { display:none }
+    .error { padding:30px; color:#acb8c8 }
+    @media(max-width:650px) { .intro { top:24%; left:6%; max-width:60% } .intro h1 { font-size:32px; letter-spacing:-1px; margin:11px 0 }
+      .intro p,.intro .count { display:none } .corner { font-size:8px } .bottom { max-width:62%; line-height:1.6 }
+      .pin text { font-size:9px } }
+    @media(max-width:650px) { #preview { top:12%;left:6%;transform:none;max-width:88%;width:88%;padding:12px;background:#0e1725ee;border:1px solid #3c5068;border-radius:7px;z-index:4 }
+      #preview h2 { font-size:20px;margin:6px 0 }#preview .name{margin:0}.preview-grid{gap:12px;margin-top:8px;padding-top:8px;grid-template-columns:repeat(4,1fr)}
+      #preview .record{display:none}#preview-open{margin-top:9px;padding:6px 10px}#preview-close{top:4px;right:5px} }
+    @media(prefers-reduced-motion:reduce) { * { scroll-behavior:auto!important } }
+  </style>
+</head>
+<body>
+<div id="stage">
+  <div class="corner top">GRIDPULSE / CIRCUIT ATLAS <span style="color:#ff3b35">●</span></div>
+  <div class="intro"><div class="eyebrow" id="kicker">ONE SPORT. EVERY CORNER.</div><h1 id="headline">RACING.<br>WORLDWIDE.</h1>
+    <p id="description">Follow the racing world. Choose a region or a circuit to explore its story.</p>
+    <div class="count"><strong id="count"></strong><span>CIRCUITS TO EXPLORE</span></div></div>
+  <aside id="preview" class="intro" aria-label="Circuit preview" aria-live="polite">
+    <button id="preview-close" aria-label="Close circuit preview">×</button>
+    <div class="eyebrow" id="preview-country"></div><h2 id="preview-city"></h2><div class="name" id="preview-name"></div>
+    <div class="preview-grid"><div><small>LENGTH</small><strong id="preview-length"></strong></div><div><small id="preview-laps-label">LAPS</small><strong id="preview-laps"></strong></div>
+      <div><small id="preview-first-label">FIRST GP</small><strong id="preview-first"></strong></div><div><small id="preview-races-label">GRANDS PRIX</small><strong id="preview-races"></strong></div></div>
+    <div class="record"><b id="preview-record"></b><span id="preview-holder"></span></div>
+    <button id="preview-open">OPEN CIRCUIT FACTS →</button>
+  </aside>
+  <svg id="map" role="img" aria-label="Interactive world circuit map"></svg>
+  <div class="corner bottom" id="hint">DRAG TO ROTATE · SELECT A REGION OR A RED CIRCUIT MARKER</div>
+  <div class="controls"><button id="out" aria-label="Zoom out">−</button><button id="in" aria-label="Zoom in">+</button>
+    <button id="motion" aria-label="Pause globe rotation">Ⅱ</button><button id="reset" aria-label="Reset map view">↺</button></div>
+  <div id="tooltip"></div>
+</div>
+<script>
+  const stage=document.querySelector('#stage'),svg=d3.select('#map'),tooltip=document.querySelector('#tooltip');
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let args=null,world=null,projection=null,path=null,width=1000,height=540,zoom=1,rotation=[-20,-20],paused=reduced;
+  let lastTime=0,activeDrag=false,lastSignature='',seq=0;
+  let activeSlug=null,clearTimer=null,flyTimer=null;
+  const send=(type,payload={})=>parent.postMessage({isStreamlitMessage:true,type,...payload},'*');
+  const choose=(kind,value)=>{ paused=true;send('streamlit:setComponentValue',{value:{kind,value,id:Date.now()+':'+(++seq)},dataType:'json'}) };
+  function announceHeight(){send('streamlit:setFrameHeight',{height})}
+  function showTip(event,c){
+    if(activeSlug!==c.slug)activate(c,false);
+    clearTimeout(clearTimer);
+    tooltip.replaceChildren();const b=document.createElement('b'),s=document.createElement('span'),small=document.createElement('small');
+    b.textContent=c.city;s.textContent=`${c.length_km.toFixed(3)} km · ${c.record?.time||'—'} ${args.series==='DTM'?'covered race lap':'race record'}`;small.textContent='CLICK TO OPEN CIRCUIT FACTS →';
+    tooltip.append(b,s,small);tooltip.style.display='block';
+    const rect=stage.getBoundingClientRect(),x=event.clientX-rect.left,y=event.clientY-rect.top;
+    tooltip.style.left=Math.max(8,Math.min(x+15,width-280))+'px';tooltip.style.top=Math.max(8,Math.min(y+12,height-110))+'px';
+  }
+  const hideTip=()=>tooltip.style.display='none';
+  function activate(c,fly){
+    clearTimeout(clearTimer);activeSlug=c.slug;
+    for(const [id,text] of Object.entries({'preview-country':c.country,'preview-city':c.city,'preview-name':c.name,
+      'preview-length':c.length_km.toFixed(3)+' km','preview-laps':c.preview?.races??c.laps,'preview-first':c.opened??c.first_gp,'preview-races':c.preview?.coverage??c.history?.races??'—',
+      'preview-record':c.record?.time||'Record not published','preview-holder':`${c.record?.driver||''} · ${c.record?.year||''}`})) document.getElementById(id).textContent=text;
+    document.querySelector('#preview').style.display='block';document.querySelector('.intro:not(#preview)').style.visibility='hidden';
+    parent.postMessage({type:'gridpulse:atlas-preview',slug:c.slug},location.origin);
+    if(fly&&args.region==='world'){
+      flyTimer?.stop();const start=[...rotation],target=[-c.lon,-c.lat],delta=((target[0]-start[0]+540)%360)-180;
+      if(reduced){rotation=target;draw()}else{flyTimer=d3.timer(t=>{const f=d3.easeCubicOut(Math.min(t/450,1));rotation=[start[0]+delta*f,start[1]+(target[1]-start[1])*f];draw();if(t>=450)flyTimer.stop()})}
+    }
+    draw();
+  }
+  function clearPreview(){
+    clearTimeout(clearTimer);activeSlug=null;hideTip();document.querySelector('#preview').style.display='none';
+    document.querySelector('.intro:not(#preview)').style.visibility='';parent.postMessage({type:'gridpulse:atlas-preview',slug:null},location.origin);draw();
+  }
+  function leavePin(){hideTip();clearTimer=setTimeout(clearPreview,180)}
+  document.querySelector('#preview').onpointerenter=()=>clearTimeout(clearTimer);
+  document.querySelector('#preview').onpointerleave=leavePin;
+  document.querySelector('#preview-close').onclick=clearPreview;
+  document.querySelector('#preview-open').onclick=()=>{if(activeSlug)choose('circuit',activeSlug)};
+  function visible(c){return args.region!=='world'||d3.geoDistance([c.lon,c.lat],[-rotation[0],-rotation[1]])<Math.PI/2-.035}
+  function coordinates(c){return projection([c.lon,c.lat])}
+  function draw(){
+    if(!args||!world)return;
+    const global=args.region==='world',compact=!!args.selected,narrow=width<650;
+    if(global){
+      projection=d3.geoOrthographic().rotate(rotation).clipAngle(90).precision(.5)
+        .translate([width*(narrow?.57:.69),height*(narrow?.64:.52)]).scale(Math.min(width*(narrow?.48:.335),height*.44)*zoom);
+    }else{
+      const r=args.regions[args.region],b=r.bounds;
+      projection=d3.geoMercator().center(r.center).scale(1).translate([0,0]);
+      const pts=[[b[0],b[1]],[b[2],b[3]]].map(projection),dx=Math.abs(pts[1][0]-pts[0][0]),dy=Math.abs(pts[1][1]-pts[0][1]);
+      const left=compact?30:(narrow?25:width*.34),top=narrow&&!compact?130:45,right=width-35,bottom=height-48;
+      const scale=Math.min((right-left)/dx,(bottom-top)/dy)*zoom;
+      projection.scale(scale).translate([(left+right)/2-(pts[0][0]+pts[1][0])/2*scale,(top+bottom)/2-(pts[0][1]+pts[1][1])/2*scale]);
+    }
+    path=d3.geoPath(projection);
+    svg.select('.ocean').attr('d',global?path({type:'Sphere'}):null);
+    svg.select('.graticule').attr('d',path(d3.geoGraticule().step(global?[20,20]:[10,10])()));
+    svg.selectAll('.land').attr('d',path);
+    const active=args.circuits.find(c=>c.slug===activeSlug),countryAliases={'United States':'United States of America','United Kingdom':'United Kingdom'};
+    svg.selectAll('.land').classed('highlight',c=>active&&[active.country,countryAliases[active.country]].includes(c.properties.name));
+    svg.selectAll('.route').attr('d',path);
+    svg.selectAll('.pin').attr('transform',c=>{const p=coordinates(c);return `translate(${p[0]},${p[1]})`})
+      .style('display',c=>visible(c)?null:'none').classed('previewing',c=>c.slug===activeSlug)
+      .style('opacity',c=>(activeSlug && c.slug!==activeSlug) ? 0.55 : 1);
+    if(global){
+      svg.selectAll('.region-target').attr('transform',r=>{const p=projection(r.center);return `translate(${p[0]-r.name.length*3.4-12},${p[1]+24})`})
+        .style('display',r=>d3.geoDistance(r.center,[-rotation[0],-rotation[1]])<Math.PI/2-.2?null:'none');
+    }
+    // Keep dense European labels legible; every marker retains its hover/focus tooltip.
+    const boxes=[];
+    svg.selectAll('.pin').each(function(c){
+      const group=d3.select(this);
+      let display=null;
+      if(!visible(c))display='none';
+      else {
+      const p=coordinates(c),w=c.city.length*6+12,box=[p[0]+10,p[1]-13,p[0]+w+10,p[1]+1];
+      if(c.slug!==args.selected&&c.slug!==activeSlug&&boxes.some(b=>box[0]<b[2]&&box[2]>b[0]&&box[1]<b[3]&&box[3]>b[1]))display='none';
+      else boxes.push(box);
+      }
+      group.select('text').style('display',display);group.select('.label-hit').style('display',display);
+    });
+  }
+  function setup(){
+    width=stage.clientWidth;height=args.height||540;stage.style.height=height+'px';
+    stage.classList.toggle('compact',!!args.selected);svg.attr('viewBox',`0 0 ${width} ${height}`);
+    svg.attr('aria-label',`${args.regions[args.region].name} circuit map. Select a red marker to open circuit facts.`);
+    document.querySelector('#preview-laps-label').textContent=args.series==='DTM'?'COVERED RACES':'LAPS';
+    document.querySelector('#preview-first-label').textContent=args.series==='DTM'?'OPENED':'FIRST GP';
+    document.querySelector('#preview-races-label').textContent=args.series==='DTM'?'ARCHIVE':'GRANDS PRIX';
+    const circuits=args.circuits.filter(c=>args.region==='world'||c.region===args.region);
+    document.querySelector('#count').textContent=String(circuits.length).padStart(2,'0');
+    document.querySelector('#headline').innerHTML=args.region==='world'?'RACING.<br>WORLDWIDE.':args.regions[args.region].name.toUpperCase().replace(' & ','<br>& ');
+    document.querySelector('#kicker').textContent=args.region==='world'?'ONE SPORT. EVERY CORNER.':'EXPLORE THE REGION';
+    document.querySelector('#description').textContent=args.region==='world'?'Follow the racing world. Choose a region or a circuit to explore its story.':args.regions[args.region].title+' Select a red marker to open circuit facts.';
+    document.querySelector('#hint').textContent=args.region==='world'?'DRAG TO ROTATE · SELECT A REGION OR A RED MARKER':'SELECT A CIRCUIT MARKER · EXPLORE ITS STORY';
+    document.querySelector('#motion').style.display=args.region==='world'?'':'none';
+    svg.selectAll('*').remove();
+    svg.append('defs').html('<radialGradient id="sea" cx="38%" cy="32%" r="72%"><stop offset="0" stop-color="#1b2939"/><stop offset=".8" stop-color="#0c1522"/><stop offset="1" stop-color="#050a11"/></radialGradient>');
+    svg.append('path').attr('class','ocean').attr('fill','url(#sea)').attr('stroke','#526377').attr('stroke-opacity',.55);
+    svg.append('path').attr('class','graticule').attr('fill','none').attr('stroke','#4c6784').attr('stroke-width',.5).attr('opacity',.22);
+    svg.append('g').selectAll('path').data(world.features).join('path').attr('class','land').attr('fill','#253649')
+      .attr('stroke','#5e7187').attr('stroke-opacity',.43).attr('stroke-width',.6).attr('vector-effect','non-scaling-stroke');
+    const ordered=circuits.filter(c=>!args.selected||c.slug===args.selected);
+    if(args.region==='world'){
+      const route={type:'MultiLineString',coordinates:args.circuits.slice(1).map((c,i)=>[[args.circuits[i].lon,args.circuits[i].lat],[c.lon,c.lat]])};
+      svg.append('path').datum(route).attr('class','route').attr('fill','none').attr('stroke','#f63731').attr('stroke-width',.8).attr('opacity',.19);
+      const regions=Object.entries(args.regions).filter(([id])=>id!=='world').map(([id,r])=>({id,...r}));
+      const labels=svg.append('g').selectAll('g').data(regions).join('g').attr('class','region-target').attr('role','button')
+        .attr('aria-label',r=>'Explore '+r.name).attr('tabindex',0).on('click',(_,r)=>choose('region',r.id))
+        .on('keydown',(e,r)=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();choose('region',r.id)}});
+      labels.append('rect').attr('width',r=>r.name.length*6.8+24).attr('height',26);
+      labels.append('text').attr('x',12).attr('y',17).text(r=>r.name.toUpperCase());
+    }
+    const pins=svg.append('g').selectAll('g').data(ordered).join('g').attr('class',c=>'pin'+(c.slug===args.selected?' active':''))
+      .attr('role','button').attr('aria-label',c=>'Explore '+c.city).attr('tabindex',0)
+      .on('click',(_,c)=>choose('circuit',c.slug)).on('pointerenter',showTip).on('pointermove',showTip).on('pointerleave',leavePin)
+      .on('focus',(e,c)=>{const p=coordinates(c),rect=stage.getBoundingClientRect();showTip({clientX:p[0]+rect.left,clientY:p[1]+rect.top},c)})
+      .on('blur',leavePin).on('keydown',(e,c)=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();choose('circuit',c.slug)}if(e.key==='Escape')clearPreview()});
+    pins.append('circle').attr('class','hit').attr('r',13);pins.append('circle').attr('class','ring').attr('r',9);
+    pins.append('rect').attr('class','label-hit').attr('x',10).attr('y',-14).attr('width',c=>c.city.length*6+8).attr('height',18);
+    pins.append('circle').attr('class','dot').attr('r',3.6);pins.append('text').attr('x',12).attr('y',-2).text(c=>c.city);
+    draw();announceHeight();
+  }
+  svg.call(d3.drag().filter(e=>args?.region==='world'&&!e.target.closest('.pin,.region-target'))
+    .on('start',()=>{activeDrag=true;paused=true;hideTip();updateMotion()})
+    .on('drag',e=>{rotation[0]+=e.dx*.25;rotation[1]=Math.max(-70,Math.min(70,rotation[1]-e.dy*.25));draw()})
+    .on('end',()=>activeDrag=false));
+  function updateMotion(){const b=document.querySelector('#motion');b.textContent=paused?'▶':'Ⅱ';b.setAttribute('aria-label',paused?'Resume globe rotation':'Pause globe rotation')}
+  document.querySelector('#motion').onclick=()=>{paused=!paused;updateMotion()};
+  document.querySelector('#in').onclick=()=>{zoom=Math.min(zoom*1.2,2.2);draw()};
+  document.querySelector('#out').onclick=()=>{zoom=Math.max(zoom/1.2,.75);draw()};
+  document.querySelector('#reset').onclick=()=>{zoom=1;rotation=[-20,-20];draw()};
+  new ResizeObserver(()=>{if(args&&world)setup()}).observe(stage);
+  addEventListener('message',async event=>{
+    if(event.source===parent&&event.origin===location.origin&&event.data?.type==='gridpulse:atlas-hover'){
+      const c=args?.circuits.find(c=>c.slug===event.data.slug);if(c)activate(c,true);else if(args)clearPreview();return;
+    }
+    if(event.data.type!=='streamlit:render')return;
+    const incoming=event.data.args,signature=JSON.stringify(incoming);if(signature===lastSignature)return;
+    lastSignature=signature;args=incoming;zoom=1;rotation=[-20,-20];
+    try{
+      if(!world){world=await d3.json('./world.json');
+        for(const f of world.features){if(d3.geoArea(f)>2*Math.PI){const polygons=f.geometry.type==='Polygon'?[f.geometry.coordinates]:f.geometry.coordinates;polygons.forEach(p=>p.forEach(r=>r.reverse()))}}}
+      setup();updateMotion();
+    }catch(error){stage.replaceChildren(Object.assign(document.createElement('p'),{className:'error',textContent:'Map unavailable. Use the circuit list below to keep exploring.'}));announceHeight()}
+  });
+  function tick(t){if(args?.region==='world'&&world&&!paused&&!activeDrag&&!activeSlug&&!document.hidden){if(t-lastTime>45){rotation[0]+=.045;draw();lastTime=t}}requestAnimationFrame(tick)}
+  requestAnimationFrame(tick);send('streamlit:componentReady',{apiVersion:1});
+</script>
+</body>
+</html>

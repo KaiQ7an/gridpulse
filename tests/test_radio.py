@@ -1,6 +1,6 @@
 import pandas as pd
 
-from pitlens.radio.clips import assign_laps, parse_stream
+from gridpulse.radio.clips import assign_laps, parse_stream
 
 STREAM = (
     "﻿00:08:11.285{\"Captures\":[{\"Utc\":\"2025-08-03T12:13:31.908Z\",\"RacingNumber\":\"10\","

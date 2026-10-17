@@ -31,7 +31,7 @@ pace, tyres and strategy as the race unfolds. It is built in layers, each useful
 - [x] Stationary time per stop (from OpenF1, where F1 publishes it), places lost, quickest stops and crews
 - [x] Leave out drives through the pit lane on the same tyres (penalties, field sent through under SC)
 - [x] Tyre model and pit window: best lap to stop, the window, and when a fresher tyre catches the car
-      ahead; backtested against every last stop of 2024 and 2025 (`pitlens pitwindow`)
+      ahead; backtested against every last stop of 2024 and 2025 (`gridpulse pitwindow`)
 
 ## 4. `pitwall`: race-day dashboard with replay (done)
 
@@ -65,7 +65,7 @@ pace, tyres and strategy as the race unfolds. It is built in layers, each useful
 - [x] OpenF1 quirks handled: stops placed on their in-lap where the pit lane crosses the timing line,
       drive-throughs folded into the stint, extra laps capped at the classified count
 - [x] Every race from 2021 to 2026 checked against the official winner, top ten and laps down
-      (`pitlens check`, sprints included)
+      (`gridpulse check`, sprints included)
 - [x] Warn when a race's source is missing laps (2025 Miami); radio and stationary times from OpenF1
       when F1's archive won't serve them
 

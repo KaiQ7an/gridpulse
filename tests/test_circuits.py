@@ -1,6 +1,6 @@
 import pandas as pd
 
-from pitlens.season.circuits import circuit_years, circuits, saved_races, slug, tyre_sequence
+from gridpulse.season.circuits import circuit_years, circuits, saved_races, slug, tyre_sequence
 
 
 def test_slug():
@@ -25,7 +25,7 @@ def test_tyre_sequence():
 
 
 def test_a_circuit_year_by_year_from_the_saved_races(monkeypatch):
-    monkeypatch.setenv("PITLENS_OFFLINE", "1")
+    monkeypatch.setenv("GRIDPULSE_OFFLINE", "1")
     years = circuit_years(saved_races(), 39).set_index("Year")  # Monza
     assert years.loc[2025, "Winner"] == "VER" and years.loc[2025, "WinnerGrid"] == 1
     assert years.loc[2025, "Pole"] == "VER" and round(years.loc[2025, "PoleTime"], 3) == 78.792

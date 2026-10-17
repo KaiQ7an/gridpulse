@@ -4,7 +4,7 @@ from copy import deepcopy
 
 from streamlit.testing.v1 import AppTest
 
-from pitlens.dtm import circuits, data
+from gridpulse.dtm import circuits, data
 
 
 def test_all_season_venues_have_sourced_dtm_layouts():
@@ -38,8 +38,8 @@ def test_records_exclude_future_seasons_disqualifications_and_qualifying_groups(
 
 
 def test_atlas_search_details_and_direct_links_preserve_selected_season(monkeypatch):
-    monkeypatch.setenv("PITLENS_OFFLINE", "1")
-    at = AppTest.from_string("from pitlens.pitwall.dtm_page import render\nrender()", default_timeout=60)
+    monkeypatch.setenv("GRIDPULSE_OFFLINE", "1")
+    at = AppTest.from_string("from gridpulse.pitwall.dtm_page import render\nrender()", default_timeout=60)
     at.query_params.update(year="2024", view="circuits")
     at.run()
     assert not at.exception

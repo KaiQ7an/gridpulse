@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pitlens.quali.data import eliminated_in, ideal_laps
+from gridpulse.quali.data import eliminated_in, ideal_laps
 
 nan = np.nan
 
@@ -36,7 +36,7 @@ def test_ideal_lap_adds_up_the_best_sectors_and_skips_deleted_laps():
 
 
 def test_saved_openf1_validity_matches_the_stewards_not_offset_lap_numbers():
-    from pitlens import snapshots
+    from gridpulse import snapshots
 
     spain = snapshots.load_quali(2023, 7, "Q")
     assert ideal_laps(spain.laps).set_index("Driver").loc["PER", "Best"] == 73.334

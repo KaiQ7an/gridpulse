@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 
-from pitlens.pitwall.timing import (
+from gridpulse.pitwall.timing import (
     format_lap_time,
     gap_to_leader,
     neutralised_periods,
@@ -121,7 +121,7 @@ def test_neutralised_periods_groups_consecutive_laps():
 
 def test_photo_finish_follows_the_official_result():
     # 2026 Azerbaijan: lap timing had VER 0.003 s ahead at the flag; RUS won by 0.196 s.
-    from pitlens.pitwall.timing import classify_finish
+    from gridpulse.pitwall.timing import classify_finish
 
     laps = pd.DataFrame(make_driver("RUS", 80, 3, offset=0.003) + make_driver("VER", 80, 3) + make_driver("HAD", 80, 3, offset=10))
     laps["Position"] = float("nan")
@@ -137,7 +137,7 @@ def test_photo_finish_follows_the_official_result():
 
 
 def test_official_gaps_from_fastf1_results():
-    from pitlens.pitwall.timing import official_gaps
+    from gridpulse.pitwall.timing import official_gaps
 
     # FastF1 (2026 Singapore): lapped cars carry a Time too, but it isn't a gap to the winner.
     results = pd.DataFrame({"Abbreviation": ["A", "B", "C", "D"], "Position": [1.0, 2.0, 3.0, 4.0],
@@ -161,7 +161,7 @@ def test_near_tie_follows_the_running_position():
 
 
 def test_non_starters():
-    from pitlens.pitwall.timing import non_starters
+    from gridpulse.pitwall.timing import non_starters
 
     results = pd.DataFrame({"Status": ["Finished", "Retired", "Did not start", None, "Lapped"],
                             "ClassifiedPosition": ["1", "R", "W", "W", "2"]})
@@ -170,7 +170,7 @@ def test_non_starters():
 
 def test_missing_last_lap_times_are_filled_from_the_result():
     # Like OpenF1 for the 2026 Australian GP: no time for anyone's last lap, and no last lap at all for B.
-    from pitlens.pitwall.timing import complete_final_laps
+    from gridpulse.pitwall.timing import complete_final_laps
 
     laps = pd.DataFrame(make_driver("A", 80, 5) + make_driver("B", 80, 4, offset=3) + make_driver("C", 85, 4))
     laps["LapStartTime"] = laps["Time"] - laps["LapTime"]
@@ -188,7 +188,7 @@ def test_missing_last_lap_times_are_filled_from_the_result():
 
 
 def test_laps_beyond_the_classified_count_are_dropped():
-    from pitlens.pitwall.timing import trim_to_classified_laps
+    from gridpulse.pitwall.timing import trim_to_classified_laps
 
     laps = pd.DataFrame(make_driver("A", 80, 5) + make_driver("B", 85, 5))
     results = pd.DataFrame({"Abbreviation": ["A", "B"], "Laps": [5.0, 4.0]})
@@ -197,7 +197,7 @@ def test_laps_beyond_the_classified_count_are_dropped():
 
 
 def test_lap_coverage():
-    from pitlens.pitwall.timing import lap_coverage
+    from gridpulse.pitwall.timing import lap_coverage
 
     laps = pd.DataFrame(make_driver("A", 80, 10) + make_driver("B", 80, 5))
     results = pd.DataFrame({"Abbreviation": ["A", "B", "C"], "Laps": [10.0, 10.0, 0.0]})
@@ -217,7 +217,7 @@ def test_format_lap_time_rounds_before_splitting_minutes():
 
 
 def test_race_distance_is_what_the_winner_ran():
-    from pitlens.pitwall.data import race_distance
+    from gridpulse.pitwall.data import race_distance
 
     laps = pd.DataFrame(make_driver("A", 80, 64))
     shortened = pd.DataFrame({"Laps": [64.0, 63.0]})

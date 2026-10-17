@@ -4,8 +4,8 @@ import re
 
 from streamlit.testing.v1 import AppTest
 
-from pitlens.season.atlas import REGIONS, browse_circuits, catalog, circuit_fact, in_region
-from pitlens.season.circuits import circuits, saved_races
+from gridpulse.season.atlas import REGIONS, browse_circuits, catalog, circuit_fact, in_region
+from gridpulse.season.circuits import circuits, saved_races
 
 
 def test_every_saved_venue_has_geography_facts_and_sourced_records():
@@ -37,7 +37,7 @@ def test_venue_records_include_history_and_ties_not_just_saved_years():
 
 
 def atlas(**params):
-    at = AppTest.from_string("from pitlens.pitwall import circuits_page\ncircuits_page.render()", default_timeout=60)
+    at = AppTest.from_string("from gridpulse.pitwall import circuits_page\ncircuits_page.render()", default_timeout=60)
     at.query_params.update(params)
     return at.run()
 
@@ -47,7 +47,7 @@ def text(at):
 
 
 def test_atlas_navigation_search_and_shared_links(monkeypatch):
-    monkeypatch.setenv("PITLENS_OFFLINE", "1")
+    monkeypatch.setenv("GRIDPULSE_OFFLINE", "1")
     at = atlas()
     assert not at.exception and "A world built for racing" in text(at)
     at.button(key="atlas-region-asia-pacific").click().run()
@@ -63,7 +63,7 @@ def test_atlas_navigation_search_and_shared_links(monkeypatch):
 
 
 def test_circuit_filters_compose_and_can_be_cleared(monkeypatch):
-    monkeypatch.setenv("PITLENS_OFFLINE", "1")
+    monkeypatch.setenv("GRIDPULSE_OFFLINE", "1")
     at = atlas(region="asia-pacific")
     at.selectbox(key="atlas_sort").set_value("Longest first").run()
     at.button_group(key="atlas_kind").set_value("Permanent").run()
@@ -93,9 +93,9 @@ def test_circuit_sort_never_mutates_the_catalog():
 
 
 def test_corner_links_restore_only_valid_markers_and_clicks_are_consumed_once(monkeypatch):
-    from pitlens.pitwall import circuits_page
+    from gridpulse.pitwall import circuits_page
 
-    monkeypatch.setenv("PITLENS_OFFLINE", "1")
+    monkeypatch.setenv("GRIDPULSE_OFFLINE", "1")
     calls = []
     event = {}
 
@@ -120,7 +120,7 @@ def test_corner_links_restore_only_valid_markers_and_clicks_are_consumed_once(mo
 
 
 def test_comparison_metric_links_survive_changes_and_offer_export(monkeypatch):
-    monkeypatch.setenv("PITLENS_OFFLINE", "1")
+    monkeypatch.setenv("GRIDPULSE_OFFLINE", "1")
     at = atlas(compare="suzuka,monza", metric="stops")
     assert not at.exception and at.segmented_control(key="atlas_compare_metric").value == "Stops per finisher"
     assert at.get("download_button")[0].proto.label == "Download comparison CSV"
@@ -140,9 +140,9 @@ def test_comparison_metric_links_survive_changes_and_offer_export(monkeypatch):
 
 
 def test_facts_remain_available_when_no_races_are_saved(monkeypatch):
-    from pitlens.pitwall import circuits_page
+    from gridpulse.pitwall import circuits_page
 
-    monkeypatch.setenv("PITLENS_OFFLINE", "1")
+    monkeypatch.setenv("GRIDPULSE_OFFLINE", "1")
     monkeypatch.setattr(circuits_page, "cached_races", lambda: saved_races().iloc[:0])
     at = atlas(circuit="suzuka")
     assert not at.exception and "Suzuka" in text(at) and "Michael Schumacher" in text(at)

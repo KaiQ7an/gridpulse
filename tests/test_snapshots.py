@@ -2,8 +2,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pitlens import snapshots
-from pitlens.radio import transcribe
+from gridpulse import snapshots
+from gridpulse.radio import transcribe
 
 URL = "https://livetiming.formula1.com/static/2026/clip.mp3"
 
@@ -67,7 +67,7 @@ def test_snapshot_revision_changes_when_a_saved_race_is_replaced(tmp_path, monke
 
 
 def test_circuit_index_only_needs_metadata(tmp_path, monkeypatch, parts):
-    from pitlens.season.circuits import saved_races
+    from gridpulse.season.circuits import saved_races
 
     monkeypatch.setattr(snapshots, "SNAPSHOT_DIR", tmp_path)
     monkeypatch.setattr(transcribe, "TEXT_DIR", tmp_path / "radio")

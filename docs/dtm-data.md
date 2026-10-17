@@ -11,7 +11,7 @@ feeds requested by the official [results](https://www.dtm.com/en/results) and
 | `eventsRacetrack` | Calendar, country, circuit length and official event links |
 | `driversShort` | Driver name spelling |
 
-The adapter in `pitlens/dtm/data.py` is separate from the Formula 1 loaders and scoring.
+The adapter in `gridpulse/dtm/data.py` is separate from the Formula 1 loaders and scoring.
 No account, credential or private API is used. Feed availability and schema are not guaranteed.
 
 ## Interpretation
@@ -44,13 +44,13 @@ The current season checks the official feeds with a 30-minute shared cache. Hist
 use the bundled snapshots by default. **Refresh official data** retries any supported season.
 All four feed requests have bounded timeouts; invalid or failed responses fall back to the saved
 snapshot with a visible message and timestamp. Failed fetches are cached too, preventing every
-widget interaction from repeatedly waiting for an unavailable service. `PITLENS_OFFLINE=1`
+widget interaction from repeatedly waiting for an unavailable service. `GRIDPULSE_OFFLINE=1`
 always uses bundled data and is used by the regression suite.
 
 Refresh a bundled snapshot from the project environment:
 
 ```sh
-python -m pitlens.dtm.refresh --year 2026
+python -m gridpulse.dtm.refresh --year 2026
 pytest -q tests/test_dtm.py
 ```
 
@@ -67,7 +67,7 @@ the same car throughout the season.
 
 ## Team profiles, photographs and driver introductions
 
-`pitlens/dtm/cars.json` identifies GT3 models by season and manufacturer, using the official
+`gridpulse/dtm/cars.json` identifies GT3 models by season and manufacturer, using the official
 entry lists and driver catalogue, with links retained for each season. It distinguishes the
 2025 BMW M4 GT3 Evo and the 2026 Ferrari, Ford, Porsche and Lamborghini upgrades. Unknown
 models remain unconfirmed rather than borrowing a model from another year. Model names
@@ -79,7 +79,7 @@ The caption identifies these as model references: a picture does not identify ev
 exact livery. Image copyrights remain with their respective owners. External images are
 loaded lazily and are not required to load the local result data or introductions.
 
-Driver facts are saved separately in `pitlens/drivers/`. DTM birthday, nationality, debut and
+Driver facts are saved separately in `gridpulse/drivers/`. DTM birthday, nationality, debut and
 season portraits come from the official driver-detail feed; missing birthdays and portraits
 are displayed as unpublished. F1 facts use official F1 profiles and the Jolpica historical
 driver/result records. F1 debut refers to a first race result, not a first practice appearance
@@ -88,7 +88,7 @@ summaries with sources. Biographies describe the driver as known when researched
 team and car associations are taken from the selected season's results. Current F1 portraits
 are labelled explicitly, as clothing may belong to a different season.
 
-`pitlens/dtm/teams.json` stores sourced operating-team profiles. `teams.identity()` resolves
+`gridpulse/dtm/teams.json` stores sourced operating-team profiles. `teams.identity()` resolves
 sponsor names per season: MANN-FILTER is Landgraf in 2023, Winward from 2024 onward.
 The Teams directory is built from that season’s race entrants, including guests absent from
 the official team standings. It never rewrites official championship positions or points.
@@ -99,14 +99,14 @@ references, not a claim about the selected team’s exact livery.
 
 ## Local preview
 
-Start the existing Python app with `pitlens pitwall`, then open
+Start the existing Python app with `gridpulse pitwall`, then open
 `http://localhost:8501/dtm`. MAMP Pro's Apache/PHP document root does not execute Streamlit;
 if using a MAMP virtual host as the front end, proxy HTTP **and WebSocket upgrades** to
 the Streamlit service. A document-root change alone is insufficient.
 
 ## First points and first wins
 
-`pitlens/milestones.json` keeps sourced milestones independently of the saved season snapshots.
+`gridpulse/milestones.json` keeps sourced milestones independently of the saved season snapshots.
 F1 uses Grand Prix results: sprint wins are not presented as GP wins, disqualifications cannot
 supply a points milestone, and constructor name changes are explicitly scoped. Historical
 McLaren engine-suffixed identities are combined; modern Williams starts in 1977, modern
@@ -122,7 +122,7 @@ not as zero wins or points. Selecting a historical season hides later milestones
 
 ## Circuit atlas
 
-`pitlens/dtm/circuits.json` holds sourced venue background and official DTM layout diagrams for
+`gridpulse/dtm/circuits.json` holds sourced venue background and official DTM layout diagrams for
 the eight venues on the supported 2023–2026 calendars. The atlas reuses the F1 map component
 with DTM-specific labels and markers. Circuit length follows the selected DTM event feed;
 Spielberg uses the sourced 4.326 km reference when the feed has no length. Nürburgring is the

@@ -8,16 +8,16 @@ import pandas as pd
 import pytest
 from streamlit.testing.v1 import AppTest
 
-from pitlens.onboard.data import DriverLap, FastF1Weekend, OnboardData, OpenF1Weekend
-from pitlens.pitwall import onboard_page
-from pitlens.pitwall.timeline import known_events
-from pitlens.season.atlas import catalog, circuit_fact
-from pitlens.season.comparison import comparison_slugs, comparison_table, saved_summary
-from pitlens.season.tours import build_tour, corner_measurements, corner_tour
+from gridpulse.onboard.data import DriverLap, FastF1Weekend, OnboardData, OpenF1Weekend
+from gridpulse.pitwall import onboard_page
+from gridpulse.pitwall.timeline import known_events
+from gridpulse.season.atlas import catalog, circuit_fact
+from gridpulse.season.comparison import comparison_slugs, comparison_table, saved_summary
+from gridpulse.season.tours import build_tour, corner_measurements, corner_tour
 
 
 def test_chosen_openf1_lap_is_not_replaced_by_fastest_and_deleted_laps_are_unselectable(monkeypatch):
-    from pitlens.sources import openf1
+    from gridpulse.sources import openf1
 
     weekend = OpenF1Weekend.__new__(OpenF1Weekend)
     weekend.session = {"session_key": 10}
@@ -38,7 +38,7 @@ def test_chosen_openf1_lap_is_not_replaced_by_fastest_and_deleted_laps_are_unsel
 
 
 def test_explicit_archive_lap_never_falls_back_to_different_source_numbering(monkeypatch):
-    import pitlens.onboard.data as data
+    import gridpulse.onboard.data as data
 
     def unavailable(*args):
         raise KeyError("telemetry")
@@ -78,7 +78,7 @@ def test_same_driver_chosen_laps_survive_picker_changes_and_shareable_link(monke
     monkeypatch.setattr(onboard_page, "cached_races", lambda year: pd.DataFrame(
         [{"RoundNumber": 1, "EventName": "Test GP"}]))
     monkeypatch.setattr(onboard_page, "cached_weekend", lambda *args: LapWeekend())
-    at = AppTest.from_string("from pitlens.pitwall.onboard_page import render\nrender()", default_timeout=30)
+    at = AppTest.from_string("from gridpulse.pitwall.onboard_page import render\nrender()", default_timeout=30)
     at.query_params.update(year="2025", round="1", session="R", drivers="VER,VER", mode="laps", lap_a="10", lap_b="12")
     at.run()
     assert not at.exception and at.selectbox(key="ob_b").value == "VER"
@@ -103,9 +103,9 @@ def test_timeline_does_not_send_future_events_or_nan_to_the_browser():
 
 @pytest.mark.parametrize("future", [False, True])
 def test_event_click_pauses_and_jumps_but_cannot_bypass_spoiler_mode(monkeypatch, future):
-    from pitlens.pitwall import app, timeline
+    from gridpulse.pitwall import app, timeline
 
-    monkeypatch.setenv("PITLENS_OFFLINE", "1")
+    monkeypatch.setenv("GRIDPULSE_OFFLINE", "1")
     race = app.cached_race(2025, 4)
     candidates = known_events(race.events, 23, not future)
     event = next(e for e in candidates if (e["lap"] > 23 if future else 1 < e["lap"] < 23))
@@ -133,8 +133,8 @@ def test_circuit_comparison_uses_weighted_stops_and_explicit_coverage():
 
 
 def test_circuit_comparison_link_and_metrics_render_offline(monkeypatch):
-    monkeypatch.setenv("PITLENS_OFFLINE", "1")
-    at = AppTest.from_string("from pitlens.pitwall.circuits_page import render\nrender()", default_timeout=60)
+    monkeypatch.setenv("GRIDPULSE_OFFLINE", "1")
+    at = AppTest.from_string("from gridpulse.pitwall.circuits_page import render\nrender()", default_timeout=60)
     at.query_params["compare"] = "monza,suzuka"
     at.run()
     assert not at.exception and at.multiselect(key="atlas_compared").value == ["monza", "suzuka"]

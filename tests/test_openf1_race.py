@@ -3,7 +3,7 @@
 import pandas as pd
 import pytest
 
-from pitlens.sources import openf1
+from gridpulse.sources import openf1
 
 T0 = pd.Timestamp("2026-06-01T13:00:00Z")
 

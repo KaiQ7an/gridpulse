@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pitlens.onboard.compare import (
+from gridpulse.onboard.compare import (
     align,
     corner_speeds,
     minisectors,
