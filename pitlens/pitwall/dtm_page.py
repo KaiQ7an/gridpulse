@@ -195,7 +195,8 @@ def championship(season: dict):
     with right, st.container(border=True):
         ui.label("The points race")
         options = [r["key"] for r in board]
-        names = {r["key"]: r["name"] for r in board}
+        names = {r["key"]: r["name"] + (f" · {meta[r['key']]['team']}"
+                 if category == "drivers" and meta.get(r["key"], {}).get("team") else "") for r in board}
         picker = f"dtm_lines_{category}_{season['year']}"
         selected = st.multiselect("Follow up to six", options, default=options[:4], format_func=names.get,
                                   max_selections=6, key=picker)
