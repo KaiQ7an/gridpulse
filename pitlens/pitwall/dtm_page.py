@@ -17,6 +17,8 @@ from pitlens.pitwall import driver_intro, dtm_nav, milestone_cards, ui
 
 VIEWS = {"championship": "Championship", "weekend": "Race weekends", "drivers": "Drivers",
          "compare": "Driver comparison", "teams": "Teams"}
+VIEW_STATE = {"championship": ("dtm_category",), "weekend": ("dtm_event", "dtm_session"),
+              "compare": ("dtm_drivers",), "teams": ("dtm_team",), "drivers": ("dtm_profile",)}
 STATE = ("dtm_year", "dtm_view", "dtm_event", "dtm_session", "dtm_drivers", "dtm_category", "dtm_team", "dtm_profile")
 
 
@@ -72,13 +74,16 @@ def sync_link():
     if dict(st.query_params) != params:
         st.query_params.from_dict(params)
     ss.dtm_link = tuple(sorted(params.items()))
-    ss.dtm_saved = {k: ss[k] for k in STATE if k in ss}
+    ss.dtm_saved = {**ss.get("dtm_saved", {}), **{k: ss[k] for k in STATE if k in ss}}
 
 
 def render():
     ss = st.session_state
-    for k, v in ss.get("dtm_saved", {}).items():
-        ss.setdefault(k, v)
+    # Restore only widgets rendered on this run. Recreating hidden widget keys
+    # leaves Python holding a value while the remounted browser shows its default.
+    for k in ("dtm_year", "dtm_view"):
+        if k in ss.get("dtm_saved", {}):
+            ss.setdefault(k, ss.dtm_saved[k])
     apply_link()
     if ss.pop("dtm_open_weekend", False):
         ss.dtm_view = "weekend"
@@ -89,6 +94,9 @@ def render():
     ui.sidebar_brand("DTM · GT racing")
     year = st.sidebar.selectbox("DTM season", data.YEARS, key="dtm_year")
     dtm_nav.render(VIEWS)
+    for k in VIEW_STATE[ss.dtm_view]:
+        if k in ss.get("dtm_saved", {}):
+            ss.setdefault(k, ss.dtm_saved[k])
     refresh = st.sidebar.button("Refresh data", icon=":material/refresh:", key="dtm_refresh", width="stretch",
                                 help="Check the official DTM feed for updated classifications.")
     if refresh:
