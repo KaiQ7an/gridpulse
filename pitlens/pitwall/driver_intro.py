@@ -5,10 +5,11 @@ import html
 import streamlit as st
 
 from pitlens.drivers.profiles import birth_date, profile, public_url
-from pitlens.pitwall import milestone_cards, ui
+from pitlens.pitwall import identity_badges, milestone_cards, ui
 
 
-def render(series: str, driver: str, year: int, name: str, *, team: str = "", car: str = "") -> None:
+def render(series: str, driver: str, year: int, name: str, *, team: str = "", car: str = "",
+           team_id: str = "", manufacturer: str = "") -> None:
     info = profile(series, driver)
     name = info.get("name") or name
     label = "Formula 1" if series == "f1" else "DTM"
@@ -40,6 +41,8 @@ def render(series: str, driver: str, year: int, name: str, *, team: str = "", ca
                 st.write(f"{name} first competed in {label} in {info['debut']}.")
             if team:
                 st.write(f"{year} entry: {team}" + (f" · {car}" if car else ""))
+            if series == "dtm":
+                identity_badges.render(year, team_id, [manufacturer] if manufacturer else [])
             with st.container(horizontal=True, gap="small"):
                 source = public_url(info.get("profile_url") or info.get("source"))
                 if source:

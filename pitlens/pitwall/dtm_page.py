@@ -13,7 +13,7 @@ from pitlens.drivers.profiles import profile as driver_profile
 from pitlens.dtm import data
 from pitlens.dtm import teams as team_data
 from pitlens.dtm.cars import model, profile
-from pitlens.pitwall import driver_intro, dtm_nav, milestone_cards, ui, weekend_overview
+from pitlens.pitwall import driver_intro, dtm_nav, identity_badges, milestone_cards, ui, weekend_overview
 
 VIEWS = {"championship": "Championship", "weekend": "Race weekends", "teams": "Teams",
          "drivers": "Drivers", "compare": "Driver comparison"}
@@ -338,6 +338,7 @@ def teams(season: dict):
         classified = results[results.status == ""]
         with columns[i % len(columns)], st.container(border=True, height="stretch" if selected == "all" else "content"):
             st.subheader(info["name"])
+            identity_badges.render(season["year"], team_id, list(results.manufacturer.unique()))
             ui.strip([ui.stat("Headquarters", info.get("base") or "Not verified"),
                       ui.stat("Founded", info.get("founded") or "Not verified")])
             ui.label("Team history")
@@ -396,7 +397,8 @@ def drivers(season: dict):
     selected = st.selectbox("Driver", order, format_func=names.get, key="dtm_profile")
     entry = entries[selected]
     ui.header(f"{season['year']} · DTM driver", names[selected])
-    driver_intro.render("dtm", selected, season["year"], entry["name"], team=entry["team"], car=entry["model"])
+    driver_intro.render("dtm", selected, season["year"], entry["name"], team=entry["team"], car=entry["model"],
+                        team_id=team_data.identity(season["year"], entry["team"]), manufacturer=entry["manufacturer"])
     all_rows = data.race_rows(season)
     rows = all_rows[all_rows.driver == selected]
     classified = rows[rows.status == ""]

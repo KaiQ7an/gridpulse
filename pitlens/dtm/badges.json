@@ -1,0 +1,130 @@
+{
+  "source": "https://www.dtm.com/en/drivers",
+  "checked": "2026-10-17",
+  "manufacturers": {
+    "Ferrari": {
+      "name": "Ferrari",
+      "url": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cm98kau4t02vs07unfjo6qeib",
+      "source": "https://www.dtm.com/en/drivers",
+      "dark": true
+    },
+    "BMW": {
+      "name": "BMW",
+      "url": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cm98kbjzo031b07unvvw37kac",
+      "source": "https://www.dtm.com/en/drivers",
+      "dark": true
+    },
+    "Porsche": {
+      "name": "Porsche",
+      "url": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cmoikwq601zmx07vyzijbtfem",
+      "source": "https://www.dtm.com/en/drivers",
+      "dark": true
+    },
+    "Audi": {
+      "name": "Audi",
+      "url": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cm98k60xs01yx07w1s6nt7bt2",
+      "source": "https://www.dtm.com/en/drivers",
+      "dark": true
+    },
+    "Lamborghini": {
+      "name": "Lamborghini",
+      "url": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cm9gsj9avmev307uxnsook54v",
+      "source": "https://www.dtm.com/en/drivers",
+      "dark": true
+    },
+    "McLaren": {
+      "name": "McLaren",
+      "url": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cm98k8hr902hs07w1plop7n0z",
+      "source": "https://www.dtm.com/en/drivers",
+      "dark": true
+    },
+    "Ford": {
+      "name": "Ford",
+      "url": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cmlhvvf166c7e07ugktj7jo04",
+      "source": "https://www.dtm.com/en/drivers",
+      "dark": true
+    },
+    "Mercedes-AMG": {
+      "name": "Mercedes-AMG",
+      "url": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cmk1c98ejm0v107urobahcjq5",
+      "source": "https://www.dtm.com/en/drivers",
+      "dark": true
+    },
+    "Aston Martin": {
+      "name": "Aston Martin",
+      "url": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cm98k716p01wf07unmixpxhls",
+      "source": "https://www.dtm.com/en/drivers",
+      "dark": true
+    }
+  },
+  "teams": {
+    "schubert": {
+      "name": "Schubert Motorsport",
+      "url": "https://schubert-motorsport.com/files/schubert-2017/images/schubert_motorsport_logo.svg",
+      "source": "https://schubert-motorsport.com/",
+      "dark": false
+    },
+    "grasser": {
+      "name": "Grasser Racing Team",
+      "url": "https://www.grasser-racing.com/wp-content/uploads/2025/02/GRT_LOGO_2026_FINALWeiss.svg",
+      "source": "https://www.grasser-racing.com/",
+      "dark": true
+    },
+    "ssr": {
+      "name": "SSR Performance",
+      "url": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/OzRMskQHTfONUmwsMHhl",
+      "source": "https://www.dtm.com/en/drivers",
+      "dark": false
+    },
+    "hrt": {
+      "name": "Mercedes-AMG Team HRT",
+      "url": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/CO8041rrRnyZZE2C3ZDD",
+      "source": "https://www.dtm.com/en/drivers",
+      "years": [
+        2023,
+        2024
+      ],
+      "dark": false
+    },
+    "winward": {
+      "name": "WINWARD RACING",
+      "url": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/Ay0ohZxQLiYTrowxirw7",
+      "source": "https://www.dtm.com/en/drivers",
+      "years": [
+        2023,
+        2024
+      ],
+      "dark": false
+    },
+    "team75": {
+      "name": "KÜS Team Bernhard",
+      "url": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/EHGcGCdSQBG4g2YplG5a",
+      "source": "https://www.dtm.com/en/drivers",
+      "dark": false
+    },
+    "manthey": {
+      "name": "Manthey",
+      "url": "https://www.manthey-racing.com/themes/custom/grounded_manthey/src/images/manthey-logo.svg",
+      "source": "https://www.manthey-racing.com/",
+      "dark": false
+    },
+    "comtoyou": {
+      "name": "Comtoyou Racing",
+      "url": "https://comtoyouracing.com/wp-content/uploads/2024/07/comtoyou_racing-Logo-white.png",
+      "source": "https://comtoyouracing.com/",
+      "dark": true
+    },
+    "toksport": {
+      "name": "Toksport WRT",
+      "url": "https://toksport.com/wp-content/uploads/2021/08/toksport-black.png",
+      "source": "https://toksport.com/",
+      "dark": false
+    },
+    "emil-frey": {
+      "name": "Emil Frey Racing",
+      "url": "https://emilfreyracing.com/static/5f6060afd22983f8e634b02ecb154415/80f52/logo.png",
+      "source": "https://emilfreyracing.com/en/",
+      "dark": false
+    }
+  }
+}
