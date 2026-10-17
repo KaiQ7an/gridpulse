@@ -8,6 +8,12 @@ import time
 import pandas as pd
 import streamlit as st
 
+from pitlens.pitwall.freshness import forget_stale_modules
+
+# Before anything else from pitlens is imported: after an update on Streamlit Community Cloud, modules
+# loaded by the previous commit would otherwise stay in memory (see freshness.py).
+forget_stale_modules()
+
 from pitlens import snapshots
 from pitlens.branding import NAME
 from pitlens.pitwall import (
