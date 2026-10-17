@@ -4,57 +4,57 @@
   "manufacturers": {
     "Ferrari": {
       "name": "Ferrari",
-      "url": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cm98kau4t02vs07unfjo6qeib",
+      "url": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cm9wx88343imz07w29np352uc",
       "source": "https://www.dtm.com/en/drivers",
-      "dark": true
+      "dark": false
     },
     "BMW": {
       "name": "BMW",
-      "url": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cm98kbjzo031b07unvvw37kac",
+      "url": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cm9wxadgh3jh407w2vnfjpvnz",
       "source": "https://www.dtm.com/en/drivers",
-      "dark": true
+      "dark": false
     },
     "Porsche": {
       "name": "Porsche",
-      "url": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cmoikwq601zmx07vyzijbtfem",
+      "url": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cmoikx57c1zru07vygeyjrcem",
       "source": "https://www.dtm.com/en/drivers",
-      "dark": true
+      "dark": false
     },
     "Audi": {
       "name": "Audi",
-      "url": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cm98k60xs01yx07w1s6nt7bt2",
+      "url": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/54p41fHTDutUJYLwZZNZ",
       "source": "https://www.dtm.com/en/drivers",
-      "dark": true
+      "dark": false
     },
     "Lamborghini": {
       "name": "Lamborghini",
-      "url": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cm9gsj9avmev307uxnsook54v",
+      "url": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cm9wx4q0v3hbb07un3weat62w",
       "source": "https://www.dtm.com/en/drivers",
-      "dark": true
+      "dark": false
     },
     "McLaren": {
       "name": "McLaren",
-      "url": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cm98k8hr902hs07w1plop7n0z",
+      "url": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/bYpQ907RMG62wmiuOKww",
       "source": "https://www.dtm.com/en/drivers",
-      "dark": true
+      "dark": false
     },
     "Ford": {
       "name": "Ford",
-      "url": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cmlhvvf166c7e07ugktj7jo04",
+      "url": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cmohdldcev5vz08w9o8qcvbag",
       "source": "https://www.dtm.com/en/drivers",
-      "dark": true
+      "dark": false
     },
     "Mercedes-AMG": {
       "name": "Mercedes-AMG",
-      "url": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cmk1c98ejm0v107urobahcjq5",
+      "url": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cmk1c9r4xm0zz07ur80dsmwet",
       "source": "https://www.dtm.com/en/drivers",
-      "dark": true
+      "dark": false
     },
     "Aston Martin": {
       "name": "Aston Martin",
-      "url": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cm98k716p01wf07unmixpxhls",
+      "url": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cm9wx1uod3g3n07und65vt8a3",
       "source": "https://www.dtm.com/en/drivers",
-      "dark": true
+      "dark": false
     }
   },
   "teams": {
