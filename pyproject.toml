@@ -40,6 +40,7 @@ include = ["gridpulse*"]
 
 [tool.setuptools.package-data]
 "gridpulse" = ["milestones.json"]
+"gridpulse.pitwall" = ["assets/*.css"]
 "gridpulse.pitwall.tower" = ["index.html"]
 "gridpulse.pitwall.atlas_map" = ["index.html", "bridge.html", "d3.min.js", "D3-LICENSE", "world.json"]
 "gridpulse.pitwall.timeline" = ["index.html"]

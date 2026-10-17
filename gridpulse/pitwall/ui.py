@@ -5,6 +5,7 @@ so the same markup reads well in Streamlit's light and dark themes.
 """
 
 import html
+import json
 
 import pandas as pd
 import streamlit as st
@@ -304,6 +305,17 @@ h1, h2, h3 { letter-spacing: -0.01em; }
   line-height: 1; }
 .pl-brand .tag { font-size: 0.72rem; opacity: 0.55; margin-top: 3px; }
 .pl-brand .context { font-size: 0.66rem; opacity: 0.45; margin-top: 5px; }
+.st-key-brand-home-link a {position:relative;display:block!important;min-height:74px;padding:5px 4px 7px 22px!important;
+  color:inherit;text-decoration:none;border-radius:7px;transition:background .16s,color .16s;}
+.st-key-brand-home-link a p {font-family:"Titillium Web",sans-serif;font-size:clamp(1.9rem,2.4vw,2.2rem);
+  font-weight:700;letter-spacing:-.025em;line-height:1;margin:0;}
+.st-key-brand-home-link a::before {content:"";position:absolute;left:2px;top:13px;width:9px;height:40px;
+  border-radius:2px;background:#E10600;transform:skewX(-14deg);}
+.st-key-brand-home-link a::after {display:block;margin-top:4px;white-space:pre-line;font-size:.68rem;
+  font-weight:400;line-height:1.65;opacity:.55;}
+.st-key-brand-home-link a:hover {background:rgba(128,128,128,.06);}
+.st-key-brand-home-link a:hover p {color:#E10600;}
+.st-key-brand-home-link a:focus-visible {outline:2px solid #E10600;outline-offset:3px;}
 .pl-foot { font-size: 0.72rem; opacity: 0.5; line-height: 1.45; }
 
 /* Cards (keyed containers) get a little more air */
@@ -340,6 +352,14 @@ def inject_css() -> None:
 def sidebar_brand(tagline: str) -> None:
     slot = st.session_state.get("sidebar_brand_slot")
     target = slot if slot is not None else st.sidebar
+    home = next((p for p in st.session_state.get("sidebar_pages", []) if p.title == "Home"), None)
+    if home is not None:
+        with target.container(key="brand-home-link"):
+            st.page_link(home, label=NAME, icon="", help="Return to GridPulse home", width="stretch")
+            # CSS metadata decorates a native page link, preserving the browser session on navigation.
+            caption = json.dumps(TAGLINE + "\n" + tagline, ensure_ascii=False).replace("<", r"\3c ").replace(r"\n", r"\a ")
+            st.html('<style>.st-key-brand-home-link a::after{content:' + caption + ';}</style>')
+        return
     target.html(
         f'<div class="pl-brand"><div class="mark"></div><div><div class="name">{NAME}</div>'
         f'<div class="tag">{TAGLINE}</div><div class="context">{html.escape(tagline)}</div></div></div>'
@@ -352,15 +372,19 @@ def sidebar_navigation(*, fallback: bool = False) -> None:
         return
     series = st.session_state.get("racing_series", "Formula 1")
     current = st.session_state.get("sidebar_current_page", "")
-    if series == "DTM":
-        pages = [p for p in pages if p.url_path in (("dtm", "about") if current == "about" else ("about",))]
+    if current == "":
+        by_path = {p.url_path: p for p in pages}
+        pages = [by_path[path] for path in ("", "replay", "dtm", "circuits", "about")]
+    elif series == "DTM":
+        pages = [p for p in pages if p.url_path in (("", "dtm", "about") if current == "about" else ("", "about"))]
     else:
         by_path = {p.url_path: p for p in pages if p.url_path != "dtm"}
-        pages = [by_path[path] for path in ("season", "", "qualifying", "onboard", "teams", "drivers", "circuits", "about")]
+        pages = [by_path[path] for path in ("", "season", "replay", "qualifying", "onboard", "teams", "drivers", "circuits", "about")]
     slot = st.session_state.get("sidebar_navigation_fallback")
     if not fallback and slot is not None:
         slot.empty()
-    dtm_nav.render_pages(pages, current, series, caption=series != "DTM" or current == "about",
+    dtm_nav.render_pages(pages, current, "GridPulse" if current == "" else series,
+                         caption=current == "" or series != "DTM" or current == "about",
                          target=slot if fallback else None, suffix="-fallback" if fallback else "")
     if not fallback:
         st.session_state.sidebar_navigation_rendered = True
@@ -368,6 +392,10 @@ def sidebar_navigation(*, fallback: bool = False) -> None:
 
 def sidebar_footer(series: str = "Formula 1") -> None:
     sidebar_navigation()
+    if series == "All series":
+        st.sidebar.html('<div class="home-nav-foot">Independent motorsport project<br>'
+                        '<a href="https://github.com/KaiQ7an/gridpulse" target="_blank" rel="noopener noreferrer">Source on GitHub ↗</a></div>')
+        return
     if series == "DTM":
         st.sidebar.html(
             '<div class="dtm-foot">Independent project · Official DTM data<br>'

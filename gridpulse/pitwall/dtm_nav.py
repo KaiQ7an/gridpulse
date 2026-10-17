@@ -57,7 +57,8 @@ def render(views: dict):
 
 
 PAGE_ICONS = {
-    "": '<path d="M5 21V3m0 1h14l-2 4 2 4H5m0-8 4 4 4-4 4 4M5 12l4-4 4 4 4-4"/>',
+    "": '<path d="m3 11 9-8 9 8M5 10v11h5v-7h4v7h5V10"/>',
+    "replay": '<path d="M5 21V3m0 1h14l-2 4 2 4H5m0-8 4 4 4-4 4 4M5 12l4-4 4 4 4-4"/>',
     "qualifying": '<circle cx="12" cy="14" r="7"/><path d="M9 2h6m-3 0v5m5 1 2-2m-7 8 3-3"/>',
     "onboard": '<path d="M4 19a9 9 0 1 1 16 0H4Zm8-7 4-4M6 14h1m5-8v1m5 7h1"/>',
     "season": ICONS["championship"], "teams": ICONS["teams"], "drivers": ICONS["drivers"],
@@ -92,7 +93,7 @@ def render_pages(pages: list, current: str, series: str, *, caption: bool = True
         route = page.url_path
         path = PAGE_ICONS[route]
         svg = f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">{path}</svg>'
-        selector = f'.st-key-series-nav-{route or "replay"}{suffix} [data-testid="stPageLink-NavLink"]'
+        selector = f'.st-key-series-nav-{route or "home"}{suffix} [data-testid="stPageLink-NavLink"]'
         rules += f'{selector}::before {{mask-image:url("data:image/svg+xml,{quote(svg)}")}}'
         if route == current:
             rules += (f'{selector}{{background:rgba(225,6,0,.07);border-color:rgba(225,6,0,.12);color:#E10600}}'
@@ -104,5 +105,5 @@ def render_pages(pages: list, current: str, series: str, *, caption: bool = True
         if caption:
             st.html(f'<div class="series-menu-caption">Explore {series}</div>')
         for page in pages:
-            with st.container(key=f"series-nav-{page.url_path or 'replay'}{suffix}"):
+            with st.container(key=f"series-nav-{page.url_path or 'home'}{suffix}"):
                 st.page_link(page, label="Championship" if page.url_path == "season" else page.title, icon="", width="stretch")

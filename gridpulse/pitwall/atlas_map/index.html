@@ -74,7 +74,7 @@
     <div class="record"><b id="preview-record"></b><span id="preview-holder"></span></div>
     <button id="preview-open">OPEN CIRCUIT FACTS →</button>
   </aside>
-  <svg id="map" role="img" aria-label="Interactive world circuit map"></svg>
+  <svg id="map" role="group" aria-label="Interactive world circuit map"></svg>
   <div class="corner bottom" id="hint">DRAG TO ROTATE · SELECT A REGION OR A RED CIRCUIT MARKER</div>
   <div class="controls"><button id="out" aria-label="Zoom out">−</button><button id="in" aria-label="Zoom in">+</button>
     <button id="motion" aria-label="Pause globe rotation">Ⅱ</button><button id="reset" aria-label="Reset map view">↺</button></div>
@@ -220,7 +220,7 @@
     if(event.source===parent&&event.origin===location.origin&&event.data?.type==='gridpulse:atlas-hover'){
       const c=args?.circuits.find(c=>c.slug===event.data.slug);if(c)activate(c,true);else if(args)clearPreview();return;
     }
-    if(event.data.type!=='streamlit:render')return;
+    if(event.source!==parent||event.data?.type!=='streamlit:render')return;
     const incoming=event.data.args,signature=JSON.stringify(incoming);if(signature===lastSignature)return;
     lastSignature=signature;args=incoming;zoom=1;rotation=[-20,-20];
     try{

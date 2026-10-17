@@ -22,6 +22,7 @@ from gridpulse.pitwall import (
     circuits_page,
     drivers_page,
     dtm_page,
+    home_page,
     onboard_page,
     quali_page,
     season_page,
@@ -482,7 +483,8 @@ def main() -> None:
     f1_visibility = "visible" if ss.racing_series == "Formula 1" else "hidden"
     dtm_visibility = "visible" if ss.racing_series == "DTM" else "hidden"
     pages = [
-        st.Page(race_page, title="Race replay", icon=":material/sports_score:", default=True, visibility=f1_visibility),
+        st.Page(home_or_legacy_replay, title="Home", icon=":material/home:", default=True),
+        st.Page(race_page, title="Race replay", icon=":material/sports_score:", url_path="replay", visibility=f1_visibility),
         st.Page(quali_page.render, title="Qualifying", icon=":material/timer:", url_path="qualifying", visibility=f1_visibility),
         st.Page(onboard_page.render, title="Onboard", icon=":material/speed:", url_path="onboard", visibility=f1_visibility),
         st.Page(season_page.render, title="Season", icon=":material/emoji_events:", url_path="season", visibility=f1_visibility),
@@ -495,32 +497,51 @@ def main() -> None:
     about_page.pages = {page.title: page for page in pages}
     current = st.navigation(pages, position="hidden")
     if ss.pop("switch_racing_series", False):
-        target = "dtm" if ss.racing_series == "DTM" else ss.get("last_f1_page", "")
+        target = "dtm" if ss.racing_series == "DTM" else ss.get("last_f1_page", "replay")
         st.switch_page(next(page for page in pages if page.url_path == target))
-    if current.url_path != "about":
+    legacy_replay = current.url_path == "" and bool(st.query_params.get("year") or st.query_params.get("round"))
+    if current.url_path not in ("about", "") or legacy_replay:
         actual_series = "DTM" if current.url_path == "dtm" else "Formula 1"
         if ss.racing_series != actual_series:
             # A direct or cross-series page link also updates the switcher and visible menu.
             ss.racing_series = actual_series
             st.rerun()
         if actual_series == "Formula 1":
-            ss.last_f1_page = current.url_path
+            ss.last_f1_page = current.url_path or "replay"
 
     def switch_series():
         ss.switch_racing_series = True
         ss.playing = False
 
     ss.sidebar_brand_slot = st.sidebar.empty()
-    st.sidebar.selectbox("Racing series", ["Formula 1", "DTM"], key="racing_series",
-                         on_change=switch_series, help="Switch championships. Each series keeps its own selections.")
+    if current.url_path == "" and not legacy_replay:
+        def enter_series():
+            if ss.home_series_picker != "All series":
+                ss.racing_series = ss.home_series_picker
+                switch_series()
+
+        st.sidebar.selectbox("Racing series", ["All series", "Formula 1", "DTM"], key="home_series_picker",
+                             on_change=enter_series, help="Open a championship. Each series keeps its own selections.")
+    else:
+        st.sidebar.selectbox("Racing series", ["Formula 1", "DTM"], key="racing_series",
+                             on_change=switch_series, help="Switch championships. Each series keeps its own selections.")
     ss.sidebar_pages = pages
-    ss.sidebar_current_page = current.url_path
+    ss.sidebar_current_page = "replay" if legacy_replay else current.url_path
     ss.sidebar_navigation_rendered = False
     # Keep a usable menu visible while data loads or if a page stops early.
     # The normal footer moves it below that page's controls once they are ready.
     ss.sidebar_navigation_fallback = st.sidebar.empty()
     ui.sidebar_navigation(fallback=True)
     current.run()
+
+
+def home_or_legacy_replay() -> None:
+    """Existing /?year=…&round=… links still replay; a clean / is the series hub."""
+    if st.query_params.get("year") or st.query_params.get("round"):
+        st.switch_page(about_page.pages["Race replay"], query_params=dict(st.query_params))
+    else:
+        st.session_state.playing = False
+        home_page.render(about_page.pages)
 
 
 if __name__ == "__main__":

@@ -32,9 +32,9 @@ and other championships are planned additions.
 sourced championship tables, weekend summaries and driver/team/circuit exploration. Use the
 **Racing series** switcher; each series keeps its own selections.
 
-**Try it immediately:** [open the app](https://gridpulse-racing.streamlit.app/), choose a lap,
-then open **Strategy** or **Tyres**. A new visit starts with the latest bundled race snapshot,
-so the first replay does not need an online schedule or timing download. **Check latest races**
+**Try it immediately:** [open the home page](https://gridpulse-racing.streamlit.app/), choose Formula 1 or DTM,
+or jump into a recent weekend. Formula 1's **Strategy** and **Tyres** tools sit inside the replay.
+Home summaries and the first replay use bundled snapshots, without an online schedule or timing download. **Check latest races**
 loads the full calendar when you want a newer session. An idle Community Cloud app may still
 need to wake up; no fixed startup-time guarantee is implied.
 
@@ -46,6 +46,16 @@ need to wake up; no fixed startup-time guarantee is implied.
 ## Features
 
 Both series use the same sidebar design, full-name driver selectors and season-specific teams.
+
+**Home** (`/`)
+
+- Equally sized Formula 1 and DTM entries with attributed team photography and direct feature links.
+- Continue the last F1 replay at its selected lap, drivers, view and spoiler setting, or reopen the last DTM view.
+- Filter recent weekends by series, season and venue. Podiums stay hidden until **Show results** is enabled.
+  Pin up to four weekends to a shortlist, retained for the browser session, and load more results on demand.
+- Switch the interactive circuit globe between F1 and DTM; drag, zoom, choose a region and open a circuit file.
+- The landing page reads saved summaries without fetching a live calendar or building race telemetry.
+  Replay has a dedicated `/replay` route; existing `/?year=…&round=…` links open it with their selections intact.
 
 **`pitwall`: race-day dashboard** (available now)
 

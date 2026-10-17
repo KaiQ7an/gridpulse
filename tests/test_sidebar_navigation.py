@@ -8,7 +8,7 @@ from gridpulse.pitwall import app
 from gridpulse.session import TimingUnavailable
 
 APP = str(Path(__file__).resolve().parent.parent / "gridpulse" / "pitwall" / "app.py")
-F1_LINKS = ["Championship", "Race replay", "Qualifying", "Onboard", "Teams", "Drivers", "Circuits", "About"]
+F1_LINKS = ["GridPulse", "Home", "Championship", "Race replay", "Qualifying", "Onboard", "Teams", "Drivers", "Circuits", "About"]
 
 
 def test_sidebar_links_are_series_specific_and_keep_the_replay(monkeypatch):
@@ -21,7 +21,7 @@ def test_sidebar_links_are_series_specific_and_keep_the_replay(monkeypatch):
     assert 'series-nav-replay' in ''.join(h.proto.body for h in at.get("html"))
     at.selectbox(key="racing_series").set_value("DTM").run()
     assert not at.exception
-    assert [link.label for link in at.sidebar.get("page_link")] == ["About"]
+    assert [link.label for link in at.sidebar.get("page_link")] == ["GridPulse", "Home", "About"]
     assert at.radio(key="dtm_view").options == ["Championship", "Race weekends", "Teams", "Drivers", "Circuits", "Driver comparison"]
     at.selectbox(key="racing_series").set_value("Formula 1").run()
     assert not at.exception
