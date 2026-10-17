@@ -6,7 +6,7 @@ import pandas as pd
 import streamlit as st
 
 from pitlens import snapshots
-from pitlens.pitwall import charts, ui
+from pitlens.pitwall import charts, milestone_cards, ui
 from pitlens.pitwall.navigation import select_season
 from pitlens.season.data import (
     Season,
@@ -74,10 +74,18 @@ def render() -> None:
                          f'border-radius:2px;margin-right:12px;vertical-align:-2px"></span>{html.escape(team)}')
     strip(season, team, row, drivers)
     if info:
-        titles = f"{info['titles']}" + (f" ({info['note']})" if info.get("note") else "")
-        with st.expander("Team background"):
-            ui.strip([ui.stat("Base", info["base"]), ui.stat("Power unit", info.get("power") or "–"),
-                      ui.stat("In F1 since", info["since"]), ui.stat("Constructors' titles", titles)])
+        with st.container(border=True, key="team-background"):
+            ui.label("Team history & headquarters")
+            ui.strip([ui.stat("Headquarters", info["base"]), ui.stat("Founded / identity", info["founded"]),
+                      ui.stat("Power unit", info.get("power") or "–")])
+            st.write(info["history"])
+            milestone_cards.render("f1", "teams", team, year)
+            ui.label(f"Historical honours · through {info['honours_through']}")
+            st.write(f"{info['titles']} constructors’ championships" +
+                     (" · " + ", ".join(map(str, info["title_years"])) if info["title_years"] else " under this constructor identity."))
+            st.markdown(f"[Official F1 team history and profile]({info['source']})")
+            st.caption("Background describes the team’s lineage. Championship years are filtered to the selected season, "
+                       "with verified honours through 2025; predecessor constructors retain their own titles.")
 
     left, right = st.columns([5, 7], gap="large")
     with left, st.container(border=True, key="card-team-drivers"):

@@ -39,7 +39,8 @@ SEASON = [
 ]
 DTM_GUIDE = [("DTM", "2023–2026 official driver, team and manufacturer standings, interactive points charts, "
                      "race calendar, practice and qualifying classifications, both weekend races, "
-                     "driver comparisons and CSV exports.")]
+                     "driver comparisons and CSV exports. Team profiles include headquarters, history, dated honours, "
+                     "season cars and sourced photographs; driver profiles add biography and official portraits.")]
 
 # Set by the app: its pages by title, so the cards and featured races can link to them.
 pages: dict = {}

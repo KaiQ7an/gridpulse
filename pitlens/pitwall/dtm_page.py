@@ -1,5 +1,6 @@
 """DTM championship, weekend classifications and driver comparisons."""
 
+import html
 import os
 from datetime import UTC, datetime
 
@@ -8,11 +9,15 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from pitlens import plotstyle
+from pitlens.drivers.profiles import profile as driver_profile
 from pitlens.dtm import data
-from pitlens.pitwall import ui
+from pitlens.dtm import teams as team_data
+from pitlens.dtm.cars import model, profile
+from pitlens.pitwall import driver_intro, dtm_nav, milestone_cards, ui
 
-VIEWS = {"championship": "Championship", "weekend": "Race weekends", "compare": "Driver comparison"}
-STATE = ("dtm_year", "dtm_view", "dtm_event", "dtm_session", "dtm_drivers", "dtm_category")
+VIEWS = {"championship": "Championship", "weekend": "Race weekends", "drivers": "Drivers",
+         "compare": "Driver comparison", "teams": "Teams"}
+STATE = ("dtm_year", "dtm_view", "dtm_event", "dtm_session", "dtm_drivers", "dtm_category", "dtm_team", "dtm_profile")
 
 
 @st.cache_data(ttl=1800, show_spinner=False)
@@ -47,6 +52,10 @@ def apply_link():
         ss.dtm_session = params["session"]
     if "drivers" in params:
         ss.dtm_drivers = list(dict.fromkeys(params["drivers"].split(",")))[:4]
+    if "team" in params:
+        ss.dtm_team = params["team"]
+    if "driver" in params:
+        ss.dtm_profile = params["driver"]
 
 
 def sync_link():
@@ -56,6 +65,10 @@ def sync_link():
         params.update(event=str(ss.dtm_event), session=ss.dtm_session)
     if ss.dtm_view == "compare":
         params["drivers"] = ",".join(ss.dtm_drivers)
+    if ss.dtm_view == "teams" and ss.get("dtm_team") != "all":
+        params["team"] = ss.dtm_team
+    if ss.dtm_view == "drivers":
+        params["driver"] = ss.dtm_profile
     if dict(st.query_params) != params:
         st.query_params.from_dict(params)
     ss.dtm_link = tuple(sorted(params.items()))
@@ -69,12 +82,15 @@ def render():
     apply_link()
     if ss.pop("dtm_open_weekend", False):
         ss.dtm_view = "weekend"
-    ss.setdefault("dtm_year", data.YEARS[0])
-    ss.setdefault("dtm_view", "championship")
+    if ss.get("dtm_year") not in data.YEARS:
+        ss.dtm_year = data.YEARS[0]
+    if ss.get("dtm_view") not in VIEWS:
+        ss.dtm_view = "championship"
     ui.sidebar_brand("DTM · GT racing")
     year = st.sidebar.selectbox("DTM season", data.YEARS, key="dtm_year")
-    st.sidebar.radio("Explore DTM", list(VIEWS), format_func=VIEWS.get, key="dtm_view")
-    refresh = st.sidebar.button("Refresh official data", icon=":material/refresh:", width="stretch")
+    dtm_nav.render(VIEWS)
+    refresh = st.sidebar.button("Refresh data", icon=":material/refresh:", key="dtm_refresh", width="stretch",
+                                help="Check the official DTM feed for updated classifications.")
     if refresh:
         load.clear()
         ss.dtm_refresh_year = year
@@ -96,8 +112,12 @@ def render():
         championship(season)
     elif ss.dtm_view == "weekend":
         weekend(season)
-    else:
+    elif ss.dtm_view == "compare":
         compare(season)
+    elif ss.dtm_view == "drivers":
+        drivers(season)
+    else:
+        teams(season)
     sync_link()
     with st.expander("Data sources & coverage"):
         st.markdown(f"[DTM results]({season['source']}?season={year}) · "
@@ -142,7 +162,8 @@ def points_chart(season: dict, selected: list[str], category="drivers") -> go.Fi
 
 def championship(season: dict):
     ss = st.session_state
-    ss.setdefault("dtm_category", "drivers")
+    if ss.get("dtm_category") not in ("drivers", "teams", "manufacturers"):
+        ss.dtm_category = "drivers"
     category = st.segmented_control("Championship", ["drivers", "teams", "manufacturers"],
                                     format_func=str.title, key="dtm_category", required=True)
     board = season["standings"][category]
@@ -153,6 +174,7 @@ def championship(season: dict):
     meta = data.entrants(season)
     table = pd.DataFrame([{"Pos": int(r["position"]) if r["position"] else None, "Name": r["name"], "Points": r["points"],
                            **({"Team": meta.get(r["key"], {}).get("team", ""),
+                               "Car model": meta.get(r["key"], {}).get("model", "–"),
                                "Manufacturer": meta.get(r["key"], {}).get("manufacturer", "")} if category == "drivers" else {}),
                            "Race pts": r["race_points"], "Quali pts": r["qualifying_points"]}
                           for r in board])
@@ -228,7 +250,8 @@ def weekend(season: dict):
         ui.strip([ui.stat("Classified P1", next((r["name"] for r in rows if r["position"] == 1 and not r["status"]), "–")),
                   ui.stat("Best lap in classification", best["fastest_lap"], small=best["name"])])
     table = pd.DataFrame([{"Pos": r["position"], "No": r["number"], "Driver": r["name"], "Team": r["team"],
-                           "Manufacturer": r["manufacturer"], "Time": r["time"], "Gap": r["gap"],
+                           "Manufacturer": r["manufacturer"], "Car model": model(season["year"], r["manufacturer"]),
+                           "Time": r["time"], "Gap": r["gap"],
                            "Laps": r["laps"], "Best lap": r["fastest_lap"], "Stops": r["pitstops"],
                            "Status": r["status"] or "Classified",
                            **({"Race pts": r["race_points"], "Quali pts": r["qualifying_points"],
@@ -279,3 +302,94 @@ def compare(season: dict):
             "Colours identify manufacturers; line patterns distinguish drivers.")
     st.download_button("Download driver comparison", table.to_csv(index=False),
                        f"dtm-{season['year']}-comparison.csv", "text/csv")
+
+
+def teams(season: dict):
+    st.html('<style>.dtm-team-photo:hover{transform:scale(1.025)}'
+            'a:focus-visible .dtm-team-photo{outline:2px solid #55bfff;outline-offset:3px}</style>')
+    active = team_data.participants(season)
+    options = ["all", *active]
+    if st.session_state.get("dtm_team") not in options:
+        st.session_state.dtm_team = "all"
+    selected = st.selectbox("Team", options, format_func=lambda k: "All participating teams" if k == "all" else active[k]["name"],
+                            key="dtm_team")
+    ui.label(f"{season['year']} · participating teams")
+    ui.note("Only teams with published race appearances in this season are listed, including guests. "
+            "Sponsor names are grouped under the operating team; the official championship table stays unchanged.")
+    races = data.race_rows(season)
+    columns = st.columns(2, gap="large") if selected == "all" else [st.container()]
+    for i, team_id in enumerate(active if selected == "all" else [selected]):
+        info = active[team_id]
+        results = races[races.team.isin(info["entries"])]
+        classified = results[results.status == ""]
+        with columns[i % len(columns)], st.container(border=True):
+            st.subheader(info["name"])
+            ui.strip([ui.stat("Headquarters", info.get("base") or "Not verified"),
+                      ui.stat("Founded", info.get("founded") or "Not verified")])
+            ui.label("Team history")
+            st.write(info["history"])
+            milestone_cards.render("dtm", "teams", team_id, season["year"])
+            ui.label(f"Selected historical honours · through {season['year']}")
+            honours = [h for h in info.get("honors", []) if h["year"] <= season["year"]]
+            if honours:
+                for honour in honours:
+                    st.markdown(f"- **{honour['year']}** · [{honour['text']}]({honour['source']})")
+            else:
+                st.caption("Historical honours research pending; season results are shown below.")
+            st.caption(f"{season['year']} entrant names: " + " · ".join(sorted(info["entries"])))
+            ui.strip([ui.stat("Season race wins", str(int((classified.position == 1).sum()))),
+                      ui.stat("Season podiums", str(int(classified.position.le(3).sum()))),
+                      ui.stat("Season drivers", str(results.driver.nunique()))])
+            for brand in sorted(results.manufacturer.unique()):
+                car = profile(season["year"], brand)
+                st.markdown(f"**{season['year']} car · {car['name']}**")
+                photo = car.get("photo")
+                # Only use the team-owned image for its own team and generation.
+                # Other teams get an explicitly labelled model reference, never a claimed team photo.
+                own_photo = info.get("photo_brand") == brand and (
+                    (team_id in ("manthey", "emil-frey", "hrt", "comtoyou", "abt") and season["year"] == 2026)
+                    or (team_id == "schubert" and season["year"] >= 2025)
+                    or (team_id == "doerr" and season["year"] >= 2024))
+                if photo:
+                    src, alt = html.escape(photo["url"], quote=True), html.escape(car["name"], quote=True)
+                    st.html(f'<a href="{src}" target="_blank" rel="noopener noreferrer" '
+                            f'aria-label="Open car photograph: {alt}"><img src="{src}" alt="{alt}" loading="lazy" '
+                            'style="width:100%;height:280px;object-fit:contain;background:rgba(128,128,128,.06);'
+                            'border-radius:8px;transition:transform .18s" class="dtm-team-photo"></a>')
+                    st.caption("Team-published car photograph; shown livery may differ between drivers." if own_photo else
+                               "Model reference photograph; not this team’s season livery.")
+                    st.markdown(f"Photo source: [{photo['credit']}]({photo['source']})")
+            entries = results[["driver", "name", "number", "model"]].drop_duplicates().copy()
+            entries["Profile"] = entries.driver.map(lambda d: f"/dtm?year={season['year']}&view=drivers&driver={d}")
+            entries["name"] = [driver_profile("dtm", d).get("name") or n
+                               for d, n in zip(entries.driver, entries.name)]
+            st.dataframe(entries.drop(columns="driver").rename(columns={"name": "Driver", "number": "No", "model": "Car model"}),
+                         hide_index=True, width="stretch", column_config={"Profile": st.column_config.LinkColumn(display_text="Driver profile")})
+            with st.expander("Profile sources & scope"):
+                st.write(info.get("facts_note", "Facts refer to the operating team; unverified founding dates and bases are left blank."))
+                st.write("History is a current background profile. The honours list is filtered through the selected year and is not an exhaustive trophy count.")
+                for j, source in enumerate(info["sources"], 1):
+                    st.markdown(f"[Official team / series reference {j}]({source})")
+
+
+def drivers(season: dict):
+    entries = data.entrants(season)
+    order = [r["key"] for r in season["standings"]["drivers"] if r["key"] in entries]
+    order += sorted(set(entries) - set(order), key=lambda d: entries[d]["name"])
+    if st.session_state.get("dtm_profile") not in order:
+        st.session_state.dtm_profile = order[0]
+    names = {d: driver_profile("dtm", d).get("name") or entries[d]["name"] for d in order}
+    selected = st.selectbox("Driver", order, format_func=names.get, key="dtm_profile")
+    entry = entries[selected]
+    ui.header(f"{season['year']} · DTM driver", names[selected])
+    driver_intro.render("dtm", selected, season["year"], entry["name"], team=entry["team"], car=entry["model"])
+    all_rows = data.race_rows(season)
+    rows = all_rows[all_rows.driver == selected]
+    classified = rows[rows.status == ""]
+    ui.strip([ui.stat("Race appearances", str(len(rows))), ui.stat("Wins", str(int((classified.position == 1).sum()))),
+              ui.stat("Podiums", str(int(classified.position.le(3).sum())))])
+    ui.label("The season · race by race")
+    st.dataframe(rows[["round", "event", "session", "team", "model", "position", "status", "total_points"]].rename(
+        columns={"round": "Round", "event": "Circuit", "session": "Race", "team": "Team", "model": "Car model",
+                 "position": "Position", "status": "Status", "total_points": "Points incl. qualifying"}),
+        hide_index=True, width="stretch")

@@ -1,0 +1,928 @@
+{
+  "dorr-ben": {
+    "name": "Ben Dörr",
+    "birth": "25.01.2005",
+    "debut": "2024",
+    "nationality": "Germany",
+    "portraits": {
+      "2024": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/UWqwqWnKS4Ozjd3yQ0Up",
+      "2025": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cm90bmhif2lw607vs6bw54g98",
+      "2026": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cmnzzlsra06xt07vr5t4jh1sy"
+    },
+    "source": "https://api.dtm.com/data?query=driverDetail&slug=ben-doerr",
+    "website": "http://www.doerrgroup.com/",
+    "slug": "ben-doerr",
+    "intro": "Ben Dörr is a racing driver from Germany. Their first DTM appearance was in 2024.",
+    "sources": [
+      "https://api.dtm.com/data?query=driverDetail&slug=ben-doerr"
+    ],
+    "profile_url": "https://www.dtm.com/en/driver/ben-doerr"
+  },
+  "auer-lucas": {
+    "name": "Lucas Auer",
+    "birth": "11.09.1994",
+    "debut": "2015",
+    "nationality": "Austria",
+    "portraits": {
+      "2020": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/CpFhxTPTNClNpIW5vVIg",
+      "2021": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/lg6xlpj3TwuYnBCLfy5W",
+      "2022": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cSxMRHlTIGKAYaAP76Hu",
+      "2023": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/b8kfnqG0SdSJ3tuhr3TW",
+      "2024": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/4DTZ2CbhQaGtAPzX3fwA",
+      "2025": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cm90bnhcc2ktk07w7osx39beb",
+      "2026": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cmo8rkoer25zu07w0mb2184zw"
+    },
+    "source": "https://api.dtm.com/data?query=driverDetail&slug=lucas-auer",
+    "website": "https://www.lucasauer.com/",
+    "slug": "lucas-auer",
+    "intro": "Lucas Auer is a racing driver from Austria. Their first DTM appearance was in 2015.",
+    "sources": [
+      "https://api.dtm.com/data?query=driverDetail&slug=lucas-auer"
+    ],
+    "profile_url": "https://www.dtm.com/en/driver/lucas-auer"
+  },
+  "gounon-jules": {
+    "name": "Jules Gounon",
+    "birth": "31.12.1994",
+    "debut": "2024",
+    "nationality": "France",
+    "portraits": {
+      "2024": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/jMvzDEZ6SClMOdkg57jw",
+      "2025": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cm90bkm6s2l2q07vskylc5cp4",
+      "2026": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cmnzzlt18066w08w83nd9x0fp"
+    },
+    "source": "https://api.dtm.com/data?query=driverDetail&slug=jules-gounon",
+    "website": "",
+    "slug": "jules-gounon",
+    "intro": "Jules Gounon is a racing driver from France. Their first DTM appearance was in 2024.",
+    "sources": [
+      "https://api.dtm.com/data?query=driverDetail&slug=jules-gounon"
+    ],
+    "profile_url": "https://www.dtm.com/en/driver/jules-gounon"
+  },
+  "kalender-tom": {
+    "name": "Tom Kalender",
+    "birth": "27.03.2008",
+    "debut": "2025",
+    "nationality": "Germany",
+    "portraits": {
+      "2025": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cm90bfkpb2iw207vsu6jdzg9m",
+      "2026": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cmp43on9w0b5207vwrg0iy2tl"
+    },
+    "source": "https://api.dtm.com/data?query=driverDetail&slug=tom-kalender",
+    "website": "https://www.tom-kalender.de/",
+    "slug": "tom-kalender",
+    "intro": "Tom Kalender is a racing driver from Germany. Their first DTM appearance was in 2025.",
+    "sources": [
+      "https://api.dtm.com/data?query=driverDetail&slug=tom-kalender"
+    ],
+    "profile_url": "https://www.dtm.com/en/driver/tom-kalender"
+  },
+  "vermeulen-thierry": {
+    "name": "Thierry Vermeulen",
+    "birth": "29.07.2002",
+    "debut": "2023",
+    "nationality": "Netherlands",
+    "portraits": {
+      "2023": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/35oeyR75SkZaKTIEgy23",
+      "2024": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/ubAt6Uz5QXOsGdnjZsSN",
+      "2025": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cm90bjlae2ja107w7i8mmgmvz",
+      "2026": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cmo8rk4bt25td07w0ozxfsf5z"
+    },
+    "source": "https://api.dtm.com/data?query=driverDetail&slug=thierry-vermeulen",
+    "website": "",
+    "slug": "thierry-vermeulen",
+    "intro": "Thierry Vermeulen is a racing driver from Netherlands. Their first DTM appearance was in 2023.",
+    "sources": [
+      "https://api.dtm.com/data?query=driverDetail&slug=thierry-vermeulen"
+    ],
+    "profile_url": "https://www.dtm.com/en/driver/thierry-vermeulen"
+  },
+  "engel-maro": {
+    "name": "Maro Engel",
+    "birth": "27.08.1985",
+    "debut": "2008",
+    "nationality": "Germany",
+    "portraits": {
+      "2022": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/LhsXwgzqQ1OkgGdnjCEc",
+      "2023": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/5uZ2ZhErQImN50F4GZfh",
+      "2024": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/7pX7p3rSR2KEABMZqS2A",
+      "2025": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cm92qqlvq076k07w4tk0t7bwl",
+      "2026": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cmo8rjn6k25iu07w09kstk7qa"
+    },
+    "source": "https://api.dtm.com/data?query=driverDetail&slug=maro-engel",
+    "website": "https://maroengel.com/",
+    "slug": "maro-engel",
+    "intro": "Maro Engel is a racing driver from Germany. Their first DTM appearance was in 2008.",
+    "sources": [
+      "https://api.dtm.com/data?query=driverDetail&slug=maro-engel"
+    ],
+    "profile_url": "https://www.dtm.com/en/driver/maro-engel"
+  },
+  "glock-timo": {
+    "name": "Timo Glock",
+    "birth": "18.03.1982",
+    "debut": "2013",
+    "nationality": "Germany",
+    "portraits": {
+      "2022": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/9E8caAWQBacjaYOzPz8h",
+      "2025": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cm90boebt2mty07vsnky8br2l",
+      "2026": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cmnzzlsz8066o08w80o1wzbls"
+    },
+    "source": "https://api.dtm.com/data?query=driverDetail&slug=timo-glock",
+    "website": "https://timoglock.com/de/",
+    "slug": "timo-glock",
+    "intro": "A former Formula 1 driver and DTM race winner. Glock returned to DTM with Dörr Motorsport and McLaren in 2025.",
+    "sources": [
+      "https://api.dtm.com/data?query=driverDetail&slug=timo-glock",
+      "https://www.dtm.com/en/news/New-manufacturers-new-stars-new-race-format-the-2025-DTM"
+    ],
+    "profile_url": "https://www.dtm.com/en/driver/timo-glock"
+  },
+  "preining-thomas": {
+    "name": "Thomas Preining",
+    "birth": "21.07.1998",
+    "debut": "2022",
+    "nationality": "Austria",
+    "portraits": {
+      "2022": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/f9NhexeRcGkkjF44REIw",
+      "2023": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/QN4orRMcTbfvHXfZe3QG",
+      "2024": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/z9CwyAwS8SngDKMoNsXo",
+      "2025": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cm90bip9a2iyk07w7pur9jowy",
+      "2026": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cmo8rj1d5254y07w08gom59ar"
+    },
+    "source": "https://api.dtm.com/data?query=driverDetail&slug=thomas-preining",
+    "website": "",
+    "slug": "thomas-preining",
+    "intro": "The Austrian won the 2023 DTM title with Manthey. His career in GT racing includes racing the Porsche 911 GT3 R in DTM.",
+    "sources": [
+      "https://api.dtm.com/data?query=driverDetail&slug=thomas-preining",
+      "https://www.dtm.com/en/news/Stellar-field-set-to-shine-in-the-2026-DTM"
+    ],
+    "profile_url": "https://www.dtm.com/en/driver/thomas-preining"
+  },
+  "cairoli-matteo": {
+    "name": "Matteo Cairoli",
+    "birth": "01.06.1996",
+    "debut": "2026",
+    "nationality": "Italy",
+    "portraits": {
+      "2026": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cmnzzlsnv066808w8dq24g72o"
+    },
+    "source": "https://api.dtm.com/data?query=driverDetail&slug=matteo-cairoli ",
+    "website": "",
+    "slug": "matteo-cairoli ",
+    "intro": "An Italian GT and endurance racer who joined Emil Frey Racing for his DTM debut in 2026, driving the Ferrari 296 GT3 Evo.",
+    "sources": [
+      "https://api.dtm.com/data?query=driverDetail&slug=matteo-cairoli ",
+      "https://www.dtm.com/en/news/New-Ferrari-and-new-driver-Emil-Frey-Racing-ready-for-the-2026-DTM"
+    ],
+    "profile_url": "https://www.dtm.com/en/driver/matteo-cairoli "
+  },
+  "buus-bastian": {
+    "name": "Bastian Buus",
+    "birth": "",
+    "debut": "2026",
+    "nationality": "Denmark",
+    "portraits": {
+      "2026": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cmnzzlsle065z08w8lfswusqr"
+    },
+    "source": "https://api.dtm.com/data?query=driverDetail&slug=bastian-buus",
+    "website": "",
+    "slug": "bastian-buus",
+    "intro": "A Danish racer who joined Land-Motorsport for his first DTM season in 2026, racing a Porsche 911 GT3 R Evo.",
+    "sources": [
+      "https://api.dtm.com/data?query=driverDetail&slug=bastian-buus",
+      "https://www.dtm.com/en/news/Stellar-field-set-to-shine-in-the-2026-DTM"
+    ],
+    "profile_url": "https://www.dtm.com/en/driver/bastian-buus"
+  },
+  "wittmann-marco": {
+    "name": "Marco Wittmann",
+    "birth": "24.11.1989",
+    "debut": "2013",
+    "nationality": "Germany",
+    "portraits": {
+      "2019": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/hLA16QWGTZWqawEWM9T9",
+      "2020": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/HuIQX6kQSG6ca2BkXCRC",
+      "2021": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/JMPmlTPVRlOO9VcPmn6k",
+      "2022": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/284WmRSCTbm20tebzIsr",
+      "2023": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/FqAZchRiTYq5Pgdj0SOz",
+      "2024": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/8KzDMtt1QveAmCiASu4X",
+      "2025": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cm90bp8kc2ls207w7scoplrky",
+      "2026": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cmnzzltmo06zd07vr5nxdxd7p"
+    },
+    "source": "https://api.dtm.com/data?query=driverDetail&slug=marco-wittmann",
+    "website": "https://www.marco-wittmann.de/",
+    "slug": "marco-wittmann",
+    "intro": "A two-time DTM champion and long-standing BMW driver. Wittmann continued his DTM career with Schubert Motorsport in the BMW M4 GT3 family.",
+    "sources": [
+      "https://api.dtm.com/data?query=driverDetail&slug=marco-wittmann",
+      "https://www.dtm.com/en/news/Stellar-field-set-to-shine-in-the-2026-DTM"
+    ],
+    "profile_url": "https://www.dtm.com/en/driver/marco-wittmann"
+  },
+  "wiebelhaus-finn": {
+    "name": "Finn Wiebelhaus",
+    "birth": "",
+    "debut": "2026",
+    "nationality": "Germany",
+    "portraits": {
+      "2026": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cmocz8yz11bhr07uswxtpenz9"
+    },
+    "source": "https://api.dtm.com/data?query=driverDetail&slug=finn-wiebelhaus",
+    "website": "",
+    "slug": "finn-wiebelhaus",
+    "intro": "A graduate of the Road to DTM programme. Wiebelhaus moved into DTM with HRT Ford Racing after winning in ADAC GT Masters.",
+    "sources": [
+      "https://api.dtm.com/data?query=driverDetail&slug=finn-wiebelhaus",
+      "https://www.dtm.com/en/news/Stellar-field-set-to-shine-in-the-2026-DTM"
+    ],
+    "profile_url": "https://www.dtm.com/en/driver/finn-wiebelhaus"
+  },
+  "van-der-linde-kelvin": {
+    "name": "Kelvin van der Linde",
+    "birth": "20.06.1996",
+    "debut": "2021",
+    "nationality": "South Africa",
+    "portraits": {
+      "2021": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/P1TDfbrrScCbfU5uBkvJ",
+      "2022": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/ZTSp37TlQvejLdLKigtG",
+      "2023": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/5akG0Rq9QTCNQvUkO4R9",
+      "2024": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/LRdmvIH8T9rH36xQWRdu",
+      "2026": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cmnzzltg506z507vrmnmua92k"
+    },
+    "source": "https://api.dtm.com/data?query=driverDetail&slug=kelvin-van-der-linde",
+    "website": "https://kelvinvanderlinde.com/",
+    "slug": "kelvin-van-der-linde",
+    "intro": "Kelvin van der Linde is a racing driver from South Africa. Their first DTM appearance was in 2021.",
+    "sources": [
+      "https://api.dtm.com/data?query=driverDetail&slug=kelvin-van-der-linde"
+    ],
+    "profile_url": "https://www.dtm.com/en/driver/kelvin-van-der-linde"
+  },
+  "maini-arjun": {
+    "name": "Arjun Maini",
+    "birth": "10.12.1997",
+    "debut": "2021",
+    "nationality": "India",
+    "portraits": {
+      "2021": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/yWCwxmNSs2kUqFdbUN6t",
+      "2022": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/d0if512xTRaF5FePVmry",
+      "2023": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/a70Zpv5NTvikOIv0ZZ8l",
+      "2024": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/1ugbFHIOShmOAIrH8Bn4",
+      "2025": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cm90bl1cf2lfu07vs2gra1whd",
+      "2026": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cmocz8et018ie07vydekaykd4"
+    },
+    "source": "https://api.dtm.com/data?query=driverDetail&slug=arjun-maini",
+    "website": "https://www.arjunmaini36.com",
+    "slug": "arjun-maini",
+    "intro": "Arjun Maini is a racing driver from India. Their first DTM appearance was in 2021.",
+    "sources": [
+      "https://api.dtm.com/data?query=driverDetail&slug=arjun-maini"
+    ],
+    "profile_url": "https://www.dtm.com/en/driver/arjun-maini"
+  },
+  "feller-ricardo": {
+    "name": "Ricardo Feller",
+    "birth": "01.06.2000",
+    "debut": "2022",
+    "nationality": "Switzerland",
+    "portraits": {
+      "2022": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/IQ54tOZFQW6wjcCH8i6V",
+      "2023": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/3f20LPnBR1yjMKHomWY9",
+      "2024": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/eSV63m7WQPaMEFxmkfW3",
+      "2025": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cm90blzda2lqd07vs2g0dn1fj",
+      "2026": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cmnzzlsx606y907vrpkp3v4bm"
+    },
+    "source": "https://api.dtm.com/data?query=driverDetail&slug=ricardo-feller",
+    "website": "https://www.ricardofeller.ch",
+    "slug": "ricardo-feller",
+    "intro": "Ricardo Feller is a racing driver from Switzerland. Their first DTM appearance was in 2022.",
+    "sources": [
+      "https://api.dtm.com/data?query=driverDetail&slug=ricardo-feller"
+    ],
+    "profile_url": "https://www.dtm.com/en/driver/ricardo-feller"
+  },
+  "engstler-luca": {
+    "name": "Luca Engstler",
+    "birth": "08.08.2000",
+    "debut": "2023",
+    "nationality": "Germany",
+    "portraits": {
+      "2023": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/rdz3enFhRRiHQ9IdZLgq",
+      "2024": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/yvcwCwpCQ2mcjMi8cEZ7",
+      "2025": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cm90bnym92mgn07vs9fdsifx1",
+      "2026": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cmnzzlsv506y107vrqyqevl2a"
+    },
+    "source": "https://api.dtm.com/data?query=driverDetail&slug=luca-engstler",
+    "website": "",
+    "slug": "luca-engstler",
+    "intro": "Luca Engstler is a racing driver from Germany. Their first DTM appearance was in 2023.",
+    "sources": [
+      "https://api.dtm.com/data?query=driverDetail&slug=luca-engstler"
+    ],
+    "profile_url": "https://www.dtm.com/en/driver/luca-engstler"
+  },
+  "bortolotti-mirko": {
+    "name": "Mirko Bortolotti",
+    "birth": "10.01.1990",
+    "debut": "2021",
+    "nationality": "Italy",
+    "portraits": {
+      "2021": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/brfsn0F5RkmQQpZ7lF5s",
+      "2022": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/2Y8qGHSuSlmWeQfo7x3W",
+      "2023": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/uYYQCa1RSVqyuNjnFnM9",
+      "2024": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/W2lgjP9DSKKkFg9EUi0f",
+      "2025": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cm90bq1p32m8307w7hqihugcd",
+      "2026": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cmnzzlsiq06xl07vr5bao7mjl"
+    },
+    "source": "https://api.dtm.com/data?query=driverDetail&slug=mirko-bortolotti",
+    "website": "https://www.mirkobortolotti.com",
+    "slug": "mirko-bortolotti",
+    "intro": "The Italian won the 2024 DTM championship. A Lamborghini driver, Bortolotti has raced both the Huracán GT3 and its successor, the Temerario GT3.",
+    "sources": [
+      "https://api.dtm.com/data?query=driverDetail&slug=mirko-bortolotti",
+      "https://www.dtm.com/en/news/Stellar-field-set-to-shine-in-the-2026-DTM"
+    ],
+    "profile_url": "https://www.dtm.com/en/driver/mirko-bortolotti"
+  },
+  "baert-nicolas": {
+    "name": "Nicolas Baert",
+    "birth": "",
+    "debut": "2025",
+    "nationality": "Belgium",
+    "portraits": {
+      "2025": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cm90bgo0j2i9h07w7nq841s46",
+      "2026": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cmnzzlsgo06xd07vryr82d69v"
+    },
+    "source": "https://api.dtm.com/data?query=driverDetail&slug=nicolas-baert",
+    "website": "https://www.nicolasbaert.com/",
+    "slug": "nicolas-baert",
+    "intro": "A Belgian driver who made his DTM debut with Comtoyou Racing in 2025. Baert has raced for the team in GT competition and was part of the Aston Martin Driver Academy.",
+    "sources": [
+      "https://api.dtm.com/data?query=driverDetail&slug=nicolas-baert",
+      "https://www.dtm.com/en/news/Eight-manufacturers-in-the-2025-DTM-Aston-Martin-returns"
+    ],
+    "profile_url": "https://www.dtm.com/en/driver/nicolas-baert"
+  },
+  "thiim-nicki": {
+    "name": "Nicki Thiim",
+    "birth": "17.04.1989",
+    "debut": "2022",
+    "nationality": "Denmark",
+    "portraits": {
+      "2022": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/Hh5toT3S66ZkFRguwqgJ",
+      "2024": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/YLMxFj2ZSiSFtXGM8q1k",
+      "2025": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cm90bpm8t2m0107w705erfhwk",
+      "2026": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cmnzzlte6067k08w8fn2uzcmf"
+    },
+    "source": "https://api.dtm.com/data?query=driverDetail&slug=nicki-thiim",
+    "website": "https://teamthiim.com/",
+    "slug": "nicki-thiim",
+    "intro": "Nicki Thiim is a racing driver from Denmark. Their first DTM appearance was in 2022.",
+    "sources": [
+      "https://api.dtm.com/data?query=driverDetail&slug=nicki-thiim"
+    ],
+    "profile_url": "https://www.dtm.com/en/driver/nicki-thiim"
+  },
+  "paul-maximilian": {
+    "name": "Maximilian Paul",
+    "birth": "14.02.2000",
+    "debut": "2021",
+    "nationality": "Germany",
+    "portraits": {
+      "2023": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/6M74ebCrSnO0fAQbONxz",
+      "2024": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/NO02OtERoSGErXGJLlDn",
+      "2025": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cm90bj4f52j5i07w7vl97yd9g",
+      "2026": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cmnzzltac06yp07vr8xqtpu6x"
+    },
+    "source": "https://api.dtm.com/data?query=driverDetail&slug=maximilian-paul",
+    "website": "",
+    "slug": "maximilian-paul",
+    "intro": "Maximilian Paul is a racing driver from Germany. Their first DTM appearance was in 2021.",
+    "sources": [
+      "https://api.dtm.com/data?query=driverDetail&slug=maximilian-paul"
+    ],
+    "profile_url": "https://www.dtm.com/en/driver/maximilian-paul"
+  },
+  "mapelli-marco": {
+    "name": "Marco Mapelli",
+    "birth": "01.08.1987",
+    "debut": "2026",
+    "nationality": "Italy",
+    "portraits": {
+      "2026": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cmnzzlt8a067c08w8y4hn615a"
+    },
+    "source": "https://api.dtm.com/data?query=driverDetail&slug=marco-mapelli",
+    "website": "",
+    "slug": "marco-mapelli",
+    "intro": "Marco Mapelli is a racing driver from Italy. Their first DTM appearance was in 2026.",
+    "sources": [
+      "https://api.dtm.com/data?query=driverDetail&slug=marco-mapelli"
+    ],
+    "profile_url": "https://www.dtm.com/en/driver/marco-mapelli"
+  },
+  "engelhart-christian": {
+    "name": "Christian Engelhart_",
+    "birth": "13.12.1986",
+    "debut": "2022",
+    "nationality": "Germany",
+    "portraits": {
+      "2023": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/sB4cy6QsTvOdvptqKoRp"
+    },
+    "source": "https://api.dtm.com/data?query=driverDetail&slug=christian-engelhart_",
+    "website": "",
+    "slug": "christian-engelhart_",
+    "intro": "Christian Engelhart_ is a racing driver from Germany. Their first DTM appearance was in 2022.",
+    "sources": [
+      "https://api.dtm.com/data?query=driverDetail&slug=christian-engelhart_"
+    ],
+    "profile_url": "https://www.dtm.com/en/driver/christian-engelhart_"
+  },
+  "primm-simon-connor": {
+    "name": "Simon Connor Primm",
+    "birth": "22.02.2005",
+    "debut": "2026",
+    "nationality": "Germany",
+    "portraits": {
+      "2026": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cmtwu6cu3102106um65qlpakq"
+    },
+    "source": "https://api.dtm.com/data?query=driverDetail&slug=simon-connor-primm",
+    "website": "",
+    "slug": "simon-connor-primm",
+    "intro": "Simon Connor Primm is a racing driver from Germany. Their first DTM appearance was in 2026.",
+    "sources": [
+      "https://api.dtm.com/data?query=driverDetail&slug=simon-connor-primm"
+    ],
+    "profile_url": "https://www.dtm.com/en/driver/simon-connor-primm"
+  },
+  "pepper-jordan": {
+    "name": "Jordan Pepper",
+    "birth": "31.07.1996",
+    "debut": "2024",
+    "nationality": "South Africa",
+    "portraits": {
+      "2024": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/mKKuIZSs6Er6GqLoj0fQ",
+      "2025": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cm90bk1b12kv507vsw0e0hz3e"
+    },
+    "source": "https://api.dtm.com/data?query=driverDetail&slug=jordan-pepper",
+    "website": "http://www.jordanpepper.com/",
+    "slug": "jordan-pepper",
+    "intro": "Jordan Pepper is a racing driver from South Africa. Their first DTM appearance was in 2024.",
+    "sources": [
+      "https://api.dtm.com/data?query=driverDetail&slug=jordan-pepper"
+    ],
+    "profile_url": "https://www.dtm.com/en/driver/jordan-pepper"
+  },
+  "guven-ayhancan": {
+    "name": "Ayhancan Güven",
+    "birth": "02.01.1998",
+    "debut": "2022",
+    "nationality": "Turkey",
+    "portraits": {
+      "2022": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/zdjsOto9T0aC91rRDEfr",
+      "2023": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/hjf8ePlWSL2QanYda6w0",
+      "2024": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/UpP3Fy55Rd2yxxnz05c7",
+      "2025": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cm90bi8g22ioi07w7y829jc37"
+    },
+    "source": "https://api.dtm.com/data?query=driverDetail&slug=ayhancan-guven",
+    "website": "",
+    "slug": "ayhancan-guven",
+    "intro": "A Turkish GT driver who won the 2025 DTM championship with Manthey EMA in a Porsche 911 GT3 R.",
+    "sources": [
+      "https://api.dtm.com/data?query=driverDetail&slug=ayhancan-guven",
+      "https://www.dtm.com/de/news/Gro%C3%9Fes-DTM-Aufgebot-auf-der-Essen-Motor-Show-2025"
+    ],
+    "profile_url": "https://www.dtm.com/en/driver/ayhancan-guven"
+  },
+  "schuring-morris": {
+    "name": "Morris Schuring",
+    "birth": "20.02.2005",
+    "debut": "2025",
+    "nationality": "Netherlands",
+    "portraits": {
+      "2025": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cm90bf0ic2h8s07w7dmu3207k"
+    },
+    "source": "https://api.dtm.com/data?query=driverDetail&slug=morris-schuring",
+    "website": "",
+    "slug": "morris-schuring",
+    "intro": "Morris Schuring is a racing driver from Netherlands. Their first DTM appearance was in 2025.",
+    "sources": [
+      "https://api.dtm.com/data?query=driverDetail&slug=morris-schuring"
+    ],
+    "profile_url": "https://www.dtm.com/en/driver/morris-schuring"
+  },
+  "green-ben": {
+    "name": "Ben Green",
+    "birth": "02.02.1998",
+    "debut": "2025",
+    "nationality": "United Kingdom",
+    "portraits": {
+      "2025": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cm90bhqg72ih607w7yn2ym6jx"
+    },
+    "source": "https://api.dtm.com/data?query=driverDetail&slug=ben-green",
+    "website": "",
+    "slug": "ben-green",
+    "intro": "Ben Green is a racing driver from United Kingdom. Their first DTM appearance was in 2025.",
+    "sources": [
+      "https://api.dtm.com/data?query=driverDetail&slug=ben-green"
+    ],
+    "profile_url": "https://www.dtm.com/en/driver/ben-green"
+  },
+  "aitken-jack": {
+    "name": "Jack Aitken",
+    "birth": "29.09.1995",
+    "debut": "2023",
+    "nationality": "United Kingdom",
+    "portraits": {
+      "2023": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/J8KBs6KrQLP98Jrg5uzB",
+      "2024": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/oCIQp3nMQaiASGWmpDqR",
+      "2025": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cm90bou402n1707vsip0w6kyo"
+    },
+    "source": "https://api.dtm.com/data?query=driverDetail&slug=jack-aitken",
+    "website": "https://jackaitken.com/",
+    "slug": "jack-aitken",
+    "intro": "Jack Aitken is a racing driver from United Kingdom. Their first DTM appearance was in 2023.",
+    "sources": [
+      "https://api.dtm.com/data?query=driverDetail&slug=jack-aitken"
+    ],
+    "profile_url": "https://www.dtm.com/en/driver/jack-aitken"
+  },
+  "rast-rene": {
+    "name": "René Rast",
+    "birth": "26.10.1986",
+    "debut": "2016",
+    "nationality": "Germany",
+    "portraits": {
+      "2020": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/kLYI8JewRiKzxLpZgHrH",
+      "2019": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/EX4oSgLTaSwawwMpCrPr",
+      "2022": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/9IEZanlqR3CQFDmQDXs7",
+      "2023": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/f6XI6LMXRqiyxQgLrq4u",
+      "2024": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/3OA66QtR3Wj2MdI9gQjr",
+      "2025": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cm90bli5q2k0p07w7b2j3ehno"
+    },
+    "source": "https://api.dtm.com/data?query=driverDetail&slug=rene-rast",
+    "website": "https://rene-rast.de/",
+    "slug": "rene-rast",
+    "intro": "A three-time DTM champion. Rast raced for Schubert Motorsport in the BMW M4 GT3 Evo during the 2025 season.",
+    "sources": [
+      "https://api.dtm.com/data?query=driverDetail&slug=rene-rast",
+      "https://www.dtm.com/en/news/New-manufacturers-new-stars-new-race-format-the-2025-DTM"
+    ],
+    "profile_url": "https://www.dtm.com/en/driver/rene-rast"
+  },
+  "magnus-gilles": {
+    "name": "Gilles Magnus",
+    "birth": "30.08.1999",
+    "debut": "2025",
+    "nationality": "Belgium",
+    "portraits": {
+      "2025": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cm90bh81f2ide07w7dgb7k550"
+    },
+    "source": "https://api.dtm.com/data?query=driverDetail&slug=gilles-magnus",
+    "website": "",
+    "slug": "gilles-magnus",
+    "intro": "Gilles Magnus is a racing driver from Belgium. Their first DTM appearance was in 2025.",
+    "sources": [
+      "https://api.dtm.com/data?query=driverDetail&slug=gilles-magnus"
+    ],
+    "profile_url": "https://www.dtm.com/en/driver/gilles-magnus"
+  },
+  "scherer-fabio": {
+    "name": "Fabio Scherer",
+    "birth": "13.06.1999",
+    "debut": "2020",
+    "nationality": "Switzerland",
+    "portraits": {
+      "2025": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cmcpzgor4704707vz0jbtxaln"
+    },
+    "source": "https://api.dtm.com/data?query=driverDetail&slug=fabio-scherer",
+    "website": "https://fabioscherer.ch/",
+    "slug": "fabio-scherer",
+    "intro": "Fabio Scherer is a racing driver from Switzerland. Their first DTM appearance was in 2020.",
+    "sources": [
+      "https://api.dtm.com/data?query=driverDetail&slug=fabio-scherer"
+    ],
+    "profile_url": "https://www.dtm.com/en/driver/fabio-scherer"
+  },
+  "van-der-linde-sheldon": {
+    "name": "Sheldon van der Linde",
+    "birth": "13.05.1999",
+    "debut": "2019",
+    "nationality": "South Africa",
+    "portraits": {
+      "2020": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/wPfh3tEiScu1l0gZvoWy",
+      "2021": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/kDw96MvsSFO3qGMROOQU",
+      "2022": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/n72Ri70fQACZXsvfbuIL",
+      "2023": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/FfIVFeNeTO2EHoLOKBj1",
+      "2024": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cG1VJyihQIezb19wnJox"
+    },
+    "source": "https://api.dtm.com/data?query=driverDetail&slug=sheldon-van-der-linde",
+    "website": "https://sheldonvanderlinde.com",
+    "slug": "sheldon-van-der-linde",
+    "intro": "Sheldon van der Linde is a racing driver from South Africa. Their first DTM appearance was in 2019.",
+    "sources": [
+      "https://api.dtm.com/data?query=driverDetail&slug=sheldon-van-der-linde"
+    ],
+    "profile_url": "https://www.dtm.com/en/driver/sheldon-van-der-linde"
+  },
+  "stolz-luca": {
+    "name": "Luca Stolz",
+    "birth": "29.05.1995",
+    "debut": "2021",
+    "nationality": "Germany",
+    "portraits": {
+      "2022": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/kryMTLK8TlyBTlaH1DnW",
+      "2023": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/8WqgwhZ4SUiutFEyjvtA",
+      "2024": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/nWJnrCXSo6rr2rzfJhfq"
+    },
+    "source": "https://api.dtm.com/data?query=driverDetail&slug=luca-stolz",
+    "website": "",
+    "slug": "luca-stolz",
+    "intro": "Luca Stolz is a racing driver from Germany. Their first DTM appearance was in 2021.",
+    "sources": [
+      "https://api.dtm.com/data?query=driverDetail&slug=luca-stolz"
+    ],
+    "profile_url": "https://www.dtm.com/en/driver/luca-stolz"
+  },
+  "schmid-clemens": {
+    "name": "Clemens Schmid",
+    "birth": "18.08.1990",
+    "debut": "2022",
+    "nationality": "Austria",
+    "portraits": {
+      "2022": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/2CDLQ7CrSpyjZa2MGJhD",
+      "2023": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/WRupky5T4GVfy6bHPkjg",
+      "2024": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/OEUGpDmIQQiJJOwLobWZ"
+    },
+    "source": "https://api.dtm.com/data?query=driverDetail&slug=clemens-schmid",
+    "website": "",
+    "slug": "clemens-schmid",
+    "intro": "Clemens Schmid is a racing driver from Austria. Their first DTM appearance was in 2022.",
+    "sources": [
+      "https://api.dtm.com/data?query=driverDetail&slug=clemens-schmid"
+    ],
+    "profile_url": "https://www.dtm.com/en/driver/clemens-schmid"
+  },
+  "perera-franck": {
+    "name": "Franck Perera",
+    "birth": "21.03.1984",
+    "debut": "2022",
+    "nationality": "France",
+    "portraits": {
+      "2022": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/vm4XB8mT6yhtvCmtJHtA",
+      "2023": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/r8JLEmzOSyajeFfZcSgW",
+      "2024": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/CFcHcF3PTrmbHzLYYer2"
+    },
+    "source": "https://api.dtm.com/data?query=driverDetail&slug=franck-perera",
+    "website": "",
+    "slug": "franck-perera",
+    "intro": "Franck Perera is a racing driver from France. Their first DTM appearance was in 2022.",
+    "sources": [
+      "https://api.dtm.com/data?query=driverDetail&slug=franck-perera"
+    ],
+    "profile_url": "https://www.dtm.com/en/driver/franck-perera"
+  },
+  "schumacher-david": {
+    "name": "David Schumacher",
+    "birth": "23.10.2001",
+    "debut": "2022",
+    "nationality": "Germany",
+    "portraits": {
+      "2022": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/UBIZhwV0T52gbPrDs03y",
+      "2023": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/eUQgRwmiQ4GphqLmVkNW"
+    },
+    "source": "https://api.dtm.com/data?query=driverDetail&slug=david-schumacher",
+    "website": "",
+    "slug": "david-schumacher",
+    "intro": "David Schumacher is a racing driver from Germany. Their first DTM appearance was in 2022.",
+    "sources": [
+      "https://api.dtm.com/data?query=driverDetail&slug=david-schumacher"
+    ],
+    "profile_url": "https://www.dtm.com/en/driver/david-schumacher"
+  },
+  "heinemann-tim": {
+    "name": "Tim Heinemann",
+    "birth": "23.10.1997",
+    "debut": "2023",
+    "nationality": "Germany",
+    "portraits": {
+      "2023": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/wK5NsHCSRbW1GhwE9j8N"
+    },
+    "source": "https://api.dtm.com/data?query=driverDetail&slug=tim-heinemann",
+    "website": "https://timheinemann.com/",
+    "slug": "tim-heinemann",
+    "intro": "Tim Heinemann is a racing driver from Germany. Their first DTM appearance was in 2023.",
+    "sources": [
+      "https://api.dtm.com/data?query=driverDetail&slug=tim-heinemann"
+    ],
+    "profile_url": "https://www.dtm.com/en/driver/tim-heinemann"
+  },
+  "drudi-mattia": {
+    "name": "Mattia Drudi",
+    "birth": "16.07.1998",
+    "debut": "2023",
+    "nationality": "Italy",
+    "portraits": {
+      "2023": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/rpiczWQKQFCm7vyvtsDq"
+    },
+    "source": "https://api.dtm.com/data?query=driverDetail&slug=mattia-drudi",
+    "website": "",
+    "slug": "mattia-drudi",
+    "intro": "Mattia Drudi is a racing driver from Italy. Their first DTM appearance was in 2023.",
+    "sources": [
+      "https://api.dtm.com/data?query=driverDetail&slug=mattia-drudi"
+    ],
+    "profile_url": "https://www.dtm.com/en/driver/mattia-drudi"
+  },
+  "olsen-dennis": {
+    "name": "Dennis Olsen",
+    "birth": "14.04.1996",
+    "debut": "2022",
+    "nationality": "Norway",
+    "portraits": {
+      "2022": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/9mm2yjSKdOZQ7yfKV5AW",
+      "2023": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/T4oPapmmR2WvNuEkcQAn"
+    },
+    "source": "https://api.dtm.com/data?query=driverDetail&slug=dennis-olsen",
+    "website": "",
+    "slug": "dennis-olsen",
+    "intro": "Dennis Olsen is a racing driver from Norway. Their first DTM appearance was in 2022.",
+    "sources": [
+      "https://api.dtm.com/data?query=driverDetail&slug=dennis-olsen"
+    ],
+    "profile_url": "https://www.dtm.com/en/driver/dennis-olsen"
+  },
+  "niederhauser-patric": {
+    "name": "Patric Niederhauser",
+    "birth": "08.10.1991",
+    "debut": "2023",
+    "nationality": "Switzerland",
+    "portraits": {
+      "2023": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/aSr0oDs9SuqWy0SMXxBW"
+    },
+    "source": "https://api.dtm.com/data?query=driverDetail&slug=patric-niederhauser",
+    "website": "",
+    "slug": "patric-niederhauser",
+    "intro": "Patric Niederhauser is a racing driver from Switzerland. Their first DTM appearance was in 2023.",
+    "sources": [
+      "https://api.dtm.com/data?query=driverDetail&slug=patric-niederhauser"
+    ],
+    "profile_url": "https://www.dtm.com/en/driver/patric-niederhauser"
+  },
+  "heinrich-laurin": {
+    "name": "Laurin Heinrich",
+    "birth": "26.09.2001",
+    "debut": "2023",
+    "nationality": "Germany",
+    "portraits": {
+      "2023": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/pzCBSNe9SQq3sVhPAy38"
+    },
+    "source": "https://api.dtm.com/data?query=driverDetail&slug=laurin-heinrich",
+    "website": "",
+    "slug": "laurin-heinrich",
+    "intro": "Laurin Heinrich is a racing driver from Germany. Their first DTM appearance was in 2023.",
+    "sources": [
+      "https://api.dtm.com/data?query=driverDetail&slug=laurin-heinrich"
+    ],
+    "profile_url": "https://www.dtm.com/en/driver/laurin-heinrich"
+  },
+  "owega-jusuf": {
+    "name": "Jusuf Owega",
+    "birth": "06.04.2002",
+    "debut": "2023",
+    "nationality": "Germany",
+    "portraits": {
+      "2023": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/chxGS5NcSEq4gGig4L7v"
+    },
+    "source": "https://api.dtm.com/data?query=driverDetail&slug=jusuf-owega",
+    "website": "",
+    "slug": "jusuf-owega",
+    "intro": "Jusuf Owega is a racing driver from Germany. Their first DTM appearance was in 2023.",
+    "sources": [
+      "https://api.dtm.com/data?query=driverDetail&slug=jusuf-owega"
+    ],
+    "profile_url": "https://www.dtm.com/en/driver/jusuf-owega"
+  },
+  "wishofer-mick": {
+    "name": "Mick Wishofer",
+    "birth": "08.10.1999",
+    "debut": "2023",
+    "nationality": "Austria",
+    "portraits": {
+      "2023": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/pAKlDSnPSdG9uQ1U0QRs"
+    },
+    "source": "https://api.dtm.com/data?query=driverDetail&slug=mick-wishofer",
+    "website": "",
+    "slug": "mick-wishofer",
+    "intro": "Mick Wishofer is a racing driver from Austria. Their first DTM appearance was in 2023.",
+    "sources": [
+      "https://api.dtm.com/data?query=driverDetail&slug=mick-wishofer"
+    ],
+    "profile_url": "https://www.dtm.com/en/driver/mick-wishofer"
+  },
+  "deledda-alessio": {
+    "name": "Alessio Deledda",
+    "birth": "10.12.1994",
+    "debut": "2022",
+    "nationality": "Italy",
+    "portraits": {
+      "2022": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/dHLF2Hv7ROeS2cyNx7dh",
+      "2023": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/yIpybd20SlShefNs3cnH"
+    },
+    "source": "https://api.dtm.com/data?query=driverDetail&slug=alessio-deledda",
+    "website": "",
+    "slug": "alessio-deledda",
+    "intro": "Alessio Deledda is a racing driver from Italy. Their first DTM appearance was in 2022.",
+    "sources": [
+      "https://api.dtm.com/data?query=driverDetail&slug=alessio-deledda"
+    ],
+    "profile_url": "https://www.dtm.com/en/driver/alessio-deledda"
+  },
+  "vanthoor-dries": {
+    "name": "Dries Vanthoor",
+    "birth": "-",
+    "debut": "2023",
+    "nationality": "Belgium",
+    "portraits": {
+      "2023": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/bkhIrfyGSgyd07ifaz5H"
+    },
+    "source": "https://api.dtm.com/data?query=driverDetail&slug=dries-vanthoor",
+    "website": "",
+    "slug": "dries-vanthoor",
+    "intro": "Dries Vanthoor is a racing driver from Belgium. Their first DTM appearance was in 2023.",
+    "sources": [
+      "https://api.dtm.com/data?query=driverDetail&slug=dries-vanthoor"
+    ],
+    "profile_url": "https://www.dtm.com/en/driver/dries-vanthoor"
+  },
+  "costa-balboa-albert": {
+    "name": "Albert Costa Balboa",
+    "birth": "-",
+    "debut": "2023",
+    "nationality": "Spain",
+    "portraits": {
+      "2023": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/BDGCcLOJTDGUY9xKbkW7"
+    },
+    "source": "https://api.dtm.com/data?query=driverDetail&slug=albert-costa-calboa",
+    "website": "",
+    "slug": "albert-costa-calboa",
+    "intro": "Albert Costa Balboa is a racing driver from Spain. Their first DTM appearance was in 2023.",
+    "sources": [
+      "https://api.dtm.com/data?query=driverDetail&slug=albert-costa-calboa"
+    ],
+    "profile_url": "https://www.dtm.com/en/driver/albert-costa-calboa"
+  },
+  "holzem-sandro": {
+    "name": "Sandro Holzem",
+    "birth": "",
+    "debut": "2023",
+    "nationality": "Germany",
+    "portraits": {
+      "2023": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/iHU90EyoQAOuCD7hZGW5"
+    },
+    "source": "https://api.dtm.com/data?query=driverDetail&slug=sandro-holzem",
+    "website": "",
+    "slug": "sandro-holzem",
+    "intro": "Sandro Holzem is a racing driver from Germany. Their first DTM appearance was in 2023.",
+    "sources": [
+      "https://api.dtm.com/data?query=driverDetail&slug=sandro-holzem"
+    ],
+    "profile_url": "https://www.dtm.com/en/driver/sandro-holzem"
+  },
+  "dienst-marvin": {
+    "name": "Marvin Dienst",
+    "birth": "24.02.1997",
+    "debut": "2021",
+    "nationality": "Germany",
+    "portraits": {
+      "2023": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/mY2KjDShSFW8PjO3inDQ"
+    },
+    "source": "https://api.dtm.com/data?query=driverDetail&slug=marvin-dienst",
+    "website": "https://www.marvindienst.de/",
+    "slug": "marvin-dienst",
+    "intro": "Marvin Dienst is a racing driver from Germany. Their first DTM appearance was in 2021.",
+    "sources": [
+      "https://api.dtm.com/data?query=driverDetail&slug=marvin-dienst"
+    ],
+    "profile_url": "https://www.dtm.com/en/driver/marvin-dienst"
+  },
+  "caldarelli-andrea": {
+    "name": "Andrea Caldarelli",
+    "birth": "",
+    "debut": "2023",
+    "nationality": "Italy",
+    "portraits": {
+      "2023": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/jQXmczFRpK20nrNhpgvg"
+    },
+    "source": "https://api.dtm.com/data?query=driverDetail&slug=andrea-caldarelli ",
+    "website": "",
+    "slug": "andrea-caldarelli ",
+    "intro": "Andrea Caldarelli is a racing driver from Italy. Their first DTM appearance was in 2023.",
+    "sources": [
+      "https://api.dtm.com/data?query=driverDetail&slug=andrea-caldarelli "
+    ],
+    "profile_url": "https://www.dtm.com/en/driver/andrea-caldarelli "
+  }
+}

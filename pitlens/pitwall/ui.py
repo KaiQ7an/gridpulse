@@ -274,8 +274,8 @@ h1, h2, h3 { letter-spacing: -0.01em; }
 
 /* Sidebar brand */
 .pl-brand { display: flex; align-items: center; gap: 10px; margin: 0 0 6px; }
-.pl-brand .mark { width: 8px; height: 30px; border-radius: 2px; background: #E10600; transform: skewX(-14deg); }
-.pl-brand .name { font-family: "Titillium Web", sans-serif; font-weight: 700; font-size: 1.45rem; letter-spacing: 0.01em;
+.pl-brand .mark { width: 9px; height: 40px; border-radius: 2px; background: #E10600; transform: skewX(-14deg); }
+.pl-brand .name { font-family: "Titillium Web", sans-serif; font-weight: 700; font-size: clamp(1.9rem, 2.4vw, 2.2rem); letter-spacing: -0.025em;
   line-height: 1; }
 .pl-brand .tag { font-size: 0.72rem; opacity: 0.55; margin-top: 3px; }
 .pl-brand .context { font-size: 0.66rem; opacity: 0.45; margin-top: 5px; }
@@ -313,7 +313,9 @@ def inject_css() -> None:
 
 
 def sidebar_brand(tagline: str) -> None:
-    st.sidebar.html(
+    slot = st.session_state.get("sidebar_brand_slot")
+    target = slot if slot is not None else st.sidebar
+    target.html(
         f'<div class="pl-brand"><div class="mark"></div><div><div class="name">{NAME}</div>'
         f'<div class="tag">{TAGLINE}</div><div class="context">{html.escape(tagline)}</div></div></div>'
     )
@@ -322,9 +324,8 @@ def sidebar_brand(tagline: str) -> None:
 def sidebar_footer(series: str = "Formula 1") -> None:
     if series == "DTM":
         st.sidebar.html(
-            '<div class="pl-foot">Unofficial project. DTM classifications and standings from dtm.com. '
-            'Not associated with DTM, ADAC or any team.<br>'
-            '<a href="https://github.com/KaiQ7an/gridpulse" target="_blank" style="color:inherit">Source on GitHub</a></div>'
+            '<div class="dtm-foot">Independent project · Official DTM data<br>'
+            '<a href="https://github.com/KaiQ7an/gridpulse" target="_blank" rel="noopener noreferrer">GitHub ↗</a></div>'
         )
         return
     st.sidebar.html(

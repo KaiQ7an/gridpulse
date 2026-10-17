@@ -1,0 +1,459 @@
+{
+  "RUS": {
+    "name": "George Russell",
+    "birth": "1998-02-15",
+    "nationality": "British",
+    "source": "https://www.formula1.com/en/drivers/george-russell",
+    "portrait": "https://media.formula1.com/image/upload/c_fill,w_840,h_630,g_north/c_pad,w_1200,h_630/b_rgb:27f4d2/q_auto/v1740000001/common/f1/2026/mercedes/georus01/2026mercedesgeorus01right.jpg",
+    "place": "King's Lynn, England",
+    "debut": "2019",
+    "debut_source": "https://api.jolpi.ca/ergast/f1/drivers/russell/seasons.json?limit=1",
+    "intro": "A GP3 and Formula 2 champion before entering F1 with Williams. Russell earned his first Grand Prix victory with Mercedes in 2022.",
+    "sources": [
+      "https://www.formula1.com/en/drivers/george-russell",
+      "https://api.jolpi.ca/ergast/f1/drivers/russell/seasons.json?limit=1"
+    ],
+    "profile_url": "https://www.formula1.com/en/drivers/george-russell"
+  },
+  "ANT": {
+    "name": "Kimi Antonelli",
+    "birth": "2006-08-25",
+    "nationality": "Italian",
+    "source": "https://www.formula1.com/en/drivers/kimi-antonelli",
+    "portrait": "https://media.formula1.com/image/upload/c_fill,w_840,h_630,g_north/c_pad,w_1200,h_630/b_rgb:27f4d2/q_auto/v1740000001/common/f1/2026/mercedes/andant01/2026mercedesandant01right.jpg",
+    "place": "Bologna, Italy",
+    "debut": "2025",
+    "debut_source": "https://api.jolpi.ca/ergast/f1/drivers/antonelli/results.json?limit=1",
+    "intro": "A Mercedes junior graduate from Bologna. Before moving into F1, Antonelli won Italian and ADAC Formula 4 titles, followed by Formula Regional championships.",
+    "sources": [
+      "https://www.formula1.com/en/drivers/kimi-antonelli",
+      "https://api.jolpi.ca/ergast/f1/drivers/antonelli/results.json?limit=1"
+    ],
+    "profile_url": "https://www.formula1.com/en/drivers/kimi-antonelli"
+  },
+  "LEC": {
+    "name": "Charles Leclerc",
+    "birth": "1997-10-16",
+    "nationality": "Monegasque",
+    "source": "https://www.formula1.com/en/drivers/charles-leclerc",
+    "portrait": "https://media.formula1.com/image/upload/c_fill,w_840,h_630,g_north/c_pad,w_1200,h_630/b_rgb:e8002d/q_auto/v1740000001/common/f1/2026/ferrari/chalec01/2026ferrarichalec01right.jpg",
+    "place": "Monte Carlo, Monaco",
+    "debut": "2018",
+    "debut_source": "https://api.jolpi.ca/ergast/f1/drivers/leclerc/seasons.json?limit=1",
+    "intro": "A Monaco-born driver who won GP3 and Formula 2 titles before his F1 debut with Sauber in 2018. He subsequently moved to Ferrari.",
+    "sources": [
+      "https://www.formula1.com/en/drivers/charles-leclerc",
+      "https://api.jolpi.ca/ergast/f1/drivers/leclerc/seasons.json?limit=1"
+    ],
+    "profile_url": "https://www.formula1.com/en/drivers/charles-leclerc"
+  },
+  "HAM": {
+    "name": "Lewis Hamilton",
+    "birth": "1985-01-07",
+    "nationality": "British",
+    "source": "https://www.formula1.com/en/drivers/lewis-hamilton",
+    "portrait": "https://media.formula1.com/image/upload/c_fill,w_840,h_630,g_north/c_pad,w_1200,h_630/b_rgb:e8002d/q_auto/v1740000001/common/f1/2026/ferrari/lewham01/2026ferrarilewham01right.jpg",
+    "place": "Stevenage, England",
+    "debut": "2007",
+    "debut_source": "https://api.jolpi.ca/ergast/f1/drivers/hamilton/seasons.json?limit=1",
+    "intro": "A seven-time Formula 1 world champion whose career began at McLaren. Hamilton later raced for Mercedes before joining Ferrari.",
+    "sources": [
+      "https://www.formula1.com/en/drivers/lewis-hamilton",
+      "https://api.jolpi.ca/ergast/f1/drivers/hamilton/seasons.json?limit=1"
+    ],
+    "profile_url": "https://www.formula1.com/en/drivers/lewis-hamilton"
+  },
+  "NOR": {
+    "name": "Lando Norris",
+    "birth": "1999-11-13",
+    "nationality": "British",
+    "source": "https://www.formula1.com/en/drivers/lando-norris",
+    "portrait": "https://media.formula1.com/image/upload/c_fill,w_840,h_630,g_north/c_pad,w_1200,h_630/b_rgb:ff8000/q_auto/v1740000001/common/f1/2026/mclaren/lannor01/2026mclarenlannor01right.jpg",
+    "place": "Bristol, England",
+    "debut": "2019",
+    "debut_source": "https://api.jolpi.ca/ergast/f1/drivers/norris/seasons.json?limit=1",
+    "intro": "A McLaren academy graduate who entered F1 with the team in 2019. His first Grand Prix win came in 2024, after several seasons of podium finishes.",
+    "sources": [
+      "https://www.formula1.com/en/drivers/lando-norris",
+      "https://api.jolpi.ca/ergast/f1/drivers/norris/seasons.json?limit=1"
+    ],
+    "profile_url": "https://www.formula1.com/en/drivers/lando-norris"
+  },
+  "VER": {
+    "name": "Max Verstappen",
+    "birth": "1997-09-30",
+    "nationality": "Dutch",
+    "source": "https://www.formula1.com/en/drivers/max-verstappen",
+    "portrait": "https://media.formula1.com/image/upload/c_fill,w_840,h_630,g_north/c_pad,w_1200,h_630/b_rgb:3671c6/q_auto/v1740000001/common/f1/2026/redbullracing/maxver01/2026redbullracingmaxver01right.jpg",
+    "place": "Hasselt, Belgium",
+    "debut": "2015",
+    "debut_source": "https://api.jolpi.ca/ergast/f1/drivers/max_verstappen/seasons.json?limit=1",
+    "intro": "Entered F1 at 17 with Toro Rosso. Verstappen became the youngest Grand Prix winner when he won on his Red Bull debut in Spain in 2016.",
+    "sources": [
+      "https://www.formula1.com/en/drivers/max-verstappen",
+      "https://api.jolpi.ca/ergast/f1/drivers/max_verstappen/seasons.json?limit=1"
+    ],
+    "profile_url": "https://www.formula1.com/en/drivers/max-verstappen"
+  },
+  "BEA": {
+    "name": "Oliver Bearman",
+    "birth": "2005-05-08",
+    "nationality": "British",
+    "source": "https://www.formula1.com/en/drivers/oliver-bearman",
+    "portrait": "https://media.formula1.com/image/upload/c_fill,w_840,h_630,g_north/c_pad,w_1200,h_630/b_rgb:dee1e2/q_auto/v1740000001/common/f1/2026/haas/olibea01/2026haasolibea01right.jpg",
+    "place": "Chelmsford, England",
+    "debut": "2024",
+    "debut_source": "https://api.jolpi.ca/ergast/f1/drivers/bearman/seasons.json?limit=1",
+    "intro": "Made his Grand Prix debut as a Ferrari substitute at the 2024 Saudi Arabian Grand Prix. Bearman combined Formula 2 racing with F1 reserve and testing duties before graduating to a full-time seat.",
+    "sources": [
+      "https://www.formula1.com/en/drivers/oliver-bearman",
+      "https://api.jolpi.ca/ergast/f1/drivers/bearman/seasons.json?limit=1"
+    ],
+    "profile_url": "https://www.formula1.com/en/drivers/oliver-bearman"
+  },
+  "LIN": {
+    "name": "Arvid Lindblad",
+    "birth": "2007-08-08",
+    "nationality": "British",
+    "source": "https://www.formula1.com/en/drivers/arvid-lindblad",
+    "portrait": "https://media.formula1.com/image/upload/c_fill,w_840,h_630,g_north/c_pad,w_1200,h_630/b_rgb:6692ff/q_auto/v1740000001/common/f1/2026/racingbulls/arvlin01/2026racingbullsarvlin01right.jpg",
+    "place": "London, England",
+    "debut": "2026",
+    "debut_source": "https://api.jolpi.ca/ergast/f1/drivers/arvid_lindblad/results.json?limit=1",
+    "intro": "A Red Bull junior graduate who arrived on the F1 grid in 2026. His junior career included race victories in both Formula 3 and Formula 2.",
+    "sources": [
+      "https://www.formula1.com/en/drivers/arvid-lindblad",
+      "https://api.jolpi.ca/ergast/f1/drivers/arvid_lindblad/results.json?limit=1"
+    ],
+    "profile_url": "https://www.formula1.com/en/drivers/arvid-lindblad"
+  },
+  "BOR": {
+    "name": "Gabriel Bortoleto",
+    "birth": "2004-10-14",
+    "nationality": "Brazilian",
+    "source": "https://www.formula1.com/en/drivers/gabriel-bortoleto",
+    "portrait": "https://media.formula1.com/image/upload/c_fill,w_840,h_630,g_north/c_pad,w_1200,h_630/b_rgb:ff2d00/q_auto/v1740000001/common/f1/2026/audi/gabbor01/2026audigabbor01right.jpg",
+    "place": "São Paulo, Brazil",
+    "debut": "2025",
+    "debut_source": "https://api.jolpi.ca/ergast/f1/drivers/bortoleto/seasons.json?limit=1",
+    "intro": "A Brazilian driver who progressed through Formula 3 and Formula 2 before entering F1. His Formula 2 title helped secure his move to the top category.",
+    "sources": [
+      "https://www.formula1.com/en/drivers/gabriel-bortoleto",
+      "https://api.jolpi.ca/ergast/f1/drivers/bortoleto/seasons.json?limit=1"
+    ],
+    "profile_url": "https://www.formula1.com/en/drivers/gabriel-bortoleto"
+  },
+  "GAS": {
+    "name": "Pierre Gasly",
+    "birth": "1996-02-07",
+    "nationality": "French",
+    "source": "https://www.formula1.com/en/drivers/pierre-gasly",
+    "portrait": "https://media.formula1.com/image/upload/c_fill,w_840,h_630,g_north/c_pad,w_1200,h_630/b_rgb:00a1e8/q_auto/v1740000001/common/f1/2026/alpine/piegas01/2026alpinepiegas01right.jpg",
+    "place": "Rouen, France",
+    "debut": "2017",
+    "debut_source": "https://api.jolpi.ca/ergast/f1/drivers/gasly/seasons.json?limit=1",
+    "intro": "Made his F1 debut for Toro Rosso in 2017. Gasly progressed through the Red Bull system before continuing his career with Alpine.",
+    "sources": [
+      "https://www.formula1.com/en/drivers/pierre-gasly",
+      "https://api.jolpi.ca/ergast/f1/drivers/gasly/seasons.json?limit=1"
+    ],
+    "profile_url": "https://www.formula1.com/en/drivers/pierre-gasly"
+  },
+  "OCO": {
+    "name": "Esteban Ocon",
+    "birth": "1996-09-17",
+    "nationality": "French",
+    "source": "https://www.formula1.com/en/drivers/esteban-ocon",
+    "portrait": "https://media.formula1.com/image/upload/c_fill,w_840,h_630,g_north/c_pad,w_1200,h_630/b_rgb:dee1e2/q_auto/v1740000001/common/f1/2026/haas/estoco01/2026haasestoco01right.jpg",
+    "place": "Évreux, Normandy",
+    "debut": "2016",
+    "debut_source": "https://api.jolpi.ca/ergast/f1/drivers/ocon/seasons.json?limit=1",
+    "intro": "Won European Formula 3 and GP3 championships before entering F1. Ocon was racing in DTM when Manor called him up during the 2016 season.",
+    "sources": [
+      "https://www.formula1.com/en/drivers/esteban-ocon",
+      "https://api.jolpi.ca/ergast/f1/drivers/ocon/seasons.json?limit=1"
+    ],
+    "profile_url": "https://www.formula1.com/en/drivers/esteban-ocon"
+  },
+  "ALB": {
+    "name": "Alexander Albon",
+    "birth": "1996-03-23",
+    "nationality": "Thai",
+    "source": "https://www.formula1.com/en/drivers/alexander-albon",
+    "portrait": "https://media.formula1.com/image/upload/c_fill,w_840,h_630,g_north/c_pad,w_1200,h_630/b_rgb:1868db/q_auto/v1740000001/common/f1/2026/williams/alealb01/2026williamsalealb01right.jpg",
+    "place": "London, England",
+    "debut": "2019",
+    "debut_source": "https://api.jolpi.ca/ergast/f1/drivers/albon/seasons.json?limit=1",
+    "intro": "Born in London and racing for Thailand, Albon entered F1 with Toro Rosso in 2019. After a spell at Red Bull, he returned to the grid with Williams.",
+    "sources": [
+      "https://www.formula1.com/en/drivers/alexander-albon",
+      "https://api.jolpi.ca/ergast/f1/drivers/albon/seasons.json?limit=1"
+    ],
+    "profile_url": "https://www.formula1.com/en/drivers/alexander-albon"
+  },
+  "LAW": {
+    "name": "Liam Lawson",
+    "birth": "2002-02-11",
+    "nationality": "New Zealander",
+    "source": "https://www.formula1.com/en/drivers/liam-lawson",
+    "portrait": "https://media.formula1.com/image/upload/c_fill,w_840,h_630,g_north/c_pad,w_1200,h_630/b_rgb:6692ff/q_auto/v1740000001/common/f1/2026/racingbulls/lialaw01/2026racingbullslialaw01right.jpg",
+    "place": "Hastings, New Zealand",
+    "debut": "2023",
+    "debut_source": "https://api.jolpi.ca/ergast/f1/drivers/lawson/seasons.json?limit=1",
+    "intro": "A New Zealand driver from the Red Bull junior programme. Lawson made his F1 race debut in 2023 as a substitute for the injured Daniel Ricciardo.",
+    "sources": [
+      "https://www.formula1.com/en/drivers/liam-lawson",
+      "https://api.jolpi.ca/ergast/f1/drivers/lawson/seasons.json?limit=1"
+    ],
+    "profile_url": "https://www.formula1.com/en/drivers/liam-lawson"
+  },
+  "COL": {
+    "name": "Franco Colapinto",
+    "birth": "2003-05-27",
+    "nationality": "Argentine",
+    "source": "https://www.formula1.com/en/drivers/franco-colapinto",
+    "portrait": "https://media.formula1.com/image/upload/c_fill,w_840,h_630,g_north/c_pad,w_1200,h_630/b_rgb:00a1e8/q_auto/v1740000001/common/f1/2026/alpine/fracol01/2026alpinefracol01right.jpg",
+    "place": "Buenos Aires, Argentina",
+    "debut": "2024",
+    "debut_source": "https://api.jolpi.ca/ergast/f1/drivers/colapinto/seasons.json?limit=1",
+    "intro": "An Argentine driver who progressed through the Williams academy. Colapinto made his Grand Prix debut during the 2024 season after stepping in at Williams.",
+    "sources": [
+      "https://www.formula1.com/en/drivers/franco-colapinto",
+      "https://api.jolpi.ca/ergast/f1/drivers/colapinto/seasons.json?limit=1"
+    ],
+    "profile_url": "https://www.formula1.com/en/drivers/franco-colapinto"
+  },
+  "SAI": {
+    "name": "Carlos Sainz",
+    "birth": "1994-09-01",
+    "nationality": "Spanish",
+    "source": "https://www.formula1.com/en/drivers/carlos-sainz",
+    "portrait": "https://media.formula1.com/image/upload/c_fill,w_840,h_630,g_north/c_pad,w_1200,h_630/b_rgb:1868db/q_auto/v1740000001/common/f1/2026/williams/carsai01/2026williamscarsai01right.jpg",
+    "place": "Madrid, Spain",
+    "debut": "2015",
+    "debut_source": "https://api.jolpi.ca/ergast/f1/drivers/sainz/seasons.json?limit=1",
+    "intro": "A Madrid-born driver who entered F1 alongside Max Verstappen at Toro Rosso in 2015. His career has included spells with several teams across the grid.",
+    "sources": [
+      "https://www.formula1.com/en/drivers/carlos-sainz",
+      "https://api.jolpi.ca/ergast/f1/drivers/sainz/seasons.json?limit=1"
+    ],
+    "profile_url": "https://www.formula1.com/en/drivers/carlos-sainz"
+  },
+  "PER": {
+    "name": "Sergio Perez",
+    "birth": "1990-01-26",
+    "nationality": "Mexican",
+    "source": "https://www.formula1.com/en/drivers/sergio-perez",
+    "portrait": "https://media.formula1.com/image/upload/c_fill,w_840,h_630,g_north/c_pad,w_1200,h_630/b_rgb:aaaaad/q_auto/v1740000001/common/f1/2026/cadillac/serper01/2026cadillacserper01right.jpg",
+    "place": "Guadalajara, Mexico",
+    "debut": "2011",
+    "debut_source": "https://api.jolpi.ca/ergast/f1/drivers/perez/seasons.json?limit=1",
+    "intro": "A Mexican driver whose F1 career began in 2011. Perez has raced for Sauber, McLaren, Force India, Racing Point and Red Bull, with tyre management a recurring theme in his official profile.",
+    "sources": [
+      "https://www.formula1.com/en/drivers/sergio-perez",
+      "https://api.jolpi.ca/ergast/f1/drivers/perez/seasons.json?limit=1"
+    ],
+    "profile_url": "https://www.formula1.com/en/drivers/sergio-perez"
+  },
+  "STR": {
+    "name": "Lance Stroll",
+    "birth": "1998-10-29",
+    "nationality": "Canadian",
+    "source": "https://www.formula1.com/en/drivers/lance-stroll",
+    "portrait": "https://media.formula1.com/image/upload/c_fill,w_840,h_630,g_north/c_pad,w_1200,h_630/b_rgb:229971/q_auto/v1740000001/common/f1/2026/astonmartin/lanstr01/2026astonmartinlanstr01right.jpg",
+    "place": "Montreal, Canada",
+    "debut": "2017",
+    "debut_source": "https://api.jolpi.ca/ergast/f1/drivers/stroll/seasons.json?limit=1",
+    "intro": "A Canadian driver who entered F1 with Williams in 2017. Stroll reached the podium in his rookie season at the Azerbaijan Grand Prix.",
+    "sources": [
+      "https://www.formula1.com/en/drivers/lance-stroll",
+      "https://api.jolpi.ca/ergast/f1/drivers/stroll/seasons.json?limit=1"
+    ],
+    "profile_url": "https://www.formula1.com/en/drivers/lance-stroll"
+  },
+  "ALO": {
+    "name": "Fernando Alonso",
+    "birth": "1981-07-29",
+    "nationality": "Spanish",
+    "source": "https://www.formula1.com/en/drivers/fernando-alonso",
+    "portrait": "https://media.formula1.com/image/upload/c_fill,w_840,h_630,g_north/c_pad,w_1200,h_630/b_rgb:229971/q_auto/v1740000001/common/f1/2026/astonmartin/feralo01/2026astonmartinferalo01right.jpg",
+    "place": "Oviedo, Spain",
+    "debut": "2001",
+    "debut_source": "https://api.jolpi.ca/ergast/f1/drivers/alonso/seasons.json?limit=1",
+    "intro": "A two-time Formula 1 world champion who made his debut in 2001. Alonso has competed across multiple generations of F1 cars and regulations.",
+    "sources": [
+      "https://www.formula1.com/en/drivers/fernando-alonso",
+      "https://api.jolpi.ca/ergast/f1/drivers/alonso/seasons.json?limit=1"
+    ],
+    "profile_url": "https://www.formula1.com/en/drivers/fernando-alonso"
+  },
+  "BOT": {
+    "name": "Valtteri Bottas",
+    "birth": "1989-08-28",
+    "nationality": "Finnish",
+    "source": "https://www.formula1.com/en/drivers/valtteri-bottas",
+    "portrait": "https://media.formula1.com/image/upload/c_fill,w_840,h_630,g_north/c_pad,w_1200,h_630/b_rgb:aaaaad/q_auto/v1740000001/common/f1/2026/cadillac/valbot01/2026cadillacvalbot01right.jpg",
+    "place": "Nastola, Finland",
+    "debut": "2013",
+    "debut_source": "https://api.jolpi.ca/ergast/f1/drivers/bottas/seasons.json?limit=1",
+    "intro": "Began his F1 career with Williams in 2013. A succession of points finishes and podiums preceded his move to Mercedes.",
+    "sources": [
+      "https://www.formula1.com/en/drivers/valtteri-bottas",
+      "https://api.jolpi.ca/ergast/f1/drivers/bottas/seasons.json?limit=1"
+    ],
+    "profile_url": "https://www.formula1.com/en/drivers/valtteri-bottas"
+  },
+  "HAD": {
+    "name": "Isack Hadjar",
+    "birth": "2004-09-28",
+    "nationality": "French",
+    "source": "https://www.formula1.com/en/drivers/isack-hadjar",
+    "portrait": "https://media.formula1.com/image/upload/c_fill,w_840,h_630,g_north/c_pad,w_1200,h_630/b_rgb:3671c6/q_auto/v1740000001/common/f1/2026/redbullracing/isahad01/2026redbullracingisahad01right.jpg",
+    "place": "Paris, France",
+    "debut": "2025",
+    "debut_source": "https://api.jolpi.ca/ergast/f1/drivers/hadjar/seasons.json?limit=1",
+    "intro": "A Paris-born driver who progressed from French Formula 4 through Formula Regional, Formula 3 and Formula 2. Hadjar entered F1 with Racing Bulls in 2025.",
+    "sources": [
+      "https://www.formula1.com/en/drivers/isack-hadjar",
+      "https://api.jolpi.ca/ergast/f1/drivers/hadjar/seasons.json?limit=1"
+    ],
+    "profile_url": "https://www.formula1.com/en/drivers/isack-hadjar"
+  },
+  "PIA": {
+    "name": "Oscar Piastri",
+    "birth": "2001-04-06",
+    "nationality": "Australian",
+    "source": "https://www.formula1.com/en/drivers/oscar-piastri",
+    "portrait": "https://media.formula1.com/image/upload/c_fill,w_840,h_630,g_north/c_pad,w_1200,h_630/b_rgb:ff8000/q_auto/v1740000001/common/f1/2026/mclaren/oscpia01/2026mclarenoscpia01right.jpg",
+    "place": "Melbourne, Victoria",
+    "debut": "2023",
+    "debut_source": "https://api.jolpi.ca/ergast/f1/drivers/piastri/seasons.json?limit=1",
+    "intro": "A Melbourne-born driver who climbed the junior ladder with titles in Formula Renault, Formula 3 and Formula 2. Piastri made his F1 debut with McLaren in 2023.",
+    "sources": [
+      "https://www.formula1.com/en/drivers/oscar-piastri",
+      "https://api.jolpi.ca/ergast/f1/drivers/piastri/seasons.json?limit=1"
+    ],
+    "profile_url": "https://www.formula1.com/en/drivers/oscar-piastri"
+  },
+  "HUL": {
+    "name": "Nico Hulkenberg",
+    "birth": "1987-08-19",
+    "nationality": "German",
+    "source": "https://www.formula1.com/en/drivers/nico-hulkenberg",
+    "portrait": "https://media.formula1.com/image/upload/c_fill,w_840,h_630,g_north/c_pad,w_1200,h_630/b_rgb:ff2d00/q_auto/v1740000001/common/f1/2026/audi/nichul01/2026audinichul01right.jpg",
+    "place": "Emmerich am Rhein, Germany",
+    "debut": "2010",
+    "debut_source": "https://api.jolpi.ca/ergast/f1/drivers/hulkenberg/seasons.json?limit=1",
+    "intro": "Entered F1 in 2010 and took a Brazilian Grand Prix pole in his rookie season. Hulkenberg also won the 24 Hours of Le Mans in 2015.",
+    "sources": [
+      "https://www.formula1.com/en/drivers/nico-hulkenberg",
+      "https://api.jolpi.ca/ergast/f1/drivers/hulkenberg/seasons.json?limit=1"
+    ],
+    "profile_url": "https://www.formula1.com/en/drivers/nico-hulkenberg"
+  },
+  "TSU": {
+    "name": "Yuki Tsunoda",
+    "birth": "2000-05-11",
+    "nationality": "Japanese",
+    "source": "https://api.jolpi.ca/ergast/f1/drivers/tsunoda.json",
+    "portrait": null,
+    "place": "",
+    "debut": "2021",
+    "debut_source": "https://api.jolpi.ca/ergast/f1/drivers/tsunoda/seasons.json?limit=1",
+    "intro": "Yuki Tsunoda is a Japanese racing driver who first competed in Formula 1 in 2021.",
+    "sources": [
+      "https://api.jolpi.ca/ergast/f1/drivers/tsunoda.json",
+      "https://api.jolpi.ca/ergast/f1/drivers/tsunoda/seasons.json?limit=1"
+    ]
+  },
+  "DOO": {
+    "name": "Jack Doohan",
+    "birth": "2003-01-20",
+    "nationality": "Australian",
+    "source": "https://api.jolpi.ca/ergast/f1/drivers/doohan.json",
+    "portrait": null,
+    "place": "",
+    "debut": "2024",
+    "debut_source": "https://api.jolpi.ca/ergast/f1/drivers/doohan/seasons.json?limit=1",
+    "intro": "Jack Doohan is a Australian racing driver who first competed in Formula 1 in 2024.",
+    "sources": [
+      "https://api.jolpi.ca/ergast/f1/drivers/doohan.json",
+      "https://api.jolpi.ca/ergast/f1/drivers/doohan/seasons.json?limit=1"
+    ]
+  },
+  "ZHO": {
+    "name": "Guanyu Zhou",
+    "birth": "1999-05-30",
+    "nationality": "Chinese",
+    "source": "https://api.jolpi.ca/ergast/f1/drivers/zhou.json",
+    "portrait": null,
+    "place": "",
+    "debut": "2022",
+    "debut_source": "https://api.jolpi.ca/ergast/f1/drivers/zhou/seasons.json?limit=1",
+    "intro": "Guanyu Zhou is a Chinese racing driver who first competed in Formula 1 in 2022.",
+    "sources": [
+      "https://api.jolpi.ca/ergast/f1/drivers/zhou.json",
+      "https://api.jolpi.ca/ergast/f1/drivers/zhou/seasons.json?limit=1"
+    ]
+  },
+  "MAG": {
+    "name": "Kevin Magnussen",
+    "birth": "1992-10-05",
+    "nationality": "Danish",
+    "source": "https://api.jolpi.ca/ergast/f1/drivers/kevin_magnussen.json",
+    "portrait": null,
+    "place": "",
+    "debut": "2014",
+    "debut_source": "https://api.jolpi.ca/ergast/f1/drivers/kevin_magnussen/seasons.json?limit=1",
+    "intro": "Kevin Magnussen is a Danish racing driver who first competed in Formula 1 in 2014.",
+    "sources": [
+      "https://api.jolpi.ca/ergast/f1/drivers/kevin_magnussen.json",
+      "https://api.jolpi.ca/ergast/f1/drivers/kevin_magnussen/seasons.json?limit=1"
+    ]
+  },
+  "RIC": {
+    "name": "Daniel Ricciardo",
+    "birth": "1989-07-01",
+    "nationality": "Australian",
+    "source": "https://api.jolpi.ca/ergast/f1/drivers/ricciardo.json",
+    "portrait": null,
+    "place": "",
+    "debut": "2011",
+    "debut_source": "https://api.jolpi.ca/ergast/f1/drivers/ricciardo/seasons.json?limit=1",
+    "intro": "Daniel Ricciardo is a Australian racing driver who first competed in Formula 1 in 2011.",
+    "sources": [
+      "https://api.jolpi.ca/ergast/f1/drivers/ricciardo.json",
+      "https://api.jolpi.ca/ergast/f1/drivers/ricciardo/seasons.json?limit=1"
+    ]
+  },
+  "SAR": {
+    "name": "Logan Sargeant",
+    "birth": "2000-12-31",
+    "nationality": "American",
+    "source": "https://api.jolpi.ca/ergast/f1/drivers/sargeant.json",
+    "portrait": null,
+    "place": "",
+    "debut": "2023",
+    "debut_source": "https://api.jolpi.ca/ergast/f1/drivers/sargeant/seasons.json?limit=1",
+    "intro": "Logan Sargeant is a American racing driver who first competed in Formula 1 in 2023.",
+    "sources": [
+      "https://api.jolpi.ca/ergast/f1/drivers/sargeant.json",
+      "https://api.jolpi.ca/ergast/f1/drivers/sargeant/seasons.json?limit=1"
+    ]
+  },
+  "DEV": {
+    "name": "Nyck De Vries",
+    "birth": "1995-02-06",
+    "nationality": "Dutch",
+    "source": "https://api.jolpi.ca/ergast/f1/drivers/de_vries.json",
+    "portrait": null,
+    "place": "",
+    "debut": "2022",
+    "debut_source": "https://api.jolpi.ca/ergast/f1/drivers/de_vries/seasons.json?limit=1",
+    "intro": "Nyck De Vries is a Dutch racing driver who first competed in Formula 1 in 2022.",
+    "sources": [
+      "https://api.jolpi.ca/ergast/f1/drivers/de_vries.json",
+      "https://api.jolpi.ca/ergast/f1/drivers/de_vries/seasons.json?limit=1"
+    ]
+  }
+}

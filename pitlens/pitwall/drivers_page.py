@@ -5,7 +5,7 @@ import html
 import pandas as pd
 import streamlit as st
 
-from pitlens.pitwall import charts, ui
+from pitlens.pitwall import charts, driver_intro, ui
 from pitlens.pitwall.navigation import select_season, url
 from pitlens.pitwall.teams_page import cached_season
 from pitlens.season.data import (
@@ -60,6 +60,7 @@ def render() -> None:
               title_html=f'<span style="display:inline-block;width:10px;height:0.9em;background:{color};'
                          f'border-radius:2px;margin-right:12px;vertical-align:-2px"></span>'
                          f'{html.escape(str(me["FullName"]))}')
+    driver_intro.render("f1", driver, year, str(me["FullName"]), team=" then ".join(teams))
     strips(rows, me, season, driver)
     with st.container(horizontal=True, gap="small"):
         st.link_button("Season standings", url("season", year=year))

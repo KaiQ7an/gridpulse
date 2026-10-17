@@ -17,6 +17,8 @@ from pathlib import Path
 import pandas as pd
 import requests
 
+from pitlens.dtm.cars import model
+
 API = "https://api.dtm.com/data"
 ROOT = Path(__file__).parent / "snapshots"
 YEARS = (2026, 2025, 2024, 2023)
@@ -165,7 +167,8 @@ def saved(year: int) -> dict:
 
 
 def race_rows(season: dict) -> pd.DataFrame:
-    rows = [{**row, "round": e["round"], "event": e["name"], "session": s["name"], "start": s["start"]}
+    rows = [{**row, "model": model(season["year"], row["manufacturer"]),
+             "round": e["round"], "event": e["name"], "session": s["name"], "start": s["start"]}
             for e in season["events"] for s in e["sessions"] if s["kind"] == "race" for row in s["rows"]]
     return pd.DataFrame(rows)
 
@@ -199,7 +202,8 @@ def comparison(season: dict, selected: list[str]) -> pd.DataFrame:
         classified = results[(results.status == "") & results.position.notna()]
         meta = entries.get(driver, {})
         rows.append({"Driver": table["name"], "Team": meta.get("team", "–"),
-                     "Manufacturer": meta.get("manufacturer", "–"), "Points": table["points"],
+                     "Manufacturer": meta.get("manufacturer", "–"), "Car model": meta.get("model", "–"),
+                     "Points": table["points"],
                      "Race points": table["race_points"], "Qualifying points": table["qualifying_points"],
                      "Appearances": len(results), "Wins": int((classified.position == 1).sum()),
                      "Podiums": int(classified.position.le(3).sum()),

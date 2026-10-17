@@ -1,0 +1,341 @@
+{
+  "manthey": {
+    "name": "Manthey",
+    "base": "Meuspath, Germany",
+    "founded": "1996",
+    "history": "Olaf Manthey founded the Porsche specialist in 1996. Its endurance-racing operation expanded into a GT3-era DTM programme with EMA Motorsport, followed by a junior entry. Manthey EMA and Manthey Junior Team are shown together here as the same operating organisation.",
+    "sources": [
+      "https://www.manthey-racing.com/dtm",
+      "https://media.adac-motorsport.de/dl.php?dID=2614%2C2727&fID=84537"
+    ],
+    "honors": [
+      {
+        "year": 2023,
+        "text": "DTM drivers’ title — Thomas Preining",
+        "source": "https://www.dtm.com/en/standings?season=2023"
+      },
+      {
+        "year": 2023,
+        "text": "DTM teams’ title — Manthey EMA",
+        "source": "https://www.dtm.com/en/standings?season=2023"
+      },
+      {
+        "year": 2025,
+        "text": "DTM drivers’ title — Ayhancan Güven",
+        "source": "https://www.dtm.com/en/standings?season=2025"
+      },
+      {
+        "year": 2025,
+        "text": "DTM teams’ title — Manthey",
+        "source": "https://www.dtm.com/en/standings?season=2025"
+      }
+    ],
+    "photo_brand": "Porsche",
+    "facts_note": "Founding date and base: ADAC 2025 team guide; operation scope is stated where it differs from company history."
+  },
+  "schubert": {
+    "name": "Schubert Motorsport",
+    "base": "Oschersleben, Germany",
+    "founded": "1999",
+    "history": "Torsten Schubert’s operation grew from national racing into BMW GT and endurance programmes. Its first DTM season in 2022 delivered both the drivers’ and teams’ championships. The team added another teams’ championship in 2024.",
+    "sources": [
+      "https://www.schubert-motorsport.com/de/aktuelles.html",
+      "https://media.adac-motorsport.de/dl.php?dID=2614%2C2727&fID=84537"
+    ],
+    "honors": [
+      {
+        "year": 2022,
+        "text": "DTM drivers’ title — Sheldon van der Linde",
+        "source": "https://www.schubert-motorsport.com/de/aktuelles.html"
+      },
+      {
+        "year": 2022,
+        "text": "DTM teams’ title",
+        "source": "https://www.schubert-motorsport.com/de/aktuelles.html"
+      },
+      {
+        "year": 2024,
+        "text": "DTM teams’ title",
+        "source": "https://dtm.com/en/news/Schubert-Motorsport-Trio-of-champions-delivers-Team-title"
+      }
+    ],
+    "photo_brand": "BMW",
+    "facts_note": "Founding date and base: ADAC 2025 team guide; operation scope is stated where it differs from company history."
+  },
+  "abt": {
+    "name": "ABT Sportsline",
+    "base": "Kempten, Germany",
+    "founded": "2000 (DTM team)",
+    "history": "ABT entered the revived DTM in 2000 with its own Audi TT-R project. Laurent Aiello won the 2002 drivers’ title against manufacturer-backed opposition. A long Audi partnership followed before the DTM programme switched to Lamborghini in 2025. The founding date here refers to the DTM team, not the older ABT company.",
+    "sources": [
+      "https://www.abt-sportsline.de/motorsport/historie",
+      "https://media.adac-motorsport.de/dl.php?dID=2614%2C2727&fID=84537"
+    ],
+    "honors": [
+      {
+        "year": 2002,
+        "text": "DTM drivers’ title — Laurent Aiello",
+        "source": "https://www.abt-sportsline.de/motorsport/historie"
+      },
+      {
+        "year": 2004,
+        "text": "DTM drivers’ title — Mattias Ekström",
+        "source": "https://www.abt-sportsline.de/motorsport/historie"
+      },
+      {
+        "year": 2007,
+        "text": "DTM drivers’ title — Mattias Ekström",
+        "source": "https://www.abt-sportsline.de/motorsport/historie"
+      },
+      {
+        "year": 2008,
+        "text": "DTM drivers’ title — Timo Scheider",
+        "source": "https://www.abt-sportsline.de/motorsport/historie"
+      },
+      {
+        "year": 2009,
+        "text": "DTM drivers’ title — Timo Scheider",
+        "source": "https://www.abt-sportsline.de/motorsport/historie"
+      }
+    ],
+    "photo_brand": "Lamborghini",
+    "facts_note": "Founding date and base: ADAC 2025 team guide; operation scope is stated where it differs from company history."
+  },
+  "emil-frey": {
+    "name": "Emil Frey Racing",
+    "base": "Safenwil, Switzerland",
+    "founded": "1963 (racing heritage)",
+    "history": "The Swiss organisation traces its racing heritage to Walter Frey. Its modern GT3 programme has fielded Jaguar, Lexus and Lamborghini cars before bringing Ferrari to the DTM in 2023. Season entries below retain the published entrant name.",
+    "sources": [
+      "https://emilfreyracing.com/en/",
+      "https://media.adac-motorsport.de/dl.php?dID=2614%2C2727&fID=84537"
+    ],
+    "honors": [],
+    "photo_brand": "Ferrari",
+    "facts_note": "Founding date and base: ADAC 2025 team guide; operation scope is stated where it differs from company history."
+  },
+  "hrt": {
+    "name": "Haupt Racing Team",
+    "base": "Drees, Germany",
+    "founded": "2020",
+    "history": "Founded by Hubert Haupt, HRT won the DTM drivers’ title in its first season in the series with Maximilian Götz. The team’s Mercedes-AMG programme was followed by a switch to Ford Mustang GT3 machinery in 2025.",
+    "sources": [
+      "https://www.hauptracingteam.de/files/Public/Downloads/2025/HRT_MediaGuide_DTM_2025_EN.pdf",
+      "https://media.adac-motorsport.de/dl.php?dID=2614%2C2727&fID=84537"
+    ],
+    "honors": [
+      {
+        "year": 2021,
+        "text": "DTM drivers’ title — Maximilian Götz",
+        "source": "https://www.hauptracingteam.de/files/Public/Downloads/2025/HRT_MediaGuide_DTM_2025_EN.pdf"
+      }
+    ],
+    "photo_brand": "Ford",
+    "facts_note": "Founding date and base: ADAC 2025 team guide; operation scope is stated where it differs from company history."
+  },
+  "comtoyou": {
+    "name": "Comtoyou Racing",
+    "base": "Gembloux, Belgium",
+    "founded": "2006 (ADAC team guide)",
+    "history": "The Belgian team developed from touring-car competition into an Aston Martin GT3 programme. It won the 24 Hours of Spa outright in 2024, then entered the DTM in 2025. Its headquarters and workshop are in Gembloux.",
+    "sources": [
+      "https://comtoyouracing.com/2026-dtm-en/",
+      "https://media.adac-motorsport.de/dl.php?dID=2614%2C2727&fID=84537"
+    ],
+    "honors": [
+      {
+        "year": 2024,
+        "text": "24 Hours of Spa — overall victory",
+        "source": "https://comtoyouracing.com/2026-dtm-en/"
+      }
+    ],
+    "photo_brand": "Aston Martin",
+    "facts_note": "Founding date and base: ADAC 2025 team guide; operation scope is stated where it differs from company history."
+  },
+  "doerr": {
+    "name": "Dörr Motorsport",
+    "base": "Frankfurt am Main, Germany",
+    "founded": "1999",
+    "history": "Rainer Dörr’s Frankfurt-based team made its DTM debut in 2024 with the McLaren 720S GT3 Evo. Its earlier racing activities form the foundation for the two-car GT3 programme.",
+    "sources": [
+      "https://www.doerrgroup.com/doerr-motorsport/dtm/",
+      "https://media.adac-motorsport.de/dl.php?dID=2614%2C2727&fID=84537"
+    ],
+    "honors": [],
+    "photo_brand": "McLaren",
+    "facts_note": "Founding date and base: ADAC 2025 team guide; operation scope is stated where it differs from company history."
+  },
+  "land": {
+    "name": "Land-Motorsport",
+    "base": "Niederdreisbach, Germany",
+    "founded": "1990",
+    "history": "Wolfgang Land’s team built its reputation in Porsche one-make and GT racing before its Audi customer programme. It won the Nürburgring 24 Hours in 2017 and entered the DTM with Audi in 2025, switching to Porsche in 2026.",
+    "sources": [
+      "https://land-motorsport.de/en/team-land-motorsport/",
+      "https://media.adac-motorsport.de/dl.php?dID=2614%2C2727&fID=84537"
+    ],
+    "honors": [
+      {
+        "year": 2017,
+        "text": "Nürburgring 24 Hours — overall victory",
+        "source": "https://land-motorsport.de/news/page/44/"
+      }
+    ],
+    "facts_note": "Founding date and base: ADAC 2025 team guide; operation scope is stated where it differs from company history."
+  },
+  "landgraf": {
+    "name": "Landgraf Motorsport",
+    "base": "Gensingen, Germany",
+    "founded": "2018",
+    "history": "Klaus Landgraf’s Mercedes-AMG team progressed from ADAC GT Masters into the DTM in 2023. In that first season its cars carried MANN-FILTER and BWT entrant names. Landgraf returned to the DTM in 2025 after a season away.",
+    "sources": [
+      "https://www.mann-filter.com/de-de/aktuelles/presse/2023/mann-filter-premiere-bei-der-dtm.html",
+      "https://media.adac-motorsport.de/dl.php?dID=2614%2C2727&fID=84537"
+    ],
+    "honors": [],
+    "facts_note": "Founding date and base: ADAC 2025 team guide; operation scope is stated where it differs from company history."
+  },
+  "winward": {
+    "name": "Winward Racing",
+    "base": "Altendiez, Germany",
+    "founded": "2019 (HTP-Winward operation)",
+    "history": "The European HTP-Winward operation runs a Mercedes-AMG programme from Altendiez alongside the wider Winward organisation’s international racing activities. Its DTM entries have appeared under WINWARD, MANN-FILTER and RAVENOL sponsor names.",
+    "sources": [
+      "https://www.dtm.com/office_coffee/news/Strong-quartet-of-Mercedes-AMG-drivers-in-the-DTM",
+      "https://media.adac-motorsport.de/dl.php?dID=2614%2C2727&fID=84537"
+    ],
+    "honors": [],
+    "facts_note": "Founding date and base: ADAC 2025 team guide; operation scope is stated where it differs from company history."
+  },
+  "grasser": {
+    "name": "Grasser Racing Team",
+    "base": "Knittelfeld, Austria",
+    "founded": "2011",
+    "history": "Gottfried Grasser’s Austrian organisation is a long-standing Lamborghini GT3 partner. It joined the DTM in 2022 and has raced under GRT, LIQUI MOLY and TGI entrant names. Its programme also extends to international GT and endurance racing.",
+    "sources": [
+      "https://www.grasser-racing.com/",
+      "https://media.adac-motorsport.de/dl.php?dID=2614%2C2727&fID=84537"
+    ],
+    "honors": [],
+    "facts_note": "Founding date and base: ADAC 2025 team guide; operation scope is stated where it differs from company history."
+  },
+  "paul": {
+    "name": "Paul Motorsport",
+    "base": "Dresden, Germany",
+    "founded": "2004",
+    "history": "The Dresden-based family team is run by Tobias Paul, with son Maximilian driving in its DTM programme. Paul Motorsport entered the DTM in 2024 with Lamborghini. Maximilian’s 2023 DTM win belonged to Grasser, so it is not counted as a Paul Motorsport team victory.",
+    "sources": [
+      "https://dtm.com/en/news/paul-set-for-debut-with-lamborghini-dresden-based-paul-motorsport-enters-the-dtm",
+      "https://media.adac-motorsport.de/dl.php?dID=2614%2C2727&fID=84537"
+    ],
+    "honors": [],
+    "facts_note": "Founding date and base: ADAC 2025 team guide; operation scope is stated where it differs from company history."
+  },
+  "ssr": {
+    "name": "SSR Performance",
+    "base": "Munich, Germany",
+    "founded": "2019 (racing operation; ADAC guide)",
+    "history": "The Munich-based GT organisation competed in the DTM with Porsche before switching to Lamborghini in 2023. Mirko Bortolotti won the 2024 drivers’ championship with SSR Performance. That title stays with SSR in this archive when the driver moves teams.",
+    "sources": [
+      "https://www.ssr-performance.de/en/racing/",
+      "https://media.adac-motorsport.de/dl.php?dID=2614%2C2727&fID=68691"
+    ],
+    "honors": [
+      {
+        "year": 2024,
+        "text": "DTM drivers’ title — Mirko Bortolotti",
+        "source": "https://www.ssr-performance.de/de/news/mirko-bortolotti-holt-fuer-ssr-performance-den-dtm-titel/"
+      }
+    ]
+  },
+  "team75": {
+    "name": "Team75 Motorsport / KÜS Team Bernhard",
+    "base": "Landstuhl, Germany",
+    "founded": "2012 (race team; rally roots 2010)",
+    "history": "Rüdiger and Timo Bernhard established Team75 as a rally team, then entered Porsche Carrera Cup Germany in 2013 and ADAC GT Masters in 2016. Its DTM entries are listed in the feed as Team75 Motorsport and in the championship as KÜS Team Bernhard.",
+    "sources": [
+      "https://www.timo-bernhard.de/",
+      "https://media.adac-motorsport.de/dl.php?dID=2614%2C2727&fID=68691"
+    ],
+    "honors": []
+  },
+  "project1": {
+    "name": "Project 1",
+    "base": "Lohne, Germany",
+    "founded": "1993",
+    "history": "The Porsche racing organisation expanded into the FIA World Endurance Championship before its BMW DTM programme. Its number 56 Porsche won the 2019 Le Mans LMGTE Am class and the 2018–19 WEC class championship. These were class honours, rather than overall Le Mans victories.",
+    "sources": [
+      "https://www.europeanlemansseries.com/en/news/new-in-elms-project-1-5f06e01f98ca526a8efcf104/10903",
+      "https://media.adac-motorsport.de/dl.php?dID=2614%2C2727&fID=68691"
+    ],
+    "honors": [
+      {
+        "year": 2019,
+        "text": "Le Mans 24 Hours — LMGTE Am class victory",
+        "source": "https://www.fiawec.com/fr/news/24-heures-du-mans-le-team-project-1-promu-au-titre-de-vainqueur-lmgte-am-de-la-course/6400"
+      },
+      {
+        "year": 2019,
+        "text": "2018–19 WEC — LMGTE Am teams’ title",
+        "source": "https://www.fiawec.com/fr/news/24-heures-du-mans-le-team-project-1-promu-au-titre-de-vainqueur-lmgte-am-de-la-course/6400"
+      }
+    ]
+  },
+  "toksport": {
+    "name": "Toksport WRT",
+    "base": "Quiddelbach, Germany",
+    "founded": "2002 (ADAC team guide)",
+    "history": "Toksport WRT entered the DTM with Porsche in 2023. The team also operates in international rallying; its DTM results and driver associations here refer only to the selected season.",
+    "sources": [
+      "https://www.toksport.com/",
+      "https://media.adac-motorsport.de/dl.php?dID=2614%2C2727&fID=68691"
+    ],
+    "honors": [
+      {
+        "year": 2022,
+        "text": "Prototype Cup Germany — drivers’ title (Berkay Besler / Marvin Dienst)",
+        "source": "https://www.toksport.com/"
+      }
+    ]
+  },
+  "attempto": {
+    "name": "Tresor / Attempto Racing",
+    "base": "Hanover, Germany",
+    "founded": "2005 (Attempto Racing)",
+    "history": "Attempto Racing partnered with Tresor for the 2023 Audi DTM programme, entered as Tresor Orange 1. This profile describes that joint DTM operation; it does not combine the separate organisations’ lifetime trophy records.",
+    "sources": [
+      "https://www.audi.com/en/press-releases/three-audi-sport-customer-teams-in-the-dtm-15289",
+      "https://media.adac-motorsport.de/dl.php?dID=2614%2C2727&fID=68691"
+    ],
+    "honors": []
+  },
+  "engstler": {
+    "name": "Engstler Motorsport",
+    "base": "Wiggensbach, Germany",
+    "founded": "1996",
+    "history": "The family racing organisation brought its touring-car experience into an Audi DTM programme in 2023. Luca Engstler drove the R8 LMS under the LIQUI MOLY Team Engstler entrant name.",
+    "sources": [
+      "https://www.audi.com/en/press-releases/three-audi-sport-customer-teams-in-the-dtm-15289",
+      "https://media.adac-motorsport.de/dl.php?dID=2614%2C2727&fID=68691",
+      "https://www.engstler-motorsport.de/motorsport/dtm?category=dtm"
+    ],
+    "honors": [
+      {
+        "year": 2021,
+        "text": "ADAC TCR Germany — drivers’ championship",
+        "source": "https://www.engstler-motorsport.de/motorsport/dtm?category=dtm"
+      }
+    ]
+  },
+  "seyffarth": {
+    "name": "Seyffarth Motorsport",
+    "base": "Querfurt, Germany",
+    "founded": null,
+    "history": "The Audi customer team appears as a guest entry in the 2026 Sachsenring classifications with Simon Connor Primm. Guest appearances are included in this directory even when the team is absent from the season-long teams’ championship.",
+    "sources": [
+      "https://media.adac-motorsport.de/index.php?ID_dir=2614%2C2615%2C3555%2C3760&fID=98525",
+      "https://www.adac-motorsport.de/adac-gt-masters/team/2022/seyffarth-motorsport/"
+    ],
+    "honors": []
+  }
+}

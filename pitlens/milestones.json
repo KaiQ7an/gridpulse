@@ -1,0 +1,2663 @@
+{
+  "checked_at": "2026-10-17",
+  "f1": {
+    "drivers": {
+      "RUS": {
+        "scope": "Career · Grand Prix results",
+        "coverage_start": 2019,
+        "first_points": {
+          "year": 2020,
+          "date": "2020-12-06",
+          "event": "Sakhir Grand Prix",
+          "session": "Grand Prix",
+          "position": 9,
+          "points": 3.0,
+          "driver": "George Russell",
+          "team": "Mercedes",
+          "source": "https://api.jolpi.ca/ergast/f1/drivers/russell/results.json?limit=100",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 2022,
+          "date": "2022-11-13",
+          "event": "São Paulo Grand Prix",
+          "session": "Grand Prix",
+          "position": 1,
+          "points": 26.0,
+          "driver": "George Russell",
+          "team": "Mercedes",
+          "source": "https://api.jolpi.ca/ergast/f1/drivers/russell/results/1.json?limit=1",
+          "verified_first": true
+        },
+        "complete": true
+      },
+      "ANT": {
+        "scope": "Career · Grand Prix results",
+        "coverage_start": 2025,
+        "first_points": {
+          "year": 2025,
+          "date": "2025-03-16",
+          "event": "Australian Grand Prix",
+          "session": "Grand Prix",
+          "position": 4,
+          "points": 12.0,
+          "driver": "Andrea Kimi Antonelli",
+          "team": "Mercedes",
+          "source": "https://api.jolpi.ca/ergast/f1/drivers/antonelli/results.json?limit=100",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 2026,
+          "date": "2026-03-15",
+          "event": "Chinese Grand Prix",
+          "session": "Grand Prix",
+          "position": 1,
+          "points": 25.0,
+          "driver": "Andrea Kimi Antonelli",
+          "team": "Mercedes",
+          "source": "https://api.jolpi.ca/ergast/f1/drivers/antonelli/results/1.json?limit=1",
+          "verified_first": true
+        },
+        "complete": true
+      },
+      "LEC": {
+        "scope": "Career · Grand Prix results",
+        "coverage_start": 2018,
+        "first_points": {
+          "year": 2018,
+          "date": "2018-04-29",
+          "event": "Azerbaijan Grand Prix",
+          "session": "Grand Prix",
+          "position": 6,
+          "points": 8.0,
+          "driver": "Charles Leclerc",
+          "team": "Sauber",
+          "source": "https://api.jolpi.ca/ergast/f1/drivers/leclerc/results.json?limit=100",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 2019,
+          "date": "2019-09-01",
+          "event": "Belgian Grand Prix",
+          "session": "Grand Prix",
+          "position": 1,
+          "points": 25.0,
+          "driver": "Charles Leclerc",
+          "team": "Ferrari",
+          "source": "https://api.jolpi.ca/ergast/f1/drivers/leclerc/results/1.json?limit=1",
+          "verified_first": true
+        },
+        "complete": true
+      },
+      "HAM": {
+        "scope": "Career · Grand Prix results",
+        "coverage_start": 2007,
+        "first_points": {
+          "year": 2007,
+          "date": "2007-03-18",
+          "event": "Australian Grand Prix",
+          "session": "Grand Prix",
+          "position": 3,
+          "points": 6.0,
+          "driver": "Lewis Hamilton",
+          "team": "McLaren",
+          "source": "https://api.jolpi.ca/ergast/f1/drivers/hamilton/results.json?limit=100",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 2007,
+          "date": "2007-06-10",
+          "event": "Canadian Grand Prix",
+          "session": "Grand Prix",
+          "position": 1,
+          "points": 10.0,
+          "driver": "Lewis Hamilton",
+          "team": "McLaren",
+          "source": "https://api.jolpi.ca/ergast/f1/drivers/hamilton/results/1.json?limit=1",
+          "verified_first": true
+        },
+        "complete": true
+      },
+      "NOR": {
+        "scope": "Career · Grand Prix results",
+        "coverage_start": 2019,
+        "first_points": {
+          "year": 2019,
+          "date": "2019-03-31",
+          "event": "Bahrain Grand Prix",
+          "session": "Grand Prix",
+          "position": 6,
+          "points": 8.0,
+          "driver": "Lando Norris",
+          "team": "McLaren",
+          "source": "https://api.jolpi.ca/ergast/f1/drivers/norris/results.json?limit=100",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 2024,
+          "date": "2024-05-05",
+          "event": "Miami Grand Prix",
+          "session": "Grand Prix",
+          "position": 1,
+          "points": 25.0,
+          "driver": "Lando Norris",
+          "team": "McLaren",
+          "source": "https://api.jolpi.ca/ergast/f1/drivers/norris/results/1.json?limit=1",
+          "verified_first": true
+        },
+        "complete": true
+      },
+      "VER": {
+        "scope": "Career · Grand Prix results",
+        "coverage_start": 2015,
+        "first_points": {
+          "year": 2015,
+          "date": "2015-03-29",
+          "event": "Malaysian Grand Prix",
+          "session": "Grand Prix",
+          "position": 7,
+          "points": 6.0,
+          "driver": "Max Verstappen",
+          "team": "Toro Rosso",
+          "source": "https://api.jolpi.ca/ergast/f1/drivers/max_verstappen/results.json?limit=100",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 2016,
+          "date": "2016-05-15",
+          "event": "Spanish Grand Prix",
+          "session": "Grand Prix",
+          "position": 1,
+          "points": 25.0,
+          "driver": "Max Verstappen",
+          "team": "Red Bull",
+          "source": "https://api.jolpi.ca/ergast/f1/drivers/max_verstappen/results/1.json?limit=1",
+          "verified_first": true
+        },
+        "complete": true
+      },
+      "BEA": {
+        "scope": "Career · Grand Prix results",
+        "coverage_start": 2024,
+        "first_points": {
+          "year": 2024,
+          "date": "2024-03-09",
+          "event": "Saudi Arabian Grand Prix",
+          "session": "Grand Prix",
+          "position": 7,
+          "points": 6.0,
+          "driver": "Oliver Bearman",
+          "team": "Ferrari",
+          "source": "https://api.jolpi.ca/ergast/f1/drivers/bearman/results.json?limit=100",
+          "verified_first": true
+        },
+        "first_win": null,
+        "complete": true
+      },
+      "LIN": {
+        "scope": "Career · Grand Prix results",
+        "coverage_start": 2026,
+        "first_points": {
+          "year": 2026,
+          "date": "2026-03-08",
+          "event": "Australian Grand Prix",
+          "session": "Grand Prix",
+          "position": 8,
+          "points": 4.0,
+          "driver": "Arvid Lindblad",
+          "team": "RB F1 Team",
+          "source": "https://api.jolpi.ca/ergast/f1/drivers/arvid_lindblad/results.json?limit=100",
+          "verified_first": true
+        },
+        "first_win": null,
+        "complete": true
+      },
+      "BOR": {
+        "scope": "Career · Grand Prix results",
+        "coverage_start": 2025,
+        "first_points": {
+          "year": 2025,
+          "date": "2025-06-29",
+          "event": "Austrian Grand Prix",
+          "session": "Grand Prix",
+          "position": 8,
+          "points": 4.0,
+          "driver": "Gabriel Bortoleto",
+          "team": "Sauber",
+          "source": "https://api.jolpi.ca/ergast/f1/drivers/bortoleto/results.json?limit=100",
+          "verified_first": true
+        },
+        "first_win": null,
+        "complete": true
+      },
+      "GAS": {
+        "scope": "Career · Grand Prix results",
+        "coverage_start": 2017,
+        "first_points": {
+          "year": 2018,
+          "date": "2018-04-08",
+          "event": "Bahrain Grand Prix",
+          "session": "Grand Prix",
+          "position": 4,
+          "points": 12.0,
+          "driver": "Pierre Gasly",
+          "team": "Toro Rosso",
+          "source": "https://api.jolpi.ca/ergast/f1/drivers/gasly/results.json?limit=100",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 2020,
+          "date": "2020-09-06",
+          "event": "Italian Grand Prix",
+          "session": "Grand Prix",
+          "position": 1,
+          "points": 25.0,
+          "driver": "Pierre Gasly",
+          "team": "AlphaTauri",
+          "source": "https://api.jolpi.ca/ergast/f1/drivers/gasly/results/1.json?limit=1",
+          "verified_first": true
+        },
+        "complete": true
+      },
+      "OCO": {
+        "scope": "Career · Grand Prix results",
+        "coverage_start": 2016,
+        "first_points": {
+          "year": 2017,
+          "date": "2017-03-26",
+          "event": "Australian Grand Prix",
+          "session": "Grand Prix",
+          "position": 10,
+          "points": 1.0,
+          "driver": "Esteban Ocon",
+          "team": "Force India",
+          "source": "https://api.jolpi.ca/ergast/f1/drivers/ocon/results.json?limit=100",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 2021,
+          "date": "2021-08-01",
+          "event": "Hungarian Grand Prix",
+          "session": "Grand Prix",
+          "position": 1,
+          "points": 25.0,
+          "driver": "Esteban Ocon",
+          "team": "Alpine F1 Team",
+          "source": "https://api.jolpi.ca/ergast/f1/drivers/ocon/results/1.json?limit=1",
+          "verified_first": true
+        },
+        "complete": true
+      },
+      "ALB": {
+        "scope": "Career · Grand Prix results",
+        "coverage_start": 2019,
+        "first_points": {
+          "year": 2019,
+          "date": "2019-03-31",
+          "event": "Bahrain Grand Prix",
+          "session": "Grand Prix",
+          "position": 9,
+          "points": 2.0,
+          "driver": "Alexander Albon",
+          "team": "Toro Rosso",
+          "source": "https://api.jolpi.ca/ergast/f1/drivers/albon/results.json?limit=100",
+          "verified_first": true
+        },
+        "first_win": null,
+        "complete": true
+      },
+      "LAW": {
+        "scope": "Career · Grand Prix results",
+        "coverage_start": 2023,
+        "first_points": {
+          "year": 2023,
+          "date": "2023-09-17",
+          "event": "Singapore Grand Prix",
+          "session": "Grand Prix",
+          "position": 9,
+          "points": 2.0,
+          "driver": "Liam Lawson",
+          "team": "AlphaTauri",
+          "source": "https://api.jolpi.ca/ergast/f1/drivers/lawson/results.json?limit=100",
+          "verified_first": true
+        },
+        "first_win": null,
+        "complete": true
+      },
+      "COL": {
+        "scope": "Career · Grand Prix results",
+        "coverage_start": 2024,
+        "first_points": {
+          "year": 2024,
+          "date": "2024-09-15",
+          "event": "Azerbaijan Grand Prix",
+          "session": "Grand Prix",
+          "position": 8,
+          "points": 4.0,
+          "driver": "Franco Colapinto",
+          "team": "Williams",
+          "source": "https://api.jolpi.ca/ergast/f1/drivers/colapinto/results.json?limit=100",
+          "verified_first": true
+        },
+        "first_win": null,
+        "complete": true
+      },
+      "SAI": {
+        "scope": "Career · Grand Prix results",
+        "coverage_start": 2015,
+        "first_points": {
+          "year": 2015,
+          "date": "2015-03-15",
+          "event": "Australian Grand Prix",
+          "session": "Grand Prix",
+          "position": 9,
+          "points": 2.0,
+          "driver": "Carlos Sainz",
+          "team": "Toro Rosso",
+          "source": "https://api.jolpi.ca/ergast/f1/drivers/sainz/results.json?limit=100",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 2022,
+          "date": "2022-07-03",
+          "event": "British Grand Prix",
+          "session": "Grand Prix",
+          "position": 1,
+          "points": 25.0,
+          "driver": "Carlos Sainz",
+          "team": "Ferrari",
+          "source": "https://api.jolpi.ca/ergast/f1/drivers/sainz/results/1.json?limit=1",
+          "verified_first": true
+        },
+        "complete": true
+      },
+      "PER": {
+        "scope": "Career · Grand Prix results",
+        "coverage_start": 2011,
+        "first_points": {
+          "year": 2011,
+          "date": "2011-05-22",
+          "event": "Spanish Grand Prix",
+          "session": "Grand Prix",
+          "position": 9,
+          "points": 2.0,
+          "driver": "Sergio Pérez",
+          "team": "Sauber",
+          "source": "https://api.jolpi.ca/ergast/f1/drivers/perez/results.json?limit=100",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 2020,
+          "date": "2020-12-06",
+          "event": "Sakhir Grand Prix",
+          "session": "Grand Prix",
+          "position": 1,
+          "points": 25.0,
+          "driver": "Sergio Pérez",
+          "team": "Racing Point",
+          "source": "https://api.jolpi.ca/ergast/f1/drivers/perez/results/1.json?limit=1",
+          "verified_first": true
+        },
+        "complete": true
+      },
+      "STR": {
+        "scope": "Career · Grand Prix results",
+        "coverage_start": 2017,
+        "first_points": {
+          "year": 2017,
+          "date": "2017-06-11",
+          "event": "Canadian Grand Prix",
+          "session": "Grand Prix",
+          "position": 9,
+          "points": 2.0,
+          "driver": "Lance Stroll",
+          "team": "Williams",
+          "source": "https://api.jolpi.ca/ergast/f1/drivers/stroll/results.json?limit=100",
+          "verified_first": true
+        },
+        "first_win": null,
+        "complete": true
+      },
+      "ALO": {
+        "scope": "Career · Grand Prix results",
+        "coverage_start": 2001,
+        "first_points": {
+          "year": 2003,
+          "date": "2003-03-09",
+          "event": "Australian Grand Prix",
+          "session": "Grand Prix",
+          "position": 7,
+          "points": 2.0,
+          "driver": "Fernando Alonso",
+          "team": "Renault",
+          "source": "https://api.jolpi.ca/ergast/f1/drivers/alonso/results.json?limit=100",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 2003,
+          "date": "2003-08-24",
+          "event": "Hungarian Grand Prix",
+          "session": "Grand Prix",
+          "position": 1,
+          "points": 10.0,
+          "driver": "Fernando Alonso",
+          "team": "Renault",
+          "source": "https://api.jolpi.ca/ergast/f1/drivers/alonso/results/1.json?limit=1",
+          "verified_first": true
+        },
+        "complete": true
+      },
+      "BOT": {
+        "scope": "Career · Grand Prix results",
+        "coverage_start": 2013,
+        "first_points": {
+          "year": 2013,
+          "date": "2013-11-17",
+          "event": "United States Grand Prix",
+          "session": "Grand Prix",
+          "position": 8,
+          "points": 4.0,
+          "driver": "Valtteri Bottas",
+          "team": "Williams",
+          "source": "https://api.jolpi.ca/ergast/f1/drivers/bottas/results.json?limit=100",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 2017,
+          "date": "2017-04-30",
+          "event": "Russian Grand Prix",
+          "session": "Grand Prix",
+          "position": 1,
+          "points": 25.0,
+          "driver": "Valtteri Bottas",
+          "team": "Mercedes",
+          "source": "https://api.jolpi.ca/ergast/f1/drivers/bottas/results/1.json?limit=1",
+          "verified_first": true
+        },
+        "complete": true
+      },
+      "HAD": {
+        "scope": "Career · Grand Prix results",
+        "coverage_start": 2025,
+        "first_points": {
+          "year": 2025,
+          "date": "2025-04-06",
+          "event": "Japanese Grand Prix",
+          "session": "Grand Prix",
+          "position": 8,
+          "points": 4.0,
+          "driver": "Isack Hadjar",
+          "team": "RB F1 Team",
+          "source": "https://api.jolpi.ca/ergast/f1/drivers/hadjar/results.json?limit=100",
+          "verified_first": true
+        },
+        "first_win": null,
+        "complete": true
+      },
+      "PIA": {
+        "scope": "Career · Grand Prix results",
+        "coverage_start": 2023,
+        "first_points": {
+          "year": 2023,
+          "date": "2023-04-02",
+          "event": "Australian Grand Prix",
+          "session": "Grand Prix",
+          "position": 8,
+          "points": 4.0,
+          "driver": "Oscar Piastri",
+          "team": "McLaren",
+          "source": "https://api.jolpi.ca/ergast/f1/drivers/piastri/results.json?limit=100",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 2024,
+          "date": "2024-07-21",
+          "event": "Hungarian Grand Prix",
+          "session": "Grand Prix",
+          "position": 1,
+          "points": 25.0,
+          "driver": "Oscar Piastri",
+          "team": "McLaren",
+          "source": "https://api.jolpi.ca/ergast/f1/drivers/piastri/results/1.json?limit=1",
+          "verified_first": true
+        },
+        "complete": true
+      },
+      "HUL": {
+        "scope": "Career · Grand Prix results",
+        "coverage_start": 2010,
+        "first_points": {
+          "year": 2010,
+          "date": "2010-04-04",
+          "event": "Malaysian Grand Prix",
+          "session": "Grand Prix",
+          "position": 10,
+          "points": 1.0,
+          "driver": "Nico Hülkenberg",
+          "team": "Williams",
+          "source": "https://api.jolpi.ca/ergast/f1/drivers/hulkenberg/results.json?limit=100",
+          "verified_first": true
+        },
+        "first_win": null,
+        "complete": true
+      },
+      "TSU": {
+        "scope": "Career · Grand Prix results",
+        "coverage_start": 2021,
+        "first_points": {
+          "year": 2021,
+          "date": "2021-03-28",
+          "event": "Bahrain Grand Prix",
+          "session": "Grand Prix",
+          "position": 9,
+          "points": 2.0,
+          "driver": "Yuki Tsunoda",
+          "team": "AlphaTauri",
+          "source": "https://api.jolpi.ca/ergast/f1/drivers/tsunoda/results.json?limit=100",
+          "verified_first": true
+        },
+        "first_win": null,
+        "complete": true
+      },
+      "DOO": {
+        "scope": "Career · Grand Prix results",
+        "coverage_start": 2024,
+        "first_points": null,
+        "first_win": null,
+        "complete": true
+      },
+      "ZHO": {
+        "scope": "Career · Grand Prix results",
+        "coverage_start": 2022,
+        "first_points": {
+          "year": 2022,
+          "date": "2022-03-20",
+          "event": "Bahrain Grand Prix",
+          "session": "Grand Prix",
+          "position": 10,
+          "points": 1.0,
+          "driver": "Guanyu Zhou",
+          "team": "Alfa Romeo",
+          "source": "https://api.jolpi.ca/ergast/f1/drivers/zhou/results.json?limit=100",
+          "verified_first": true
+        },
+        "first_win": null,
+        "complete": true
+      },
+      "MAG": {
+        "scope": "Career · Grand Prix results",
+        "coverage_start": 2014,
+        "first_points": {
+          "year": 2014,
+          "date": "2014-03-16",
+          "event": "Australian Grand Prix",
+          "session": "Grand Prix",
+          "position": 2,
+          "points": 18.0,
+          "driver": "Kevin Magnussen",
+          "team": "McLaren",
+          "source": "https://api.jolpi.ca/ergast/f1/drivers/kevin_magnussen/results.json?limit=100",
+          "verified_first": true
+        },
+        "first_win": null,
+        "complete": true
+      },
+      "RIC": {
+        "scope": "Career · Grand Prix results",
+        "coverage_start": 2011,
+        "first_points": {
+          "year": 2012,
+          "date": "2012-03-18",
+          "event": "Australian Grand Prix",
+          "session": "Grand Prix",
+          "position": 9,
+          "points": 2.0,
+          "driver": "Daniel Ricciardo",
+          "team": "Toro Rosso",
+          "source": "https://api.jolpi.ca/ergast/f1/drivers/ricciardo/results.json?limit=100",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 2014,
+          "date": "2014-06-08",
+          "event": "Canadian Grand Prix",
+          "session": "Grand Prix",
+          "position": 1,
+          "points": 25.0,
+          "driver": "Daniel Ricciardo",
+          "team": "Red Bull",
+          "source": "https://api.jolpi.ca/ergast/f1/drivers/ricciardo/results/1.json?limit=1",
+          "verified_first": true
+        },
+        "complete": true
+      },
+      "SAR": {
+        "scope": "Career · Grand Prix results",
+        "coverage_start": 2023,
+        "first_points": {
+          "year": 2023,
+          "date": "2023-10-22",
+          "event": "United States Grand Prix",
+          "session": "Grand Prix",
+          "position": 10,
+          "points": 1.0,
+          "driver": "Logan Sargeant",
+          "team": "Williams",
+          "source": "https://api.jolpi.ca/ergast/f1/drivers/sargeant/results.json?limit=100",
+          "verified_first": true
+        },
+        "first_win": null,
+        "complete": true
+      },
+      "DEV": {
+        "scope": "Career · Grand Prix results",
+        "coverage_start": 2022,
+        "first_points": {
+          "year": 2022,
+          "date": "2022-09-11",
+          "event": "Italian Grand Prix",
+          "session": "Grand Prix",
+          "position": 9,
+          "points": 2.0,
+          "driver": "Nyck de Vries",
+          "team": "Williams",
+          "source": "https://api.jolpi.ca/ergast/f1/drivers/de_vries/results.json?limit=100",
+          "verified_first": true
+        },
+        "first_win": null,
+        "complete": true
+      }
+    },
+    "teams": {
+      "McLaren": {
+        "scope": "Named constructor identity · GP results (points scored by its drivers)",
+        "coverage_start": 1900,
+        "first_points": {
+          "year": 1966,
+          "date": "1966-07-16",
+          "event": "British Grand Prix",
+          "session": "Grand Prix",
+          "position": 6,
+          "points": 1.0,
+          "driver": "Bruce McLaren",
+          "team": "McLaren-Serenissima",
+          "source": "https://api.jolpi.ca/ergast/f1/constructors/mclaren-seren/results.json?limit=100",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 1968,
+          "date": "1968-06-09",
+          "event": "Belgian Grand Prix",
+          "session": "Grand Prix",
+          "position": 1,
+          "points": 9.0,
+          "driver": "Bruce McLaren",
+          "team": "McLaren-Ford",
+          "source": "https://api.jolpi.ca/ergast/f1/constructors/mclaren-ford/results/1.json?limit=1",
+          "verified_first": true
+        },
+        "complete": true
+      },
+      "Ferrari": {
+        "scope": "Named constructor identity · GP results (points scored by its drivers)",
+        "coverage_start": 1900,
+        "first_points": {
+          "year": 1950,
+          "date": "1950-05-21",
+          "event": "Monaco Grand Prix",
+          "session": "Grand Prix",
+          "position": 2,
+          "points": 6.0,
+          "driver": "Alberto Ascari",
+          "team": "Ferrari",
+          "source": "https://api.jolpi.ca/ergast/f1/constructors/ferrari/results.json?limit=100",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 1951,
+          "date": "1951-07-14",
+          "event": "British Grand Prix",
+          "session": "Grand Prix",
+          "position": 1,
+          "points": 8.0,
+          "driver": "José Froilán González",
+          "team": "Ferrari",
+          "source": "https://api.jolpi.ca/ergast/f1/constructors/ferrari/results/1.json?limit=1",
+          "verified_first": true
+        },
+        "complete": true
+      },
+      "Red Bull Racing": {
+        "scope": "Named constructor identity · GP results (points scored by its drivers)",
+        "coverage_start": 1900,
+        "first_points": {
+          "year": 2005,
+          "date": "2005-03-06",
+          "event": "Australian Grand Prix",
+          "session": "Grand Prix",
+          "position": 4,
+          "points": 5.0,
+          "driver": "David Coulthard",
+          "team": "Red Bull",
+          "source": "https://api.jolpi.ca/ergast/f1/constructors/red_bull/results.json?limit=100",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 2009,
+          "date": "2009-04-19",
+          "event": "Chinese Grand Prix",
+          "session": "Grand Prix",
+          "position": 1,
+          "points": 10.0,
+          "driver": "Sebastian Vettel",
+          "team": "Red Bull",
+          "source": "https://api.jolpi.ca/ergast/f1/constructors/red_bull/results/1.json?limit=1",
+          "verified_first": true
+        },
+        "complete": true
+      },
+      "Mercedes": {
+        "scope": "Named constructor identity · GP results (points scored by its drivers)",
+        "coverage_start": 2010,
+        "first_points": {
+          "year": 2010,
+          "date": "2010-03-14",
+          "event": "Bahrain Grand Prix",
+          "session": "Grand Prix",
+          "position": 5,
+          "points": 10.0,
+          "driver": "Nico Rosberg",
+          "team": "Mercedes",
+          "source": "https://api.jolpi.ca/ergast/f1/constructors/mercedes/results.json?limit=100",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 2012,
+          "date": "2012-04-15",
+          "event": "Chinese Grand Prix",
+          "session": "Grand Prix",
+          "position": 1,
+          "points": 25.0,
+          "driver": "Nico Rosberg",
+          "team": "Mercedes",
+          "source": "https://api.jolpi.ca/ergast/f1/constructors/mercedes/results/1.json?limit=100",
+          "verified_first": true
+        },
+        "complete": true
+      },
+      "Aston Martin": {
+        "scope": "Named constructor identity · GP results (points scored by its drivers)",
+        "coverage_start": 2021,
+        "first_points": {
+          "year": 2021,
+          "date": "2021-03-28",
+          "event": "Bahrain Grand Prix",
+          "session": "Grand Prix",
+          "position": 10,
+          "points": 1.0,
+          "driver": "Lance Stroll",
+          "team": "Aston Martin",
+          "source": "https://api.jolpi.ca/ergast/f1/2021/constructors/aston_martin/results.json?limit=100",
+          "verified_first": true
+        },
+        "first_win": null,
+        "complete": true
+      },
+      "Alpine": {
+        "scope": "Named constructor identity · GP results (points scored by its drivers)",
+        "coverage_start": 2021,
+        "first_points": {
+          "year": 2021,
+          "date": "2021-04-18",
+          "event": "Emilia Romagna Grand Prix",
+          "session": "Grand Prix",
+          "position": 9,
+          "points": 2.0,
+          "driver": "Esteban Ocon",
+          "team": "Alpine F1 Team",
+          "source": "https://api.jolpi.ca/ergast/f1/constructors/alpine/results.json?limit=100",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 2021,
+          "date": "2021-08-01",
+          "event": "Hungarian Grand Prix",
+          "session": "Grand Prix",
+          "position": 1,
+          "points": 25.0,
+          "driver": "Esteban Ocon",
+          "team": "Alpine F1 Team",
+          "source": "https://api.jolpi.ca/ergast/f1/constructors/alpine/results/1.json?limit=1",
+          "verified_first": true
+        },
+        "complete": true
+      },
+      "Williams": {
+        "scope": "Named constructor identity · GP results (points scored by its drivers)",
+        "coverage_start": 1977,
+        "first_points": {
+          "year": 1978,
+          "date": "1978-03-04",
+          "event": "South African Grand Prix",
+          "session": "Grand Prix",
+          "position": 4,
+          "points": 3.0,
+          "driver": "Alan Jones",
+          "team": "Williams",
+          "source": "https://api.jolpi.ca/ergast/f1/constructors/williams/results.json?limit=100",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 1979,
+          "date": "1979-07-14",
+          "event": "British Grand Prix",
+          "session": "Grand Prix",
+          "position": 1,
+          "points": 9.0,
+          "driver": "Clay Regazzoni",
+          "team": "Williams",
+          "source": "https://api.jolpi.ca/ergast/f1/constructors/williams/results/1.json?limit=1",
+          "verified_first": true
+        },
+        "complete": true
+      },
+      "Racing Bulls": {
+        "scope": "Named constructor identity · GP results (points scored by its drivers)",
+        "coverage_start": 2025,
+        "first_points": {
+          "year": 2025,
+          "date": "2025-04-06",
+          "event": "Japanese Grand Prix",
+          "session": "Grand Prix",
+          "position": 8,
+          "points": 4.0,
+          "driver": "Isack Hadjar",
+          "team": "RB F1 Team",
+          "source": "https://api.jolpi.ca/ergast/f1/constructors/rb/results.json?limit=100",
+          "verified_first": true
+        },
+        "first_win": null,
+        "complete": true
+      },
+      "Kick Sauber": {
+        "scope": "Named constructor identity · GP results (points scored by its drivers)",
+        "coverage_start": 1900,
+        "first_points": {
+          "year": 1993,
+          "date": "1993-03-14",
+          "event": "South African Grand Prix",
+          "session": "Grand Prix",
+          "position": 5,
+          "points": 2.0,
+          "driver": "Jyrki Järvilehto",
+          "team": "Sauber",
+          "source": "https://api.jolpi.ca/ergast/f1/constructors/sauber/results.json?limit=100",
+          "verified_first": true
+        },
+        "first_win": null,
+        "complete": true
+      },
+      "Audi": {
+        "scope": "Named constructor identity · GP results (points scored by its drivers)",
+        "coverage_start": 2026,
+        "first_points": {
+          "year": 2026,
+          "date": "2026-03-08",
+          "event": "Australian Grand Prix",
+          "session": "Grand Prix",
+          "position": 9,
+          "points": 2.0,
+          "driver": "Gabriel Bortoleto",
+          "team": "Audi",
+          "source": "https://api.jolpi.ca/ergast/f1/constructors/audi/results.json?limit=100",
+          "verified_first": true
+        },
+        "first_win": null,
+        "complete": true
+      },
+      "Haas F1 Team": {
+        "scope": "Named constructor identity · GP results (points scored by its drivers)",
+        "coverage_start": 1900,
+        "first_points": {
+          "year": 2016,
+          "date": "2016-03-20",
+          "event": "Australian Grand Prix",
+          "session": "Grand Prix",
+          "position": 6,
+          "points": 8.0,
+          "driver": "Romain Grosjean",
+          "team": "Haas F1 Team",
+          "source": "https://api.jolpi.ca/ergast/f1/constructors/haas/results.json?limit=100",
+          "verified_first": true
+        },
+        "first_win": null,
+        "complete": true
+      },
+      "Cadillac": {
+        "scope": "Named constructor identity · GP results (points scored by its drivers)",
+        "coverage_start": 2026,
+        "first_points": null,
+        "first_win": null,
+        "complete": true
+      },
+      "AlphaTauri": {
+        "scope": "Named constructor identity · GP results (points scored by its drivers)",
+        "coverage_start": 2020,
+        "first_points": {
+          "year": 2020,
+          "date": "2020-07-05",
+          "event": "Austrian Grand Prix",
+          "session": "Grand Prix",
+          "position": 7,
+          "points": 6.0,
+          "driver": "Pierre Gasly",
+          "team": "AlphaTauri",
+          "source": "https://api.jolpi.ca/ergast/f1/constructors/alphatauri/results.json?limit=100",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 2020,
+          "date": "2020-09-06",
+          "event": "Italian Grand Prix",
+          "session": "Grand Prix",
+          "position": 1,
+          "points": 25.0,
+          "driver": "Pierre Gasly",
+          "team": "AlphaTauri",
+          "source": "https://api.jolpi.ca/ergast/f1/constructors/alphatauri/results/1.json?limit=1",
+          "verified_first": true
+        },
+        "complete": true
+      },
+      "RB": {
+        "scope": "Named constructor identity · GP results (points scored by its drivers)",
+        "coverage_start": 2024,
+        "first_points": {
+          "year": 2024,
+          "date": "2024-03-24",
+          "event": "Australian Grand Prix",
+          "session": "Grand Prix",
+          "position": 7,
+          "points": 6.0,
+          "driver": "Yuki Tsunoda",
+          "team": "RB F1 Team",
+          "source": "https://api.jolpi.ca/ergast/f1/2024/constructors/rb/results.json?limit=100",
+          "verified_first": true
+        },
+        "first_win": null,
+        "complete": true
+      },
+      "Alfa Romeo": {
+        "scope": "Named constructor identity · GP results (points scored by its drivers)",
+        "coverage_start": 2019,
+        "first_points": {
+          "year": 2019,
+          "date": "2019-03-17",
+          "event": "Australian Grand Prix",
+          "session": "Grand Prix",
+          "position": 8,
+          "points": 4.0,
+          "driver": "Kimi Räikkönen",
+          "team": "Alfa Romeo",
+          "source": "https://api.jolpi.ca/ergast/f1/2019/constructors/alfa/results.json?limit=100",
+          "verified_first": true
+        },
+        "first_win": null,
+        "complete": true
+      }
+    }
+  },
+  "dtm": {
+    "drivers": {
+      "dorr-ben": {
+        "scope": "Career · race and qualifying points",
+        "coverage_start": 2024,
+        "complete": true,
+        "first_points": {
+          "year": 2024,
+          "date": "2024-05-26",
+          "event": "DEKRA Lausitzring",
+          "session": "Race 2",
+          "position": 15.0,
+          "points": 1.0,
+          "driver": "dorr-ben",
+          "name": "Ben Dörr",
+          "team": "Dörr Motorsport",
+          "source": "https://www.dtm.com/en/results?season=2024",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 2026,
+          "date": "2026-06-20",
+          "event": "Dekra Lausitzring",
+          "session": "Race 1",
+          "position": 1.0,
+          "points": 25.0,
+          "driver": "dorr-ben",
+          "name": "Ben Dörr",
+          "team": "Doerr Motorsport",
+          "source": "https://www.dtm.com/en/results?season=2026",
+          "verified_first": true
+        }
+      },
+      "auer-lucas": {
+        "scope": "Career · historical references and the archive from 2020",
+        "coverage_start": 2020,
+        "complete": false,
+        "first_points": {
+          "year": 2020,
+          "date": "2020-08-01",
+          "event": "(001) Dtm Spa",
+          "session": "race 1",
+          "position": 7.0,
+          "points": 6.0,
+          "driver": "auer-lucas",
+          "name": "Auer Lucas",
+          "team": "BMW Team RMR",
+          "source": "https://www.dtm.com/en/results?season=2020",
+          "verified_first": false
+        },
+        "first_win": {
+          "year": 2016,
+          "date": "2016-06-05",
+          "event": "Lausitzring",
+          "session": "Race 2",
+          "position": 1,
+          "points": 25,
+          "team": "BWT Mercedes-AMG",
+          "source": "https://media.adac-motorsport.de/dl.php?dID=2614%2C2615%2C3205%2C3328&fID=85920",
+          "verified_first": true
+        }
+      },
+      "gounon-jules": {
+        "scope": "Career · race and qualifying points",
+        "coverage_start": 2024,
+        "complete": true,
+        "first_points": {
+          "year": 2024,
+          "date": "2024-10-19",
+          "event": "Hockenheimring",
+          "session": "Race 1",
+          "position": 6.0,
+          "points": 10.0,
+          "driver": "gounon-jules",
+          "name": "Jules Gounon",
+          "team": "Mercedes-AMG Team HRT",
+          "source": "https://www.dtm.com/en/results?season=2024",
+          "verified_first": true
+        },
+        "first_win": null
+      },
+      "kalender-tom": {
+        "scope": "Career · race and qualifying points",
+        "coverage_start": 2025,
+        "complete": true,
+        "first_points": {
+          "year": 2025,
+          "date": "2025-04-26",
+          "event": "Motorsport Arena Oschersleben",
+          "session": "Race 1",
+          "position": 17.0,
+          "points": 16.0,
+          "driver": "kalender-tom",
+          "name": "Tom Kalender",
+          "team": "Mercedes-AMG Team Landgraf",
+          "source": "https://www.dtm.com/en/results?season=2025",
+          "verified_first": true
+        },
+        "first_win": null
+      },
+      "vermeulen-thierry": {
+        "scope": "Career · race and qualifying points",
+        "coverage_start": 2023,
+        "complete": true,
+        "first_points": {
+          "year": 2023,
+          "date": "2023-05-27",
+          "event": "Motorsport Arena Oschersleben",
+          "session": "Race 1",
+          "position": 15.0,
+          "points": 1.0,
+          "driver": "vermeulen-thierry",
+          "name": "Thierry Vermeulen",
+          "team": "EMIL FREY RACING",
+          "source": "https://www.dtm.com/en/results?season=2023",
+          "verified_first": true
+        },
+        "first_win": null
+      },
+      "engel-maro": {
+        "scope": "Available archive from 2020 · race and qualifying points",
+        "coverage_start": 2020,
+        "complete": false,
+        "first_points": {
+          "year": 2022,
+          "date": "2022-04-30",
+          "event": "Portimao",
+          "session": "Race 1",
+          "position": 10.0,
+          "points": 1.0,
+          "driver": "engel-maro",
+          "name": "ENGEL Maro",
+          "team": "Mercedes-AMG Team GruppeM Racing",
+          "source": "https://www.dtm.com/en/results?season=2022",
+          "verified_first": false
+        },
+        "first_win": {
+          "year": 2023,
+          "date": "2023-06-24",
+          "event": "Circuit Zandvoort",
+          "session": "Race 1",
+          "position": 1.0,
+          "points": 25.0,
+          "driver": "engel-maro",
+          "name": "Maro Engel",
+          "team": "Mercedes-AMG Team MANN-FILTER",
+          "source": "https://www.dtm.com/en/results?season=2023",
+          "verified_first": false
+        }
+      },
+      "glock-timo": {
+        "scope": "Career · historical references and the archive from 2020",
+        "coverage_start": 2020,
+        "complete": false,
+        "first_points": {
+          "year": 2013,
+          "date": "2013-06-02",
+          "event": "Spielberg",
+          "session": "Race",
+          "position": 3,
+          "points": 15,
+          "team": "BMW Team MTEK",
+          "source": "https://www.press.bmwgroup.com/deutschland/article/detail/T0151525DE/die-dtm-saison-2013-im-bmw-motorsport-rueckblick",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 2013,
+          "date": "2013-10-20",
+          "event": "Hockenheimring",
+          "session": "Race",
+          "position": 1,
+          "points": 25,
+          "team": "BMW Team MTEK",
+          "source": "https://www.press.bmwgroup.com/usa/article/detail/T0151484EN_US/timo-glock-claims-maiden-dtm-victory-at-the-season-finale-%E2%80%93-bmw-defends-manufacturers%E2%80%99-title?language=en_US",
+          "verified_first": true
+        }
+      },
+      "preining-thomas": {
+        "scope": "Career · race and qualifying points",
+        "coverage_start": 2022,
+        "complete": true,
+        "first_points": {
+          "year": 2022,
+          "date": "2022-06-18",
+          "event": "Imola",
+          "session": "Race 1",
+          "position": 4.0,
+          "points": 12.0,
+          "driver": "preining-thomas",
+          "name": "PREINING Thomas",
+          "team": "KÜS Team Bernhard",
+          "source": "https://www.dtm.com/en/results?season=2022",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 2022,
+          "date": "2022-07-02",
+          "event": "Norisring",
+          "session": "Race 1",
+          "position": 1.0,
+          "points": 25.0,
+          "driver": "preining-thomas",
+          "name": "PREINING Thomas",
+          "team": "KÜS Team Bernhard",
+          "source": "https://www.dtm.com/en/results?season=2022",
+          "verified_first": true
+        }
+      },
+      "cairoli-matteo": {
+        "scope": "Career · race and qualifying points",
+        "coverage_start": 2026,
+        "complete": true,
+        "first_points": {
+          "year": 2026,
+          "date": "2026-04-25",
+          "event": "Red Bull Ring by VKB-Bank",
+          "session": "Race 1",
+          "position": 8.0,
+          "points": 8.0,
+          "driver": "cairoli-matteo",
+          "name": "Matteo Cairoli",
+          "team": "EMIL FREY RACING",
+          "source": "https://www.dtm.com/en/results?season=2026",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 2026,
+          "date": "2026-05-23",
+          "event": "Circuit Zandvoort",
+          "session": "Race 1",
+          "position": 1.0,
+          "points": 25.0,
+          "driver": "cairoli-matteo",
+          "name": "Matteo Cairoli",
+          "team": "EMIL FREY RACING",
+          "source": "https://www.dtm.com/en/results?season=2026",
+          "verified_first": true
+        }
+      },
+      "buus-bastian": {
+        "scope": "Career · race and qualifying points",
+        "coverage_start": 2026,
+        "complete": true,
+        "first_points": {
+          "year": 2026,
+          "date": "2026-04-25",
+          "event": "Red Bull Ring by VKB-Bank",
+          "session": "Race 1",
+          "position": 14.0,
+          "points": 2.0,
+          "driver": "buus-bastian",
+          "name": "Bastian Buus",
+          "team": "Land Motorsport",
+          "source": "https://www.dtm.com/en/results?season=2026",
+          "verified_first": true
+        },
+        "first_win": null
+      },
+      "wittmann-marco": {
+        "scope": "Career · historical references and the archive from 2020",
+        "coverage_start": 2020,
+        "complete": false,
+        "first_points": {
+          "year": 2013,
+          "date": "2013-05-05",
+          "event": "Hockenheimring",
+          "session": "Race",
+          "position": 9,
+          "points": 2,
+          "team": "BMW Team MTEK",
+          "source": "https://www.press.bmwgroup.com/usa/article/detail/T0141400EN_US/bmw-motorsport-opens-dtm-season-with-one-two-%E2%80%93-farfus-triumphs-ahead-of-werner-five-bmw-m3-dtms-in-the-points?language=en_US",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 2014,
+          "date": "2014-05-04",
+          "event": "Hockenheimring",
+          "session": "Race",
+          "position": 1,
+          "points": 25,
+          "team": "BMW Team RMG",
+          "source": "https://www.press.bmwgroup.com/canada/article/detail/T0320581EN/victories-titles-and-spine-tingling-moments%3A-the-personal-highlights-of-the-bmw-dtm-drivers-since-the-comeback-in-2012",
+          "verified_first": true
+        }
+      },
+      "wiebelhaus-finn": {
+        "scope": "Career · race and qualifying points",
+        "coverage_start": 2026,
+        "complete": true,
+        "first_points": {
+          "year": 2026,
+          "date": "2026-04-25",
+          "event": "Red Bull Ring by VKB-Bank",
+          "session": "Race 1",
+          "position": 11.0,
+          "points": 5.0,
+          "driver": "wiebelhaus-finn",
+          "name": "Finn Wiebelhaus",
+          "team": "HRT Ford Racing",
+          "source": "https://www.dtm.com/en/results?season=2026",
+          "verified_first": true
+        },
+        "first_win": null
+      },
+      "van-der-linde-kelvin": {
+        "scope": "Career · race and qualifying points",
+        "coverage_start": 2021,
+        "complete": true,
+        "first_points": {
+          "year": 2021,
+          "date": "2021-06-19",
+          "event": "Dtm - Monza Round 1",
+          "session": "Race 1",
+          "position": 4.0,
+          "points": 12.0,
+          "driver": "van-der-linde-kelvin",
+          "name": "Van der Linde Kelvin",
+          "team": "Team ABT Sportsline",
+          "source": "https://www.dtm.com/en/results?season=2021",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 2021,
+          "date": "2021-06-20",
+          "event": "Dtm - Monza Round 1",
+          "session": "Race 2",
+          "position": 1.0,
+          "points": 25.0,
+          "driver": "van-der-linde-kelvin",
+          "name": "Van der Linde Kelvin",
+          "team": "Team ABT Sportsline",
+          "source": "https://www.dtm.com/en/results?season=2021",
+          "verified_first": true
+        }
+      },
+      "maini-arjun": {
+        "scope": "Career · race and qualifying points",
+        "coverage_start": 2021,
+        "complete": true,
+        "first_points": {
+          "year": 2021,
+          "date": "2021-07-23",
+          "event": "Dtm - Lausitzring Round 2",
+          "session": "Track Test",
+          "position": 5.0,
+          "points": 10.0,
+          "driver": "maini-arjun",
+          "name": "Maini Arjun",
+          "team": "Mercedes-AMG Team GetSpeed",
+          "source": "https://www.dtm.com/en/results?season=2021",
+          "verified_first": true
+        },
+        "first_win": null
+      },
+      "feller-ricardo": {
+        "scope": "Career · race and qualifying points",
+        "coverage_start": 2022,
+        "complete": true,
+        "first_points": {
+          "year": 2022,
+          "date": "2022-04-30",
+          "event": "Portimao",
+          "session": "Race 1",
+          "position": 6.0,
+          "points": 8.0,
+          "driver": "feller-ricardo",
+          "name": "FELLER Ricardo",
+          "team": "ABT Sportsline",
+          "source": "https://www.dtm.com/en/results?season=2022",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 2022,
+          "date": "2022-06-19",
+          "event": "Imola",
+          "session": "Race 2",
+          "position": 1.0,
+          "points": 25.0,
+          "driver": "feller-ricardo",
+          "name": "FELLER Ricardo",
+          "team": "ABT Sportsline",
+          "source": "https://www.dtm.com/en/results?season=2022",
+          "verified_first": true
+        }
+      },
+      "engstler-luca": {
+        "scope": "Career · race and qualifying points",
+        "coverage_start": 2023,
+        "complete": true,
+        "first_points": {
+          "year": 2023,
+          "date": "2023-06-24",
+          "event": "Circuit Zandvoort",
+          "session": "Race 1",
+          "position": 14.0,
+          "points": 2.0,
+          "driver": "engstler-luca",
+          "name": "Luca Engstler",
+          "team": "LIQUI MOLY Team Engstler",
+          "source": "https://www.dtm.com/en/results?season=2023",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 2024,
+          "date": "2024-04-28",
+          "event": "Motorsport Arena Oschersleben",
+          "session": "Race 2",
+          "position": 1.0,
+          "points": 25.0,
+          "driver": "engstler-luca",
+          "name": "Luca Engstler",
+          "team": "Lamborghini Team Liqui Moly by GRT",
+          "source": "https://www.dtm.com/en/results?season=2024",
+          "verified_first": true
+        }
+      },
+      "bortolotti-mirko": {
+        "scope": "Career · race and qualifying points",
+        "coverage_start": 2021,
+        "complete": true,
+        "first_points": {
+          "year": 2022,
+          "date": "2022-04-30",
+          "event": "Portimao",
+          "session": "Race 1",
+          "position": 3.0,
+          "points": 15.0,
+          "driver": "bortolotti-mirko",
+          "name": "BORTOLOTTI Mirko",
+          "team": "GRT",
+          "source": "https://www.dtm.com/en/results?season=2022",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 2023,
+          "date": "2023-08-05",
+          "event": "Nürburgring",
+          "session": "Race 1",
+          "position": 1.0,
+          "points": 25.0,
+          "driver": "bortolotti-mirko",
+          "name": "Mirko Bortolotti",
+          "team": "SSR Performance",
+          "source": "https://www.dtm.com/en/results?season=2023",
+          "verified_first": true
+        }
+      },
+      "baert-nicolas": {
+        "scope": "Career · race and qualifying points",
+        "coverage_start": 2025,
+        "complete": true,
+        "first_points": {
+          "year": 2025,
+          "date": "2025-05-24",
+          "event": "Dekra Lausitzring",
+          "session": "Race 1",
+          "position": 19.0,
+          "points": 13.0,
+          "driver": "baert-nicolas",
+          "name": "Nicolas Baert",
+          "team": "Comtoyou Racing",
+          "source": "https://www.dtm.com/en/results?season=2025",
+          "verified_first": true
+        },
+        "first_win": null
+      },
+      "thiim-nicki": {
+        "scope": "Career · race and qualifying points",
+        "coverage_start": 2022,
+        "complete": true,
+        "first_points": {
+          "year": 2024,
+          "date": "2024-05-25",
+          "event": "DEKRA Lausitzring",
+          "session": "Race 1",
+          "position": 8.0,
+          "points": 8.0,
+          "driver": "thiim-nicki",
+          "name": "Nicki Thiim",
+          "team": "SSR Performance",
+          "source": "https://www.dtm.com/en/results?season=2024",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 2024,
+          "date": "2024-07-07",
+          "event": "Norisring",
+          "session": "Race 2",
+          "position": 1.0,
+          "points": 25.0,
+          "driver": "thiim-nicki",
+          "name": "Nicki Thiim",
+          "team": "SSR Performance",
+          "source": "https://www.dtm.com/en/results?season=2024",
+          "verified_first": true
+        }
+      },
+      "paul-maximilian": {
+        "scope": "Career · race and qualifying points",
+        "coverage_start": 2021,
+        "complete": true,
+        "first_points": {
+          "year": 2023,
+          "date": "2023-08-05",
+          "event": "Nürburgring",
+          "session": "Race 1",
+          "position": 13.0,
+          "points": 3.0,
+          "driver": "paul-maximilian",
+          "name": "Maximilian Paul",
+          "team": "GRT Grasser-Racing-Team",
+          "source": "https://www.dtm.com/en/results?season=2023",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 2023,
+          "date": "2023-08-06",
+          "event": "Nürburgring",
+          "session": "Race 2",
+          "position": 1.0,
+          "points": 25.0,
+          "driver": "paul-maximilian",
+          "name": "Maximilian Paul",
+          "team": "GRT Grasser-Racing-Team",
+          "source": "https://www.dtm.com/en/results?season=2023",
+          "verified_first": true
+        }
+      },
+      "mapelli-marco": {
+        "scope": "Career · race and qualifying points",
+        "coverage_start": 2026,
+        "complete": true,
+        "first_points": {
+          "year": 2026,
+          "date": "2026-05-23",
+          "event": "Circuit Zandvoort",
+          "session": "Race 1",
+          "position": 15.0,
+          "points": 1.0,
+          "driver": "mapelli-marco",
+          "name": "Marco Mapelli",
+          "team": "Red Bull Team ABT",
+          "source": "https://www.dtm.com/en/results?season=2026",
+          "verified_first": true
+        },
+        "first_win": null
+      },
+      "engelhart-christian": {
+        "scope": "Career · race and qualifying points",
+        "coverage_start": 2022,
+        "complete": true,
+        "first_points": {
+          "year": 2023,
+          "date": "2023-05-27",
+          "event": "Motorsport Arena Oschersleben",
+          "session": "Race 1",
+          "position": 9.0,
+          "points": 7.0,
+          "driver": "engelhart-christian",
+          "name": "Christian Engelhart_",
+          "team": "Toksport WRT",
+          "source": "https://www.dtm.com/en/results?season=2023",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 2023,
+          "date": "2023-05-28",
+          "event": "Motorsport Arena Oschersleben",
+          "session": "Race 2",
+          "position": 1.0,
+          "points": 25.0,
+          "driver": "engelhart-christian",
+          "name": "Christian Engelhart_",
+          "team": "Toksport WRT",
+          "source": "https://www.dtm.com/en/results?season=2023",
+          "verified_first": true
+        }
+      },
+      "primm-simon-connor": {
+        "scope": "Career · race and qualifying points",
+        "coverage_start": 2026,
+        "complete": true,
+        "first_points": null,
+        "first_win": null
+      },
+      "pepper-jordan": {
+        "scope": "Career · race and qualifying points",
+        "coverage_start": 2024,
+        "complete": true,
+        "first_points": {
+          "year": 2024,
+          "date": "2024-09-07",
+          "event": "Sachsenring",
+          "session": "Race 1",
+          "position": 10.0,
+          "points": 6.0,
+          "driver": "pepper-jordan",
+          "name": "Jordan Pepper",
+          "team": "Lamborghini Team TGI by GRT",
+          "source": "https://www.dtm.com/en/results?season=2024",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 2025,
+          "date": "2025-07-05",
+          "event": "Norisring",
+          "session": "Race 1",
+          "position": 1.0,
+          "points": 25.0,
+          "driver": "pepper-jordan",
+          "name": "Jordan Pepper",
+          "team": "TGI Team Lamborghini by GRT",
+          "source": "https://www.dtm.com/en/results?season=2025",
+          "verified_first": true
+        }
+      },
+      "guven-ayhancan": {
+        "scope": "Career · race and qualifying points",
+        "coverage_start": 2022,
+        "complete": true,
+        "first_points": {
+          "year": 2022,
+          "date": "2022-07-03",
+          "event": "Norisring",
+          "session": "Race 2",
+          "position": 7.0,
+          "points": 6.0,
+          "driver": "guven-ayhancan",
+          "name": "GUVEN Ayhancan",
+          "team": "AlphaTauri AF Corse",
+          "source": "https://www.dtm.com/en/results?season=2022",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 2025,
+          "date": "2025-06-07",
+          "event": "Circuit Zandvoort",
+          "session": "Race 1",
+          "position": 1.0,
+          "points": 25.0,
+          "driver": "guven-ayhancan",
+          "name": "Ayhancan Güven",
+          "team": "Manthey EMA",
+          "source": "https://www.dtm.com/en/results?season=2025",
+          "verified_first": true
+        }
+      },
+      "schuring-morris": {
+        "scope": "Career · race and qualifying points",
+        "coverage_start": 2025,
+        "complete": true,
+        "first_points": {
+          "year": 2025,
+          "date": "2025-04-26",
+          "event": "Motorsport Arena Oschersleben",
+          "session": "Race 1",
+          "position": 16.0,
+          "points": 20.0,
+          "driver": "schuring-morris",
+          "name": "Morris Schuring",
+          "team": "Manthey Junior Team",
+          "source": "https://www.dtm.com/en/results?season=2025",
+          "verified_first": true
+        },
+        "first_win": null
+      },
+      "green-ben": {
+        "scope": "Career · race and qualifying points",
+        "coverage_start": 2025,
+        "complete": true,
+        "first_points": {
+          "year": 2025,
+          "date": "2025-06-07",
+          "event": "Circuit Zandvoort",
+          "session": "Race 1",
+          "position": 15.0,
+          "points": 1.0,
+          "driver": "green-ben",
+          "name": "Ben Green",
+          "team": "EMIL FREY RACING",
+          "source": "https://www.dtm.com/en/results?season=2025",
+          "verified_first": true
+        },
+        "first_win": null
+      },
+      "aitken-jack": {
+        "scope": "Career · race and qualifying points",
+        "coverage_start": 2023,
+        "complete": true,
+        "first_points": {
+          "year": 2023,
+          "date": "2023-05-27",
+          "event": "Motorsport Arena Oschersleben",
+          "session": "Race 1",
+          "position": 3.0,
+          "points": 16.0,
+          "driver": "aitken-jack",
+          "name": "Jack Aitken",
+          "team": "EMIL FREY RACING",
+          "source": "https://www.dtm.com/en/results?season=2023",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 2023,
+          "date": "2023-08-19",
+          "event": "DEKRA Lausitzring",
+          "session": "Race 1",
+          "position": 1.0,
+          "points": 25.0,
+          "driver": "aitken-jack",
+          "name": "Jack Aitken",
+          "team": "EMIL FREY RACING",
+          "source": "https://www.dtm.com/en/results?season=2023",
+          "verified_first": true
+        }
+      },
+      "rast-rene": {
+        "scope": "Career · historical references and the archive from 2020",
+        "coverage_start": 2020,
+        "complete": false,
+        "first_points": {
+          "year": 2016,
+          "date": "2016-10-15",
+          "event": "Hockenheimring",
+          "session": "Race 1",
+          "position": 6,
+          "points": 8,
+          "team": "Audi Sport Team Phoenix",
+          "source": "https://www.audi.com/en/press-releases/audi-driver-rene-rast-makes-dtm-history-9489",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 2017,
+          "date": "2017-06-18",
+          "event": "Hungaroring",
+          "session": "Race 2",
+          "position": 1,
+          "points": 25,
+          "team": "Audi Sport Team Rosberg",
+          "source": "https://www.audi-mediacenter.com/en/press-releases/dtm-budapest-audi-quotes-9036/download",
+          "verified_first": true
+        }
+      },
+      "magnus-gilles": {
+        "scope": "Career · race and qualifying points",
+        "coverage_start": 2025,
+        "complete": true,
+        "first_points": {
+          "year": 2025,
+          "date": "2025-04-27",
+          "event": "Motorsport Arena Oschersleben",
+          "session": "Race 2",
+          "position": 21.0,
+          "points": 13.0,
+          "driver": "magnus-gilles",
+          "name": "Gilles Magnus",
+          "team": "Comtoyou Racing",
+          "source": "https://www.dtm.com/en/results?season=2025",
+          "verified_first": true
+        },
+        "first_win": null
+      },
+      "scherer-fabio": {
+        "scope": "Career · race and qualifying points",
+        "coverage_start": 2020,
+        "complete": true,
+        "first_points": {
+          "year": 2020,
+          "date": "2020-10-11",
+          "event": "(007) Dtm Zolder 1",
+          "session": "race 2",
+          "position": 5.0,
+          "points": 10.0,
+          "driver": "scherer-fabio",
+          "name": "Scherer Fabio",
+          "team": "WRT Team Audi Sport",
+          "source": "https://www.dtm.com/en/results?season=2020",
+          "verified_first": true
+        },
+        "first_win": null
+      },
+      "van-der-linde-sheldon": {
+        "scope": "Career · historical references and the archive from 2020",
+        "coverage_start": 2020,
+        "complete": false,
+        "first_points": {
+          "year": 2019,
+          "date": "2019-05-04",
+          "event": "Hockenheimring",
+          "session": "Race 1",
+          "position": 6,
+          "points": 8,
+          "team": "BMW Team RBM",
+          "source": "https://www.press.bmwgroup.com/global/article/attachment/T0295424EN/429697",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 2020,
+          "date": "2020-09-06",
+          "event": "(004) Dtm Assen",
+          "session": "race 2",
+          "position": 1.0,
+          "points": 25.0,
+          "driver": "van-der-linde-sheldon",
+          "name": "Van der Linde Sheldon",
+          "team": "BMW Team RBM",
+          "source": "https://www.press.bmwgroup.com/global/article/attachment/T0320554EN/465421",
+          "verified_first": true
+        }
+      },
+      "stolz-luca": {
+        "scope": "Career · race and qualifying points",
+        "coverage_start": 2021,
+        "complete": true,
+        "first_points": {
+          "year": 2022,
+          "date": "2022-04-30",
+          "event": "Portimao",
+          "session": "Race 1",
+          "position": 2.0,
+          "points": 18.0,
+          "driver": "stolz-luca",
+          "name": "STOLZ Luca",
+          "team": "Mercedes-AMG Team HRT",
+          "source": "https://www.dtm.com/en/results?season=2022",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 2022,
+          "date": "2022-08-28",
+          "event": "Nurburgring",
+          "session": "Race 2",
+          "position": 1.0,
+          "points": 25.0,
+          "driver": "stolz-luca",
+          "name": "STOLZ Luca",
+          "team": "Mercedes-AMG Team HRT",
+          "source": "https://www.dtm.com/en/results?season=2022",
+          "verified_first": true
+        }
+      },
+      "schmid-clemens": {
+        "scope": "Career · race and qualifying points",
+        "coverage_start": 2022,
+        "complete": true,
+        "first_points": {
+          "year": 2022,
+          "date": "2022-06-18",
+          "event": "Imola",
+          "session": "Race 1",
+          "position": 6.0,
+          "points": 8.0,
+          "driver": "schmid-clemens",
+          "name": "SCHMID Clemens",
+          "team": "GRT grasser-racing.com",
+          "source": "https://www.dtm.com/en/results?season=2022",
+          "verified_first": true
+        },
+        "first_win": null
+      },
+      "perera-franck": {
+        "scope": "Career · race and qualifying points",
+        "coverage_start": 2022,
+        "complete": true,
+        "first_points": {
+          "year": 2023,
+          "date": "2023-05-27",
+          "event": "Motorsport Arena Oschersleben",
+          "session": "Race 1",
+          "position": 1.0,
+          "points": 26.0,
+          "driver": "perera-franck",
+          "name": "Franck Perera",
+          "team": "SSR Performance",
+          "source": "https://www.dtm.com/en/results?season=2023",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 2023,
+          "date": "2023-05-27",
+          "event": "Motorsport Arena Oschersleben",
+          "session": "Race 1",
+          "position": 1.0,
+          "points": 26.0,
+          "driver": "perera-franck",
+          "name": "Franck Perera",
+          "team": "SSR Performance",
+          "source": "https://www.dtm.com/en/results?season=2023",
+          "verified_first": true
+        }
+      },
+      "schumacher-david": {
+        "scope": "Career · race and qualifying points",
+        "coverage_start": 2022,
+        "complete": true,
+        "first_points": {
+          "year": 2023,
+          "date": "2023-05-28",
+          "event": "Motorsport Arena Oschersleben",
+          "session": "Race 2",
+          "position": 13.0,
+          "points": 3.0,
+          "driver": "schumacher-david",
+          "name": "David Schumacher",
+          "team": "Mercedes-AMG Team WINWARD",
+          "source": "https://www.dtm.com/en/results?season=2023",
+          "verified_first": true
+        },
+        "first_win": null
+      },
+      "heinemann-tim": {
+        "scope": "Career · race and qualifying points",
+        "coverage_start": 2023,
+        "complete": true,
+        "first_points": {
+          "year": 2023,
+          "date": "2023-05-27",
+          "event": "Motorsport Arena Oschersleben",
+          "session": "Race 1",
+          "position": 2.0,
+          "points": 20.0,
+          "driver": "heinemann-tim",
+          "name": "Tim Heinemann",
+          "team": "Toksport WRT",
+          "source": "https://www.dtm.com/en/results?season=2023",
+          "verified_first": true
+        },
+        "first_win": null
+      },
+      "drudi-mattia": {
+        "scope": "Career · race and qualifying points",
+        "coverage_start": 2023,
+        "complete": true,
+        "first_points": {
+          "year": 2023,
+          "date": "2023-07-08",
+          "event": "Norisring",
+          "session": "Race 1",
+          "position": 14.0,
+          "points": 2.0,
+          "driver": "drudi-mattia",
+          "name": "Mattia Drudi",
+          "team": "Tresor Orange 1",
+          "source": "https://www.dtm.com/en/results?season=2023",
+          "verified_first": true
+        },
+        "first_win": null
+      },
+      "olsen-dennis": {
+        "scope": "Career · race and qualifying points",
+        "coverage_start": 2022,
+        "complete": true,
+        "first_points": {
+          "year": 2022,
+          "date": "2022-04-30",
+          "event": "Portimao",
+          "session": "Race 1",
+          "position": 5.0,
+          "points": 10.0,
+          "driver": "olsen-dennis",
+          "name": "OLSEN Dennis",
+          "team": "SSR Performance",
+          "source": "https://www.dtm.com/en/results?season=2022",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 2022,
+          "date": "2022-09-10",
+          "event": "Spa-Francorchamps",
+          "session": "Race 1",
+          "position": 1.0,
+          "points": 25.0,
+          "driver": "olsen-dennis",
+          "name": "OLSEN Dennis",
+          "team": "SSR Performance",
+          "source": "https://www.dtm.com/en/results?season=2022",
+          "verified_first": true
+        }
+      },
+      "niederhauser-patric": {
+        "scope": "Career · race and qualifying points",
+        "coverage_start": 2023,
+        "complete": true,
+        "first_points": {
+          "year": 2023,
+          "date": "2023-06-25",
+          "event": "Circuit Zandvoort",
+          "session": "Race 2",
+          "position": 8.0,
+          "points": 8.0,
+          "driver": "niederhauser-patric",
+          "name": "Patric Niederhauser",
+          "team": "Tresor Orange 1",
+          "source": "https://www.dtm.com/en/results?season=2023",
+          "verified_first": true
+        },
+        "first_win": null
+      },
+      "heinrich-laurin": {
+        "scope": "Career · race and qualifying points",
+        "coverage_start": 2023,
+        "complete": true,
+        "first_points": {
+          "year": 2023,
+          "date": "2023-05-27",
+          "event": "Motorsport Arena Oschersleben",
+          "session": "Race 1",
+          "position": 7.0,
+          "points": 9.0,
+          "driver": "heinrich-laurin",
+          "name": "Laurin Heinrich",
+          "team": "Team75 Motorsport",
+          "source": "https://www.dtm.com/en/results?season=2023",
+          "verified_first": true
+        },
+        "first_win": null
+      },
+      "owega-jusuf": {
+        "scope": "Career · race and qualifying points",
+        "coverage_start": 2023,
+        "complete": true,
+        "first_points": {
+          "year": 2023,
+          "date": "2023-05-27",
+          "event": "Motorsport Arena Oschersleben",
+          "session": "Race 1",
+          "position": 14.0,
+          "points": 2.0,
+          "driver": "owega-jusuf",
+          "name": "Jusuf Owega",
+          "team": "Mercedes-AMG Team BWT",
+          "source": "https://www.dtm.com/en/results?season=2023",
+          "verified_first": true
+        },
+        "first_win": null
+      },
+      "wishofer-mick": {
+        "scope": "Career · race and qualifying points",
+        "coverage_start": 2023,
+        "complete": true,
+        "first_points": null,
+        "first_win": null
+      },
+      "deledda-alessio": {
+        "scope": "Career · race and qualifying points",
+        "coverage_start": 2022,
+        "complete": true,
+        "first_points": {
+          "year": 2022,
+          "date": "2022-10-09",
+          "event": "Hockenheimring",
+          "session": "Race 2",
+          "position": 10.0,
+          "points": 1.0,
+          "driver": "deledda-alessio",
+          "name": "DELEDDA Alessio",
+          "team": "GRT grasser-racing.com",
+          "source": "https://www.dtm.com/en/results?season=2022",
+          "verified_first": true
+        },
+        "first_win": null
+      },
+      "vanthoor-dries": {
+        "scope": "Career · race and qualifying points",
+        "coverage_start": 2023,
+        "complete": true,
+        "first_points": {
+          "year": 2023,
+          "date": "2023-06-24",
+          "event": "Circuit Zandvoort",
+          "session": "Race 1",
+          "position": 9.0,
+          "points": 7.0,
+          "driver": "vanthoor-dries",
+          "name": "Dries Vanthoor",
+          "team": "Schubert Motorsport",
+          "source": "https://www.dtm.com/en/results?season=2023",
+          "verified_first": true
+        },
+        "first_win": null
+      },
+      "costa-balboa-albert": {
+        "scope": "Career · race and qualifying points",
+        "coverage_start": 2023,
+        "complete": true,
+        "first_points": {
+          "year": 2023,
+          "date": "2023-06-24",
+          "event": "Circuit Zandvoort",
+          "session": "Race 1",
+          "position": 8.0,
+          "points": 8.0,
+          "driver": "costa-balboa-albert",
+          "name": "Albert Costa Balboa",
+          "team": "EMIL FREY RACING",
+          "source": "https://www.dtm.com/en/results?season=2023",
+          "verified_first": true
+        },
+        "first_win": null
+      },
+      "holzem-sandro": {
+        "scope": "Career · race and qualifying points",
+        "coverage_start": 2023,
+        "complete": true,
+        "first_points": null,
+        "first_win": null
+      },
+      "dienst-marvin": {
+        "scope": "Career · race and qualifying points",
+        "coverage_start": 2021,
+        "complete": true,
+        "first_points": {
+          "year": 2021,
+          "date": "2021-10-03",
+          "event": "Dtm - Hockenheimring Gp Round 7",
+          "session": "Race 2",
+          "position": 7.0,
+          "points": 6.0,
+          "driver": "dienst-marvin",
+          "name": "Dienst Marvin",
+          "team": "Mercedes-AMG Team Mücke Motorsport",
+          "source": "https://www.dtm.com/en/results?season=2021",
+          "verified_first": true
+        },
+        "first_win": null
+      },
+      "caldarelli-andrea": {
+        "scope": "Career · race and qualifying points",
+        "coverage_start": 2023,
+        "complete": true,
+        "first_points": null,
+        "first_win": null
+      }
+    },
+    "teams": {
+      "manthey": {
+        "scope": "Available archive from 2020 · race and qualifying points",
+        "coverage_start": 2020,
+        "complete": false,
+        "first_points": {
+          "year": 2023,
+          "date": "2023-05-27",
+          "event": "Motorsport Arena Oschersleben",
+          "session": "Race 1",
+          "position": 10.0,
+          "points": 6.0,
+          "driver": "olsen-dennis",
+          "name": "Dennis Olsen",
+          "team": "Manthey EMA",
+          "source": "https://www.dtm.com/en/results?season=2023",
+          "verified_first": false
+        },
+        "first_win": {
+          "year": 2023,
+          "date": "2023-07-09",
+          "event": "Norisring",
+          "session": "Race 2",
+          "position": 1.0,
+          "points": 25.0,
+          "driver": "preining-thomas",
+          "name": "Thomas Preining",
+          "team": "Manthey EMA",
+          "source": "https://www.dtm.com/en/results?season=2023",
+          "verified_first": false
+        }
+      },
+      "schubert": {
+        "scope": "DTM operation · race and qualifying points",
+        "coverage_start": 2022,
+        "complete": true,
+        "first_points": {
+          "year": 2022,
+          "date": "2022-04-30",
+          "event": "Portimao",
+          "session": "Race 1",
+          "position": 7.0,
+          "points": 6.0,
+          "driver": "van-der-linde-sheldon",
+          "name": "VAN DER LINDE Sheldon",
+          "team": "Schubert Motorsport",
+          "source": "https://www.dtm.com/en/results?season=2022",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 2022,
+          "date": "2022-05-21",
+          "event": "Lausitzring",
+          "session": "Race 1",
+          "position": 1.0,
+          "points": 25.0,
+          "driver": "van-der-linde-sheldon",
+          "name": "VAN DER LINDE Sheldon",
+          "team": "Schubert Motorsport",
+          "source": "https://www.dtm.com/en/results?season=2022",
+          "verified_first": true
+        }
+      },
+      "abt": {
+        "scope": "Career · historical references and the archive from 2020",
+        "coverage_start": 2020,
+        "complete": false,
+        "first_points": {
+          "year": 2020,
+          "date": "2020-08-01",
+          "event": "(001) Dtm Spa",
+          "session": "race 1",
+          "position": 1.0,
+          "points": 25.0,
+          "driver": "muller-nico",
+          "name": "Müller Nico",
+          "team": "Audi Sport Team Abt Sportsline",
+          "source": "https://www.dtm.com/en/results?season=2020",
+          "verified_first": false
+        },
+        "first_win": {
+          "year": 2001,
+          "date": "2001-05-06",
+          "event": "Nürburgring",
+          "session": "Race",
+          "position": 1,
+          "driver": "Laurent Aiello",
+          "points": null,
+          "team": "ABT Sportsline",
+          "verified_first": true,
+          "source": "https://www.abt-sportsline.com/motorsport/history"
+        }
+      },
+      "emil-frey": {
+        "scope": "DTM operation · race and qualifying points",
+        "coverage_start": 2023,
+        "complete": true,
+        "first_points": {
+          "year": 2023,
+          "date": "2023-05-27",
+          "event": "Motorsport Arena Oschersleben",
+          "session": "Race 1",
+          "position": 3.0,
+          "points": 16.0,
+          "driver": "aitken-jack",
+          "name": "Jack Aitken",
+          "team": "EMIL FREY RACING",
+          "source": "https://www.dtm.com/en/results?season=2023",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 2023,
+          "date": "2023-08-19",
+          "event": "DEKRA Lausitzring",
+          "session": "Race 1",
+          "position": 1.0,
+          "points": 25.0,
+          "driver": "aitken-jack",
+          "name": "Jack Aitken",
+          "team": "EMIL FREY RACING",
+          "source": "https://www.dtm.com/en/results?season=2023",
+          "verified_first": true
+        }
+      },
+      "hrt": {
+        "scope": "DTM operation · race and qualifying points",
+        "coverage_start": 2021,
+        "complete": true,
+        "first_points": {
+          "year": 2021,
+          "date": "2021-06-19",
+          "event": "Dtm - Monza Round 1",
+          "session": "Qualifying 1",
+          "position": 3.0,
+          "points": 1.0,
+          "driver": "gotz-maximilian",
+          "name": "Götz Maximilian",
+          "team": "Mercedes-AMG Team HRT",
+          "source": "https://www.dtm.com/en/results?season=2021",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 2021,
+          "date": "2021-07-25",
+          "event": "Dtm - Lausitzring Round 2",
+          "session": "Race 2",
+          "position": 1.0,
+          "points": 25.0,
+          "driver": "gotz-maximilian",
+          "name": "Götz Maximilian",
+          "team": "Mercedes-AMG Team HRT",
+          "source": "https://www.dtm.com/en/results?season=2021",
+          "verified_first": true
+        }
+      },
+      "comtoyou": {
+        "scope": "DTM operation · race and qualifying points",
+        "coverage_start": 2025,
+        "complete": true,
+        "first_points": {
+          "year": 2025,
+          "date": "2025-04-27",
+          "event": "Motorsport Arena Oschersleben",
+          "session": "Race 2",
+          "position": 21.0,
+          "points": 13.0,
+          "driver": "magnus-gilles",
+          "name": "Gilles Magnus",
+          "team": "Comtoyou Racing",
+          "source": "https://www.dtm.com/en/results?season=2025",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 2026,
+          "date": "2026-07-04",
+          "event": "Norisring",
+          "session": "Race 1",
+          "position": 1.0,
+          "points": 25.0,
+          "driver": "thiim-nicki",
+          "name": "Nicki Thiim",
+          "team": "Comtoyou Racing",
+          "source": "https://www.dtm.com/en/results?season=2026",
+          "verified_first": true
+        }
+      },
+      "doerr": {
+        "scope": "DTM operation · race and qualifying points",
+        "coverage_start": 2024,
+        "complete": true,
+        "first_points": {
+          "year": 2024,
+          "date": "2024-04-27",
+          "event": "Motorsport Arena Oschersleben",
+          "session": "Race 1",
+          "position": 15.0,
+          "points": 1.0,
+          "driver": "schmid-clemens",
+          "name": "Clemens Schmid",
+          "team": "Dörr Motorsport",
+          "source": "https://www.dtm.com/en/results?season=2024",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 2026,
+          "date": "2026-06-20",
+          "event": "Dekra Lausitzring",
+          "session": "Race 1",
+          "position": 1.0,
+          "points": 25.0,
+          "driver": "dorr-ben",
+          "name": "Ben Dörr",
+          "team": "Doerr Motorsport",
+          "source": "https://www.dtm.com/en/results?season=2026",
+          "verified_first": true
+        }
+      },
+      "land": {
+        "scope": "DTM operation · race and qualifying points",
+        "coverage_start": 2025,
+        "complete": true,
+        "first_points": {
+          "year": 2025,
+          "date": "2025-05-25",
+          "event": "Dekra Lausitzring",
+          "session": "Race 2",
+          "position": 12.0,
+          "points": 4.0,
+          "driver": "feller-ricardo",
+          "name": "Ricardo Feller",
+          "team": "Land Motorsport",
+          "source": "https://www.dtm.com/en/results?season=2025",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 2025,
+          "date": "2025-09-14",
+          "event": "Red Bull Ring by VKB-Bank",
+          "session": "Race 2",
+          "position": 1.0,
+          "points": 25.0,
+          "driver": "feller-ricardo",
+          "name": "Ricardo Feller",
+          "team": "Land Motorsport",
+          "source": "https://www.dtm.com/en/results?season=2025",
+          "verified_first": true
+        }
+      },
+      "landgraf": {
+        "scope": "DTM operation · race and qualifying points",
+        "coverage_start": 2023,
+        "complete": true,
+        "first_points": {
+          "year": 2023,
+          "date": "2023-05-27",
+          "event": "Motorsport Arena Oschersleben",
+          "session": "Race 1",
+          "position": 13.0,
+          "points": 3.0,
+          "driver": "engel-maro",
+          "name": "Maro Engel",
+          "team": "Mercedes-AMG Team MANN-FILTER",
+          "source": "https://www.dtm.com/en/results?season=2023",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 2023,
+          "date": "2023-06-24",
+          "event": "Circuit Zandvoort",
+          "session": "Race 1",
+          "position": 1.0,
+          "points": 25.0,
+          "driver": "engel-maro",
+          "name": "Maro Engel",
+          "team": "Mercedes-AMG Team MANN-FILTER",
+          "source": "https://www.dtm.com/en/results?season=2023",
+          "verified_first": true
+        }
+      },
+      "winward": {
+        "scope": "DTM operation · race and qualifying points",
+        "coverage_start": 2021,
+        "complete": true,
+        "first_points": {
+          "year": 2021,
+          "date": "2021-06-19",
+          "event": "Dtm - Monza Round 1",
+          "session": "Qualifying 1",
+          "position": 2.0,
+          "points": 2.0,
+          "driver": "auer-lucas",
+          "name": "Auer Lucas",
+          "team": "Mercedes-AMG Team Winward",
+          "source": "https://www.dtm.com/en/results?season=2021",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 2021,
+          "date": "2021-07-24",
+          "event": "Dtm - Lausitzring Round 2",
+          "session": "Race 1 ",
+          "position": 1.0,
+          "points": 25.0,
+          "driver": "ellis-philip",
+          "name": "Ellis Philip",
+          "team": "Mercedes-AMG Team Winward",
+          "source": "https://www.dtm.com/en/results?season=2021",
+          "verified_first": true
+        }
+      },
+      "grasser": {
+        "scope": "DTM operation · race and qualifying points",
+        "coverage_start": 2022,
+        "complete": true,
+        "first_points": {
+          "year": 2022,
+          "date": "2022-04-30",
+          "event": "Portimao",
+          "session": "Race 1",
+          "position": 3.0,
+          "points": 15.0,
+          "driver": "bortolotti-mirko",
+          "name": "BORTOLOTTI Mirko",
+          "team": "GRT",
+          "source": "https://www.dtm.com/en/results?season=2022",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 2023,
+          "date": "2023-08-06",
+          "event": "Nürburgring",
+          "session": "Race 2",
+          "position": 1.0,
+          "points": 25.0,
+          "driver": "paul-maximilian",
+          "name": "Maximilian Paul",
+          "team": "GRT Grasser-Racing-Team",
+          "source": "https://www.dtm.com/en/results?season=2023",
+          "verified_first": true
+        }
+      },
+      "paul": {
+        "scope": "DTM operation · race and qualifying points",
+        "coverage_start": 2024,
+        "complete": true,
+        "first_points": {
+          "year": 2024,
+          "date": "2024-05-25",
+          "event": "DEKRA Lausitzring",
+          "session": "Race 1",
+          "position": 12.0,
+          "points": 4.0,
+          "driver": "paul-maximilian",
+          "name": "Maximilian Paul",
+          "team": "Paul Motorsport",
+          "source": "https://www.dtm.com/en/results?season=2024",
+          "verified_first": true
+        },
+        "first_win": null
+      },
+      "ssr": {
+        "scope": "DTM operation · race and qualifying points",
+        "coverage_start": 2021,
+        "complete": true,
+        "first_points": {
+          "year": 2022,
+          "date": "2022-04-30",
+          "event": "Portimao",
+          "session": "Race 1",
+          "position": 5.0,
+          "points": 10.0,
+          "driver": "olsen-dennis",
+          "name": "OLSEN Dennis",
+          "team": "SSR Performance",
+          "source": "https://www.dtm.com/en/results?season=2022",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 2022,
+          "date": "2022-09-10",
+          "event": "Spa-Francorchamps",
+          "session": "Race 1",
+          "position": 1.0,
+          "points": 25.0,
+          "driver": "olsen-dennis",
+          "name": "OLSEN Dennis",
+          "team": "SSR Performance",
+          "source": "https://www.dtm.com/en/results?season=2022",
+          "verified_first": true
+        }
+      },
+      "team75": {
+        "scope": "DTM operation · race and qualifying points",
+        "coverage_start": 2022,
+        "complete": true,
+        "first_points": {
+          "year": 2022,
+          "date": "2022-06-18",
+          "event": "Imola",
+          "session": "Race 1",
+          "position": 4.0,
+          "points": 12.0,
+          "driver": "preining-thomas",
+          "name": "PREINING Thomas",
+          "team": "KÜS Team Bernhard",
+          "source": "https://www.dtm.com/en/results?season=2022",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 2022,
+          "date": "2022-07-02",
+          "event": "Norisring",
+          "session": "Race 1",
+          "position": 1.0,
+          "points": 25.0,
+          "driver": "preining-thomas",
+          "name": "PREINING Thomas",
+          "team": "KÜS Team Bernhard",
+          "source": "https://www.dtm.com/en/results?season=2022",
+          "verified_first": true
+        }
+      },
+      "project1": {
+        "scope": "DTM operation · race and qualifying points",
+        "coverage_start": 2023,
+        "complete": true,
+        "first_points": {
+          "year": 2023,
+          "date": "2023-06-24",
+          "event": "Circuit Zandvoort",
+          "session": "Race 1",
+          "position": 5.0,
+          "points": 11.0,
+          "driver": "wittmann-marco",
+          "name": "Marco Wittmann",
+          "team": "Project 1",
+          "source": "https://www.dtm.com/en/results?season=2023",
+          "verified_first": true
+        },
+        "first_win": null
+      },
+      "toksport": {
+        "scope": "DTM operation · race and qualifying points",
+        "coverage_start": 2023,
+        "complete": true,
+        "first_points": {
+          "year": 2023,
+          "date": "2023-05-27",
+          "event": "Motorsport Arena Oschersleben",
+          "session": "Race 1",
+          "position": 2.0,
+          "points": 20.0,
+          "driver": "heinemann-tim",
+          "name": "Tim Heinemann",
+          "team": "Toksport WRT",
+          "source": "https://www.dtm.com/en/results?season=2023",
+          "verified_first": true
+        },
+        "first_win": {
+          "year": 2023,
+          "date": "2023-05-28",
+          "event": "Motorsport Arena Oschersleben",
+          "session": "Race 2",
+          "position": 1.0,
+          "points": 25.0,
+          "driver": "engelhart-christian",
+          "name": "Christian Engelhart_",
+          "team": "Toksport WRT",
+          "source": "https://www.dtm.com/en/results?season=2023",
+          "verified_first": true
+        }
+      },
+      "attempto": {
+        "scope": "DTM operation · race and qualifying points",
+        "coverage_start": 2022,
+        "complete": true,
+        "first_points": {
+          "year": 2022,
+          "date": "2022-10-09",
+          "event": "Hockenheimring",
+          "session": "Race 2",
+          "position": 4.0,
+          "points": 12.0,
+          "driver": "zug-marius",
+          "name": "ZUG Marius",
+          "team": "Attempto Racing",
+          "source": "https://www.dtm.com/en/results?season=2022",
+          "verified_first": true
+        },
+        "first_win": null
+      },
+      "engstler": {
+        "scope": "DTM operation · race and qualifying points",
+        "coverage_start": 2023,
+        "complete": true,
+        "first_points": {
+          "year": 2023,
+          "date": "2023-06-24",
+          "event": "Circuit Zandvoort",
+          "session": "Race 1",
+          "position": 14.0,
+          "points": 2.0,
+          "driver": "engstler-luca",
+          "name": "Luca Engstler",
+          "team": "LIQUI MOLY Team Engstler",
+          "source": "https://www.dtm.com/en/results?season=2023",
+          "verified_first": true
+        },
+        "first_win": null
+      },
+      "seyffarth": {
+        "scope": "DTM operation · race and qualifying points",
+        "coverage_start": 2026,
+        "complete": true,
+        "first_points": null,
+        "first_win": null
+      }
+    }
+  }
+}

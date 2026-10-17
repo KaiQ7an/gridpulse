@@ -65,9 +65,56 @@ Driver summary identities use the latest saved race; individual result tables re
 and manufacturer at that event. Historical identity changes are not a claim that a driver drove
 the same car throughout the season.
 
+## Team profiles, photographs and driver introductions
+
+`pitlens/dtm/cars.json` identifies GT3 models by season and manufacturer, using the official
+entry lists and driver catalogue, with links retained for each season. It distinguishes the
+2025 BMW M4 GT3 Evo and the 2026 Ferrari, Ford, Porsche and Lamborghini upgrades. Unknown
+models remain unconfirmed rather than borrowing a model from another year. Model names
+are added at presentation time, so refreshing classification snapshots cannot erase them.
+
+Reference photographs link directly to their publisher. Team sources (Manthey, Emil Frey,
+Schubert, HRT, Comtoyou, Dörr and ABT) take priority; DTM and manufacturer imagery fills gaps.
+The caption identifies these as model references: a picture does not identify every driver's
+exact livery. Image copyrights remain with their respective owners. External images are
+loaded lazily and are not required to load the local result data or introductions.
+
+Driver facts are saved separately in `pitlens/drivers/`. DTM birthday, nationality, debut and
+season portraits come from the official driver-detail feed; missing birthdays and portraits
+are displayed as unpublished. F1 facts use official F1 profiles and the Jolpica historical
+driver/result records. F1 debut refers to a first race result, not a first practice appearance
+(Antonelli raced from 2025; Lindblad from 2026). Career introductions are concise original
+summaries with sources. Biographies describe the driver as known when researched, while
+team and car associations are taken from the selected season's results. Current F1 portraits
+are labelled explicitly, as clothing may belong to a different season.
+
+`pitlens/dtm/teams.json` stores sourced operating-team profiles. `teams.identity()` resolves
+sponsor names per season: MANN-FILTER is Landgraf in 2023, Winward from 2024 onward.
+The Teams directory is built from that season’s race entrants, including guests absent from
+the official team standings. It never rewrites official championship positions or points.
+Historical honours are dated and filtered through the selected season. Founding dates describe
+the stated operation, not necessarily a parent company. Missing verified facts stay blank.
+Team-published photos are preferred, with source links. Other images are explicitly model
+references, not a claim about the selected team’s exact livery.
+
 ## Local preview
 
 Start the existing Python app with `pitlens pitwall`, then open
 `http://localhost:8501/dtm`. MAMP Pro's Apache/PHP document root does not execute Streamlit;
 if using a MAMP virtual host as the front end, proxy HTTP **and WebSocket upgrades** to
 the Streamlit service. A document-root change alone is insufficient.
+
+## First points and first wins
+
+`pitlens/milestones.json` keeps sourced milestones independently of the saved season snapshots.
+F1 uses Grand Prix results: sprint wins are not presented as GP wins, disqualifications cannot
+supply a points milestone, and constructor name changes are explicitly scoped. Historical
+McLaren engine-suffixed identities are combined; modern Williams starts in 1977, modern
+Mercedes in 2010, and the present Aston Martin team in 2021.
+
+DTM first points includes qualifying awards. Published zero-point guest results do not count
+as points finishes (for example Bortolotti’s 2021 Assen podium). The official result archive
+is available from 2020; older career firsts require a separate primary reference. Records carry
+`verified_first` per milestone, so an earliest available 2020 result is never called a career
+first for a driver who debuted earlier. Unverified older milestones display as unverified,
+not as zero wins or points. Selecting a historical season hides later milestones.

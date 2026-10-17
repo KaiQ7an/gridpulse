@@ -484,6 +484,7 @@ def main() -> None:
         ss.switch_racing_series = True
         ss.playing = False
 
+    ss.sidebar_brand_slot = st.sidebar.empty()
     st.sidebar.selectbox("Racing series", ["Formula 1", "DTM"], key="racing_series",
                          on_change=switch_series, help="Switch championships. Each series keeps its own selections.")
     current.run()

@@ -1,0 +1,186 @@
+{
+  "models": {
+    "audi": {
+      "name": "Audi R8 LMS GT3 Evo II",
+      "photo": {
+        "url": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:960/K7S8xbyHRNG3Yodlcxww",
+        "source": "https://api.dtm.com/data?query=driversShort",
+        "credit": "DTM / ADAC",
+        "caption": "Model reference photo; livery may differ from the selected season or driver."
+      }
+    },
+    "mercedes": {
+      "name": "Mercedes-AMG GT3",
+      "photo": {
+        "url": "https://www.mercedes-amg.com/media/images/a6784c00da085869d9077429b89c52bc5c6457bd-1920x1080.jpg",
+        "source": "https://www.mercedes-amg.com/en/mercedes-amg-gt3",
+        "credit": "Mercedes-AMG",
+        "caption": "Model reference photo; livery may differ from the selected season or driver."
+      }
+    },
+    "porsche": {
+      "name": "Porsche 911 GT3 R",
+      "photo": {
+        "url": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:960/iBDvTDQLRdGzyLdSqyZd",
+        "source": "https://api.dtm.com/data?query=driversShort",
+        "credit": "DTM / ADAC",
+        "caption": "Model reference photo; livery may differ from the selected season or driver."
+      }
+    },
+    "lambo": {
+      "name": "Lamborghini Huracán GT3 Evo II",
+      "photo": {
+        "url": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:960/FX7FjHO8TpOGUpHVTw11",
+        "source": "https://api.dtm.com/data?query=driversShort",
+        "credit": "DTM / ADAC",
+        "caption": "Model reference photo; livery may differ from the selected season or driver."
+      }
+    },
+    "bmw": {
+      "name": "BMW M4 GT3",
+      "photo": {
+        "url": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:960/mrZA9ptFQuK7OKwkci0o",
+        "source": "https://www.dtm.com/en/news/From-14th-to-victory-Wittmann-wows-in-Zandvoort",
+        "credit": "DTM / ADAC",
+        "caption": "Model reference photo; livery may differ from the selected season or driver."
+      }
+    },
+    "ferrari": {
+      "name": "Ferrari 296 GT3",
+      "photo": {
+        "url": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:960/1YEdmAxlQWSVGurrMW7K",
+        "source": "https://www.dtm.com/en/news/ninth-race-ninth-winner-jack-aitken-wins-in-the-ferrari",
+        "credit": "DTM / ADAC",
+        "caption": "Model reference photo; livery may differ from the selected season or driver."
+      }
+    },
+    "mclaren": {
+      "name": "McLaren 720S GT3 Evo",
+      "photo": {
+        "url": "https://www.doerrgroup.com/assets/uploads/crops/standard.290b6365.doerr_motorsport_dtm_mclaren_720s_gt3_evo_2.jpg",
+        "source": "https://www.doerrgroup.com/doerr-motorsport/dtm/",
+        "credit": "Dörr Motorsport",
+        "caption": "Team-published model reference photo; livery may differ from the selected driver or season."
+      }
+    },
+    "bmw-evo": {
+      "name": "BMW M4 GT3 Evo",
+      "photo": {
+        "url": "https://www.schubert-motorsport.com/files/galerie/2026/DTM/Ank%C3%BCndigung/Hockenheimring/Marco%20Wittmann%20im%20BMW%20M4%20GT3%20Evo.JPG",
+        "source": "https://www.schubert-motorsport.com/",
+        "credit": "Schubert Motorsport",
+        "caption": "Team-published model reference photo; livery may differ from the selected driver or season."
+      }
+    },
+    "ford": {
+      "name": "Ford Mustang GT3",
+      "photo": {
+        "url": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:960/cm8x37cwheils07w5b4r30xs2",
+        "source": "https://www.dtm.com/en/news/HRT-Ford-Performance-confirms-its-DTM-line-up",
+        "credit": "DTM / ADAC",
+        "caption": "Model reference photo; livery may differ from the selected season or driver."
+      }
+    },
+    "aston": {
+      "name": "Aston Martin Vantage GT3",
+      "photo": {
+        "url": "https://comtoyouracing.com/wp-content/uploads/2026/02/d2396b9d-b019-4ae0-a9e2-1d4b12db5e91.jpg",
+        "source": "https://comtoyouracing.com/2026-dtm-en/",
+        "credit": "Comtoyou Racing",
+        "caption": "Team-published model reference photo; livery may differ from the selected driver or season."
+      }
+    },
+    "porsche-evo": {
+      "name": "Porsche 911 GT3 R Evo",
+      "photo": {
+        "url": "https://www.manthey-racing.com/sites/default/files/styles/header/public/2026-02/911GT3R_Header.jpg.webp?h=1f0bc3a8&itok=KNoDxDBD",
+        "source": "https://www.manthey-racing.com/manthey-compete-2026-dtm-season-ricardo-feller-and-thomas-preining",
+        "credit": "Manthey",
+        "caption": "Team-published model reference photo; livery may differ from the selected driver or season."
+      }
+    },
+    "lambo-temerario": {
+      "name": "Lamborghini Temerario GT3",
+      "photo": {
+        "url": "https://www.abt-sportsline.de/fileadmin/_processed_/e/e/csm_2026_04_13_-_ABT_DTM_Temerario-3_f63f761575.jpg",
+        "source": "https://www.abt-sportsline.de/unternehmen/presse/pressemitteilungen?cHash=d3f3984e676802dda87879cd99f81d9b&tx_news_pi1%5Baction%5D=detail&tx_news_pi1%5Bcontroller%5D=News&tx_news_pi1%5Bnews%5D=7019",
+        "credit": "ABT Sportsline",
+        "caption": "Team-published model reference photo; livery may differ from the selected driver or season."
+      }
+    },
+    "ferrari-evo": {
+      "name": "Ferrari 296 GT3 Evo",
+      "photo": {
+        "url": "https://emilfreyracing.com/static/49e8c584adaec9fd55e2c458e8897d5e/62b28/EmilFrey2026_DTM_Strecke_FINAL_4.png",
+        "source": "https://emilfreyracing.com/en/emil-frey-racing-kicks-off-the-2026-season-with-anew-driver-line-up-and-main-sponsors-bwt-and-windhager/",
+        "credit": "Emil Frey Racing",
+        "caption": "Team-published model reference photo; livery may differ from the selected driver or season."
+      }
+    },
+    "ford-evo": {
+      "name": "Ford Mustang GT3 Evo",
+      "photo": {
+        "url": "https://media.hauptracingteam.de/files/media/images/20260303_haupt-racing-team/download/thumbs/id-20260303_hrt-02.jpg",
+        "source": "https://media.hauptracingteam.de/en/detail/item/263.html",
+        "credit": "HRT Ford Racing",
+        "caption": "Team-published model reference photo; livery may differ from the selected driver or season."
+      }
+    }
+  },
+  "seasons": {
+    "2023": {
+      "Audi": "audi",
+      "Mercedes-AMG": "mercedes",
+      "Porsche": "porsche",
+      "Lamborghini": "lambo",
+      "BMW": "bmw",
+      "Ferrari": "ferrari"
+    },
+    "2024": {
+      "Audi": "audi",
+      "Mercedes-AMG": "mercedes",
+      "Porsche": "porsche",
+      "Lamborghini": "lambo",
+      "BMW": "bmw",
+      "Ferrari": "ferrari",
+      "McLaren": "mclaren"
+    },
+    "2025": {
+      "Audi": "audi",
+      "Mercedes-AMG": "mercedes",
+      "Porsche": "porsche",
+      "Lamborghini": "lambo",
+      "BMW": "bmw-evo",
+      "Ferrari": "ferrari",
+      "McLaren": "mclaren",
+      "Ford": "ford",
+      "Aston Martin": "aston"
+    },
+    "2026": {
+      "Audi": "audi",
+      "Mercedes-AMG": "mercedes",
+      "Porsche": "porsche-evo",
+      "Lamborghini": "lambo-temerario",
+      "BMW": "bmw-evo",
+      "Ferrari": "ferrari-evo",
+      "McLaren": "mclaren",
+      "Ford": "ford-evo",
+      "Aston Martin": "aston"
+    }
+  },
+  "sources": {
+    "2023": [
+      "https://www.dtm.com/en/news/dtm-all-set-for-the-2023-season"
+    ],
+    "2024": [
+      "https://api.dtm.com/data?query=driversShort",
+      "https://www.dtm.com/en/news/From-14th-to-victory-Wittmann-wows-in-Zandvoort"
+    ],
+    "2025": [
+      "https://www.dtm.com/en/news/New-manufacturers-new-stars-new-race-format-the-2025-DTM"
+    ],
+    "2026": [
+      "https://www.dtm.com/en/news/Stellar-field-set-to-shine-in-the-2026-DTM"
+    ]
+  }
+}

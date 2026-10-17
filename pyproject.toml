@@ -39,12 +39,14 @@ Repository = "https://github.com/KaiQ7an/gridpulse"
 include = ["pitlens*"]
 
 [tool.setuptools.package-data]
+"pitlens" = ["milestones.json"]
 "pitlens.pitwall.tower" = ["index.html"]
 "pitlens.pitwall.atlas_map" = ["index.html", "bridge.html", "d3.min.js", "D3-LICENSE", "world.json"]
 "pitlens.pitwall.timeline" = ["index.html"]
 "pitlens.pitwall.corner_guide" = ["index.html", "guide.js"]
 "pitlens.season" = ["atlas.json", "corner_tours.json"]
-"pitlens.dtm" = ["snapshots/*.json"]
+"pitlens.dtm" = ["snapshots/*.json", "cars.json", "teams.json"]
+"pitlens.drivers" = ["f1.json", "dtm.json"]
 
 [tool.ruff]
 line-length = 120

@@ -46,6 +46,12 @@ falling away, with the cleaning rules written down and tested.
   classifications, with lap times, gaps, pit-stop counts and DNF/DNS/DSQ statuses.
 - Compare up to four drivers: points, wins, podiums and classified finishes through the season.
   Share links retain the season, view, weekend, session and compared drivers. Export tables as CSV.
+- **Teams**: introductions for the selected season’s participating teams, including guests.
+  Headquarters, founding background, team history, dated honours, sponsored entrant names,
+  season drivers, first points, first win and results. GT3 models and attributed photographs sit inside each team profile;
+  model reference photos are labelled when they do not show that team’s season livery.
+- **Drivers**: biographical introductions, birthday, nationality, DTM debut, season portrait,
+  official profile links, first-points/first-win milestones and race-by-race results. F1's Drivers page has the same profile card.
 - Official data from [dtm.com](https://www.dtm.com/en/results). The current season refreshes
   every 30 minutes while in use; a refresh button checks any supported year. Bundled official
   snapshots keep the section usable offline or during an upstream failure. The fetched time
@@ -116,7 +122,8 @@ falling away, with the cleaning rules written down and tested.
   gap in the last part both set a time in.
 - Every Grand Prix finish for both drivers, the constructors' table, and the pit crew's median
   stationary time against every other team's.
-- Base, power unit, history and constructors' titles for each team on the 2025 and 2026 grids.
+- Headquarters, founding background, sourced history and dated constructors’ titles for the
+  2023–2026 entrants. Only the selected season’s teams appear; predecessor titles stay separate.
   Links open a team directly: `/teams?year=2025&team=McLaren`.
 
 **Season** (a page in the pit wall)
