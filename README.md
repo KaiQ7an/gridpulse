@@ -42,8 +42,10 @@ falling away, with the cleaning rules written down and tested.
 - Official 2023–2026 driver, team and manufacturer standings, retaining published order,
   race points and qualifying points. Interactive cumulative points charts with hover details
   and selectable entries; manufacturer colours and distinct line patterns.
-- A clickable calendar opens each weekend's practice, qualifying groups, Race 1 and Race 2
-  classifications, with lap times, gaps, pit-stop counts and DNF/DNS/DSQ statuses.
+- A clickable calendar opens a weekend overview: Race 1 and Race 2 podiums, plus the top
+  three from both qualifying sessions (groups stay separate). Each card opens its full
+  classification with one click. Practice and full results retain lap times, gaps,
+  pit-stop counts and DNF/DNS/DSQ statuses.
 - Compare up to four drivers: points, wins, podiums and classified finishes through the season.
   Share links retain the season, view, weekend, session and compared drivers. Export tables as CSV.
 - **Teams**: introductions for the selected season’s participating teams, including guests.

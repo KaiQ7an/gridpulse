@@ -13,10 +13,10 @@ from pitlens.drivers.profiles import profile as driver_profile
 from pitlens.dtm import data
 from pitlens.dtm import teams as team_data
 from pitlens.dtm.cars import model, profile
-from pitlens.pitwall import driver_intro, dtm_nav, milestone_cards, ui
+from pitlens.pitwall import driver_intro, dtm_nav, milestone_cards, ui, weekend_overview
 
-VIEWS = {"championship": "Championship", "weekend": "Race weekends", "drivers": "Drivers",
-         "compare": "Driver comparison", "teams": "Teams"}
+VIEWS = {"championship": "Championship", "weekend": "Race weekends", "teams": "Teams",
+         "drivers": "Drivers", "compare": "Driver comparison"}
 VIEW_STATE = {"championship": ("dtm_category",), "weekend": ("dtm_event", "dtm_session"),
               "compare": ("dtm_drivers",), "teams": ("dtm_team",), "drivers": ("dtm_profile",)}
 STATE = ("dtm_year", "dtm_view", "dtm_event", "dtm_session", "dtm_drivers", "dtm_category", "dtm_team", "dtm_profile")
@@ -237,6 +237,9 @@ def weekend(season: dict):
     selected = st.selectbox("Race weekend", list(events), format_func=lambda r: f"R{r} · {events[r]['name']}", key="dtm_event")
     event = events[selected]
     ui.header(f"Round {selected} · {event['country']}", event["name"], f"{event['start']} — {event['end']}")
+    opened_session = weekend_overview.render(event, season["year"])
+    if opened_session:
+        ss.dtm_session = opened_session
     if event["length_m"]:
         st.caption(f"Official listed circuit length: {event['length_m'] / 1000:.3f} km")
     st.link_button("Official circuit & event guide", event["url"], icon=":material/open_in_new:")
@@ -247,6 +250,7 @@ def weekend(season: dict):
         return
     if ss.get("dtm_session") not in sessions:
         ss.dtm_session = next((s["key"] for s in reversed(event["sessions"]) if s["kind"] == "race"), next(iter(sessions)))
+    ui.label("Full classification")
     session_key = st.selectbox("Session", list(sessions), format_func=lambda k: sessions[k]["name"], key="dtm_session")
     session = sessions[session_key]
     st.caption(f"Session start: {session['start'][:16].replace('T', ' ')} UTC" +
@@ -325,12 +329,14 @@ def teams(season: dict):
     ui.note("Only teams with published race appearances in this season are listed, including guests. "
             "Sponsor names are grouped under the operating team; the official championship table stays unchanged.")
     races = data.race_rows(season)
-    columns = st.columns(2, gap="large") if selected == "all" else [st.container()]
     for i, team_id in enumerate(active if selected == "all" else [selected]):
+        # Each pair shares a row; a shorter profile cannot pull the next card upward.
+        if i % 2 == 0:
+            columns = st.columns(2, gap="large") if selected == "all" else [st.container()]
         info = active[team_id]
         results = races[races.team.isin(info["entries"])]
         classified = results[results.status == ""]
-        with columns[i % len(columns)], st.container(border=True):
+        with columns[i % len(columns)], st.container(border=True, height="stretch" if selected == "all" else "content"):
             st.subheader(info["name"])
             ui.strip([ui.stat("Headquarters", info.get("base") or "Not verified"),
                       ui.stat("Founded", info.get("founded") or "Not verified")])
