@@ -12,6 +12,17 @@ function send(type, extra = {}) {
 function resize() {
   send('streamlit:setFrameHeight', {height: document.body.scrollHeight + 5});
 }
+function applyTheme(theme) {
+  if (!theme) return;
+  const dark = theme.base === 'dark', root = document.documentElement;
+  root.style.colorScheme = dark ? 'dark' : 'light';
+  const colors = {ink: theme.textColor, surface: theme.secondaryBackgroundColor, accent: theme.primaryColor,
+    muted: dark ? '#a6b4c5' : '#647082', border: dark ? '#344153' : '#d4dae3',
+    road: dark ? '#293646' : '#dce2ea', line: dark ? '#b7c5d5' : '#68798e',
+    marker: dark ? '#111a25' : '#fff', 'marker-border': dark ? '#75879e' : '#8996a8',
+    probe: dark ? '#55bfff' : '#087aad'};
+  for (const [key, value] of Object.entries(colors)) if (value) root.style.setProperty('--' + key, value);
+}
 function metric(id, value) { $(id).textContent = value == null ? '—' : String(value); }
 function mark(index) {
   document.querySelectorAll('.corner').forEach((g, i) => {
@@ -202,7 +213,10 @@ function render(nextArgs) {
   resize();
 }
 window.addEventListener('message', e => {
-  if (e.source === parent && e.data?.type === 'streamlit:render') render(e.data.args);
+  if (e.source === parent && e.data?.type === 'streamlit:render') {
+    applyTheme(e.data.theme);
+    render(e.data.args);
+  }
 });
 document.addEventListener('visibilitychange', () => { if (document.hidden && playing) seek(Math.round(position)); });
 new ResizeObserver(resize).observe(document.body);

@@ -4,8 +4,8 @@
 
 **Motorsport, lap by lap.**
 
-Replay any race from the pit wall, lap by lap, and measure what the tyres were really doing:<br>
-the same questions a strategy desk asks on a Sunday afternoon.
+A motorsport workbench: replay a Formula 1 race, compare laps and test a pit window;<br>
+follow DTM championships, race weekends, drivers, teams and circuits.
 
 Current data coverage is **Formula 1** and **DTM (2023–2026)**. GT World Challenge
 and other championships are planned additions.
@@ -16,54 +16,36 @@ and other championships are planned additions.
 ![Streamlit](https://img.shields.io/badge/dashboard-Streamlit-FF4B4B?logo=streamlit&logoColor=white)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-[Open GridPulse](https://gridpulse-racing.streamlit.app/) · [Quick start](#quick-start) · [macOS / Homebrew](#macos-with-homebrew) · [Pit wall](#pit-wall) · [Onboard](#onboard) · [Pit stops](#pit-stops) · [Strategy](#strategy) · [Tyre analysis](#tyre-analysis) · [How it works](#how-it-works) · [Roadmap](ROADMAP.md)
+[Open GridPulse · no account required](https://gridpulse-racing.streamlit.app/) · [Quick start](#quick-start) · [macOS / Homebrew](#macos-with-homebrew) · [Pit wall](#pit-wall) · [Onboard](#onboard) · [Pit stops](#pit-stops) · [Strategy](#strategy) · [Tyre analysis](#tyre-analysis) · [How it works](#how-it-works) · [Roadmap](ROADMAP.md)
 
 </div>
 
+## What GridPulse adds to timing data
+
+| Question | Implementation | Evidence and limits |
+|---|---|---|
+| **When would a stop make sense at this replay lap?** | Fits tyre wear and a shared fuel/track trend using only laps already completed; compares stop laps and compounds. | [Replay-boundary tests](tests/test_replay_boundaries.py) and a [reproduced 625-stop backtest](docs/data-validation.md#the-same-idea-for-the-pit-window). This tyre/pit-loss model does not predict traffic or future safety cars. |
+| **Can the reconstructed finish be trusted?** | Checks the final timing tower against the saved official classification: winner, top ten order and finishers’ laps down. | [89 bundled Grands Prix + 24 sprints rechecked](docs/data-validation.md#reproduced-snapshot-check-17-october-2026), with a reproducible `gridpulse check` command. This checks classification consistency, not every mid-race gap or pixel. |
+| **Are two telemetry samples at the same place on track?** | Projects X/Y samples onto a shared reference path with a local search window, reducing drift from separately integrated distances. | [Alignment implementation](gridpulse/onboard/compare.py) and [synthetic geometry tests](tests/test_compare.py). Resolution remains limited by the source GPS and telemetry. |
+
+**Two series, one workbench.** Formula 1 has lap replay, telemetry and strategy tools. DTM has
+sourced championship tables, weekend summaries and driver/team/circuit exploration. Use the
+**Racing series** switcher; each series keeps its own selections.
+
+**Try it immediately:** [open the app](https://gridpulse-racing.streamlit.app/), choose a lap,
+then open **Strategy** or **Tyres**. A new visit starts with the latest bundled race snapshot,
+so the first replay does not need an online schedule or timing download. **Check latest races**
+loads the full calendar when you want a newer session. An idle Community Cloud app may still
+need to wake up; no fixed startup-time guarantee is implied.
+
 <p align="center">
   <img src="docs/images/pitwall_replay.gif" alt="The GridPulse pit wall replaying the last laps of the 2026 Azerbaijan Grand Prix" width="870">
-  <br><sub><b>Pit wall</b> · replaying the last laps of the 2026 Azerbaijan Grand Prix, which Russell won by 0.196 s</sub>
+  <br><sub>Pit wall replay · saved timing data, with an explicit boundary at the selected lap</sub>
 </p>
-
-## Why
-
-Lap times on a broadcast tower are noisy: in-laps, safety cars, traffic and a car that gets
-lighter every lap all hide what the tyres are actually doing. GridPulse turns the public F1 timing
-feed (via [FastF1](https://github.com/theOehrly/Fast-F1)) into what a race engineer would want on
-their screens: who is where and on what tyre, how gaps are moving, and how fast each stint is
-falling away, with the cleaning rules written down and tested.
 
 ## Features
 
-**DTM** (`/dtm`)
-
-- Use the **Racing series** switcher at the top left to move between Formula 1 and DTM.
-  Both championships use the same sidebar menu style and retain their selections when you switch away.
-- Official 2023–2026 driver, team and manufacturer standings, retaining published order,
-  race points and qualifying points. Interactive cumulative points charts with hover details
-  and selectable entries; manufacturer colours and distinct line patterns.
-- A clickable calendar opens a weekend overview: Race 1 and Race 2 podiums, plus the top
-  three from both qualifying sessions (groups stay separate). Each card opens its full
-  classification with one click. Practice and full results retain lap times, gaps,
-  pit-stop counts and DNF/DNS/DSQ statuses.
-- Compare up to four drivers: points, wins, podiums and classified finishes through the season.
-  Share links retain the season, view, weekend, session and compared drivers. Export tables as CSV.
-- **Teams**: introductions for the selected season’s participating teams, including guests.
-  Headquarters, founding background, team history, dated honours, sponsored entrant names,
-  season drivers, first points, first win and results. GT3 models and attributed photographs sit inside each team profile;
-  model reference photos are labelled when they do not show that team’s season livery.
-- **Drivers**: biographical introductions, birthday, nationality, DTM debut, season portrait,
-  official profile links, first-points/first-win milestones and race-by-race results. F1's Drivers page has the same profile card.
-- **Circuits**: the selected season’s eight venues on an interactive globe and Europe map, official DTM layout diagrams,
-  sourced venue histories, length comparisons and links back to the race weekend. Covered records (fastest race lap,
-  most wins and qualifying P1s) use 2023 through the selected season; qualifying groups stay separate from combined P1s.
-- Driver menus show full names on the left and their session/season teams on the right; multi-select tags keep names only.
-- Official data from [dtm.com](https://www.dtm.com/en/results). The current season refreshes
-  every 30 minutes while in use; a refresh button checks any supported year. Bundled official
-  snapshots keep the section usable offline or during an upstream failure. The fetched time
-  and provisional status are shown. This section provides classifications, not telemetry replay.
-- Refresh a checked-in snapshot with `python -m gridpulse.dtm.refresh --year 2026`.
-  See [DTM data coverage](docs/dtm-data.md) for adapter boundaries and verification.
+Both series use the same sidebar design, full-name driver selectors and season-specific teams.
 
 **`pitwall`: race-day dashboard** (available now)
 
@@ -71,10 +53,10 @@ falling away, with the cleaning rules written down and tested.
   sprint as well.
 - **Replay**: a player bar under the header. Press Play and the whole dashboard advances a lap at a
   time (1×, 2× or 4×), drag the slider, or type a lap number to jump straight to it. A status strip shows the lap,
-  leader, track status, fastest lap so far and the weather.
+  leader and track status. Fastest lap, best sectors and weather share a compact two-row strip.
 - **Event timeline**: hover or focus a pit stop, pass, fastest lap, retirement or track-status
-  change; click to pause and jump to that lap. Filter by event type or use the event picker on
-  crowded laps. Spoiler-free mode only sends events through the current replay lap to the browser.
+  change; click to pause and jump to that lap. Filter by event type; numbered markers open all events on
+  crowded laps without a separate dropdown. Spoiler-free mode only sends events through the current replay lap to the browser.
 - **Timing tower**: running order with a green ▲ or red ▼ for places gained or lost on the lap
   (against the starting grid on lap 1), gap to the leader, interval (green when within a second), last
   lap, tyre compound and age, stops, lapped cars and retirements, with a pit flag on the lap a car
@@ -105,9 +87,9 @@ falling away, with the cleaning rules written down and tested.
   (the best lap to stop and what stopping earlier or later costs, from a tyre model fitted on the
   race's laps so far), and every undercut and overcut so far with its outcome.
 - **Radio**: team radio clips up to the current lap, playable in the page, with a microphone in
-  the timing tower when a driver's clip comes in. One click turns the clips into text with a
-  local Whisper model, and another translates them into Chinese; transcribed radio also appears as
-  quotes in the race feed.
+  the timing tower when a driver's clip comes in. Prepared transcripts and Chinese translations are read from cache; transcribed radio also appears as
+  quotes in the race feed. Run `gridpulse radio --transcribe --translate` locally to prepare missing text;
+  the web page never downloads or runs speech/translation models.
 
 **Qualifying** (a page in the pit wall)
 
@@ -228,6 +210,36 @@ falling away, with the cleaning rules written down and tested.
 - A straight-line fit of lap time against tyre age for every stint gives the degradation rate in
   seconds per lap. Charts and CSVs are saved for further work.
 
+**DTM** (`/dtm`)
+
+- Use the **Racing series** switcher at the top left to move between Formula 1 and DTM.
+  Both championships use the same sidebar menu style and retain their selections when you switch away.
+- Official 2023–2026 driver, team and manufacturer standings, retaining published order,
+  race points and qualifying points. Interactive cumulative points charts with hover details
+  and selectable entries; manufacturer colours and distinct line patterns.
+- A clickable calendar opens a weekend overview: Race 1 and Race 2 podiums, plus the top
+  three from both qualifying sessions (groups stay separate). Each card opens its full
+  classification with one click. Practice and full results retain lap times, gaps,
+  pit-stop counts and DNF/DNS/DSQ statuses.
+- Compare up to four drivers: points, wins, podiums and classified finishes through the season.
+  Share links retain the season, view, weekend, session and compared drivers. Export tables as CSV.
+- **Teams**: introductions for the selected season’s participating teams, including guests.
+  Headquarters, founding background, team history, dated honours, sponsored entrant names,
+  season drivers, first points, first win and results. GT3 models and attributed photographs sit inside each team profile;
+  model reference photos are labelled when they do not show that team’s season livery.
+- **Drivers**: biographical introductions, birthday, nationality, DTM debut, season portrait,
+  official profile links, first-points/first-win milestones and race-by-race results. F1's Drivers page has the same profile card.
+- **Circuits**: the selected season’s eight venues on an interactive globe and Europe map, official DTM layout diagrams,
+  sourced venue histories, length comparisons and links back to the race weekend. Covered records (fastest race lap,
+  most wins and qualifying P1s) use 2023 through the selected season; qualifying groups stay separate from combined P1s.
+- Driver menus show full names on the left and their session/season teams on the right; multi-select tags keep names only.
+- Official data from [dtm.com](https://www.dtm.com/en/results). The current season refreshes
+  every 30 minutes while in use; a refresh button checks any supported year. Bundled official
+  snapshots keep the section usable offline or during an upstream failure. The fetched time
+  and provisional status are shown. This section provides classifications, not telemetry replay.
+- Refresh a checked-in snapshot with `python -m gridpulse.dtm.refresh --year 2026`.
+  See [DTM data coverage](docs/dtm-data.md) for adapter boundaries and verification.
+
 **Planned** (see the [roadmap](ROADMAP.md))
 
 - A live mode for the pit wall on race day.
@@ -250,8 +262,8 @@ Then, from the project folder:
 ```
 
 The pit wall opens in your browser at <http://localhost:8501>. Press **Ctrl+C** in the terminal to
-stop it. The first load of each race downloads its timing data into `cache/` (gitignored), which
-takes up to a minute; after that it opens instantly.
+stop it. Bundled races load from `snapshots/`. A race outside that collection downloads its timing
+data into `cache/` (gitignored); the first download can take up to a minute.
 
 With the virtual environment activated (`source .venv/bin/activate`) the shorter `gridpulse pitwall`
 works too.
@@ -573,7 +585,7 @@ change an app's main file, so it still points at `pitlens/pitwall/app.py`. That 
 
 A fresh server has none of the cache a local copy builds up, so the recent races ship with the
 repository as snapshots in `snapshots/` (laps, results, race control, weather, radio and its
-transcripts, about 100 KB a race). They open instantly and don't depend on F1's archive or
+transcripts, about 100 KB a race). They load locally and don't depend on F1's archive or
 OpenF1 answering; anything else loads from the sources as usual. After a race weekend, add it
 and commit:
 
@@ -582,10 +594,10 @@ and commit:
 ```
 
 Each saved race is loaded straight back and checked against the official result before it's
-kept. On a hosted copy (Streamlit Cloud, or `GRIDPULSE_HOSTED=1`) the local speech and translation
-models and the Claude translation are switched off, so radio shows the transcripts saved with
-the snapshots, and Onboard takes its two laps from OpenF1 rather than downloading a whole
-session's telemetry.
+kept. The web UI reads prepared radio transcripts and translations only, locally and when hosted.
+Prepare missing text with `gridpulse radio --transcribe --translate`, then rebuild its snapshot
+before publishing. On a hosted copy (Streamlit Cloud, or `GRIDPULSE_HOSTED=1`), Onboard takes its
+two laps from OpenF1 rather than downloading a whole session's telemetry.
 
 ## Troubleshooting
 
@@ -614,8 +626,8 @@ pit loss to 0.1 s. Its car telemetry is sampled about half as often, so onboard 
 little coarser. Track status (safety car, VSC, red flag, yellows) is rebuilt per lap from race
 control messages.
 
-Every Grand Prix from 2021 to the 2026 Singapore Grand Prix (131 races) and every sprint since 2023
-(24) has been checked against the official result: the replay's final timing tower has the same
+Earlier archive-wide runs checked every Grand Prix from 2021 to the 2026 Singapore Grand Prix (131 races)
+and every sprint since 2023 (24) against the official result: the replay's final timing tower had the same
 winner, the same top ten in the same order and every finisher the same number of laps down. The
 2023, 2024 and 2025 championship tables added up from the saved races match the official final
 standings point for point. How, and what it caught along the way:
@@ -626,6 +638,8 @@ standings point for point. How, and what it caught along the way:
 ```
 
 Add `--sprint` for the sprints, or `--round 15` for one race.
+The 17 October 2026 offline rerun covers the **89 Grands Prix and 24 sprints actually bundled** in this
+checkout; 2021 and 2022 contain one saved race each. The validation document separates both scopes.
 
 Lap end times are only good to a few tenths, which matters in a photo finish: in the 2026
 Azerbaijan Grand Prix OpenF1's lap times put Verstappen 0.003 s ahead at the flag, but Russell

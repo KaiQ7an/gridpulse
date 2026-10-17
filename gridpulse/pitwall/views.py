@@ -7,7 +7,6 @@ happened up to that lap.
 import pandas as pd
 import streamlit as st
 
-from gridpulse.deploy import hosted
 from gridpulse.pitwall import charts, ui
 from gridpulse.pitwall.data import RaceData
 from gridpulse.pitwall.timing import stint_timeline
@@ -51,16 +50,6 @@ def tyres_view(race: RaceData, laps: pd.DataFrame, tower: pd.DataFrame, lap: int
         st.plotly_chart(charts.degradation_chart(deg), width="stretch", key="chart_deg")
 
 
-@st.cache_resource(show_spinner=False)
-def whisper() -> "transcribe.Transcriber":
-    return transcribe.Transcriber()
-
-
-@st.cache_resource(show_spinner=False)
-def translator(engine: str):
-    return translate.make(engine)
-
-
 def radio_view(race: RaceData, lap: int, focus: list[str]) -> None:
     clips = race.radio[race.radio["Lap"].notna() & (race.radio["Lap"] <= lap)]
     with st.container(horizontal=True, vertical_alignment="center"):
@@ -71,52 +60,15 @@ def radio_view(race: RaceData, lap: int, focus: list[str]) -> None:
         clips = clips[clips["Driver"].isin(focus)]
     shown = clips.sort_values("SessionTime", ascending=False).head(12)
     texts = {c.Url: (transcribe.cached(c.Url) or {}).get("text") for c in shown.itertuples()}
-    missing = [c for c in shown.itertuples() if texts[c.Url] is None]
-    public = hosted()  # no local models or API keys on a public server: show what was made in advance
-    engines = [] if public else translate.available_engines()
-
     ui.note(f"{len(clips)} clips up to lap {lap}, newest first. A red microphone in the timing tower marks a "
-            "driver with a clip on the current lap."
-            + (" Transcripts and translations appear where they were made in advance." if public else ""))
-    if missing and not public:
-        if transcribe.available():
-            if st.button(f"Transcribe {len(missing)} clip{'s' if len(missing) > 1 else ''}",
-                         icon=":material/subtitles:", key="transcribe_btn",
-                         help="Runs Whisper on this computer. The first time downloads the model (about 0.5 GB)."):
-                bar = st.progress(0.0, text="Loading the speech model...")
-                model = whisper()
-                for i, c in enumerate(missing, start=1):
-                    bar.progress(i / len(missing), text=f"Transcribing {c.Driver}, lap {c.Lap} ({i}/{len(missing)})")
-                    texts[c.Url] = model.transcribe(c.Url, race.first_names.get(c.Driver))
-                bar.empty()
-                st.rerun(scope="fragment")  # redraw with the new transcripts and without the button
-        else:
-            ui.note('To turn clips into text, install the speech model: pip install -e ".[transcribe]"')
-
-    if chinese and not public:
-        untranslated = [c for c in shown.itertuples() if texts[c.Url] and translate.cached(c.Url) is None]
-        if not engines:
-            ui.note('To translate, install the translation model: pip install -e ".[translate]"')
-        elif untranslated:
-            with st.container(horizontal=True, vertical_alignment="center"):
-                engine = st.segmented_control(
-                    "Engine", engines, key="zh_engine", required=True, default=engines[0],
-                    format_func={"offline": "Offline", "claude": "Claude (API key)"}.get,
-                    label_visibility="collapsed",
-                    help="Offline runs a small model on this computer. Claude translates F1 radio far better but "
-                         "needs an Anthropic API key and costs a fraction of a cent per clip.",
-                )
-                go = st.button(f"Translate {len(untranslated)} clip{'s' if len(untranslated) > 1 else ''}",
-                               icon=":material/translate:", key="translate_btn")
-            if go:
-                try:
-                    tr = translator(engine)
-                    for c in untranslated:
-                        translate.translate_clip(c.Url, tr, race.first_names.get(c.Driver))
-                except Exception as exc:  # missing key, network, model download...
-                    st.warning(f"Translation failed: {exc}")
-                else:
-                    st.rerun(scope="fragment")
+            "driver with a clip on the current lap. Transcripts and translations are read from the prepared cache.")
+    if any(not text for text in texts.values()):
+        with st.expander("Prepare missing transcripts offline"):
+            st.caption("Run this on your own computer before opening the replay. Model downloads and inference run in the CLI.")
+            st.code(f"gridpulse radio --year {race.year} --event {race.round_number} "
+                    f"--session {'S' if race.session_name == 'Sprint' else 'R'} --transcribe --translate", language="bash")
+    elif chinese and any(translate.cached(url) is None for url in texts):
+        ui.note("Chinese translations have not been prepared for every clip; the original transcript is shown where needed.")
 
     for clip in shown.itertuples():
         new = ' <span class="pl-pill" style="background:rgba(225,6,0,.14);color:#E10600">this lap</span>' \
@@ -281,9 +233,9 @@ def pit_window_view(race: RaceData, tower: pd.DataFrame, lap: int, focus: list[s
                    f"{best['Compound'].lower()}s; any lap from {lap + best['From']} to {lap + best['To']} costs under "
                    f"a second more, and stopping at the end of the next lap costs {first:.1f} s.")
     evidence = "fitted from this race" if compound in model.deg_measured else "based mainly on typical wear"
-    ui.insight(f"{driver} is on {compound.lower()}s that are {age:.0f} laps old, with estimated wear of "
-               f"{model.deg[compound]:.2f} s/lap ({evidence}). {verdict}")
-    ui.note(f"{sum(model.sample_counts.values())} clean laps across the field inform this fit. "
+    ui.insight(f"{driver}: {verdict}")
+    ui.note(f"{compound.title()} tyres, {age:.0f} laps old; estimated wear {model.deg[compound]:.2f} s/lap "
+            f"({evidence}). {sum(model.sample_counts.values())} clean laps across the field inform this fit. "
             "Assumes fresh tyres and one final stop; traffic, future safety cars and available tyre sets "
             "are not modelled. The one-second window compares plans, not statistical confidence.")
 

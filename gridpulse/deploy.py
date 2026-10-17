@@ -1,5 +1,6 @@
-"""Where GridPulse is running. On a public server a few things are switched off: the local speech and
-translation models (too heavy for a small shared machine) and anything that would spend an API key.
+"""Detect shared hosting, where Onboard prefers the smaller OpenF1 telemetry fetch.
+
+Radio reads prepared transcripts in every web environment; models run only in the CLI.
 """
 
 import os

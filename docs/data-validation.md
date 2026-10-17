@@ -1,9 +1,32 @@
-# Checking 131 races against the official results
+# Replay and pit-window validation
 
 GridPulse rebuilds every race from lap timing: who crossed the line when, on which lap, on which
 tyres. The timing comes from F1's live-timing archive (through FastF1) or, when the archive
 refuses a session, from OpenF1. Neither source is the official result. So the obvious test of
 the whole pipeline is whether the replay's final lap agrees with the classification.
+
+## Reproduced snapshot check: 17 October 2026
+
+The current checkout was checked **offline**, rebuilding all bundled race and sprint snapshots.
+All **89 Grands Prix and 24 sprints** pass the winner, top-ten order and classified-finishers’
+laps-down checks. The saved classification is the reference for this check; no fresh result was
+scraped and this is not a test of every mid-race gap or the visual pixels.
+
+| Bundled season | Grands Prix | Sprints |
+|---|---:|---:|
+| 2021 | 1 | 0 |
+| 2022 | 1 | 0 |
+| 2023 | 22 | 6 |
+| 2024 | 24 | 6 |
+| 2025 | 24 | 6 |
+| 2026, through Singapore | 17 | 6 |
+
+The 2024/2025 pit-window backtest was also rerun with its ten-lap horizon: **303 + 322 = 625 stops**.
+The rounded results match the table below. [Machine-readable run summary](validation-2026-10-17.json).
+
+To reproduce without network requests, set `GRIDPULSE_OFFLINE=1` before the commands below;
+they then check only the snapshots included for that season. The earlier 131-race result below
+covers a wider historical run, not the smaller 2021/2022 sample bundled in this checkout.
 
 ## The check
 
@@ -19,6 +42,8 @@ official classification:
 .venv/bin/python -m gridpulse check --year 2025 --sprint   # the sprints
 .venv/bin/python -m gridpulse check --year 2026 --round 15 # one race
 ```
+
+Earlier recorded archive-wide checks:
 
 | Season | Grands Prix | Sprints | Data |
 |---|---|---|---|

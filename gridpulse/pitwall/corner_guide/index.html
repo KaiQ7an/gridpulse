@@ -3,18 +3,18 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
-:root{font-family:Inter,system-ui,sans-serif;color:#e8edf4;color-scheme:dark;background:#0b0f14}
+:root{font-family:Inter,system-ui,sans-serif;color:var(--ink);color-scheme:light;background:transparent;--ink:#171b22;--muted:#647082;--surface:#f1f3f6;--border:#d4dae3;--road:#dce2ea;--line:#68798e;--marker:#fff;--marker-border:#8996a8;--accent:#E10600;--accent-ink:#fff;--probe:#087aad}
 *{box-sizing:border-box}body{margin:0}
-button,select,input{font:inherit}button,select{font-size:12px;border:1px solid #303947;background:#151c26;color:#e8edf4;border-radius:6px;padding:8px 10px;min-height:38px;cursor:pointer}
-button:hover,select:hover{border-color:#ff453e}button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid #55bfff;outline-offset:2px}button:disabled{opacity:.4;cursor:default}
+button,select,input{font:inherit}button,select{font-size:12px;border:1px solid var(--border);background:var(--surface);color:var(--ink);border-radius:6px;padding:8px 10px;min-height:38px;cursor:pointer}
+button:hover,select:hover{border-color:var(--accent)}button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid #55bfff;outline-offset:2px}button:disabled{opacity:.4;cursor:default}
 .toolbar{display:flex;align-items:center;gap:6px;padding:5px 2px}#corners{min-width:0;flex:1}#rate{width:68px}
-.transport{display:flex;align-items:center;gap:10px;padding:7px 2px}label{font-size:11px;color:#a1adbc;white-space:nowrap}#progress{min-width:60px;flex:1;accent-color:#ff453e;cursor:pointer}output{font:11px ui-monospace,monospace;color:#c6d3e3;min-width:35px;text-align:right}
-.hint{font-size:11px;color:#95a3b5;padding:6px 2px;line-height:1.6}
-svg{display:block;width:100%;height:300px;touch-action:pan-y;outline-offset:-2px}.road{fill:none;stroke:#293646;stroke-width:12;stroke-linejoin:round;stroke-linecap:round}.line{fill:none;stroke:#b7c5d5;stroke-width:3;stroke-linejoin:round}.arc{fill:none;stroke:#ff453e;stroke-width:7;stroke-linecap:round;pointer-events:none}
-.corner{cursor:pointer;outline:none}.corner circle{fill:#111a25;stroke:#5c6c80;stroke-width:2;transition:fill .12s,stroke .12s}.corner text{fill:#d6e0ed;font-size:15px;font-weight:750;text-anchor:middle;dominant-baseline:central;pointer-events:none}.corner:hover circle,.corner:focus-visible circle,.corner.active circle{fill:#ff453e;stroke:#fff}.corner:hover text,.corner.active text{fill:white}
-#probe{fill:#55bfff;stroke:white;stroke-width:2;pointer-events:none}.finish{stroke:#f0f4fa;stroke-width:5;pointer-events:none}
-.detail{background:#121a24;border:1px solid #263242;border-radius:9px;padding:13px;margin:0 2px}.heading{display:flex;align-items:baseline;justify-content:space-between;gap:8px;min-height:23px}h3{margin:0;font-size:16px}.tag{color:#9baabe;font-size:10px;text-transform:uppercase;letter-spacing:1px}.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}.value{font-weight:750;font-size:23px}.label{font-size:10px;color:#95a3b5;line-height:1.5}.note{margin-top:10px;color:#97a6b9;font-size:11px;line-height:1.5}
-.share{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 2px 3px}#copy-status{font-size:11px;color:#aebdd0}.copy-fallback{width:100%;background:#151c26;color:#e8edf4;border:1px solid #5c6c80;border-radius:5px;padding:9px;font-size:11px} [hidden]{display:none!important}
+.transport{display:flex;align-items:center;gap:10px;padding:7px 2px}label{font-size:11px;color:var(--muted);white-space:nowrap}#progress{min-width:60px;flex:1;accent-color:var(--accent);cursor:pointer}output{font:11px ui-monospace,monospace;color:var(--muted);min-width:35px;text-align:right}
+.hint{font-size:11px;color:var(--muted);padding:6px 2px;line-height:1.6}
+svg{display:block;width:100%;height:300px;touch-action:pan-y;outline-offset:-2px}.road{fill:none;stroke:var(--road);stroke-width:12;stroke-linejoin:round;stroke-linecap:round}.line{fill:none;stroke:var(--line);stroke-width:3;stroke-linejoin:round}.arc{fill:none;stroke:var(--accent);stroke-width:7;stroke-linecap:round;pointer-events:none}
+.corner{cursor:pointer;outline:none}.corner circle{fill:var(--marker);stroke:var(--marker-border);stroke-width:2;transition:fill .12s,stroke .12s}.corner text{fill:var(--ink);font-size:15px;font-weight:750;text-anchor:middle;dominant-baseline:central;pointer-events:none}.corner:hover circle,.corner:focus-visible circle,.corner.active circle{fill:var(--accent);stroke:#fff}.corner:hover text,.corner:focus-visible text,.corner.active text{fill:var(--accent-ink)}
+#probe{fill:var(--probe);stroke:white;stroke-width:2;pointer-events:none}.finish{stroke:var(--ink);stroke-width:5;pointer-events:none}
+.detail{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:13px;margin:0 2px}.heading{display:flex;align-items:baseline;justify-content:space-between;gap:8px;min-height:23px}h3{margin:0;font-size:16px}.tag{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:1px}.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}.value{font-weight:750;font-size:23px}.label{font-size:10px;color:var(--muted);line-height:1.5}.note{margin-top:10px;color:var(--muted);font-size:11px;line-height:1.5}
+.share{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 2px 3px}#copy-status{font-size:11px;color:var(--muted)}.copy-fallback{width:100%;background:var(--surface);color:var(--ink);border:1px solid #5c6c80;border-radius:5px;padding:9px;font-size:11px} [hidden]{display:none!important}
 @media(max-width:460px){svg{height:270px}button,select{min-height:44px;padding:8px}.toolbar{flex-wrap:wrap}#play{flex-basis:calc(100% - 80px)}#rate{order:0}#prev,#corners,#next{order:1}.value{font-size:20px}.tag{letter-spacing:0;font-size:9px}.transport{gap:7px}.heading{align-items:start}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
@@ -34,6 +34,6 @@ svg{display:block;width:100%;height:300px;touch-action:pan-y;outline-offset:-2px
   <div class="note" id="note"></div>
 </div>
 <div class="share"><button id="copy" disabled>Copy corner link</button><span id="copy-status" role="status"></span><input class="copy-fallback" id="copy-url" aria-label="Corner link to copy" readonly hidden></div>
-<div class="hint" id="map-help">Keyboard: focus the track, then ← / → for corners, Space to play or pause, Esc to restore the pinned view. White bar: start / finish.</div>
+<div class="hint" id="map-help">Keyboard: focus the track, then ← / → for corners, Space to play or pause, Esc to restore the pinned view. Cross-track bar: start / finish.</div>
 <script src="./guide.js"></script>
 </body></html>

@@ -30,8 +30,8 @@ CSS = """
    every tick, which reads as stutter. Keep them at full opacity. */
 [data-stale="true"], .stale-element { opacity: 1 !important; transition: none !important; }
 
-/* Leave room for the top navigation bar, which sits over the page. */
-[data-testid="stMainBlockContainer"] { padding-top: 5rem; padding-bottom: 4rem; padding-left: 3rem; padding-right: 3rem;
+/* Navigation lives in the sidebar; leave only the Streamlit header clearance. */
+[data-testid="stMainBlockContainer"] { padding-top: 3.5rem; padding-bottom: 4rem; padding-left: 3rem; padding-right: 3rem;
   max-width: 1760px; }
 [data-testid="stSidebarUserContent"] { padding-top: 1.2rem; }
 h1, h2, h3 { letter-spacing: -0.01em; }
@@ -57,6 +57,30 @@ h1, h2, h3 { letter-spacing: -0.01em; }
 .pl-stat.sec .v { font-size: 0.98rem; margin-top: 6px; }
 .pl-stat.sec:is(:hover,:focus-within) .pl-pop { display: block; }
 .pl-stat.sec:focus-visible { outline: 2px solid #55bfff; outline-offset: 3px; }
+
+/* Replay status: primary timing above one compact row of sectors and weather. */
+.pl-replay-status { border: 1px solid rgba(128,128,128,.22); border-radius: 9px; margin: 0 0 2px; }
+.pl-status-main { display: grid; grid-template-columns: .65fr .8fr 1fr 1.7fr; }
+.pl-status-details { display: flex; flex-wrap: wrap; border-top: 1px solid rgba(128,128,128,.16); }
+.pl-replay-status .pl-stat { border: 0; border-radius: 0; background: transparent; min-width: 0; padding: 7px 12px; }
+.pl-status-main .pl-stat + .pl-stat { border-left: 1px solid rgba(128,128,128,.14); }
+.pl-status-main .v { font-size: 1.05rem; margin-top: 2px; }
+.pl-status-details .pl-stat { flex: 1 1 auto; padding: 6px 12px; }
+.pl-status-details .k { font-size: .58rem; letter-spacing: .08em; }
+.pl-status-details .v { font-size: .84rem; margin-top: 2px; }
+.pl-status-details .v small { font-size: .68rem; }
+.pl-status-details .pl-dot { height: 11px; margin-right: 5px; }
+@media(max-width:1100px) {
+  .pl-status-details { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); }
+}
+@media(max-width:640px) {
+  .pl-status-main { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .pl-replay-status .pl-stat { padding: 7px 9px; }
+  .pl-status-main .v { font-size: .96rem; }
+  .pl-status-details .v { font-size: .76rem; }
+  .pl-status-details .v small { display: block; margin-left: 0; }
+  .pl-status-details .pl-stat:nth-child(3) .pl-pop { left: auto; right: 0; }
+}
 
 .pl-pop { display: none; position: absolute; top: calc(100% + 6px); left: 0; z-index: 50; min-width: 190px;
   padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(128,128,128,0.28);
@@ -386,6 +410,12 @@ def strip(stats: list[str]) -> None:
     st.html('<div class="pl-strip">' + "".join(stats) + "</div>")
 
 
+def replay_status(primary: list[str], details: list[str]) -> None:
+    st.html('<section class="pl-replay-status" aria-label="Race status">'
+            '<div class="pl-status-main">' + "".join(primary) + '</div>'
+            '<div class="pl-status-details">' + "".join(details) + '</div></section>')
+
+
 def status_pill(status: str) -> str:
     bg, fg = STATUS_STYLE.get(status, ("rgba(128,128,128,0.18)", "inherit"))
     return f'<span class="pl-pill" style="background:{bg};color:{fg}">{html.escape(status)}</span>'
@@ -477,11 +507,13 @@ def team_colored_picker(label: str, options: list[str], colors: dict[str, str], 
     st.html("<style>" + "".join(rules) + "</style>")
 
 
-def sector_stats(rankings: list[list[tuple[str, float, int]]], colors: dict[str, str]) -> list[str]:
+def sector_stats(rankings: list[list[tuple[str, float, int]]], colors: dict[str, str], *, include_empty=False) -> list[str]:
     """Fastest S1/S2/S3 so far as three small stats (a size down from the main ones); hover shows P2 and P3."""
     out = []
     for n, ranking in enumerate(rankings, start=1):
         if not ranking:
+            if include_empty:
+                out.append(stat(f"Best S{n}", "—"))
             continue
         driver, secs, lap = ranking[0]
         rows = "".join(

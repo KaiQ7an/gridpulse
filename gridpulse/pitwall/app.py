@@ -40,7 +40,7 @@ from gridpulse.session import TimingUnavailable
 from gridpulse.sources.weather import rain_at
 
 SPEEDS = {"1×": 2.0, "2×": 1.0, "4×": 0.5}  # seconds per lap
-VIEWS = ["Gaps", "Positions", "Tyres", "Pit stops", "Strategy", "Pace", "Radio", "Messages"]
+VIEWS = ["Strategy", "Tyres", "Gaps", "Positions", "Pit stops", "Pace", "Radio", "Messages"]
 
 
 @st.cache_data(ttl=3600, show_spinner=False)
@@ -83,8 +83,25 @@ def choose_race() -> tuple[int, int, str]:
     ss = st.session_state
     apply_link()
     this_year = pd.Timestamp.now().year
+    if "race_year" not in ss and "selected_year" not in ss:
+        # A new visitor can start without a schedule request or timing download.
+        ss.race_year = next((y for y in range(this_year, FIRST_SEASON - 1, -1)
+                             if not snapshots.races(y).empty), this_year)
     year = select_season(range(this_year, FIRST_SEASON - 1, -1), key="race_year")
-    races = cached_races(year)
+    if st.sidebar.button("Check latest races", key="refresh_calendar", icon=":material/refresh:",
+                         disabled=snapshots.offline(), help="Fetch the full calendar, including races not saved locally."):
+        cached_races.clear()
+        ss.live_calendar_years = {*ss.get("live_calendar_years", set()), year}
+    saved = snapshots.races(year)
+    linked = ss.get("pending_replay", {})
+    requested = integer(linked.get("round")) if integer(linked.get("year")) == year else None
+    if requested is not None and requested not in set(saved.RoundNumber):
+        # Keep an unsaved linked session in the full calendar after its URL is consumed.
+        ss.live_calendar_years = {*ss.get("live_calendar_years", set()), year}
+    use_saved = not saved.empty and year not in ss.get("live_calendar_years", set()) \
+        and (requested is None or requested in set(saved.RoundNumber))
+    races = saved if use_saved else cached_races(year)
+    ss.replay_from_snapshot = use_saved
     if races.empty:
         st.info(f"No {year} races have finished yet. Pick an earlier season.")
         st.stop()
@@ -93,6 +110,8 @@ def choose_race() -> tuple[int, int, str]:
     if ss.get("race_pick") not in rounds:
         ss.race_pick = rounds[-1]  # the latest race
     round_number = st.sidebar.selectbox("Grand Prix", rounds, format_func=labels.get, key="race_pick")
+    if use_saved:
+        st.sidebar.caption("Saved races · ready to replay. Check latest races for the full calendar.")
     kind = "R"
     if "sprint" in str(races.set_index("RoundNumber").loc[round_number, "EventFormat"]):
         ss.setdefault("race_session", "Race")  # set here, not as a default, since a link may set it too
@@ -223,24 +242,24 @@ def status_strip(race: RaceData, laps: pd.DataFrame, tower: pd.DataFrame, lap: i
             small=f"L{int(fastest['LapNumber'])}" if fastest is not None else "",
         ),
     ]
-    ui.strip(stats)
-    ui.strip(ui.sector_stats(fastest_sectors(laps, top=3), race.team_colors))
+    details = ui.sector_stats(fastest_sectors(laps, top=3), race.team_colors, include_empty=True)
     if weather is not None:
-        details = [
-            ui.stat("Track temp", f"{weather['TrackTemp']:.1f}°"),
-            ui.stat("Air temp", f"{weather['AirTemp']:.1f}°"),
-            rain_stat(race, lap, bool(weather["Rainfall"])),
-        ]
-        with st.expander("Weather"):
-            ui.strip(details)
+        for label, column in (("Track temp", "TrackTemp"), ("Air temp", "AirTemp")):
+            value = weather.get(column)
+            details.append(ui.stat(label, f"{value:.1f}°" if pd.notna(value) else "—"))
+        wet = weather.get("Rainfall")
+        details.append(rain_stat(race, lap, bool(wet) if pd.notna(wet) else None))
+    else:
+        details.append(ui.stat("Weather", "Unavailable"))
+    ui.replay_status(stats, details)
 
 
-def rain_stat(race: RaceData, lap: int, track_wet: bool) -> str:
+def rain_stat(race: RaceData, lap: int, track_wet: bool | None) -> str:
     """Rainfall in mm/h this hour (a weather-model estimate), with the track's own wet/dry sensor below."""
     mm = rain_at(race.rain_mm, lap_clock(race, lap))
-    sensor = "track wet" if track_wet else "track dry"
+    sensor = "sensor unavailable" if track_wet is None else "track wet" if track_wet else "track dry"
     if mm is None:
-        return ui.stat("Rain", "Wet" if track_wet else "Dry")
+        return ui.stat("Rain", "Unknown" if track_wet is None else "Wet" if track_wet else "Dry")
     return ui.stat("Rain", f"{mm:.1f} mm/h", small=sensor,
                    tip="Rainfall this hour around the circuit, estimated by a weather model (Open-Meteo). "
                        "F1's own feed only reports whether the track sensor detects rain.")
@@ -412,13 +431,14 @@ def race_page() -> None:
     restore_replay()
     ss.setdefault("playing", False)
     ss.setdefault("speed", "2×")
-    ss.setdefault("view", VIEWS[0])
+    ss.setdefault("view", "Gaps")  # keep the familiar overview; strategy tools are first in the switcher
 
     ui.sidebar_brand("Race replay, lap by lap")
     year, round_number, kind = choose_race()
     st.sidebar.toggle("No spoilers", key="no_spoilers",
                       help="Start on lap 1, focus on the starting grid and hide future pit-stop overlays")
-    with st.spinner("Loading race data. The first load of a race takes up to a minute; after that it's cached."):
+    message = "Opening saved race…" if ss.replay_from_snapshot else "Loading race data. New sessions can take up to a minute."
+    with st.spinner(message):
         try:
             race = cached_race(year, round_number, kind)
         except TimingUnavailable as exc:

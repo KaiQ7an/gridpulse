@@ -1,0 +1,50 @@
+{
+  "checked_on": "2026-10-17",
+  "mode": "offline bundled snapshots",
+  "classification_checks": [
+    "winner",
+    "top-ten order",
+    "classified finishers laps down"
+  ],
+  "pit_window_horizon_laps": 10,
+  "classification": {
+    "2021": {
+      "races": 1,
+      "sprints": 0
+    },
+    "2022": {
+      "races": 1,
+      "sprints": 0
+    },
+    "2023": {
+      "races": 22,
+      "sprints": 6
+    },
+    "2024": {
+      "races": 24,
+      "sprints": 6
+    },
+    "2025": {
+      "races": 24,
+      "sprints": 6
+    },
+    "2026": {
+      "races": 17,
+      "sprints": 6
+    }
+  },
+  "backtest": {
+    "2024": {
+      "stops": 303,
+      "within5": 0.6633663366336634,
+      "baseline_within5": 0.6171617161716172,
+      "in_window": 0.5445544554455446
+    },
+    "2025": {
+      "stops": 322,
+      "within5": 0.593167701863354,
+      "baseline_within5": 0.5652173913043478,
+      "in_window": 0.5062111801242236
+    }
+  }
+}
