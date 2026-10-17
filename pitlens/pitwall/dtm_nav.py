@@ -8,6 +8,7 @@ ICONS = {
     'championship': '<path d="M8 3h8v5a4 4 0 0 1-8 0V3Zm0 2H4v2a4 4 0 0 0 4 4m8-6h4v2a4 4 0 0 1-4 4m-4 1v6m-4 3h8m-7-3h6"/>',
     'weekend': '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 11h18m-13 4h2m4 0h2"/>',
     'drivers': '<circle cx="12" cy="7" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/>',
+    'circuits': '<path d="M7 3H5a2 2 0 0 0-2 2v3a3 3 0 0 0 3 3h1a2 2 0 0 1 2 2v6a2 2 0 0 0 2 2h6a4 4 0 0 0 4-4v-4a2 2 0 0 0-2-2h-3a2 2 0 0 1-2-2V5a2 2 0 0 0-2-2h-1"/>',
     'compare': '<path d="M4 7h16m-4-4 4 4-4 4M20 17H4m4-4-4 4 4 4"/>',
     'teams': '<circle cx="9" cy="8" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3m1-17a3 3 0 0 1 0 6m2 4a5 5 0 0 1 3 4v3"/>',
 }
@@ -53,3 +54,55 @@ def render(views: dict):
     st.html(f"<style>{rules}</style>")
     st.sidebar.html('<div class="dtm-menu-caption">Explore DTM</div>')
     st.sidebar.radio("Explore DTM", list(views), format_func=views.get, key="dtm_view", label_visibility="collapsed", width="stretch")
+
+
+PAGE_ICONS = {
+    "": '<path d="M5 21V3m0 1h14l-2 4 2 4H5m0-8 4 4 4-4 4 4M5 12l4-4 4 4 4-4"/>',
+    "qualifying": '<circle cx="12" cy="14" r="7"/><path d="M9 2h6m-3 0v5m5 1 2-2m-7 8 3-3"/>',
+    "onboard": '<path d="M4 19a9 9 0 1 1 16 0H4Zm8-7 4-4M6 14h1m5-8v1m5 7h1"/>',
+    "season": ICONS["championship"], "teams": ICONS["teams"], "drivers": ICONS["drivers"],
+    "circuits": '<path d="M7 3H5a2 2 0 0 0-2 2v3a3 3 0 0 0 3 3h1a2 2 0 0 1 2 2v6a2 2 0 0 0 2 2h6a4 4 0 0 0 4-4v-4a2 2 0 0 0-2-2h-3a2 2 0 0 1-2-2V5a2 2 0 0 0-2-2h-1"/>',
+    "dtm": '<path d="m4 10 2-6h12l2 6M3 10h18v8H3v-8Zm2 8v3m14-3v3M6 14h2m8 0h2"/>',
+    "about": '<circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v1"/>',
+}
+
+
+def render_pages(pages: list, current: str, series: str, *, caption: bool = True, target=None, suffix: str = "") -> None:
+    """Use native page links so URLs, browser history and Streamlit state keep working."""
+    rules = '''
+.st-key-series-navigation [data-testid="stPageLink-NavLink"] {
+ display:flex!important;align-items:center;gap:12px;position:relative;box-sizing:border-box;
+ width:100%;padding:10px 12px;border-radius:8px;border:1px solid transparent;
+ color:inherit;text-decoration:none;transition:background .15s,border-color .15s,color .15s;
+}
+.st-key-series-navigation [data-testid="stPageLink-NavLink"] p {font-size:.9rem;font-weight:500;line-height:1.5}
+.st-key-series-navigation [data-testid="stPageLink-NavLink"]:hover {background:rgba(128,128,128,.09)}
+.st-key-series-navigation [data-testid="stPageLink-NavLink"]:focus-visible {outline:2px solid #55bfff;outline-offset:2px}
+.st-key-series-navigation [data-testid="stPageLink-NavLink"]::before {
+ content:"";width:18px;height:18px;flex:0 0 18px;background:currentColor;opacity:.7;
+ mask-size:contain;mask-position:center;mask-repeat:no-repeat;
+}
+.st-key-series-navigation [data-testid="stVerticalBlock"] {gap:4px}
+.series-menu-caption {font-size:.65rem;font-weight:600;letter-spacing:.14em;opacity:.46;
+ text-transform:uppercase;margin:10px 0 6px}
+@media(prefers-reduced-motion:reduce){.st-key-series-navigation [data-testid="stPageLink-NavLink"]{transition:none}}
+'''
+    rules = rules.replace(".st-key-series-navigation", f".st-key-series-navigation{suffix}")
+    for page in pages:
+        route = page.url_path
+        path = PAGE_ICONS[route]
+        svg = f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">{path}</svg>'
+        selector = f'.st-key-series-nav-{route or "replay"}{suffix} [data-testid="stPageLink-NavLink"]'
+        rules += f'{selector}::before {{mask-image:url("data:image/svg+xml,{quote(svg)}")}}'
+        if route == current:
+            rules += (f'{selector}{{background:rgba(225,6,0,.07);border-color:rgba(225,6,0,.12);color:#E10600}}'
+                      f'{selector}::after{{content:"";position:absolute;left:-1px;top:12px;bottom:12px;'
+                      'width:3px;background:#E10600;border-radius:2px}')
+    st.html(f"<style>{rules}</style>")
+    target = st.sidebar if target is None else target
+    with target.container(key=f"series-navigation{suffix}"):
+        if caption:
+            st.html(f'<div class="series-menu-caption">Explore {series}</div>')
+        for page in pages:
+            with st.container(key=f"series-nav-{page.url_path or 'replay'}{suffix}"):
+                st.page_link(page, label="Championship" if page.url_path == "season" else page.title, icon="", width="stretch")

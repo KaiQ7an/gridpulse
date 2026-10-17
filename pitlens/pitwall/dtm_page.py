@@ -1,7 +1,6 @@
 """DTM championship, weekend classifications and driver comparisons."""
 
 import html
-import json
 import os
 from datetime import UTC, datetime
 
@@ -14,13 +13,22 @@ from pitlens.drivers.profiles import profile as driver_profile
 from pitlens.dtm import data
 from pitlens.dtm import teams as team_data
 from pitlens.dtm.cars import model, profile
-from pitlens.pitwall import driver_intro, dtm_nav, identity_badges, milestone_cards, ui, weekend_overview
+from pitlens.pitwall import (
+    driver_intro,
+    driver_picker,
+    dtm_circuits,
+    dtm_nav,
+    identity_badges,
+    milestone_cards,
+    ui,
+    weekend_overview,
+)
 
 VIEWS = {"championship": "Championship", "weekend": "Race weekends", "teams": "Teams",
-         "drivers": "Drivers", "compare": "Driver comparison"}
+         "drivers": "Drivers", "circuits": "Circuits", "compare": "Driver comparison"}
 VIEW_STATE = {"championship": ("dtm_category",), "weekend": ("dtm_event", "dtm_session"),
-              "compare": ("dtm_drivers",), "teams": ("dtm_team",), "drivers": ("dtm_profile",)}
-STATE = ("dtm_year", "dtm_view", "dtm_event", "dtm_session", "dtm_drivers", "dtm_category", "dtm_team", "dtm_profile")
+              "circuits": ("dtm_circuit", "dtm_region"), "compare": ("dtm_drivers",), "teams": ("dtm_team",), "drivers": ("dtm_profile",)}
+STATE = ("dtm_year", "dtm_view", "dtm_event", "dtm_session", "dtm_drivers", "dtm_category", "dtm_team", "dtm_profile", "dtm_circuit", "dtm_region")
 
 
 @st.cache_data(ttl=1800, show_spinner=False)
@@ -59,6 +67,10 @@ def apply_link():
         ss.dtm_team = params["team"]
     if "driver" in params:
         ss.dtm_profile = params["driver"]
+    if "circuit" in params:
+        ss.dtm_circuit = params["circuit"]
+    if "region" in params:
+        ss.dtm_region = params["region"]
 
 
 def sync_link():
@@ -72,6 +84,11 @@ def sync_link():
         params["team"] = ss.dtm_team
     if ss.dtm_view == "drivers":
         params["driver"] = ss.dtm_profile
+    if ss.dtm_view == "circuits":
+        if ss.get("dtm_circuit", "all") != "all":
+            params["circuit"] = ss.dtm_circuit
+        if ss.get("dtm_region", "world") != "world":
+            params["region"] = ss.dtm_region
     if dict(st.query_params) != params:
         st.query_params.from_dict(params)
     ss.dtm_link = tuple(sorted(params.items()))
@@ -127,6 +144,8 @@ def render():
         compare(season)
     elif ss.dtm_view == "drivers":
         drivers(season)
+    elif ss.dtm_view == "circuits":
+        dtm_circuits.render(season)
     else:
         teams(season)
     sync_link()
@@ -195,11 +214,14 @@ def championship(season: dict):
     with st.container(border=True):
         ui.label(f"{season['year']} · {category} standings")
         if category == "manufacturers":
-            st.caption("Manufacturer points come from the two best-placed cars per race; qualifying bonuses do not count.")
+            st.info("**How manufacturer points work**\n\n"
+                    "At each race, only the **two best-placed cars from each manufacturer** score points "
+                    "for that manufacturer, across all its teams. **Qualifying bonus points do not count** "
+                    "toward the manufacturers’ championship.\n\n"
+                    "[Official scoring explanation](https://newsroom.porsche.com/en/2026/motorsports/"
+                    "porsche-dtm-season-preview-2026-42207.html)", icon=":material/info:")
             st.caption("Cars = distinct team / car-number entries across published races, including guests. "
                        "Driver substitutions count once; this is not a single-race grid size.")
-            st.markdown("[Official scoring explanation](https://newsroom.porsche.com/en/2026/motorsports/"
-                        "porsche-dtm-season-preview-2026-42207.html)")
         else:
             st.caption("Official classification · total points include race and qualifying points.")
         name_label = {"drivers": "Driver", "teams": "Team", "manufacturers": "Manufacturer"}[category]
@@ -228,22 +250,13 @@ def championship(season: dict):
                 'color:inherit!important}.st-key-dtm-points-panel [data-tag]:hover {border-color:#e10600!important}</style>')
         ui.label("The points race")
         options = [r["key"] for r in board]
-        names = {r["key"]: r["name"] + (f" · {meta[r['key']]['team']}"
-                 if category == "drivers" and meta.get(r["key"], {}).get("team") else "") for r in board}
-        if category == "drivers":
-            # Streamlit uses one format_func for both menus and tags. Only shorten the
-            # visual tag text; keep the full accessible label, tooltip and remove button.
-            rules = []
-            for entry in board:
-                full = json.dumps(names[entry["key"]], ensure_ascii=False).replace("<", r"\3c ")
-                short = json.dumps(entry["name"], ensure_ascii=False).replace("<", r"\3c ")
-                selector = ('.st-key-dtm-points-panel [data-testid="stMultiSelectTagsContainer"] '
-                            f'[data-tag][aria-label={full}] > span[title]')
-                rules.append(f'{selector}{{font-size:0}}{selector}::after{{content:{short};font-size:14px}}')
-            st.html("<style>" + "".join(rules) + "</style>")
+        names = {r["key"]: r["name"] for r in board}
+        picker_teams = {d: entry["team"] for d, entry in meta.items()}
         picker = f"dtm_lines_{category}_{season['year']}"
         selected = st.multiselect("Follow up to six", options, default=options[:4], format_func=names.get,
                                   max_selections=6, key=picker)
+        if category == "drivers":
+            driver_picker.decorate("Follow up to six", options, picker_teams, key=picker)
         if selected:
             st.plotly_chart(points_chart(season, selected, category), width="stretch", key="dtm_points")
         else:
@@ -330,6 +343,8 @@ def compare(season: dict):
         ss.dtm_drivers = options[:2]
     ss.dtm_drivers = [d for d in ss.dtm_drivers if d in options][:4]
     selected = st.multiselect("Compare drivers", options, key="dtm_drivers", max_selections=4, format_func=names.get)
+    entries = data.entrants(season)
+    driver_picker.decorate("Compare drivers", options, {d: e["team"] for d, e in entries.items()}, key="dtm_drivers")
     if not selected:
         st.info("Choose up to four drivers to compare their published season results.")
         return
@@ -441,6 +456,7 @@ def drivers(season: dict):
     names = {d: driver_profile("dtm", d).get("name") or entries[d]["name"] for d in order}
     selected = st.selectbox("Driver", order, format_func=names.get, key="dtm_profile")
     entry = entries[selected]
+    driver_picker.decorate("Driver", order, {d: e["team"] for d, e in entries.items()}, key="dtm_profile", selected=selected)
     ui.header(f"{season['year']} · DTM driver", names[selected])
     driver_intro.render("dtm", selected, season["year"], entry["name"], team=entry["team"], car=entry["model"],
                         team_id=team_data.identity(season["year"], entry["team"]), manufacturer=entry["manufacturer"])

@@ -10,6 +10,7 @@ import pandas as pd
 import streamlit as st
 
 from pitlens.branding import NAME, TAGLINE
+from pitlens.pitwall import dtm_nav
 from pitlens.style import COMPOUND_COLORS
 
 ACCENT = "#E10600"
@@ -321,7 +322,28 @@ def sidebar_brand(tagline: str) -> None:
     )
 
 
+def sidebar_navigation(*, fallback: bool = False) -> None:
+    pages = st.session_state.get("sidebar_pages", [])
+    if not pages or st.session_state.get("sidebar_navigation_rendered"):
+        return
+    series = st.session_state.get("racing_series", "Formula 1")
+    current = st.session_state.get("sidebar_current_page", "")
+    if series == "DTM":
+        pages = [p for p in pages if p.url_path in (("dtm", "about") if current == "about" else ("about",))]
+    else:
+        by_path = {p.url_path: p for p in pages if p.url_path != "dtm"}
+        pages = [by_path[path] for path in ("season", "", "qualifying", "onboard", "teams", "drivers", "circuits", "about")]
+    slot = st.session_state.get("sidebar_navigation_fallback")
+    if not fallback and slot is not None:
+        slot.empty()
+    dtm_nav.render_pages(pages, current, series, caption=series != "DTM" or current == "about",
+                         target=slot if fallback else None, suffix="-fallback" if fallback else "")
+    if not fallback:
+        st.session_state.sidebar_navigation_rendered = True
+
+
 def sidebar_footer(series: str = "Formula 1") -> None:
+    sidebar_navigation()
     if series == "DTM":
         st.sidebar.html(
             '<div class="dtm-foot">Independent project · Official DTM data<br>'

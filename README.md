@@ -38,7 +38,7 @@ falling away, with the cleaning rules written down and tested.
 **DTM** (`/dtm`)
 
 - Use the **Racing series** switcher at the top left to move between Formula 1 and DTM.
-  Each championship has its own navigation and retains its selections when you switch away.
+  Both championships use the same sidebar menu style and retain their selections when you switch away.
 - Official 2023–2026 driver, team and manufacturer standings, retaining published order,
   race points and qualifying points. Interactive cumulative points charts with hover details
   and selectable entries; manufacturer colours and distinct line patterns.
@@ -54,6 +54,10 @@ falling away, with the cleaning rules written down and tested.
   model reference photos are labelled when they do not show that team’s season livery.
 - **Drivers**: biographical introductions, birthday, nationality, DTM debut, season portrait,
   official profile links, first-points/first-win milestones and race-by-race results. F1's Drivers page has the same profile card.
+- **Circuits**: the selected season’s eight venues on an interactive globe and Europe map, official DTM layout diagrams,
+  sourced venue histories, length comparisons and links back to the race weekend. Covered records (fastest race lap,
+  most wins and qualifying P1s) use 2023 through the selected season; qualifying groups stay separate from combined P1s.
+- Driver menus show full names on the left and their session/season teams on the right; multi-select tags keep names only.
 - Official data from [dtm.com](https://www.dtm.com/en/results). The current season refreshes
   every 30 minutes while in use; a refresh button checks any supported year. Bundled official
   snapshots keep the section usable offline or during an upstream failure. The fetched time

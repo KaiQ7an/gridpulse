@@ -69,7 +69,8 @@ class OnboardData:
 def session_drivers(session) -> pd.DataFrame:
     """Drivers in classification order with their team, for pickers."""
     res = session.results.sort_values("Position")
-    return pd.DataFrame({"Driver": res["Abbreviation"], "Team": res["TeamName"]}).reset_index(drop=True)
+    return pd.DataFrame({"Driver": res["Abbreviation"], "Team": res["TeamName"],
+                         "FullName": res.get("FullName", res["Abbreviation"])}).reset_index(drop=True)
 
 
 def teammate_of(drivers: pd.DataFrame, driver: str) -> str | None:
@@ -139,12 +140,14 @@ class FastF1Weekend:
 
     def drivers(self) -> pd.DataFrame:
         """Drivers with a timed lap, fastest first (in a race that isn't the classification order)."""
-        team = session_drivers(self.session).set_index("Driver")["Team"]
+        drivers = session_drivers(self.session).set_index("Driver")
+        team = drivers["Team"]
         laps = self.session.laps.dropna(subset=["LapTime"])
         if "IsPersonalBest" in laps and laps["IsPersonalBest"].eq(True).any():
             laps = laps[laps["IsPersonalBest"].eq(True)]  # the laps pick_fastest chooses from: no deleted laps
         best = laps.groupby("Driver")["LapTime"].min().sort_values()
-        return pd.DataFrame({"Driver": best.index, "Team": best.index.map(team)}).reset_index(drop=True)
+        return pd.DataFrame({"Driver": best.index, "Team": best.index.map(team),
+                             "FullName": best.index.map(drivers["FullName"])}).reset_index(drop=True)
 
     def lap_options(self, driver: str) -> pd.DataFrame:
         laps = self.session.laps.pick_drivers(driver).dropna(subset=["LapTime"])
@@ -188,7 +191,8 @@ class OpenF1Weekend:
     def drivers(self) -> pd.DataFrame:
         valid = self.laps[~self.laps["Deleted"]] if "Deleted" in self.laps else self.laps
         best = valid.sort_values("lap_duration").drop_duplicates("driver_number")
-        return pd.DataFrame({"Driver": best["name_acronym"], "Team": best["team_name"]}).reset_index(drop=True)
+        return pd.DataFrame({"Driver": best["name_acronym"], "Team": best["team_name"],
+                             "FullName": best.get("full_name", best["name_acronym"])}).reset_index(drop=True)
 
     def fastest_lap(self, driver: str) -> DriverLap:
         return self.lap(driver)

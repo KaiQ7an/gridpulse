@@ -29,4 +29,5 @@ def test_manufacturer_standings_show_car_counts_instead_of_qualifying_column(mon
     assert table.value.set_index("Name").loc["Porsche", "Cars"] == 3
     assert table.value.set_index("Name").loc["Mercedes-AMG", "Cars"] == 4
     assert list(table.proto.column_order) == ["Pos", "Name", "Cars", "Points"]
-    assert any("qualifying bonuses do not count" in c.value for c in at.caption)
+    assert any("two best-placed cars from each manufacturer" in note.value
+               and "Qualifying bonus points do not count" in note.value for note in at.info)

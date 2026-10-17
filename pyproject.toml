@@ -45,7 +45,7 @@ include = ["pitlens*"]
 "pitlens.pitwall.timeline" = ["index.html"]
 "pitlens.pitwall.corner_guide" = ["index.html", "guide.js"]
 "pitlens.season" = ["atlas.json", "corner_tours.json"]
-"pitlens.dtm" = ["snapshots/*.json", "cars.json", "teams.json", "badges.json"]
+"pitlens.dtm" = ["snapshots/*.json", "cars.json", "teams.json", "badges.json", "circuits.json"]
 "pitlens.drivers" = ["f1.json", "dtm.json"]
 
 [tool.ruff]

@@ -595,7 +595,7 @@ def session_laps(session_key: int) -> pd.DataFrame:
         raise OpenF1Error("OpenF1 has no laps for this session")
     if "team_colour" not in drivers:
         drivers["team_colour"] = None
-    laps = laps.merge(drivers[["driver_number", "name_acronym", "team_name", "team_colour"]],
+    laps = laps.merge(drivers[[c for c in ["driver_number", "name_acronym", "team_name", "team_colour", "full_name"] if c in drivers]],
                       on="driver_number", how="left")
     laps["Deleted"] = deleted_lap_mask(laps, pd.DataFrame(get("race_control", session_key=session_key)))
     return laps[laps["lap_duration"].notna() & ~laps["is_pit_out_lap"].fillna(False).astype(bool) & ~laps["Deleted"]]

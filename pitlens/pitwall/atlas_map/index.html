@@ -69,8 +69,8 @@
   <aside id="preview" class="intro" aria-label="Circuit preview" aria-live="polite">
     <button id="preview-close" aria-label="Close circuit preview">×</button>
     <div class="eyebrow" id="preview-country"></div><h2 id="preview-city"></h2><div class="name" id="preview-name"></div>
-    <div class="preview-grid"><div><small>LENGTH</small><strong id="preview-length"></strong></div><div><small>LAPS</small><strong id="preview-laps"></strong></div>
-      <div><small>FIRST GP</small><strong id="preview-first"></strong></div><div><small>GRANDS PRIX</small><strong id="preview-races"></strong></div></div>
+    <div class="preview-grid"><div><small>LENGTH</small><strong id="preview-length"></strong></div><div><small id="preview-laps-label">LAPS</small><strong id="preview-laps"></strong></div>
+      <div><small id="preview-first-label">FIRST GP</small><strong id="preview-first"></strong></div><div><small id="preview-races-label">GRANDS PRIX</small><strong id="preview-races"></strong></div></div>
     <div class="record"><b id="preview-record"></b><span id="preview-holder"></span></div>
     <button id="preview-open">OPEN CIRCUIT FACTS →</button>
   </aside>
@@ -93,7 +93,7 @@
     if(activeSlug!==c.slug)activate(c,false);
     clearTimeout(clearTimer);
     tooltip.replaceChildren();const b=document.createElement('b'),s=document.createElement('span'),small=document.createElement('small');
-    b.textContent=c.city;s.textContent=`${c.length_km.toFixed(3)} km · ${c.record?.time||'—'} race record`;small.textContent='CLICK TO OPEN CIRCUIT FACTS →';
+    b.textContent=c.city;s.textContent=`${c.length_km.toFixed(3)} km · ${c.record?.time||'—'} ${args.series==='DTM'?'covered race lap':'race record'}`;small.textContent='CLICK TO OPEN CIRCUIT FACTS →';
     tooltip.append(b,s,small);tooltip.style.display='block';
     const rect=stage.getBoundingClientRect(),x=event.clientX-rect.left,y=event.clientY-rect.top;
     tooltip.style.left=Math.max(8,Math.min(x+15,width-280))+'px';tooltip.style.top=Math.max(8,Math.min(y+12,height-110))+'px';
@@ -102,7 +102,7 @@
   function activate(c,fly){
     clearTimeout(clearTimer);activeSlug=c.slug;
     for(const [id,text] of Object.entries({'preview-country':c.country,'preview-city':c.city,'preview-name':c.name,
-      'preview-length':c.length_km.toFixed(3)+' km','preview-laps':c.laps,'preview-first':c.first_gp,'preview-races':c.history?.races||'—',
+      'preview-length':c.length_km.toFixed(3)+' km','preview-laps':c.preview?.races??c.laps,'preview-first':c.opened??c.first_gp,'preview-races':c.preview?.coverage??c.history?.races??'—',
       'preview-record':c.record?.time||'Record not published','preview-holder':`${c.record?.driver||''} · ${c.record?.year||''}`})) document.getElementById(id).textContent=text;
     document.querySelector('#preview').style.display='block';document.querySelector('.intro:not(#preview)').style.visibility='hidden';
     parent.postMessage({type:'pitlens:atlas-preview',slug:c.slug},location.origin);
@@ -169,6 +169,9 @@
     width=stage.clientWidth;height=args.height||540;stage.style.height=height+'px';
     stage.classList.toggle('compact',!!args.selected);svg.attr('viewBox',`0 0 ${width} ${height}`);
     svg.attr('aria-label',`${args.regions[args.region].name} circuit map. Select a red marker to open circuit facts.`);
+    document.querySelector('#preview-laps-label').textContent=args.series==='DTM'?'COVERED RACES':'LAPS';
+    document.querySelector('#preview-first-label').textContent=args.series==='DTM'?'OPENED':'FIRST GP';
+    document.querySelector('#preview-races-label').textContent=args.series==='DTM'?'ARCHIVE':'GRANDS PRIX';
     const circuits=args.circuits.filter(c=>args.region==='world'||c.region===args.region);
     document.querySelector('#count').textContent=String(circuits.length).padStart(2,'0');
     document.querySelector('#headline').innerHTML=args.region==='world'?'RACING.<br>WORLDWIDE.':args.regions[args.region].name.toUpperCase().replace(' & ','<br>& ');

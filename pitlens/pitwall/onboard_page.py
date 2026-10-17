@@ -3,6 +3,7 @@
 import pandas as pd
 import streamlit as st
 
+from pitlens.drivers.profiles import profile as driver_profile
 from pitlens.onboard.charts import corner_gains, telemetry_figure, track_map
 from pitlens.onboard.compare import align, corner_speeds, minisectors, sector_distances, summarise
 from pitlens.onboard.data import (
@@ -11,7 +12,7 @@ from pitlens.onboard.data import (
     load_weekend,
     teammate_of,
 )
-from pitlens.pitwall import ui
+from pitlens.pitwall import driver_picker, ui
 from pitlens.pitwall.data import FIRST_SEASON, completed_races
 from pitlens.pitwall.navigation import integer, select_season
 from pitlens.pitwall.timing import format_lap_time
@@ -38,14 +39,22 @@ def pick_drivers(drivers: pd.DataFrame, allow_same: bool = False) -> tuple[str, 
     """First driver defaults to the fastest; the second follows them to their teammate."""
     ss = st.session_state
     names = drivers["Driver"].tolist()
+    full_names = {}
+    for row in drivers.to_dict("records"):
+        code, full = row["Driver"], row.get("FullName")
+        full_names[code] = full if pd.notna(full) and full and full != code else driver_profile("f1", code).get("name") or code
+    teams = dict(zip(drivers.Driver, drivers.Team))
     if ss.get("ob_a") not in names:
         ss.ob_a = names[0]
-    a = st.sidebar.selectbox("Driver", names, key="ob_a")
+    a = st.sidebar.selectbox("Driver", names, key="ob_a", format_func=full_names.get)
+    driver_picker.decorate("Driver", names, teams, key="ob_a", selected=a)
     if ss.get("ob_prev_a") != a or ss.get("ob_b") not in names or (not allow_same and ss.get("ob_b") == a):
         mate = teammate_of(drivers, a)
         ss.ob_b = mate if mate in names else next(n for n in names if n != a)
         ss.ob_prev_a = a
-    b = st.sidebar.selectbox("Compared with", [n for n in names if allow_same or n != a], key="ob_b")
+    others = [n for n in names if allow_same or n != a]
+    b = st.sidebar.selectbox("Compared with", others, key="ob_b", format_func=full_names.get)
+    driver_picker.decorate("Compared with", others, teams, key="ob_b", selected=b)
     return a, b
 
 

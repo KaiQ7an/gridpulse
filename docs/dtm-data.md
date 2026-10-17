@@ -118,3 +118,25 @@ is available from 2020; older career firsts require a separate primary reference
 `verified_first` per milestone, so an earliest available 2020 result is never called a career
 first for a driver who debuted earlier. Unverified older milestones display as unverified,
 not as zero wins or points. Selecting a historical season hides later milestones.
+
+
+## Circuit atlas
+
+`pitlens/dtm/circuits.json` holds sourced venue background and official DTM layout diagrams for
+the eight venues on the supported 2023–2026 calendars. The atlas reuses the F1 map component
+with DTM-specific labels and markers. Circuit length follows the selected DTM event feed;
+Spielberg uses the sourced 4.326 km reference when the feed has no length. Nürburgring is the
+3.629 km sprint layout, not the F1 Grand Prix layout or Nordschleife.
+
+Records cover bundled 2023 data through the selected season, using live results for the selected
+season when available. They are labelled archive bests, not all-time DTM records. DSQ/DNS results
+cannot supply a fastest race lap; DNF fastest laps can. Wins use classified P1 finishers.
+Qualifying P1 counts use combined classifications only; group winners are excluded, and the
+page explicitly notes this incomplete pole coverage. Layout changes across years also limit
+comparisons. Venue opening dates describe the venue's heritage, not necessarily the present layout.
+
+Manufacturer standings show car-entry counts alongside official points. Counts use distinct
+operating-team, car-number and manufacturer combinations across published race classifications,
+including guest entries; replacement drivers do not add a car. They describe season participation,
+not the number of starters in any single race. Manufacturer points take the best two cars per
+brand per race and exclude qualifying bonuses; the UI links to the official explanation.

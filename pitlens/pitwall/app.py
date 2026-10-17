@@ -467,7 +467,7 @@ def main() -> None:
         st.Page(about_page.render, title="About", icon=":material/info:", url_path="about"),
     ]
     about_page.pages = {page.title: page for page in pages}
-    current = st.navigation(pages, position="top")
+    current = st.navigation(pages, position="hidden")
     if ss.pop("switch_racing_series", False):
         target = "dtm" if ss.racing_series == "DTM" else ss.get("last_f1_page", "")
         st.switch_page(next(page for page in pages if page.url_path == target))
@@ -487,6 +487,13 @@ def main() -> None:
     ss.sidebar_brand_slot = st.sidebar.empty()
     st.sidebar.selectbox("Racing series", ["Formula 1", "DTM"], key="racing_series",
                          on_change=switch_series, help="Switch championships. Each series keeps its own selections.")
+    ss.sidebar_pages = pages
+    ss.sidebar_current_page = current.url_path
+    ss.sidebar_navigation_rendered = False
+    # Keep a usable menu visible while data loads or if a page stops early.
+    # The normal footer moves it below that page's controls once they are ready.
+    ss.sidebar_navigation_fallback = st.sidebar.empty()
+    ui.sidebar_navigation(fallback=True)
     current.run()
 
 
