@@ -6,55 +6,145 @@
       "name": "Ferrari",
       "url": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cm9wx88343imz07w29np352uc",
       "source": "https://www.dtm.com/en/drivers",
-      "dark": false
+      "dark": false,
+      "artwork": {
+        "width": 800,
+        "height": 600,
+        "bounds": [
+          227,
+          44,
+          316,
+          504
+        ]
+      }
     },
     "BMW": {
       "name": "BMW",
       "url": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cm9wxadgh3jh407w2vnfjpvnz",
       "source": "https://www.dtm.com/en/drivers",
-      "dark": false
+      "dark": false,
+      "artwork": {
+        "width": 800,
+        "height": 600,
+        "bounds": [
+          58,
+          176,
+          679,
+          248
+        ]
+      }
     },
     "Porsche": {
       "name": "Porsche",
       "url": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cmoikx57c1zru07vygeyjrcem",
       "source": "https://www.dtm.com/en/drivers",
-      "dark": false
+      "dark": false,
+      "artwork": {
+        "width": 800,
+        "height": 600,
+        "bounds": [
+          44,
+          118,
+          702,
+          359
+        ]
+      }
     },
     "Audi": {
       "name": "Audi",
       "url": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/54p41fHTDutUJYLwZZNZ",
       "source": "https://www.dtm.com/en/drivers",
-      "dark": false
+      "dark": false,
+      "artwork": {
+        "width": 860,
+        "height": 340,
+        "bounds": [
+          146,
+          73,
+          568,
+          196
+        ]
+      }
     },
     "Lamborghini": {
       "name": "Lamborghini",
       "url": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cm9wx4q0v3hbb07un3weat62w",
       "source": "https://www.dtm.com/en/drivers",
-      "dark": false
+      "dark": false,
+      "artwork": {
+        "width": 800,
+        "height": 600,
+        "bounds": [
+          140,
+          67,
+          519,
+          466
+        ]
+      }
     },
     "McLaren": {
       "name": "McLaren",
       "url": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/bYpQ907RMG62wmiuOKww",
       "source": "https://www.dtm.com/en/drivers",
-      "dark": false
+      "dark": false,
+      "artwork": {
+        "width": 860,
+        "height": 340,
+        "bounds": [
+          45,
+          114,
+          770,
+          112
+        ]
+      }
     },
     "Ford": {
       "name": "Ford",
       "url": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cmohdldcev5vz08w9o8qcvbag",
       "source": "https://www.dtm.com/en/drivers",
-      "dark": false
+      "dark": false,
+      "artwork": {
+        "width": 800,
+        "height": 600,
+        "bounds": [
+          65,
+          138,
+          670,
+          334
+        ]
+      }
     },
     "Mercedes-AMG": {
       "name": "Mercedes-AMG",
       "url": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cmk1c9r4xm0zz07ur80dsmwet",
       "source": "https://www.dtm.com/en/drivers",
-      "dark": false
+      "dark": false,
+      "artwork": {
+        "width": 1877,
+        "height": 1772,
+        "bounds": [
+          350,
+          350,
+          1177,
+          1072
+        ]
+      }
     },
     "Aston Martin": {
       "name": "Aston Martin",
       "url": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/cm9wx1uod3g3n07und65vt8a3",
       "source": "https://www.dtm.com/en/drivers",
-      "dark": false
+      "dark": false,
+      "artwork": {
+        "width": 800,
+        "height": 600,
+        "bounds": [
+          24,
+          213,
+          750,
+          169
+        ]
+      }
     }
   },
   "teams": {
@@ -74,7 +164,17 @@
       "name": "SSR Performance",
       "url": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/OzRMskQHTfONUmwsMHhl",
       "source": "https://www.dtm.com/en/drivers",
-      "dark": false
+      "dark": false,
+      "artwork": {
+        "width": 650,
+        "height": 257,
+        "bounds": [
+          15,
+          9,
+          587,
+          234
+        ]
+      }
     },
     "hrt": {
       "name": "Mercedes-AMG Team HRT",
@@ -84,7 +184,17 @@
         2023,
         2024
       ],
-      "dark": false
+      "dark": false,
+      "artwork": {
+        "width": 650,
+        "height": 257,
+        "bounds": [
+          2,
+          40,
+          646,
+          177
+        ]
+      }
     },
     "winward": {
       "name": "WINWARD RACING",
@@ -94,13 +204,33 @@
         2023,
         2024
       ],
-      "dark": false
+      "dark": false,
+      "artwork": {
+        "width": 650,
+        "height": 257,
+        "bounds": [
+          7,
+          77,
+          636,
+          103
+        ]
+      }
     },
     "team75": {
       "name": "KÜS Team Bernhard",
       "url": "https://eu-central-1-dtm.graphassets.com/A1u5hYJufQP2aaKvjqgLoz/resize=fit:max,width:1920/EHGcGCdSQBG4g2YplG5a",
       "source": "https://www.dtm.com/en/drivers",
-      "dark": false
+      "dark": false,
+      "artwork": {
+        "width": 650,
+        "height": 257,
+        "bounds": [
+          213,
+          0,
+          224,
+          257
+        ]
+      }
     },
     "manthey": {
       "name": "Manthey",
@@ -112,19 +242,49 @@
       "name": "Comtoyou Racing",
       "url": "https://comtoyouracing.com/wp-content/uploads/2024/07/comtoyou_racing-Logo-white.png",
       "source": "https://comtoyouracing.com/",
-      "dark": true
+      "dark": true,
+      "artwork": {
+        "width": 283,
+        "height": 77,
+        "bounds": [
+          39,
+          19,
+          206,
+          42
+        ]
+      }
     },
     "toksport": {
       "name": "Toksport WRT",
       "url": "https://toksport.com/wp-content/uploads/2021/08/toksport-black.png",
       "source": "https://toksport.com/",
-      "dark": false
+      "dark": false,
+      "artwork": {
+        "width": 480,
+        "height": 86,
+        "bounds": [
+          0,
+          0,
+          479,
+          86
+        ]
+      }
     },
     "emil-frey": {
       "name": "Emil Frey Racing",
       "url": "https://emilfreyracing.com/static/5f6060afd22983f8e634b02ecb154415/80f52/logo.png",
       "source": "https://emilfreyracing.com/en/",
-      "dark": false
+      "dark": false,
+      "artwork": {
+        "width": 290,
+        "height": 120,
+        "bounds": [
+          0,
+          2,
+          290,
+          116
+        ]
+      }
     }
   }
 }

@@ -42,7 +42,7 @@ def render(series: str, driver: str, year: int, name: str, *, team: str = "", ca
             if team:
                 st.write(f"{year} entry: {team}" + (f" · {car}" if car else ""))
             if series == "dtm":
-                identity_badges.render(year, team_id, [manufacturer] if manufacturer else [])
+                identity_badges.render(year, team_id, [manufacturer] if manufacturer else [], link_team=True)
             with st.container(horizontal=True, gap="small"):
                 source = public_url(info.get("profile_url") or info.get("source"))
                 if source:
