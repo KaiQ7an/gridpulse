@@ -1,6 +1,7 @@
 """DTM championship, weekend classifications and driver comparisons."""
 
 import html
+import json
 import os
 from datetime import UTC, datetime
 
@@ -110,7 +111,9 @@ def render():
     races = data.race_rows(season)
     race_count = sum(s["kind"] == "race" for e in season["events"] for s in e["sessions"])
     ui.strip([ui.stat("Race weekends", str(len(season["events"]))), ui.stat("Published races", str(race_count)),
-              ui.stat("Drivers", str(races.driver.nunique())), ui.stat("Manufacturers", str(races.manufacturer.nunique()))])
+              ui.stat("Drivers", str(races.driver.nunique())),
+              ui.stat("Car entries", str(len(team_data.car_entries(season)))),
+              ui.stat("Manufacturers", str(races.manufacturer.nunique()))])
     stamp = datetime.fromisoformat(season["fetched_at"]).strftime("%d %b %Y, %H:%M UTC")
     st.caption(f"{source} · fetched {stamp}. " +
                ("The official feed marks these standings provisional." if season["provisional"] else "Published standings."))
@@ -186,12 +189,22 @@ def championship(season: dict):
                                "Manufacturer": meta.get(r["key"], {}).get("manufacturer", "")} if category == "drivers" else {}),
                            "Race pts": r["race_points"], "Quali pts": r["qualifying_points"]}
                           for r in board])
+    if category == "manufacturers":
+        counts = team_data.car_entries(season).groupby("manufacturer").size()
+        table["Cars"] = [int(counts.get(data.MANUFACTURERS.get(name, name), 0)) for name in table.Name]
     with st.container(border=True):
         ui.label(f"{season['year']} · {category} standings")
-        st.caption("Official classification · total points include race and qualifying points.")
+        if category == "manufacturers":
+            st.caption("Manufacturer points come from the two best-placed cars per race; qualifying bonuses do not count.")
+            st.caption("Cars = distinct team / car-number entries across published races, including guests. "
+                       "Driver substitutions count once; this is not a single-race grid size.")
+            st.markdown("[Official scoring explanation](https://newsroom.porsche.com/en/2026/motorsports/"
+                        "porsche-dtm-season-preview-2026-42207.html)")
+        else:
+            st.caption("Official classification · total points include race and qualifying points.")
         name_label = {"drivers": "Driver", "teams": "Team", "manufacturers": "Manufacturer"}[category]
         columns = ["Pos", "Name"] + (["Team", "Car model"] if category == "drivers" else [])
-        columns += ["Race pts", "Quali pts", "Points"]
+        columns += ["Cars", "Points"] if category == "manufacturers" else ["Race pts", "Quali pts", "Points"]
         styled = table.style.set_properties(subset=["Points"], **{"font-weight": "700"})
         st.dataframe(styled, hide_index=True, width="stretch", row_height=46,
                      height=max(200, min(1050, 46 * len(table) + 48)), column_order=columns,
@@ -201,17 +214,33 @@ def championship(season: dict):
                          "Team": st.column_config.TextColumn("Team", width="large"),
                          "Car model": st.column_config.TextColumn("Car model", width="large"),
                          "Manufacturer": None,
+                         "Cars": st.column_config.NumberColumn("Cars", width="small", format="%d"),
                          "Race pts": st.column_config.NumberColumn("Race", width="small", format="%g"),
                          "Quali pts": st.column_config.NumberColumn("Qualifying", width="small", format="%g",
                              help="Published qualifying points, already included in Total points."),
                          "Points": st.column_config.NumberColumn("Total points", width="small", format="%g"),
                      })
         st.download_button("Download standings", table.to_csv(index=False), f"dtm-{season['year']}-{category}.csv", "text/csv")
-    with st.container(border=True):
+    with st.container(border=True, key="dtm-points-panel"):
+        st.html('<style>.st-key-dtm-points-panel [data-testid="stMultiSelectTagsContainer"] [data-tag] {'
+                'background:rgba(128,128,128,.10)!important;color:inherit!important;border:1px solid rgba(128,128,128,.24)!important}'
+                '.st-key-dtm-points-panel [data-testid="stMultiSelectTagsContainer"] [data-tag] button {'
+                'color:inherit!important}.st-key-dtm-points-panel [data-tag]:hover {border-color:#e10600!important}</style>')
         ui.label("The points race")
         options = [r["key"] for r in board]
         names = {r["key"]: r["name"] + (f" · {meta[r['key']]['team']}"
                  if category == "drivers" and meta.get(r["key"], {}).get("team") else "") for r in board}
+        if category == "drivers":
+            # Streamlit uses one format_func for both menus and tags. Only shorten the
+            # visual tag text; keep the full accessible label, tooltip and remove button.
+            rules = []
+            for entry in board:
+                full = json.dumps(names[entry["key"]], ensure_ascii=False).replace("<", r"\3c ")
+                short = json.dumps(entry["name"], ensure_ascii=False).replace("<", r"\3c ")
+                selector = ('.st-key-dtm-points-panel [data-testid="stMultiSelectTagsContainer"] '
+                            f'[data-tag][aria-label={full}] > span[title]')
+                rules.append(f'{selector}{{font-size:0}}{selector}::after{{content:{short};font-size:14px}}')
+            st.html("<style>" + "".join(rules) + "</style>")
         picker = f"dtm_lines_{category}_{season['year']}"
         selected = st.multiselect("Follow up to six", options, default=options[:4], format_func=names.get,
                                   max_selections=6, key=picker)

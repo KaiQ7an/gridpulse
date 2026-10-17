@@ -47,3 +47,14 @@ def participants(season: dict) -> dict:
         info = catalog().get(team_id, {"name": entrant, "history": "Profile research pending.", "sources": []})
         result.setdefault(team_id, {**info, "entries": []})["entries"].append(entrant)
     return dict(sorted(result.items(), key=lambda item: item[1]["name"].casefold()))
+
+
+def car_entries(season: dict):
+    """Season car entries, including guests; reserve drivers do not add a second car.
+
+    This counts operator / car-number / manufacturer identities in published race
+    classifications, not physical chassis or the grid size at a single race.
+    """
+    rows = data.race_rows(season).copy()
+    rows["operator"] = [identity(season["year"], name) for name in rows.team]
+    return rows.drop_duplicates(["operator", "number", "manufacturer"])
