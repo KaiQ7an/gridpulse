@@ -50,6 +50,9 @@ Both series use the same sidebar design, full-name driver selectors and season-s
 **Home** (`/`)
 
 - Equally sized Formula 1 and DTM entries with attributed team photography and direct feature links.
+  Local car silhouettes remain visible if an external photo cannot load.
+- Featured strategy moments open Hungary 2025 L18, Baku 2026 L18 or Bahrain 2025 L23 with
+  the chosen drivers, lap and Strategy view already selected; future events stay hidden.
 - Continue the last F1 replay at its selected lap, drivers, view and spoiler setting, or reopen the last DTM view.
 - Filter recent weekends by series, season and venue. Podiums stay hidden until **Show results** is enabled.
   Pin up to four weekends to a shortlist, retained for the browser session, and load more results on demand.
@@ -401,6 +404,11 @@ The pit window comes from a tyre model fitted on the race's clean laps up to the
 each lap is driver pace + compound offset + wear × tyre age + a trend for fuel and track that is
 the same for every car. Fresh tyres after a stop are what separate wear from that trend, and
 typical figures act as weak priors, so a compound nobody has run yet still gets sensible numbers.
+On slicks before the first clean lap, the dashboard explicitly labels a **Pre-race prior window**:
+typical compound pace and wear produce relative plan costs without assuming observed driver pace.
+Catch predictions wait for pace observations from both drivers. The fit updates as clean laps
+arrive; wear counts as measured after five clean laps in a stint, not simply at race lap five.
+Wet tyres remain unsupported. The Tyres view also labels its early typical-wear reference as unmeasured.
 For every lap a car could stop on and every compound it could fit, it adds up the time to the
 flag; the lowest is the best plan, and laps within a second of it are the window.
 

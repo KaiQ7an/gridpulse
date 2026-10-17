@@ -3,6 +3,7 @@ import pandas as pd
 import pytest
 
 from gridpulse.undercut.window import (
+    TYPICAL_DEG,
     TYPICAL_OFFSET,
     TyreModel,
     best_plan,
@@ -85,6 +86,30 @@ def test_no_dry_laps_no_model():
     wet = pd.DataFrame({"Driver": ["A"], "Stint": [1], "Compound": ["INTERMEDIATE"], "TyreLife": [3.0],
                         "LapNumber": [5], "LapTime": [95.0]})
     assert fit_tyre_model(wet) is None
+
+
+def test_zero_sample_prior_requires_opt_in_and_has_no_measured_driver_pace():
+    empty = pd.DataFrame(columns=['Driver', 'Stint', 'Compound', 'TyreLife', 'LapNumber', 'LapTime'])
+    assert fit_tyre_model(empty) is None
+    model = fit_tyre_model(empty, allow_prior=True)
+    assert model.prior_only and not model.base and not model.measured and not model.deg_measured
+    assert model.deg == TYPICAL_DEG and model.offset == TYPICAL_OFFSET
+    assert sum(model.sample_counts.values()) == 0
+    relative = pit_window(model, 'A', 'MEDIUM', 1, 56, 20.0, ['SOFT', 'HARD'])
+    # A common driver pace is irrelevant to this driver's plan comparison. No opening-lap
+    # time, future race lap or qualifying-to-race conversion is needed for the baseline.
+    absolute = pit_window(TyreModel(base={'A': 90.0}, offset=model.offset, deg=model.deg),
+                          'A', 'MEDIUM', 1, 56, 20.0, ['SOFT', 'HARD'])
+    np.testing.assert_allclose(relative.Lost, absolute.Lost, atol=1e-9)
+    assert best_plan(relative)['LapsMore'] == best_plan(absolute)['LapsMore']
+
+
+def test_prior_transitions_to_observations_without_faking_measured_wear():
+    rows = pd.DataFrame(stint('A', 'MEDIUM', 1, 7, first_lap=2))
+    early = fit_tyre_model(rows.iloc[:2], allow_prior=True)
+    assert not early.prior_only and early.base and not early.deg_measured
+    later = fit_tyre_model(rows, allow_prior=True)
+    assert later.deg_measured == {'MEDIUM'}
 
 
 def test_pit_window_matches_a_hand_calculation():

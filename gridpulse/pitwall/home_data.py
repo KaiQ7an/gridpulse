@@ -30,7 +30,7 @@ def weekends(year: int, today: str) -> list[dict]:
         rows.append({'series': 'Formula 1', 'year': year, 'round': int(event.RoundNumber),
                      'title': event.EventName, 'place': event.Location, 'date': date,
                      'key': f'f1-{year}-{event.RoundNumber}', 'page': 'Race replay',
-                     'params': {'year': str(year), 'round': str(event.RoundNumber), 'mode': 'replay'},
+                     'params': {'year': str(year), 'round': str(event.RoundNumber), 'mode': 'replay', 'view': 'Strategy'},
                      'summary': 'Lap replay · telemetry · strategy', 'source': 'Bundled F1 timing snapshot'})
     if year in dtm.YEARS:
         season = dtm.saved(year)

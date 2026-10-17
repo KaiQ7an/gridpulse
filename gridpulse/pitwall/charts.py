@@ -321,6 +321,24 @@ def _bar_layout(fig: go.Figure, n: int, title: str, values: pd.Series) -> go.Fig
     return fig
 
 
+def tyre_prior_chart() -> go.Figure:
+    """A clearly labelled typical-wear reference, never a fabricated fit to an early stint."""
+    from gridpulse.undercut.window import TYPICAL_DEG
+
+    age = np.arange(31)
+    fig = go.Figure()
+    for compound, rate in TYPICAL_DEG.items():
+        fig.add_trace(go.Scatter(x=age, y=age * rate, mode='lines', name=compound.title(),
+                                line=dict(color=COMPOUND_COLORS[compound], width=2, dash='dash'),
+                                hovertemplate=f'%{{x}} laps old<br>%{{y:.2f}} s typical wear loss'
+                                              f'<extra>{compound.title()} · prior, not measured</extra>'))
+    fig.update_layout(height=240, margin=dict(l=10, r=10, t=30, b=10), hovermode='x unified',
+                      legend=dict(orientation='h', y=1.02, yanchor='bottom'))
+    fig.update_xaxes(title='Tyre age (laps)')
+    fig.update_yaxes(title='Typical wear loss (s)')
+    return plotstyle.apply(fig)
+
+
 def pit_window_chart(window: pd.DataFrame, lap: int, total_laps: int, best, actual: int | None = None,
                      stay_lost: float | None = None) -> go.Figure:
     """Time lost against the best plan by the lap a car stops on, one line per compound it could fit."""

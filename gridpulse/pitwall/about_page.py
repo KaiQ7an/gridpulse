@@ -4,17 +4,9 @@ import streamlit as st
 
 from gridpulse.branding import NAME, TAGLINE
 from gridpulse.pitwall import ui
+from gridpulse.pitwall.featured import FEATURED
 
 REPO = "https://github.com/KaiQ7an/gridpulse"
-
-# year, round, session ("" or "sprint"), title, why it's worth a look
-FEATURED = [
-    (2026, 15, "", "2026 Azerbaijan Grand Prix", "Russell beats Verstappen to the line by 0.196 s."),
-    (2021, 22, "", "2021 Abu Dhabi Grand Prix", "A late safety car and a last-lap pass decide the title."),
-    (2022, 7, "", "2022 Monaco Grand Prix", "Rain, a red flag, and the time limit after 64 of 78 laps."),
-    (2025, 2, "", "2025 Chinese Grand Prix", "Three cars disqualified after the flag."),
-    (2026, 5, "", "2026 Canadian Grand Prix", "A wet start: the leader pits for slicks on lap 1."),
-]
 
 # What each page does, as (page title, what it shows): a race weekend, then a season.
 WEEKEND = [
@@ -61,16 +53,17 @@ def render() -> None:
     ui.label("DTM · championship & race weekends")
     cards(DTM_GUIDE)
 
-    ui.label("Races worth a look")
+    ui.label("Featured strategy moments")
     cols = st.columns(len(FEATURED), gap="small")
-    for col, (year, round_number, session, title, why) in zip(cols, FEATURED):
-        with col, st.container(border=True, key=f"card-featured-{year}-{round_number}"):
-            st.html(f'<div style="font-weight:700;margin-bottom:4px">{title}</div>'
-                    f'<div class="pl-note" style="margin-bottom:6px">{why}</div>')
+    for col, moment in zip(cols, FEATURED):
+        with col, st.container(border=True, key=f"card-featured-{moment.year}-{moment.round}"):
+            st.html(f'<div style="font-weight:700;margin-bottom:4px">{moment.title}</div>'
+                    f'<div class="pl-note" style="margin-bottom:6px">{moment.question}</div>')
             if "Race replay" in pages:
-                params = {"year": str(year), "round": str(round_number), **({"session": session} if session else {})}
-                st.page_link(pages["Race replay"], label="Open the replay", icon=":material/play_arrow:",
-                             query_params=params)
+                st.page_link(pages["Race replay"], label="Explore this decision", icon=":material/play_arrow:",
+                             query_params=moment.params)
+    st.caption("Each link opens a saved replay at the stated lap, with focus drivers and Strategy selected. "
+               "The model compares one final stop; it does not optimise complete multi-stop strategies.")
 
     ui.label("How far to trust it")
     ui.note("The data is F1's public live-timing archive (through FastF1), or OpenF1 when the archive won't "

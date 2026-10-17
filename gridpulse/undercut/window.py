@@ -38,6 +38,7 @@ class TyreModel:
     measured: set[str] = field(default_factory=set)  # compounds whose pace was measured in this race
     deg_measured: set[str] = field(default_factory=set)  # compounds whose wear was measured
     sample_counts: dict[str, int] = field(default_factory=dict)  # retained clean laps per compound
+    prior_only: bool = False  # no observed dry pace; compare plans for one car, not relative driver pace
 
     @property
     def field_base(self) -> float:
@@ -51,14 +52,18 @@ class TyreModel:
         return self.base.get(driver, self.field_base) + self.offset[compound] + self.deg[compound] * np.asarray(age)
 
 
-def fit_tyre_model(clean: pd.DataFrame) -> TyreModel | None:
+def fit_tyre_model(clean: pd.DataFrame, *, allow_prior: bool = False) -> TyreModel | None:
     """Fit the model to clean laps (Driver, Stint, Compound, TyreLife, LapNumber, LapTime in s).
 
-    None without dry laps.
+    With no dry observations, an explicit opt-in returns typical tyre parameters. The common
+    driver pace cancels between that driver's stop plans, so no qualifying time, opening-lap
+    time or future race pace is needed. It cannot support a catch prediction between drivers.
+    Callers opt in only when the current tyres are known to be slicks; wet running stays unsupported.
     """
     dry = clean[clean["Compound"].isin(DRY)].dropna(subset=["LapTime", "TyreLife", "LapNumber"])
     if dry.empty:
-        return None
+        return TyreModel(base={}, offset=TYPICAL_OFFSET.copy(), deg=TYPICAL_DEG.copy(),
+                         sample_counts=dict.fromkeys(DRY, 0), prior_only=True) if allow_prior else None
     theta, drivers = _solve(dry)
     residual = dry["LapTime"].to_numpy(float) - _design(dry, drivers) @ theta
     spread = max(1.4826 * float(np.median(np.abs(residual - np.median(residual)))), 0.15)

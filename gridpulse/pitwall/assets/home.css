@@ -14,14 +14,21 @@
 .home-section-title span {font-size:.73rem;opacity:.5}
 [class*="st-key-home-series-"] {transition:transform .2s,border-color .2s,box-shadow .2s}
 [class*="st-key-home-series-"]:hover {transform:translateY(-4px);border-color:rgba(225,6,0,.4)!important;box-shadow:0 12px 35px rgba(0,0,0,.07)}
-.home-series-cover {height:190px;overflow:hidden;border-radius:7px;position:relative;background:#161c23}
-.home-series-cover img {width:100%;height:100%;object-fit:cover;transition:transform .6s ease;opacity:.91}
-[class*="st-key-home-series-"]:hover .home-series-cover img {transform:scale(1.055)}
+.home-series-cover {height:190px;overflow:hidden;border-radius:7px;position:relative;background:linear-gradient(125deg,#252d38,#0b0f15)}
+.home-series-cover::before {content:'';position:absolute;inset:0;background-position:center;background-repeat:no-repeat;background-size:85% auto;opacity:.45}
+.home-series-cover.f1::before {background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 180'%3E%3Cg fill='none' stroke='%23c6d0de' stroke-width='3'%3E%3Cpath d='M45 132h410m-355 0 26-31 78-9 28-37h29l12 36 97 17 32 24M201 92h62m-31-37-21-15h53l-3 15M117 102V72h-28v49m273-12V72h27v49'/%3E%3Ccircle cx='148' cy='128' r='24'/%3E%3Ccircle cx='348' cy='128' r='24'/%3E%3C/g%3E%3C/svg%3E")}
+.home-series-cover.gt::before {background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 180'%3E%3Cg fill='none' stroke='%23c6d0de' stroke-width='3'%3E%3Cpath d='m70 133 7-33 63-11 48-39h100l56 43 71 15 14 25H70m88-44h153l-35-29h-78Zm228 11V60m-32 0h65M45 157h410'/%3E%3Ccircle cx='145' cy='129' r='26'/%3E%3Ccircle cx='352' cy='129' r='26'/%3E%3C/g%3E%3C/svg%3E")}
+.home-series-photo {position:absolute;inset:0;background-size:cover;background-position:center;transition:transform .6s ease;opacity:.91}
+[class*="st-key-home-series-"]:hover .home-series-photo {transform:scale(1.055)}
 .home-series-cover .series-name {position:absolute;bottom:14px;left:17px;font-family:'Titillium Web',sans-serif;font-size:2.55rem;line-height:1;font-weight:750;color:#fff;text-shadow:0 2px 20px #000}
 .home-series-cover::after {content:'';position:absolute;inset:0;background:linear-gradient(transparent 35%,rgba(0,0,0,.72));pointer-events:none}
 .home-series-cover .series-name {z-index:1}
 .home-series-caption {font-size:.72rem;opacity:.58;line-height:1.5;margin:7px 0 9px}
 .home-series-caption a {color:inherit;text-decoration:none}.home-series-caption a:hover{text-decoration:underline}
+.home-featured-caption {font-size:.62rem;text-transform:uppercase;letter-spacing:.12em;opacity:.6;margin:4px 0}
+.st-key-home-strategy-moments a {border:1px solid rgba(128,128,128,.25);border-radius:999px;padding:5px 10px;font-size:.76rem;
+  background:rgba(128,128,128,.035);transition:background .16s,border-color .16s}
+.st-key-home-strategy-moments a:hover {border-color:#E10600;background:rgba(225,6,0,.055)}
 [class*="st-key-home-enter-"] a {border:1px solid rgba(128,128,128,.3);border-radius:7px;background:rgba(128,128,128,.06);padding:9px 12px;transition:background .18s,border-color .18s}
 [class*="st-key-home-enter-"] a:hover {border-color:#E10600;background:rgba(225,6,0,.07)}
 .home-nav-foot {font-size:.7rem;opacity:.5;border-top:1px solid rgba(128,128,128,.16);padding-top:15px;margin-top:12px;line-height:1.6}.home-nav-foot a{color:inherit;text-decoration:none}.home-nav-foot a:hover{text-decoration:underline}
@@ -44,4 +51,4 @@
 @keyframes home-lap{to{stroke-dashoffset:-1210}}
 @media(max-width:850px){.home-hero .route{opacity:.12;right:0;width:45%}.home-hero .intro{font-size:1rem;max-width:80%}.home-series-cover{height:155px}.home-section-title span{display:none}}
 @media(max-width:640px){.home-hero h1{font-size:3.8rem}.home-hero .route{display:none}.home-hero .intro{max-width:100%}.home-series-description{min-height:0}.home-event-title{min-height:0}.home-foot{flex-direction:column;gap:8px}}
-@media(prefers-reduced-motion:reduce){.home-hero .pulse{animation:none!important}[class*="st-key-home-"]{transition:none!important}.home-series-cover img{transition:none}}
+@media(prefers-reduced-motion:reduce){.home-hero .pulse{animation:none!important}[class*="st-key-home-"]{transition:none!important}.home-series-photo{transition:none}}

@@ -159,6 +159,8 @@ def reset_for_new_race(key, race: RaceData) -> None:
             ss.lap = min(max(integer(pending["lap"], ss.lap), 1), race.total_laps)
         if "drivers" in pending:
             ss.focus = [d for d in driver_codes(pending["drivers"]) if d in set(race.entrants["Driver"])]
+            if ss.focus:
+                ss.window_driver = ss.focus[0]
         if pending.get("view") in VIEWS:
             ss.view = pending["view"]
 

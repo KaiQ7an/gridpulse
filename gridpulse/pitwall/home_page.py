@@ -11,6 +11,7 @@ from gridpulse.dtm import data as dtm
 from gridpulse.dtm.cars import profile as car_profile
 from gridpulse.pitwall import dtm_circuits, home_data, ui
 from gridpulse.pitwall.atlas_map import atlas_map
+from gridpulse.pitwall.featured import FEATURED
 from gridpulse.season.atlas import REGIONS, catalog
 
 
@@ -107,7 +108,8 @@ def series_cards(pages: dict, year: int, rows: list[dict]):
          'Replay the race, compare telemetry and explore the pit window.',
          [(len([r for r in rows if r['series'] == 'Formula 1']), f'{year} saved GPs'),
           (len(catalog()), 'Circuit files')],
-         [('Race replay', 'Open Formula 1', {}), ('Season', 'Championship', {}), ('Onboard', 'Compare laps', {})]),
+         [('Race replay', 'Open Formula 1', {'mode': 'replay', 'view': 'Strategy'}),
+          ('Season', 'Championship', {}), ('Onboard', 'Compare laps', {})]),
         ('DTM', photo, 'The whole GT racing weekend.',
          'Follow the title fight, both races, the teams and the people behind them.',
          [(len(dtm_season['events']), f'{dtm_year} weekends'),
@@ -118,13 +120,23 @@ def series_cards(pages: dict, year: int, rows: list[dict]):
     ]
     for col, (series, image, headline, description, counts, links) in zip(st.columns(2, gap='large'), details):
         with col, st.container(border=True, height='stretch', key='home-series-' + series.replace(' ', '-')):
-            st.html(f'<div class="home-series-cover"><img src="{esc(image["url"])}" alt="{esc(image["credit"])}" '
-                    f'loading="lazy" decoding="async"><span class="series-name">{esc(series)}</span></div>'
+            # The photo is a background over a local SVG silhouette: failed CDN requests leave
+            # the fallback visible, without inline onerror handlers (st.html sanitises scripts).
+            st.html(f'<div class="home-series-cover {"f1" if series == "Formula 1" else "gt"}" '
+                    f'role="img" aria-label="{esc(image["credit"])}">'
+                    f'<div class="home-series-photo" style="background-image:url(&quot;{esc(image["url"])}&quot;)"></div>'
+                    f'<span class="series-name">{esc(series)}</span></div>'
                     f'<div class="home-series-caption"><a href="{esc(image["source"])}" target="_blank" rel="noopener noreferrer">'
                     f'Photo: {esc(image["credit"])} ↗</a></div>')
             page, label, params = links[0]
             with st.container(key='home-enter-' + series.replace(' ', '-')):
                 st.page_link(pages[page], label=label, icon=':material/arrow_forward:', query_params=params, width='stretch')
+            if series == 'Formula 1':
+                st.html('<div class="home-featured-caption">Featured strategy moments</div>')
+                with st.container(horizontal=True, key='home-strategy-moments'):
+                    for moment in FEATURED:
+                        st.page_link(pages['Race replay'], label=moment.title, query_params=moment.params,
+                                     help=moment.question, icon=':material/play_arrow:')
             st.html(f'<strong>{esc(headline)}</strong><div class="home-series-description">{esc(description)}</div>'
                     '<div class="home-series-meta">' + ''.join(f'<div><b>{n}</b><small>{esc(label)}</small></div>' for n, label in counts) + '</div>')
             for page, label, params in links[1:]:
