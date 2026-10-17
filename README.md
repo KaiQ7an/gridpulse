@@ -10,7 +10,7 @@ the same questions a strategy desk asks on a Sunday afternoon.
 Current data coverage is **Formula 1**. GridPulse is the multi-series platform name; DTM,
 GT World Challenge and other championships are planned additions.
 
-[![Tests](https://github.com/KaiQ7an/pitlens/actions/workflows/test.yml/badge.svg)](https://github.com/KaiQ7an/pitlens/actions/workflows/test.yml)
+[![Tests](https://github.com/KaiQ7an/gridpulse/actions/workflows/test.yml/badge.svg)](https://github.com/KaiQ7an/gridpulse/actions/workflows/test.yml)
 ![Python](https://img.shields.io/badge/python-3.12%2B-3776AB?logo=python&logoColor=white)
 ![FastF1](https://img.shields.io/badge/data-FastF1-E10600)
 ![Streamlit](https://img.shields.io/badge/dashboard-Streamlit-FF4B4B?logo=streamlit&logoColor=white)
@@ -206,8 +206,8 @@ falling away, with the cleaning rules written down and tested.
 You need Python 3.12 or newer.
 
 ```bash
-git clone https://github.com/KaiQ7an/pitlens
-cd pitlens
+git clone https://github.com/KaiQ7an/gridpulse
+cd gridpulse
 python3 -m venv .venv
 .venv/bin/pip install -e .
 ```
@@ -232,8 +232,8 @@ Install [Homebrew](https://brew.sh/) first if `brew` is not available. Then inst
 
 ```bash
 brew install git python@3.12
-git clone https://github.com/KaiQ7an/pitlens.git
-cd pitlens
+git clone https://github.com/KaiQ7an/gridpulse.git
+cd gridpulse
 "$(brew --prefix python@3.12)/bin/python3.12" -m venv .venv
 .venv/bin/python -m pip install --upgrade pip
 .venv/bin/python -m pip install -e .

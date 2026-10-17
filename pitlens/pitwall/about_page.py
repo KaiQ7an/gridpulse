@@ -5,7 +5,7 @@ import streamlit as st
 from pitlens.branding import NAME, TAGLINE
 from pitlens.pitwall import ui
 
-REPO = "https://github.com/KaiQ7an/pitlens"
+REPO = "https://github.com/KaiQ7an/gridpulse"
 
 # year, round, session ("" or "sprint"), title, why it's worth a look
 FEATURED = [

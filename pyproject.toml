@@ -31,6 +31,10 @@ claude = ["anthropic>=1.0"]
 [project.scripts]
 pitlens = "pitlens.cli:main"
 
+[project.urls]
+Homepage = "https://gridpulse-racing.streamlit.app/"
+Repository = "https://github.com/KaiQ7an/gridpulse"
+
 [tool.setuptools.packages.find]
 include = ["pitlens*"]
 
