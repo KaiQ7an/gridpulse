@@ -39,13 +39,13 @@ def render(year: int, team_id: str, manufacturers: list[str], *, link_team: bool
         is_team = badge["label"] == "Team identity"
         profile_link = link_team and is_team
         href = escape('/dtm?' + urlencode({"year": year, "view": "teams", "team": team_id}), quote=True) if profile_link else source
-        title = escape(f"Open {year} team profile" if profile_link else f"{badge['name']} · {badge['scope']} Open official source", quote=True)
-        target = ' target="_top"' if profile_link else ' target="_blank" rel="noopener noreferrer"'
+        title = escape(f"Open {year} team profile in a new tab" if profile_link else f"{badge['name']} · {badge['scope']} Open official source", quote=True)
+        target = ' target="_blank" rel="noopener noreferrer"'
         plate = "identity-badge-plate identity-badge-plate-wide" if badge.get("wide") else "identity-badge-plate"
         items.append(f'<div class="identity-badge-card"><a class="identity-badge" href="{href}"{target} title="{title}">'
                      f'<span class="{plate}" style="background:{background}">{artwork(badge)}</span>'
                      f'<span class="identity-badge-text"><small>{label}</small><strong>{name}</strong>'
-                     f'<span class="identity-badge-action">{"Explore team →" if profile_link else "Official source ↗"}</span>'
+                     f'<span class="identity-badge-action">{"Explore team ↗" if profile_link else "Official source ↗"}</span>'
                      '</span></a>' +
                      (f'<a class="identity-badge-source" href="{source}" target="_blank" rel="noopener noreferrer" '
                       f'aria-label="Official {name} logo source" title="Official logo source">↗</a>' if profile_link else '') + '</div>')

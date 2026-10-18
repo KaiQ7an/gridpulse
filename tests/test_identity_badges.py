@@ -43,7 +43,7 @@ def test_driver_badge_links_to_same_season_team_and_keeps_official_source(monkey
     card = next(h.proto.body for h in at.get("html") if 'class="identity-badges"' in h.proto.body)
     assert '/dtm?year=2024&amp;view=teams&amp;team=schubert' in card
     assert 'Official Schubert Motorsport logo source' in card
-    assert 'Explore team →' in card
+    assert 'Explore team ↗' in card
 
 
 def test_logo_frames_stay_within_source_and_keep_original_colours():

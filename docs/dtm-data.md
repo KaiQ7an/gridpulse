@@ -100,7 +100,9 @@ references, not a claim about the selected team’s exact livery.
 The Teams landing view uses compact, equal-row directory cards: team and manufacturer marks,
 selected-season race wins/podiums, car entries and driver links. Full profiles retain history,
 honours, milestones, car photography and their sources. The All teams button returns to the
-directory without retaining the previous team's URL parameter.
+directory without retaining the previous team's URL parameter. Directory profile links open
+a clearly labelled new tab, preserving the original selection and avoiding a nested copy of the
+app inside Community Cloud's sandboxed host iframe.
 
 `gridpulse/dtm/badges.json` records logo sources and season-specific versions. The HRT
 Mercedes-era composite remains restricted to 2023–2024; 2025–2026 uses HRT's generic current

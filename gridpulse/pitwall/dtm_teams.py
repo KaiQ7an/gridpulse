@@ -48,22 +48,23 @@ def card(year: int, team_id: str, info: dict, rows: pd.DataFrame) -> str:
              ("Podiums", int(classified.position.le(3).sum())),
              ("Cars", len(rows.drop_duplicates(["number", "manufacturer"]))))
     metrics = "".join(f'<div><strong>{value}</strong><span>{label}</span></div>' for label, value in stats)
+    # Community Cloud embeds the app in a sandbox: open profile URLs outside that iframe.
     drivers = []
     for driver, entries in rows.groupby("driver", sort=False):
         full_name = driver_profile("dtm", driver).get("name") or entries.iloc[0]["name"]
         car_numbers = entries.number.map(data.number).dropna().unique()
         numbers = " / ".join(f"#{number:g}" for number in sorted(car_numbers))
-        drivers.append(f'<a href="{link(year, "drivers", driver=driver)}" target="_top"><span>{escape(full_name)}</span>'
+        drivers.append(f'<a href="{link(year, "drivers", driver=driver)}" target="_blank" rel="noopener noreferrer"><span>{escape(full_name)}</span>'
                        f'<span class="dtm-team-number">{escape(numbers)}</span></a>')
     return (f'<article class="dtm-team-card" style="--team-accent:{accent}" aria-label="{escape(info["name"], quote=True)}">'
             '<header class="dtm-team-card-heading">' + team_mark +
-            f'<div><span class="dtm-team-kicker">DTM · {year}</span><h3><a href="{href}" target="_top">{name}</a></h3></div></header>'
+            f'<div><span class="dtm-team-kicker">DTM · {year}</span><h3><a href="{href}" target="_blank" rel="noopener noreferrer">{name}</a></h3></div></header>'
             '<div class="dtm-team-card-body">' + "".join(machinery) +
             f'<div class="dtm-team-card-stats" aria-label="{year} season race results">{metrics}</div>'
             '<div class="dtm-team-lineup"><span class="dtm-team-kicker">Season line-up</span>' + "".join(drivers) + '</div>'
             '</div><footer class="dtm-team-card-footer">'
             f'<span>{escape(info.get("base") or "Base not verified")}</span>'
-            f'<a href="{href}" target="_top" aria-label="Explore {escape(info["name"], quote=True)} team profile">Team profile <span aria-hidden="true">→</span></a>'
+            f'<a href="{href}" target="_blank" rel="noopener noreferrer" aria-label="Explore {escape(info["name"], quote=True)} team profile in a new tab">Team profile <span aria-hidden="true">↗</span></a>'
             '</footer></article>')
 
 
