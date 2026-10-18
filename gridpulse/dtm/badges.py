@@ -13,8 +13,10 @@ def catalog() -> dict:
 def marks(year: int, team_id: str, manufacturers: list[str]) -> list[dict]:
     result = []
     team = catalog()["teams"].get(team_id)
-    if team and year in team.get("years", [year]):
-        result.append({**team, "label": "Team identity", "scope": "Published team mark; logo design is not a historical reconstruction."})
+    if team:
+        version = next((v for v in [team, *team.get("versions", [])] if year in v.get("years", [year])), None)
+        if version:
+            result.append({**version, "label": "Team identity", "scope": "Published team mark; logo design is not a historical reconstruction."})
     for manufacturer in sorted(set(manufacturers)):
         brand = catalog()["manufacturers"].get(manufacturer)
         if brand:

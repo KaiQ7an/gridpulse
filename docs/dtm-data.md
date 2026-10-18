@@ -97,6 +97,23 @@ the stated operation, not necessarily a parent company. Missing verified facts s
 Team-published photos are preferred, with source links. Other images are explicitly model
 references, not a claim about the selected team’s exact livery.
 
+The Teams landing view uses compact, equal-row directory cards: team and manufacturer marks,
+selected-season race wins/podiums, car entries and driver links. Full profiles retain history,
+honours, milestones, car photography and their sources. The All teams button returns to the
+directory without retaining the previous team's URL parameter.
+
+`gridpulse/dtm/badges.json` records logo sources and season-specific versions. The HRT
+Mercedes-era composite remains restricted to 2023–2024; 2025–2026 uses HRT's generic current
+website mark, alongside the manufacturer from that season's results. Winward also keeps its
+older sourced mark and a current wordmark version. ABT, HRT, Land, Landgraf and Winward images
+come directly from their websites. Dörr's original embedded JPEG is extracted unchanged from
+its official DTM debut press release and packaged in `pitwall/assets/logos/doerr.jpg`; its PDF
+source is retained in the catalogue. Current colours are preserved, without logo filters.
+Manthey's red-and-white wordmark uses a dark, wider plate so its white letters stay visible in
+both interface themes. Wide wordmarks are given extra space rather than being recoloured.
+Seyffarth's website is under construction; no standalone mark has yet been verified from the
+accessible official sources. Its card shows the full team name without inventing an initial-based logo.
+
 ## Local preview
 
 Start the existing Python app with `gridpulse pitwall`, then open

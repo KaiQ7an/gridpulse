@@ -11,12 +11,14 @@ adding domain renderers or static style blocks to `ui.py`.
 | `assets/pitwall.css` | Shared page layout and presentation of UI primitives and tables | Application classes and scoped widget decoration |
 | `assets/atlas.css` | Circuit cards, record typography and atlas hover/focus feedback | Shared by Formula 1 and DTM |
 | `assets/home.css` | Landing-page layout, series covers and local photo fallbacks | Home's own classes |
+| `assets/teams.css` | DTM team directory cards, brand accents and responsive rows | Application-owned directory markup |
+| `dtm_teams.py` | Compact selected-season team cards and profile/driver links | DTM rows, sourced marks and styles |
 | `driver_picker.py` | Optional team metadata and colour decoration on native selectors | Streamlit selectors rendered by their page |
 
 The dependency direction is **page → table → primitive**. `ui.py` does not import page or table
 renderers. DTM loads atlas CSS directly; it does not import the Formula 1 circuits page to get styles.
 
-All three CSS files are setuptools package data. The wheel must include them alongside the Python
+CSS files and the extracted Dörr logo are setuptools package data. The wheel must include them alongside the Python
 modules; running an editable checkout alone does not verify that delivery path.
 
 Table renderers receive already prepared rows. They do not fetch data, change replay state or

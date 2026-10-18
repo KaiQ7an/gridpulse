@@ -21,6 +21,10 @@ def mounted_label(widget):
     return widget.proto.raw_value if widget.proto.set_value else widget.proto.options[widget.proto.default]
 
 
+def team_card_count(at):
+    return sum(h.proto.body.count('class="dtm-team-card"') for h in at.get("html"))
+
+
 def test_team_and_driver_picker_remounts_match_profile_and_url():
     at = page(year="2026", view="teams", team="manthey")
     at.selectbox(key="dtm_team").set_value("comtoyou").run()
@@ -38,12 +42,12 @@ def test_team_and_driver_picker_remounts_match_profile_and_url():
 
 def test_all_teams_and_selection_from_a_link_do_not_reapply_an_old_link():
     at = page(year="2026", view="teams", team="manthey")
-    at.selectbox(key="dtm_team").set_value("all").run()
-    assert "team" not in at.query_params and len(at.subheader) == 12
+    at.button(key="dtm_team_back").click().run()
+    assert "team" not in at.query_params and team_card_count(at) == 12
     at.radio(key="dtm_view").set_value("drivers").run()
     at.radio(key="dtm_view").set_value("teams").run()
     assert mounted_label(at.selectbox(key="dtm_team")) == "All participating teams"
-    assert len(at.subheader) == 12
+    assert team_card_count(at) == 12
     at.query_params.update(year="2025", view="drivers", driver="guven-ayhancan")
     at.run()
     assert mounted_label(at.selectbox(key="dtm_profile")) == "Ayhancan Güven"

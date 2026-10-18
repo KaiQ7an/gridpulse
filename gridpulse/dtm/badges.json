@@ -194,7 +194,19 @@
           646,
           177
         ]
-      }
+      },
+      "versions": [
+        {
+          "name": "Haupt Racing Team",
+          "url": "https://www.hauptracingteam.de/files/hrt_theme/public/img/logo_wr@2x.png",
+          "source": "https://www.hauptracingteam.de/en/home.html",
+          "years": [
+            2025,
+            2026
+          ],
+          "dark": true
+        }
+      ]
     },
     "winward": {
       "name": "WINWARD RACING",
@@ -214,7 +226,20 @@
           636,
           103
         ]
-      }
+      },
+      "versions": [
+        {
+          "name": "WINWARD RACING",
+          "url": "https://static.wixstatic.com/media/57c2fa_d2603871ad2348599c363adb00641764~mv2.png",
+          "source": "https://www.winwardracingusa.com/",
+          "years": [
+            2025,
+            2026
+          ],
+          "dark": false,
+          "wide": true
+        }
+      ]
     },
     "team75": {
       "name": "KÜS Team Bernhard",
@@ -236,7 +261,8 @@
       "name": "Manthey",
       "url": "https://www.manthey-racing.com/themes/custom/grounded_manthey/src/images/manthey-logo.svg",
       "source": "https://www.manthey-racing.com/",
-      "dark": false
+      "dark": true,
+      "wide": true
     },
     "comtoyou": {
       "name": "Comtoyou Racing",
@@ -285,6 +311,33 @@
           116
         ]
       }
+    },
+    "abt": {
+      "name": "ABT Sportsline",
+      "url": "https://www.abt-sportsline.de/typo3conf/ext/user_seventeen/Resources/Public/Images/logo-abt-black.svg",
+      "source": "https://www.abt-sportsline.de/motorsport",
+      "dark": false
+    },
+    "doerr": {
+      "name": "Dörr Motorsport",
+      "asset": "logos/doerr.jpg",
+      "source": "https://www.doerrgroup.com/assets/uploads/dateien/presse/pm-doerr-motorsport-feiert-jubilaeum-mit-teilnahme-in-der-koenigsklass",
+      "dark": false,
+      "asset_note": "Original embedded JPEG extracted without editing from the official DTM debut press release."
+    },
+    "land": {
+      "name": "Land-Motorsport",
+      "url": "https://land-motorsport.de/wp-content/uploads/2016/02/lms_logo_retina.png",
+      "source": "https://land-motorsport.de/",
+      "dark": false
+    },
+    "landgraf": {
+      "name": "Landgraf Motorsport",
+      "url": "https://landgraf-motorsport.net/wp-content/uploads/2021/08/Greenshot-2021-08-26-14.26.51.png",
+      "source": "https://landgraf-motorsport.net/",
+      "dark": false,
+      "wide": true
     }
-  }
+  },
+  "checked_at": "2026-10-18"
 }

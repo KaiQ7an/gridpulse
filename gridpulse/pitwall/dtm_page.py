@@ -18,8 +18,10 @@ from gridpulse.pitwall import (
     driver_picker,
     dtm_circuits,
     dtm_nav,
+    dtm_teams,
     identity_badges,
     milestone_cards,
+    styles,
     ui,
     weekend_overview,
 )
@@ -123,14 +125,18 @@ def render():
     with st.spinner("Loading DTM classifications…"):
         season, source = load(year, ss.get("dtm_refresh_year") == year, bool(os.getenv("GRIDPULSE_OFFLINE")))
     ui.sidebar_footer("DTM")
-    ui.header(f"DTM · {year} season", "GT racing, closer.",
-              "Two races per weekend. Follow the championship, open a classification, compare the drivers.")
-    races = data.race_rows(season)
-    race_count = sum(s["kind"] == "race" for e in season["events"] for s in e["sessions"])
-    ui.strip([ui.stat("Race weekends", str(len(season["events"]))), ui.stat("Published races", str(race_count)),
-              ui.stat("Drivers", str(races.driver.nunique())),
-              ui.stat("Car entries", str(len(team_data.car_entries(season)))),
-              ui.stat("Manufacturers", str(races.manufacturer.nunique()))])
+    if ss.dtm_view == "teams":
+        ui.header(f"DTM · {year} season", "Teams",
+                  "This season’s teams, their cars and the people behind the wheel.")
+    else:
+        ui.header(f"DTM · {year} season", "GT racing, closer.",
+                  "Two races per weekend. Follow the championship, open a classification, compare the drivers.")
+        races = data.race_rows(season)
+        race_count = sum(s["kind"] == "race" for e in season["events"] for s in e["sessions"])
+        ui.strip([ui.stat("Race weekends", str(len(season["events"]))), ui.stat("Published races", str(race_count)),
+                  ui.stat("Drivers", str(races.driver.nunique())),
+                  ui.stat("Car entries", str(len(team_data.car_entries(season)))),
+                  ui.stat("Manufacturers", str(races.manufacturer.nunique()))])
     stamp = datetime.fromisoformat(season["fetched_at"]).strftime("%d %b %Y, %H:%M UTC")
     st.caption(f"{source} · fetched {stamp}. " +
                ("The official feed marks these standings provisional." if season["provisional"] else "Published standings."))
@@ -376,75 +382,79 @@ def compare(season: dict):
                        f"dtm-{season['year']}-comparison.csv", "text/csv")
 
 
+def _all_teams():
+    st.session_state.dtm_team = "all"
+
+
 def teams(season: dict):
-    st.html('<style>.dtm-team-photo:hover{transform:scale(1.025)}'
-            'a:focus-visible .dtm-team-photo{outline:2px solid #55bfff;outline-offset:3px}</style>')
     active = team_data.participants(season)
     options = ["all", *active]
     if st.session_state.get("dtm_team") not in options:
         st.session_state.dtm_team = "all"
+    if st.session_state.dtm_team != "all":
+        st.button("All teams", icon=":material/arrow_back:", on_click=_all_teams, key="dtm_team_back")
     selected = st.selectbox("Team", options, format_func=lambda k: "All participating teams" if k == "all" else active[k]["name"],
                             key="dtm_team")
-    ui.label(f"{season['year']} · participating teams")
-    ui.note("Only teams with published race appearances in this season are listed, including guests. "
-            "Sponsor names are grouped under the operating team; the official championship table stays unchanged.")
+    if selected == "all":
+        dtm_teams.directory(season, active)
+        return
+    styles.inject("teams.css")
+    info = active[selected]
     races = data.race_rows(season)
-    for i, team_id in enumerate(active if selected == "all" else [selected]):
-        # Each pair shares a row; a shorter profile cannot pull the next card upward.
-        if i % 2 == 0:
-            columns = st.columns(2, gap="large") if selected == "all" else [st.container()]
-        info = active[team_id]
-        results = races[races.team.isin(info["entries"])]
-        classified = results[results.status == ""]
-        with columns[i % len(columns)], st.container(border=True, height="stretch" if selected == "all" else "content"):
-            st.subheader(info["name"])
-            identity_badges.render(season["year"], team_id, list(results.manufacturer.unique()))
-            ui.strip([ui.stat("Headquarters", info.get("base") or "Not verified"),
-                      ui.stat("Founded", info.get("founded") or "Not verified")])
-            ui.label("Team history")
-            st.write(info["history"])
-            milestone_cards.render("dtm", "teams", team_id, season["year"])
-            ui.label(f"Selected historical honours · through {season['year']}")
-            honours = [h for h in info.get("honors", []) if h["year"] <= season["year"]]
-            if honours:
-                for honour in honours:
-                    st.markdown(f"- **{honour['year']}** · [{honour['text']}]({honour['source']})")
-            else:
-                st.caption("Historical honours research pending; season results are shown below.")
-            st.caption(f"{season['year']} entrant names: " + " · ".join(sorted(info["entries"])))
-            ui.strip([ui.stat("Season race wins", str(int((classified.position == 1).sum()))),
-                      ui.stat("Season podiums", str(int(classified.position.le(3).sum()))),
-                      ui.stat("Season drivers", str(results.driver.nunique()))])
-            for brand in sorted(results.manufacturer.unique()):
-                car = profile(season["year"], brand)
-                st.markdown(f"**{season['year']} car · {car['name']}**")
-                photo = car.get("photo")
-                # Only use the team-owned image for its own team and generation.
-                # Other teams get an explicitly labelled model reference, never a claimed team photo.
-                own_photo = info.get("photo_brand") == brand and (
-                    (team_id in ("manthey", "emil-frey", "hrt", "comtoyou", "abt") and season["year"] == 2026)
-                    or (team_id == "schubert" and season["year"] >= 2025)
-                    or (team_id == "doerr" and season["year"] >= 2024))
-                if photo:
-                    src, alt = html.escape(photo["url"], quote=True), html.escape(car["name"], quote=True)
-                    st.html(f'<a href="{src}" target="_blank" rel="noopener noreferrer" '
-                            f'aria-label="Open car photograph: {alt}"><img src="{src}" alt="{alt}" loading="lazy" '
-                            'style="width:100%;height:280px;object-fit:contain;background:rgba(128,128,128,.06);'
-                            'border-radius:8px;transition:transform .18s" class="dtm-team-photo"></a>')
-                    st.caption("Team-published car photograph; shown livery may differ between drivers." if own_photo else
-                               "Model reference photograph; not this team’s season livery.")
-                    st.markdown(f"Photo source: [{photo['credit']}]({photo['source']})")
-            entries = results[["driver", "name", "number", "model"]].drop_duplicates().copy()
-            entries["Profile"] = entries.driver.map(lambda d: f"/dtm?year={season['year']}&view=drivers&driver={d}")
-            entries["name"] = [driver_profile("dtm", d).get("name") or n
-                               for d, n in zip(entries.driver, entries.name)]
-            st.dataframe(entries.drop(columns="driver").rename(columns={"name": "Driver", "number": "No", "model": "Car model"}),
-                         hide_index=True, width="stretch", column_config={"Profile": st.column_config.LinkColumn(display_text="Driver profile")})
-            with st.expander("Profile sources & scope"):
-                st.write(info.get("facts_note", "Facts refer to the operating team; unverified founding dates and bases are left blank."))
-                st.write("History is a current background profile. The honours list is filtered through the selected year and is not an exhaustive trophy count.")
-                for j, source in enumerate(info["sources"], 1):
-                    st.markdown(f"[Official team / series reference {j}]({source})")
+    results = races[races.team.isin(info["entries"])]
+    _team_profile(season, selected, info, results)
+
+
+def _team_profile(season: dict, team_id: str, info: dict, results: pd.DataFrame):
+    classified = results[results.status == ""]
+    st.subheader(info["name"])
+    identity_badges.render(season["year"], team_id, list(results.manufacturer.unique()))
+    ui.strip([ui.stat("Headquarters", info.get("base") or "Not verified"),
+              ui.stat("Founded", info.get("founded") or "Not verified")])
+    ui.label("Team history")
+    st.write(info["history"])
+    milestone_cards.render("dtm", "teams", team_id, season["year"])
+    ui.label(f"Selected historical honours · through {season['year']}")
+    honours = [h for h in info.get("honors", []) if h["year"] <= season["year"]]
+    if honours:
+        for honour in honours:
+            st.markdown(f"- **{honour['year']}** · [{honour['text']}]({honour['source']})")
+    else:
+        st.caption("Historical honours research pending; season results are shown below.")
+    st.caption(f"{season['year']} entrant names: " + " · ".join(sorted(info["entries"])))
+    ui.strip([ui.stat("Season race wins", str(int((classified.position == 1).sum()))),
+              ui.stat("Season podiums", str(int(classified.position.le(3).sum()))),
+              ui.stat("Season drivers", str(results.driver.nunique()))])
+    for brand in sorted(results.manufacturer.unique()):
+        car = profile(season["year"], brand)
+        st.markdown(f"**{season['year']} car · {car['name']}**")
+        photo = car.get("photo")
+        # Only use the team-owned image for its own team and generation.
+        # Other teams get an explicitly labelled model reference, never a claimed team photo.
+        own_photo = info.get("photo_brand") == brand and (
+            (team_id in ("manthey", "emil-frey", "hrt", "comtoyou", "abt") and season["year"] == 2026)
+            or (team_id == "schubert" and season["year"] >= 2025)
+            or (team_id == "doerr" and season["year"] >= 2024))
+        if photo:
+            src, alt = html.escape(photo["url"], quote=True), html.escape(car["name"], quote=True)
+            st.html(f'<a href="{src}" target="_blank" rel="noopener noreferrer" '
+                    f'aria-label="Open car photograph: {alt}"><img src="{src}" alt="{alt}" loading="lazy" '
+                    'style="width:100%;height:280px;object-fit:contain;background:rgba(128,128,128,.06);'
+                    'border-radius:8px;transition:transform .18s" class="dtm-team-photo"></a>')
+            st.caption("Team-published car photograph; shown livery may differ between drivers." if own_photo else
+                       "Model reference photograph; not this team’s season livery.")
+            st.markdown(f"Photo source: [{photo['credit']}]({photo['source']})")
+    entries = results[["driver", "name", "number", "model"]].drop_duplicates().copy()
+    entries["Profile"] = entries.driver.map(lambda d: f"/dtm?year={season['year']}&view=drivers&driver={d}")
+    entries["name"] = [driver_profile("dtm", d).get("name") or n
+                       for d, n in zip(entries.driver, entries.name)]
+    st.dataframe(entries.drop(columns="driver").rename(columns={"name": "Driver", "number": "No", "model": "Car model"}),
+                 hide_index=True, width="stretch", column_config={"Profile": st.column_config.LinkColumn(display_text="Driver profile")})
+    with st.expander("Profile sources & scope"):
+        st.write(info.get("facts_note", "Facts refer to the operating team; unverified founding dates and bases are left blank."))
+        st.write("History is a current background profile. The honours list is filtered through the selected year and is not an exhaustive trophy count.")
+        for j, source in enumerate(info["sources"], 1):
+            st.markdown(f"[Official team / series reference {j}]({source})")
 
 
 def drivers(season: dict):

@@ -1,0 +1,74 @@
+/* The directory is application-owned HTML, independent of Streamlit widget DOM. */
+.dtm-team-directory { container-type: inline-size; }
+.dtm-team-directory-heading { display: flex; justify-content: space-between; align-items: baseline;
+  gap: 16px; flex-wrap: wrap; margin: 4px 0 18px; }
+.dtm-team-directory-heading h2 { font-family: "Titillium Web", sans-serif; font-size: 1.35rem;
+  font-weight: 700; margin: 0; letter-spacing: -.02em; }
+.dtm-team-directory-heading > span { font-size: .82rem; opacity: .63; }
+.dtm-team-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; }
+.dtm-team-card { --card-surface: light-dark(#fff, #171b22); display: flex; flex-direction: column;
+  min-width: 0; border: 1px solid light-dark(#dce0e6, #343b46); border-top: 6px solid var(--team-accent);
+  border-radius: 14px; overflow: hidden; background: var(--card-surface);
+  box-shadow: 0 4px 16px light-dark(rgba(22,30,43,.07), rgba(0,0,0,.16));
+  transition: transform .18s, box-shadow .18s, border-color .18s; }
+.dtm-team-card:is(:hover, :focus-within) { transform: translateY(-3px); border-color: var(--team-accent);
+  box-shadow: 0 9px 25px light-dark(rgba(22,30,43,.12), rgba(0,0,0,.28)); }
+.dtm-team-card a { color: inherit; text-decoration: none; }
+.dtm-team-card a:focus-visible { outline: 2px solid #e10600; outline-offset: 3px; border-radius: 3px; }
+.dtm-team-card-heading { display: flex; align-items: center; gap: 16px; padding: 22px 24px;
+  min-height: 115px; box-sizing: border-box; border-bottom: 1px solid light-dark(#e9ecf0, #2e3440);
+  background: color-mix(in srgb, var(--team-accent) 8%, var(--card-surface)); }
+.dtm-team-card-heading > div { min-width: 0; }
+.dtm-team-card-heading h3 { font-family: "Titillium Web", sans-serif; font-size: 1.6rem;
+  font-weight: 700; line-height: 1.12; letter-spacing: -.025em; margin: 5px 0 0; overflow-wrap: anywhere; }
+.dtm-team-card-heading h3 a:hover { text-decoration: underline; text-underline-offset: 4px; }
+.dtm-team-kicker { font-size: .64rem; text-transform: uppercase; letter-spacing: .12em; opacity: .6;
+  font-weight: 650; line-height: 1.4; }
+.dtm-team-mark, .dtm-team-manufacturer-mark { display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; box-sizing: border-box; border-radius: 7px; overflow: hidden; }
+.dtm-team-mark { width: 88px; height: 58px; padding: 9px; border: 1px solid rgba(128,128,128,.13); }
+.dtm-team-mark-wide { width: 140px; }
+.dtm-team-mark > img, .dtm-team-manufacturer-mark > img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.dtm-team-card .identity-artwork { display: block; position: relative; overflow: hidden; }
+.dtm-team-monogram { background: light-dark(#252a33, #e6e9ee); color: light-dark(#fff, #171b22);
+  font-family: "Titillium Web", sans-serif; font-size: 1.2rem; font-weight: 700; letter-spacing: .03em; }
+.dtm-team-card-body { padding: 18px 24px 20px; display: flex; flex-direction: column; flex: 1; }
+.dtm-team-machinery { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; min-height: 48px; }
+.dtm-team-manufacturer-mark { width: 52px; height: 38px; padding: 6px; }
+.dtm-team-machinery > div { min-width: 0; }
+.dtm-team-machinery strong { display: block; font-size: .85rem; font-weight: 650; }
+.dtm-team-machinery > div > span { display: block; font-size: .73rem; opacity: .6; margin-top: 3px; line-height: 1.4; }
+.dtm-team-card-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px;
+  padding: 15px 0; margin: 4px 0 17px; border-bottom: 1px solid light-dark(#e9ecf0, #2e3440); }
+.dtm-team-card-stats strong { display: block; font-size: 1.65rem; line-height: 1.1; font-weight: 700;
+  font-variant-numeric: tabular-nums; letter-spacing: -.025em; }
+.dtm-team-card-stats span { display: block; font-size: .66rem; opacity: .6; margin-top: 5px; }
+.dtm-team-lineup { margin-top: auto; }
+.dtm-team-lineup > .dtm-team-kicker { display: block; margin-bottom: 5px; }
+.dtm-team-lineup > a { display: flex; justify-content: space-between; align-items: baseline; gap: 12px;
+  padding: 7px 0; font-size: .87rem; line-height: 1.35; font-weight: 550; }
+.dtm-team-lineup > a:hover { color: light-dark(#b50600, #ff6a62); }
+.dtm-team-number { opacity: .55; flex-shrink: 0; font-size: .75rem; font-variant-numeric: tabular-nums; }
+.dtm-team-card-footer { display: flex; justify-content: space-between; align-items: baseline; gap: 14px;
+  border-top: 1px solid light-dark(#e9ecf0, #2e3440); padding: 14px 24px; font-size: .75rem;
+  background: light-dark(#f9fafb, #1d222b); }
+.dtm-team-card-footer > span { opacity: .6; line-height: 1.4; }
+.dtm-team-card-footer a { font-weight: 650; white-space: nowrap; }
+.dtm-team-card-footer a span { display: inline-block; transition: transform .18s; margin-left: 5px; }
+.dtm-team-card:hover .dtm-team-card-footer a span { transform: translateX(3px); }
+.dtm-team-card-footer a:hover { text-decoration: underline; text-underline-offset: 3px; }
+.dtm-team-photo:hover { transform: scale(1.025); }
+a:focus-visible .dtm-team-photo { outline: 2px solid #55bfff; outline-offset: 3px; }
+@container (max-width: 690px) { .dtm-team-grid { grid-template-columns: 1fr; gap: 22px; } }
+@container (max-width: 400px) {
+  .dtm-team-card-heading, .dtm-team-card-body { padding-left: 18px; padding-right: 18px; }
+  .dtm-team-card-heading { gap: 12px; }
+  .dtm-team-card-heading h3 { font-size: 1.4rem; }
+  .dtm-team-mark { width: 70px; height: 52px; }
+  .dtm-team-mark-wide { width: 120px; }
+  .dtm-team-card-footer { padding-left: 18px; padding-right: 18px; font-size: .7rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dtm-team-card, .dtm-team-card-footer a span, .dtm-team-photo { transition: none !important; }
+  .dtm-team-card:is(:hover, :focus-within), .dtm-team-card:hover .dtm-team-card-footer a span { transform: none; }
+}
