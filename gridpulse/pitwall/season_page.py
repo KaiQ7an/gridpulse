@@ -5,7 +5,7 @@ from datetime import date
 import pandas as pd
 import streamlit as st
 
-from gridpulse.pitwall import charts, ui
+from gridpulse.pitwall import charts, tables, ui
 from gridpulse.pitwall.navigation import select_season
 from gridpulse.pitwall.teams_page import cached_season
 from gridpulse.season.data import (
@@ -54,7 +54,7 @@ def render() -> None:
     with left, st.container(border=True, key="card-season-drivers"):
         ui.label("Drivers' championship")
         ui.note("Points from every Grand Prix and sprint. Each driver opens their season.")
-        ui.standings_table(drivers, season.colors, year)
+        tables.standings_table(drivers, season.colors, year)
     with right, st.container(border=True, key="card-season-progress"):
         ui.label("Points through the season")
         ui.note(f"The current top {TOP_LINES}, followed through every round; teammates share a colour, the second dashed.")
@@ -83,12 +83,12 @@ def render() -> None:
                 "in the points, red for a retirement; a purple ring for pole and a purple underline for the "
                 "fastest lap. Each round number opens its replay.")
         fastest = season.fastest.set_index("Round")["Driver"].to_dict()
-        ui.results_matrix(season.results, drivers, season.rounds, pole_sitters(season).to_dict(), fastest,
+        tables.results_matrix(season.results, drivers, season.rounds, pole_sitters(season).to_dict(), fastest,
                           season.colors, year)
 
     with st.container(border=True, key="card-season-winners"):
         ui.label("Round by round")
-        ui.round_winners_table(winners, season.results, season.colors, year)
+        tables.round_winners_table(winners, season.results, season.colors, year)
     if season.missing:
         ui.note(f"Rounds not saved yet: {', '.join(map(str, season.missing))}.")
     if season.missing_sprints:

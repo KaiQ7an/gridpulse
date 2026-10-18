@@ -6,7 +6,7 @@ import pandas as pd
 import streamlit as st
 
 from gridpulse import snapshots
-from gridpulse.pitwall import charts, milestone_cards, ui
+from gridpulse.pitwall import charts, milestone_cards, tables, ui
 from gridpulse.pitwall.navigation import select_season
 from gridpulse.season.data import (
     Season,
@@ -90,7 +90,7 @@ def render() -> None:
     left, right = st.columns([5, 7], gap="large")
     with left, st.container(border=True, key="card-team-drivers"):
         ui.label("Drivers")
-        ui.team_drivers(drivers, teammate_battles(season, team), color, year=year)
+        tables.team_drivers(drivers, teammate_battles(season, team), color, year=year)
     with right, st.container(border=True, key="card-team-results"):
         ui.label("Race by race")
         ui.note("Where each driver finished every Grand Prix; a cross for a retirement.")

@@ -4,7 +4,7 @@ import pandas as pd
 import streamlit as st
 
 from gridpulse import snapshots
-from gridpulse.pitwall import charts, ui
+from gridpulse.pitwall import charts, tables, ui
 from gridpulse.pitwall.data import FIRST_SEASON, completed_races
 from gridpulse.pitwall.navigation import select_season
 from gridpulse.quali.data import SESSIONS, QualiData, ideal_laps, load_quali
@@ -64,7 +64,7 @@ def render() -> None:
         ui.label("Classification")
         ui.note("Fastest time of each part in purple. The ideal lap adds up each driver's best three sectors; "
                 "the small figure is the time they left on the table.")
-        ui.quali_table(results, ideal, q.team_colors)
+        tables.quali_table(results, ideal, q.team_colors)
 
     order = results["Driver"].dropna().tolist()
     with right, st.container(border=True, key="card-sectors"):
@@ -95,7 +95,7 @@ def strip(q: QualiData, ideal: pd.DataFrame) -> None:
     second = finals.iloc[1] if len(finals) > 1 else None
     stats = [
         ui.stat("Pole", "", value_html=ui.driver_dot(q.team_colors.get(pole["Driver"], "#999")) + str(pole["Driver"])
-                + f' <span style="color:#A855F7">{ui._laptime(pole_time)}</span>'),
+                + f' <span style="color:#A855F7">{ui.lap_time(pole_time)}</span>'),
     ]
     if second is not None and pd.notna(second["Q3"]) and pd.notna(pole_time):
         stats.append(ui.stat("Gap to P2", f"{second['Q3'] - pole_time:.3f} s", small=str(second["Driver"])))
@@ -103,10 +103,10 @@ def strip(q: QualiData, ideal: pd.DataFrame) -> None:
     for part, went_through in (("Q1", results["Out"].isin(["Q2", ""])), ("Q2", results["Out"] == "")):
         cut = results.loc[went_through, part].max()
         if pd.notna(cut):
-            stats.append(ui.stat(f"{part} cut", ui._laptime(cut), tip=f"Slowest {part} time that went through"))
+            stats.append(ui.stat(f"{part} cut", ui.lap_time(cut), tip=f"Slowest {part} time that went through"))
     if len(ideal):
         best = ideal.sort_values("Ideal").iloc[0]
         stats.append(ui.stat("Best ideal lap", "", small=f"{best['Driver']}",
-                             value_html=f'<span style="color:#A855F7">{ui._laptime(best["Ideal"])}</span>',
+                             value_html=f'<span style="color:#A855F7">{ui.lap_time(best["Ideal"])}</span>',
                              tip="Best three sectors of any driver, added up"))
     ui.strip(stats)

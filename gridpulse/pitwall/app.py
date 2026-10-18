@@ -20,6 +20,7 @@ from gridpulse.pitwall import (
     about_page,
     charts,
     circuits_page,
+    driver_picker,
     drivers_page,
     dtm_page,
     home_page,
@@ -455,7 +456,7 @@ def race_page() -> None:
     options = starting_order(race) if ss.no_spoilers else ui.driver_order(race.entrants, race.finish_order)
     st.sidebar.multiselect("Focus drivers", options, key="focus", max_selections=6,
                            help="Highlighted in the tower and drawn in team colours on the charts")
-    ui.team_colored_picker("Focus drivers", options, race.team_colors, dict(zip(race.entrants["Driver"], race.entrants["Team"])))
+    driver_picker.team_colored_picker("Focus drivers", options, race.team_colors, dict(zip(race.entrants["Driver"], race.entrants["Team"])))
     if len(ss.focus) == 2:
         st.sidebar.link_button("Compare these drivers", url("onboard", year=year, round=round_number,
                                                          session=kind, drivers=",".join(ss.focus)),

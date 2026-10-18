@@ -7,7 +7,7 @@ happened up to that lap.
 import pandas as pd
 import streamlit as st
 
-from gridpulse.pitwall import charts, ui
+from gridpulse.pitwall import charts, tables, ui
 from gridpulse.pitwall.data import RaceData
 from gridpulse.pitwall.timing import stint_timeline
 from gridpulse.radio import transcribe, translate
@@ -152,7 +152,7 @@ def pits_view(race: RaceData, lap: int, focus: list[str]) -> None:
     if shown.empty:
         ui.note("None of the focus drivers has stopped yet.")
     else:
-        ui.pit_table(shown, race.team_colors, lap)
+        tables.pit_table(shown, race.team_colors, lap)
 
     column = "Stationary" if still and stops["Stationary"].notna().any() else "LaneTime"
     with st.container(horizontal=True, vertical_alignment="center"):

@@ -11,9 +11,8 @@ import streamlit as st
 from gridpulse import plotstyle
 from gridpulse.dtm import circuits as reference
 from gridpulse.dtm import data
-from gridpulse.pitwall import ui
+from gridpulse.pitwall import styles, ui
 from gridpulse.pitwall.atlas_map import atlas_map
-from gridpulse.pitwall.circuits_page import inject_atlas_css
 
 REGIONS = {
     "world": {"name": "World", "title": "A world built for racing.", "center": [12, 50]},
@@ -78,7 +77,7 @@ def leaders(counter):
 
 
 def render(season: dict):
-    inject_atlas_css()
+    styles.inject("atlas.css")
     st.html(Path(__file__).with_name("atlas_map") / "bridge.html", unsafe_allow_javascript=True)
     facts = facts_for(season["year"], season["fetched_at"], season)
     by_slug = {c["slug"]: c for c in facts}

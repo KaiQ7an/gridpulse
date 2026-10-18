@@ -39,8 +39,13 @@ loads the full calendar when you want a newer session. An idle Community Cloud a
 need to wake up; no fixed startup-time guarantee is implied.
 
 <p align="center">
-  <img src="docs/images/pitwall_replay.gif" alt="The GridPulse pit wall replaying the last laps of the 2026 Azerbaijan Grand Prix" width="870">
-  <br><sub>Pit wall replay · saved timing data, with an explicit boundary at the selected lap</sub>
+  <a href="https://gridpulse-racing.streamlit.app/">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="docs/images/home_dark.png">
+      <img src="docs/images/home_light.png" alt="GridPulse home: Formula 1 and DTM, with direct strategy moments" width="900">
+    </picture>
+  </a>
+  <br><sub>Choose a series or open a strategy moment at its selected lap</sub>
 </p>
 
 ## Features
@@ -309,7 +314,7 @@ start it again. Local source changes should be committed or stashed before pulli
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/images/pitwall_dark.png">
-    <img src="docs/images/pitwall_light.png" alt="The GridPulse pit wall at the end of the 2026 Singapore Grand Prix" width="900">
+    <img src="docs/images/pitwall_light.png" alt="Bahrain 2025 lap 23: compact timing status and a theme-aware event timeline" width="900">
   </picture>
 </p>
 
@@ -378,7 +383,7 @@ Barcelona Grand Prix Albon's crew turned him round in 2.1 s on lap 29.
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/images/strategy_dark.png">
-    <img src="docs/images/strategy_light.png" alt="Strategy view: pit loss, rejoin projection and undercut battles" width="900">
+    <img src="docs/images/strategy_light.png" alt="Bahrain 2025 lap 23: Hamilton's estimated pit window and relative stopping costs" width="900">
   </picture>
 </p>
 
@@ -542,11 +547,16 @@ gridpulse/
 │   ├── events.py      the race feed: pits, passes, fastest laps, safety cars
 │   ├── charts.py      interactive plotly charts
 │   ├── tower/         animated timing tower (a small HTML/JS Streamlit component)
-│   ├── ui.py          page header, status strip and shared CSS
-│   ├── app.py         the Streamlit dashboard: race replay page
+│   ├── ui.py          design primitives: header, status strip, sidebar, small marks
+│   ├── tables.py      race, qualifying and season table renderers
+│   ├── styles.py      load packaged CSS with the public Streamlit HTML API
+│   ├── assets/        pitwall.css, atlas.css and home.css
+│   ├── driver_picker.py  native driver-picker decoration, isolated from data and tables
+│   ├── app.py         routing, session state and the race replay page
+│   ├── home_page.py   series hub, saved weekends, pinned links and circuit map
 │   ├── views.py       its views: tyres, pit stops, strategy, radio, race control
 │   ├── quali_page.py  the Qualifying page
-│   ├── about_page.py  the About page, with races worth opening first
+│   ├── about_page.py  the About page, sharing curated strategy moments with Home
 │   ├── season_page.py the Season page
 │   ├── teams_page.py  the Teams page
 │   ├── drivers_page.py  the Drivers page
@@ -557,6 +567,9 @@ gridpulse/
 tests/                 unit tests on synthetic races, and every page rendered on the snapshots, run in CI
 snapshots/             saved races and qualifying sessions
 ```
+
+The [UI module boundaries](docs/ui-architecture.md) describe the shared styling and rendering layers.
+The [screenshot notes](docs/images/README.md) record the views used for the current UI previews.
 
 - **Tyre degradation.** `clean_race_laps` keeps representative laps,
   `add_fuel_corrected_time` subtracts `laps remaining × fuel effect` so every lap is compared as if

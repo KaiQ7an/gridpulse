@@ -11,7 +11,7 @@ import streamlit as st
 
 from gridpulse import plotstyle, snapshots
 from gridpulse.onboard.compare import rotate
-from gridpulse.pitwall import charts, ui
+from gridpulse.pitwall import charts, styles, tables, ui
 from gridpulse.pitwall.atlas_map import atlas_map
 from gridpulse.pitwall.corner_guide import corner_guide
 from gridpulse.pitwall.navigation import url
@@ -55,7 +55,7 @@ def _cached_track(year: int, round_number: int, revision: tuple) -> dict | None:
 
 def render() -> None:
     ui.sidebar_brand("The world of Formula 1 circuits")
-    inject_atlas_css()
+    styles.inject("atlas.css")
     st.html(Path(__file__).with_name("atlas_map") / "bridge.html", unsafe_allow_javascript=True)
     if "compare" in st.query_params:
         ui.sidebar_footer()
@@ -409,7 +409,7 @@ def render_saved_history(circuit: int, here) -> None:
     with right, st.container(border=True, key="card-circuit-years"):
         ui.label("Year by year")
         ui.note("Each year opens its replay. Pole is the qualifying time; the fastest lap is the race's.")
-        ui.circuit_years_table(years)
+        tables.circuit_years_table(years)
 
     left, right = st.columns(2, gap="large")
     with left, st.container(border=True, key="card-circuit-laps"):
@@ -457,32 +457,3 @@ def strategy_note(years: pd.DataFrame) -> str:
             parts.append(f"{y.Year}: {run} for {y.CommonShare} of {y.Finishers}")
     head = "Finishers by how many times they stopped."
     return head + (" Most used tyre run, " + "; ".join(parts) + "." if parts else "")
-
-
-def inject_atlas_css() -> None:
-    st.html('''<style>
-      .atlas-card-country { color:#ff3a32;font-size:10px;letter-spacing:2px;text-transform:uppercase;font-weight:700 }
-      .atlas-card-city { font-size:26px;font-weight:850;letter-spacing:-.7px;margin:7px 0 4px }
-      .atlas-card-name { opacity:.55;font-size:12px;min-height:32px }
-      .atlas-card-meta { opacity:.6;font:11px ui-monospace,monospace;margin:12px 0 }
-      .atlas-card-meta span { margin:0 4px;opacity:.5 }
-      .atlas-outline { display:block;width:100%;height:108px;color:#a3b0c1;margin:6px auto }
-      .atlas-outline-empty { height:120px;display:grid;place-content:center;opacity:.2;font:11px ui-monospace,monospace;letter-spacing:4px }
-      .atlas-profile-outline .atlas-outline { height:200px;margin:0 }
-      .atlas-record-time { color:#bd8aff;font-size:36px;font-weight:800;letter-spacing:-1.5px;margin:12px 0 }
-      .atlas-record-count { font-size:42px;font-weight:850;letter-spacing:-2px;margin:6px 0 }
-      .atlas-region-name { font-size:16px;font-weight:750;min-height:42px }
-      [class*="st-key-card-atlas-circuit-"], [class*="st-key-card-atlas-compare-"] {
-        transition:transform .18s,border-color .18s,background .18s,box-shadow .18s }
-      [class*="st-key-card-atlas-circuit-"]:is(:hover,:focus-within,.atlas-linked),
-      [class*="st-key-card-atlas-compare-"]:is(:hover,:focus-within,.atlas-linked) {
-        transform:translateY(-4px);border-color:#d74942;background:rgba(255,40,32,.055);box-shadow:0 12px 28px #0003 }
-      [class*="st-key-card-atlas-"]:is(:hover,:focus-within,.atlas-linked) .atlas-outline {
-        filter:drop-shadow(0 0 7px #ff373a65);transition:filter .18s,transform .18s;transform:scale(1.045) }
-      [class*="st-key-card-atlas-region-"]:hover { border-color:#d74942 }
-      @media(prefers-reduced-motion:reduce) {
-        [class*="st-key-card-atlas-"] { transition:none!important;transform:none!important }
-        .atlas-outline { transition:none!important;transform:none!important }
-      }
-      @media(max-width:750px) { .atlas-record-time { font-size:28px } }
-    </style>''')

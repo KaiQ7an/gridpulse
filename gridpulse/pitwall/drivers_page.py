@@ -5,7 +5,7 @@ import html
 import pandas as pd
 import streamlit as st
 
-from gridpulse.pitwall import charts, driver_intro, ui
+from gridpulse.pitwall import charts, driver_intro, tables, ui
 from gridpulse.pitwall.navigation import select_season, url
 from gridpulse.pitwall.teams_page import cached_season
 from gridpulse.season.data import (
@@ -92,7 +92,7 @@ def render() -> None:
         ui.note("Finishing positions: gold, silver and bronze for the podium, green in the points, red for a "
                 "retirement; a purple ring for pole and a purple underline for the race's fastest lap. Points "
                 "include the sprint. Each Grand Prix opens its replay.")
-        ui.driver_results_table(rows, year, driver=driver)
+        tables.driver_results_table(rows, year, driver=driver)
     with right, st.container(border=True, key="card-driver-highlights"):
         ui.label("Highlights")
         items = driver_highlights(rows)

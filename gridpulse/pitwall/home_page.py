@@ -2,14 +2,13 @@
 
 import html
 from datetime import UTC, datetime
-from pathlib import Path
 
 import streamlit as st
 
 from gridpulse import snapshots
 from gridpulse.dtm import data as dtm
 from gridpulse.dtm.cars import profile as car_profile
-from gridpulse.pitwall import dtm_circuits, home_data, ui
+from gridpulse.pitwall import dtm_circuits, home_data, styles, ui
 from gridpulse.pitwall.atlas_map import atlas_map
 from gridpulse.pitwall.featured import FEATURED
 from gridpulse.season.atlas import REGIONS, catalog
@@ -44,7 +43,7 @@ def section(title: str, detail: str = ''):
 
 
 def render(pages: dict) -> None:
-    st.html(Path(__file__).with_name('assets') / 'home.css')
+    styles.inject('home.css')
     ui.sidebar_brand('Your motorsport workbench')
     ui.sidebar_footer('All series')
     st.html('''<header class="home-hero"><div class="home-kicker">Your motorsport workbench</div>
