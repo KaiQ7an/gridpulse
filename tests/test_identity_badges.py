@@ -60,7 +60,9 @@ def test_logo_frames_stay_within_source_and_keep_original_colours():
             assert 0 <= x < x + width <= frame["width"]
             assert 0 <= y < y + height <= frame["height"]
             markup = artwork(badge)
-            assert badge["url"] in markup and 'class="identity-artwork"' in markup
+            assert 'class="identity-artwork"' in markup
+            if badge.get("url"):
+                assert badge["url"] in markup
             assert 'filter' not in markup
 
 
@@ -75,3 +77,13 @@ def test_packaged_doerr_logo_is_the_unchanged_original_jpeg():
     source = markup.split('src="data:image/jpeg;base64,', 1)[1].split('"', 1)[0]
     assert b64decode(source) == (ASSETS / badge["asset"]).read_bytes()
     assert 'doerrgroup.com' in badge['source']
+
+
+def test_seyffarth_mark_uses_verified_social_source_and_packaged_artwork():
+    from gridpulse.pitwall.identity_badges import artwork
+
+    badge = next(b for b in marks(2026, "seyffarth", ["Audi"]) if b["label"] == "Team identity")
+    assert badge["source"] == "https://www.instagram.com/seyffarth.motorsport/"
+    assert "/dtm.official/" in badge["verification"]
+    assert 'data:image/jpeg;base64,' in artwork(badge)
+    assert not any(b["label"] == "Team identity" for b in marks(2024, "seyffarth", ["Audi"]))

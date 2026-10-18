@@ -111,8 +111,11 @@ its official DTM debut press release and packaged in `pitwall/assets/logos/doerr
 source is retained in the catalogue. Current colours are preserved, without logo filters.
 Manthey's red-and-white wordmark uses a dark, wider plate so its white letters stay visible in
 both interface themes. Wide wordmarks are given extra space rather than being recoloured.
-Seyffarth's website is under construction; no standalone mark has yet been verified from the
-accessible official sources. Its card shows the full team name without inventing an initial-based logo.
+Seyffarth's 2026 mark is its unchanged official Instagram profile image, packaged locally as
+`logos/seyffarth.jpg`. The verified DTM account tags `@seyffarth.motorsport` in its Sachsenring
+guest-entry announcement; both profile and verifying post are recorded in the catalogue.
+CSS frames the avatar's white padding without recolouring or editing the original image.
+This source establishes the 2026 identity; it is not applied retroactively to older seasons.
 
 ## Local preview
 

@@ -1,6 +1,6 @@
 {
   "source": "https://www.dtm.com/en/drivers",
-  "checked": "2026-10-17",
+  "checked": "2026-10-18",
   "manufacturers": {
     "Ferrari": {
       "name": "Ferrari",
@@ -337,7 +337,28 @@
       "source": "https://landgraf-motorsport.net/",
       "dark": false,
       "wide": true
+    },
+    "seyffarth": {
+      "name": "Seyffarth Motorsport",
+      "asset": "logos/seyffarth.jpg",
+      "source": "https://www.instagram.com/seyffarth.motorsport/",
+      "verification": "https://www.instagram.com/dtm.official/p/Dc-9CtUMxtt/",
+      "years": [
+        2026
+      ],
+      "dark": false,
+      "wide": true,
+      "artwork": {
+        "width": 1080,
+        "height": 1080,
+        "bounds": [
+          0,
+          400,
+          1080,
+          280
+        ]
+      },
+      "asset_note": "Unchanged official Instagram profile image, downloaded 2026-10-18. The verified DTM account tags this team account in its 2026 Sachsenring guest-entry announcement. CSS frames the white padding without editing the artwork."
     }
-  },
-  "checked_at": "2026-10-18"
+  }
 }

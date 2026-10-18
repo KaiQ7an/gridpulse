@@ -8,7 +8,7 @@ adding domain renderers or static style blocks to `ui.py`.
 | `ui.py` | Headers, status strips, sidebar navigation, notes, driver dots and tyre marks | Branding, styles, navigation decoration |
 | `tables.py` | Pit stops, qualifying, teammate cards, driver results, standings, result matrices and circuit history | `ui.py` primitives and prepared DataFrames |
 | `styles.py` | Loading application-owned CSS files through `st.html(Path(...))` | Streamlit and packaged `assets/` files |
-| `assets/pitwall.css` | Shared page layout and presentation of UI primitives and tables | Application classes and scoped widget decoration |
+| `assets/pitwall.css` | Shared page layout, identity badges and presentation of UI primitives and tables | Application classes and scoped widget decoration |
 | `assets/atlas.css` | Circuit cards, record typography and atlas hover/focus feedback | Shared by Formula 1 and DTM |
 | `assets/home.css` | Landing-page layout, series covers and local photo fallbacks | Home's own classes |
 | `assets/teams.css` | DTM team directory cards, brand accents and responsive rows | Application-owned directory markup |
@@ -18,8 +18,9 @@ adding domain renderers or static style blocks to `ui.py`.
 The dependency direction is **page → table → primitive**. `ui.py` does not import page or table
 renderers. DTM loads atlas CSS directly; it does not import the Formula 1 circuits page to get styles.
 
-CSS files and the extracted Dörr logo are setuptools package data. The wheel must include them alongside the Python
-modules; running an editable checkout alone does not verify that delivery path.
+CSS files and the original Dörr and Seyffarth logo images are setuptools package data. The wheel
+must include them alongside the Python modules; running an editable checkout alone does not
+verify that delivery path.
 
 Table renderers receive already prepared rows. They do not fetch data, change replay state or
 calculate championship rules. Replay visibility and statistical decisions stay in the data/view layers.

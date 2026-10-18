@@ -609,6 +609,8 @@ Run the tests with `.venv/bin/pip install -r requirements-dev.txt && .venv/bin/p
 The public deployment is [GridPulse](https://gridpulse-racing.streamlit.app/). It follows this
 repository's `main` branch on Streamlit Community Cloud, uses Python 3.12, and updates when
 changes are pushed to GitHub. The package and the command are called `gridpulse` as well.
+Public, searchable access was verified in the deployment settings and in a fresh Chrome
+Incognito window on 18 October 2026; visitors can open the home page without signing in.
 
 The pit wall runs on [Streamlit Community Cloud](https://share.streamlit.io) as it is: create an
 app from this repository with `gridpulse/pitwall/app.py` as the main file and Python 3.12 in the
@@ -616,7 +618,9 @@ advanced settings. No secrets are needed. It installs from `requirements.txt`.
 
 The current deployment dates from when the package was called `pitlens`, and Community Cloud can't
 change an app's main file, so it still points at `pitlens/pitwall/app.py`. That file only starts
-`gridpulse/pitwall/app.py`; once the app is redeployed with the new path it can be deleted.
+`gridpulse/pitwall/app.py`. The bound path was confirmed in the deployment panel on
+18 October 2026. Keep this wrapper until a replacement deployment uses the new path and has
+passed anonymous-access and navigation checks; deleting it first would stop the current app.
 
 A fresh server has none of the cache a local copy builds up, so the recent races ship with the
 repository as snapshots in `snapshots/` (laps, results, race control, weather, radio and its
