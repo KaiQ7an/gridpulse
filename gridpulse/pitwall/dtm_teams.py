@@ -53,17 +53,17 @@ def card(year: int, team_id: str, info: dict, rows: pd.DataFrame) -> str:
         full_name = driver_profile("dtm", driver).get("name") or entries.iloc[0]["name"]
         car_numbers = entries.number.map(data.number).dropna().unique()
         numbers = " / ".join(f"#{number:g}" for number in sorted(car_numbers))
-        drivers.append(f'<a href="{link(year, "drivers", driver=driver)}"><span>{escape(full_name)}</span>'
+        drivers.append(f'<a href="{link(year, "drivers", driver=driver)}" target="_top"><span>{escape(full_name)}</span>'
                        f'<span class="dtm-team-number">{escape(numbers)}</span></a>')
     return (f'<article class="dtm-team-card" style="--team-accent:{accent}" aria-label="{escape(info["name"], quote=True)}">'
             '<header class="dtm-team-card-heading">' + team_mark +
-            f'<div><span class="dtm-team-kicker">DTM · {year}</span><h3><a href="{href}">{name}</a></h3></div></header>'
+            f'<div><span class="dtm-team-kicker">DTM · {year}</span><h3><a href="{href}" target="_top">{name}</a></h3></div></header>'
             '<div class="dtm-team-card-body">' + "".join(machinery) +
             f'<div class="dtm-team-card-stats" aria-label="{year} season race results">{metrics}</div>'
             '<div class="dtm-team-lineup"><span class="dtm-team-kicker">Season line-up</span>' + "".join(drivers) + '</div>'
             '</div><footer class="dtm-team-card-footer">'
             f'<span>{escape(info.get("base") or "Base not verified")}</span>'
-            f'<a href="{href}" aria-label="Explore {escape(info["name"], quote=True)} team profile">Team profile <span aria-hidden="true">→</span></a>'
+            f'<a href="{href}" target="_top" aria-label="Explore {escape(info["name"], quote=True)} team profile">Team profile <span aria-hidden="true">→</span></a>'
             '</footer></article>')
 
 

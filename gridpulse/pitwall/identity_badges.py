@@ -40,7 +40,7 @@ def render(year: int, team_id: str, manufacturers: list[str], *, link_team: bool
         profile_link = link_team and is_team
         href = escape('/dtm?' + urlencode({"year": year, "view": "teams", "team": team_id}), quote=True) if profile_link else source
         title = escape(f"Open {year} team profile" if profile_link else f"{badge['name']} · {badge['scope']} Open official source", quote=True)
-        target = '' if profile_link else ' target="_blank" rel="noopener noreferrer"'
+        target = ' target="_top"' if profile_link else ' target="_blank" rel="noopener noreferrer"'
         plate = "identity-badge-plate identity-badge-plate-wide" if badge.get("wide") else "identity-badge-plate"
         items.append(f'<div class="identity-badge-card"><a class="identity-badge" href="{href}"{target} title="{title}">'
                      f'<span class="{plate}" style="background:{background}">{artwork(badge)}</span>'
