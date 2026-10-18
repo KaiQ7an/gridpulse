@@ -9,6 +9,10 @@ same point on track.
 import numpy as np
 import pandas as pd
 
+# Bound the two floating-point search buffers to about 2 MiB per batch (or
+# one search window if wider), independently of the number of telemetry rows.
+_PROJECTION_CANDIDATES = 131_072
+
 
 def _seconds(time) -> np.ndarray:
     if pd.api.types.is_timedelta64_dtype(time):
@@ -35,12 +39,31 @@ def project_onto(ref: pd.DataFrame, other: pd.DataFrame, window: float = 0.08) -
     ox, oy = other["X"].to_numpy(dtype=float), other["Y"].to_numpy(dtype=float)
     progress = own_d / own_d.max()
     half = int(window * len(path_d))
+    centres = (progress * (len(path_d) - 1)).astype(np.intp)
+    if half < 0 or np.any(centres + half < 0):
+        raise ValueError("The projection search window contains no reference points")
+    # A larger window already covers the entire path. Telemetry can start just
+    # before distance zero, so include that negative progress when capping it.
+    half = min(half, len(path_d) - 1 - min(0, int(centres.min())))
+    left_pad = half - min(0, int(centres.min()))
+    width = 2 * half + 1
+    # Repeating edge points preserves the clipped search and its earliest-point
+    # tie break. These are views; only the current batch's windows are copied.
+    windows_x = np.lib.stride_tricks.sliding_window_view(np.pad(path_x, (left_pad, half), mode="edge"), width)
+    windows_y = np.lib.stride_tricks.sliding_window_view(np.pad(path_y, (left_pad, half), mode="edge"), width)
+    rows = centres + left_pad - half
+    batch_size = max(1, _PROJECTION_CANDIDATES // width)
     nearest_d = np.empty(len(ox))
-    for i, (x, y, f) in enumerate(zip(ox, oy, progress)):
-        centre = int(f * (len(path_d) - 1))
-        lo, hi = max(0, centre - half), min(len(path_d), centre + half + 1)
-        nearest = np.argmin((path_x[lo:hi] - x) ** 2 + (path_y[lo:hi] - y) ** 2)
-        nearest_d[i] = path_d[lo + nearest]
+    for start in range(0, len(ox), batch_size):
+        end = start + batch_size
+        dx, dy = windows_x[rows[start:end]], windows_y[rows[start:end]]
+        dx -= ox[start:end, None]
+        dy -= oy[start:end, None]
+        np.square(dx, out=dx)
+        np.square(dy, out=dy)
+        dx += dy
+        nearest = np.clip(centres[start:end] - half + dx.argmin(axis=1), 0, len(path_d) - 1)
+        nearest_d[start:end] = path_d[nearest]
 
     # GPS points are only good to a few metres, so taken one by one they'd make
     # the gap trace jitter. Distance drift builds up slowly, so keep the car's

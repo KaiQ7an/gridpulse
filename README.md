@@ -324,9 +324,9 @@ bar also preserves the current lap, focus drivers and view, for example
 
 Turn on **No spoilers** to start on lap 1 with the first three cars on the grid selected (driver
 codes in alphabetical order when the grid is unavailable). Future
-pit-stop overlays are hidden in that mode. Sector bests and weather sit in an expandable section;
-the timing-tower driver names open their season. With two focus drivers selected, **Compare these
-drivers** opens Onboard at the same event and session.
+pit-stop overlays are hidden in that mode. Lap, leader, track status and fastest lap share a compact
+two-row status strip with sector bests and weather. The timing-tower driver names open their season.
+With two focus drivers selected, **Compare these drivers** opens Onboard at the same event and session.
 
 | Option | Default | Meaning |
 |---|---|---|
@@ -554,6 +554,8 @@ gridpulse/
 │   ├── driver_picker.py  native driver-picker decoration, isolated from data and tables
 │   ├── app.py         routing, session state and the race replay page
 │   ├── home_page.py   series hub, saved weekends, pinned links and circuit map
+│   ├── home_data.py   offline series covers, saved weekends and homepage links
+│   ├── featured.py    curated strategy moments with lap, driver and view deep links
 │   ├── views.py       its views: tyres, pit stops, strategy, radio, race control
 │   ├── quali_page.py  the Qualifying page
 │   ├── about_page.py  the About page, sharing curated strategy moments with Home
@@ -590,9 +592,11 @@ The [screenshot notes](docs/images/README.md) record the views used for the curr
 - **Comparing two laps.** Each car's distance is integrated from its own speed, so over a lap it
   drifts by tens of metres, which at a slow corner looks like half a second of gap that isn't
   there. `align` instead places the second car on the first car's distance scale by matching GPS
-  positions to the nearest point of the first car's path, smoothing the correction because single
-  GPS points are only good to a few metres. The gap trace then agrees with the official sector
-  splits.
+  positions to the nearest point of the first car's path within a local progress window, smoothing
+  the correction because single GPS points are only good to a few metres. NumPy searches batches
+  of sliding windows, keeping temporary memory bounded as telemetry grows. The gap trace then
+  agrees with the official sector splits. [Projection checks and a reproducible benchmark](docs/telemetry-projection.md)
+  record output parity and local timings.
 - **Pit loss.** A stop's cost is its in-lap plus out-lap minus the same two laps for the cars that
   stayed out, corrected by how much faster or slower this car was than them on the laps before.
   Comparing with the field on the same laps cancels out safety cars, VSCs and the track getting

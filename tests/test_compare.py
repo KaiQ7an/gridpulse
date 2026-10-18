@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
+from gridpulse.onboard import compare
 from gridpulse.onboard.compare import (
     align,
     corner_speeds,
@@ -110,6 +111,69 @@ def test_position_alignment_is_robust_to_gps_noise():
     other["X"] += rng.normal(0, 3, len(other))  # ~3 m GPS noise
     other["Y"] += rng.normal(0, 3, len(other))
     assert align(ref, other)["Delta"].abs().max() < 0.05
+
+
+def scalar_projection(ref, other, window):
+    """Point-by-point oracle for the original local nearest-point search."""
+    path = np.arange(0.0, ref["Distance"].max(), 1.0)
+    x = np.interp(path, ref["Distance"], ref["X"])
+    y = np.interp(path, ref["Distance"], ref["Y"])
+    own = other["Distance"].to_numpy()
+    half = int(window * len(path))
+    projected = []
+    for d, px, py in other[["Distance", "X", "Y"]].itertuples(index=False, name=None):
+        centre = int(d / own.max() * (len(path) - 1))
+        lo, hi = max(0, centre - half), min(len(path), centre + half + 1)
+        projected.append(path[lo + np.argmin((x[lo:hi] - px) ** 2 + (y[lo:hi] - py) ** 2)])
+    correction = pd.Series(projected - own).rolling(31, center=True, min_periods=1).median()
+    correction = correction.rolling(15, center=True, min_periods=1).mean().to_numpy()
+    return np.maximum.accumulate(own + correction)
+
+
+@pytest.mark.parametrize("length,points,window,start", [
+    (1000, 7, 0.0, 0),       # one candidate, including both ends of the lap
+    (1000, 601, 0.08, 0),    # several batches and a partial last batch
+    (1000, 901, 0.5, 0),     # overlapping windows near the start and finish
+    (1000, 42, 3.0, 0),      # wider than the entire reference path
+    (1000, 42, 3.0, -2),     # full-path window with negative opening progress
+    (1, 10, 0.08, 0),        # a one-point densified reference
+    (1000, 801, 0.08, -2),   # an interpolated sample just before the start line
+])
+def test_projection_matches_scalar_search_at_window_boundaries(length, points, window, start):
+    ref = with_circle_xy(make_lap([250, 90, 250, 120, 250], length=length, points=points))
+    other = ref.copy()
+    distance = other["Distance"].to_numpy()
+    other["Distance"] += 0.03 * distance * (1 - distance / length)
+    other.loc[0, "Distance"] = start
+    rng = np.random.default_rng(17)
+    other["X"] += rng.normal(0, 2, len(other))
+    other["Y"] += rng.normal(0, 2, len(other))
+    actual = project_onto(ref, other, window)
+    np.testing.assert_array_equal(actual, scalar_projection(ref, other, window))
+    assert np.all(np.diff(actual) >= 0)
+
+
+def test_projection_does_not_jump_to_another_section_at_a_track_crossing():
+    ref = make_lap([200, 100, 200], points=801)
+    phase = ref["Distance"].to_numpy() / ref["Distance"].max() * 2 * np.pi
+    ref = ref.assign(X=100 * np.sin(phase), Y=100 * np.sin(2 * phase))
+    actual = project_onto(ref, ref)
+    np.testing.assert_array_equal(actual, scalar_projection(ref, ref, 0.08))
+    assert np.abs(actual - ref["Distance"]).max() < 3
+
+
+def test_projection_uses_earliest_candidate_when_positions_tie():
+    ref = make_lap([200, 200], points=601).assign(X=0.0, Y=0.0)
+    np.testing.assert_array_equal(project_onto(ref, ref), scalar_projection(ref, ref, 0.08))
+
+
+def test_projection_is_independent_of_batch_size(monkeypatch):
+    ref = with_circle_xy(make_lap([250, 100, 250], length=6000, points=700))
+    other = ref.copy()
+    other["X"] += np.sin(other["Distance"]) * 3
+    expected = scalar_projection(ref, other, 0.08)
+    monkeypatch.setattr(compare, "_PROJECTION_CANDIDATES", 31)  # one search window per batch
+    np.testing.assert_array_equal(project_onto(ref, other), expected)
 
 
 def test_sector_distances_follow_official_split_times():
