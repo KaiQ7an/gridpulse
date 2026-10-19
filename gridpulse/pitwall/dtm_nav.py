@@ -14,7 +14,7 @@ ICONS = {
 }
 
 
-def render(views: dict):
+def render(views: dict, target=None):
     rules = '''
 .st-key-dtm_view [role="radiogroup"] {gap:4px;width:100%}
 .st-key-dtm_view [role="radiogroup"] > div {width:100%}
@@ -28,7 +28,7 @@ def render(views: dict):
 .st-key-dtm_view label[data-testid="stRadioOption"] p {font-size:.9rem;font-weight:500;line-height:1.5}
 .st-key-dtm_view label[data-testid="stRadioOption"]:hover {background:rgba(128,128,128,.09)}
 .st-key-dtm_view label[data-testid="stRadioOption"][data-selected] {
-  background:rgba(225,6,0,.07);border-color:rgba(225,6,0,.12);color:#E10600;
+  background:rgba(225,6,0,.07);border-color:rgba(225,6,0,.12);color:var(--gp-accent);
 }
 .st-key-dtm_view label[data-testid="stRadioOption"][data-selected]::after {
   content:"";position:absolute;left:-1px;top:12px;bottom:12px;width:3px;background:#E10600;border-radius:2px;
@@ -41,7 +41,7 @@ def render(views: dict):
 .st-key-dtm_refresh button {font-size:.8rem;min-height:32px;padding:5px 10px;opacity:.72}
 .st-key-dtm_refresh button p {font-size:.8rem}
 .st-key-dtm_refresh button:hover {opacity:1}
-.dtm-menu-caption {font-size:.65rem;font-weight:600;letter-spacing:.14em;opacity:.46;text-transform:uppercase;margin:10px 0 6px}
+.dtm-menu-caption {font-size:.75rem;font-weight:600;letter-spacing:.1em;color:var(--gp-muted);text-transform:uppercase;margin:10px 0 6px}
 .dtm-foot {border-top:1px solid rgba(128,128,128,.16);padding-top:12px;margin-top:8px;font-size:.68rem;line-height:1.6;opacity:.5}
 .dtm-foot a {color:inherit;text-decoration:none}
 .dtm-foot a:hover {text-decoration:underline;opacity:1}
@@ -52,8 +52,10 @@ def render(views: dict):
         svg = f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">{path}</svg>'
         rules += f'.st-key-dtm_view [role="radiogroup"] > div:nth-child({i}) label::before {{mask-image:url("data:image/svg+xml,{quote(svg)}")}}'
     st.html(f"<style>{rules}</style>")
-    st.sidebar.html('<div class="dtm-menu-caption">Explore DTM</div>')
-    st.sidebar.radio("Explore DTM", list(views), format_func=views.get, key="dtm_view", label_visibility="collapsed", width="stretch")
+    target = st.sidebar if target is None else target
+    with target.container():
+        st.html('<div class="dtm-menu-caption">Explore DTM</div>')
+        st.radio("Explore DTM", list(views), format_func=views.get, key="dtm_view", label_visibility="collapsed", width="stretch")
 
 
 PAGE_ICONS = {
@@ -68,7 +70,8 @@ PAGE_ICONS = {
 }
 
 
-def render_pages(pages: list, current: str, series: str, *, caption: bool = True, target=None, suffix: str = "") -> None:
+def render_pages(pages: list, current: str, series: str, *, caption: bool = True, target=None,
+                 suffix: str = "", secondary: bool = False) -> None:
     """Use native page links so URLs, browser history and Streamlit state keep working."""
     rules = '''
 .st-key-series-navigation [data-testid="stPageLink-NavLink"] {
@@ -84,7 +87,7 @@ def render_pages(pages: list, current: str, series: str, *, caption: bool = True
  mask-size:contain;mask-position:center;mask-repeat:no-repeat;
 }
 .st-key-series-navigation [data-testid="stVerticalBlock"] {gap:4px}
-.series-menu-caption {font-size:.65rem;font-weight:600;letter-spacing:.14em;opacity:.46;
+.series-menu-caption {font-size:.75rem;font-weight:600;letter-spacing:.1em;color:var(--gp-muted);
  text-transform:uppercase;margin:10px 0 6px}
 @media(prefers-reduced-motion:reduce){.st-key-series-navigation [data-testid="stPageLink-NavLink"]{transition:none}}
 '''
@@ -96,7 +99,7 @@ def render_pages(pages: list, current: str, series: str, *, caption: bool = True
         selector = f'.st-key-series-nav-{route or "home"}{suffix} [data-testid="stPageLink-NavLink"]'
         rules += f'{selector}::before {{mask-image:url("data:image/svg+xml,{quote(svg)}")}}'
         if route == current:
-            rules += (f'{selector}{{background:rgba(225,6,0,.07);border-color:rgba(225,6,0,.12);color:#E10600}}'
+            rules += (f'{selector}{{background:rgba(225,6,0,.07);border-color:rgba(225,6,0,.12);color:var(--gp-accent)}}'
                       f'{selector}::after{{content:"";position:absolute;left:-1px;top:12px;bottom:12px;'
                       'width:3px;background:#E10600;border-radius:2px}')
     st.html(f"<style>{rules}</style>")
@@ -104,6 +107,12 @@ def render_pages(pages: list, current: str, series: str, *, caption: bool = True
     with target.container(key=f"series-navigation{suffix}"):
         if caption:
             st.html(f'<div class="series-menu-caption">Explore {series}</div>')
-        for page in pages:
+        def link(page):
             with st.container(key=f"series-nav-{page.url_path or 'home'}{suffix}"):
                 st.page_link(page, label="Championship" if page.url_path == "season" else page.title, icon="", width="stretch")
+        for page in pages[:3] if secondary else pages:
+            link(page)
+        if secondary:
+            with st.expander("More Formula 1 pages", expanded=current not in ("", "season", "replay")):
+                for page in pages[3:]:
+                    link(page)

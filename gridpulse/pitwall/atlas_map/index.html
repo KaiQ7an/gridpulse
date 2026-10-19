@@ -7,7 +7,7 @@
   <style>
     :root { color-scheme: dark; --red:#ff302b; --ink:#f3f4f7; --muted:#9299a5; }
     * { box-sizing:border-box }
-    body { margin:0; background:transparent; font-family:Arial,Helvetica,sans-serif; color:var(--ink) }
+    body { margin:0; background:transparent; font-family:Inter,system-ui,sans-serif; color:var(--ink) }
     #stage { position:relative; overflow:hidden; border:1px solid #252c36; border-radius:14px;
       background:radial-gradient(ellipse at 68% 52%,#15202c 0,#0d131b 46%,#0a0e14 80%); }
     #stage::after { content:""; pointer-events:none; position:absolute; inset:0; opacity:.12;
@@ -58,6 +58,19 @@
       #preview h2 { font-size:20px;margin:6px 0 }#preview .name{margin:0}.preview-grid{gap:12px;margin-top:8px;padding-top:8px;grid-template-columns:repeat(4,1fr)}
       #preview .record{display:none}#preview-open{margin-top:9px;padding:6px 10px}#preview-close{top:4px;right:5px} }
     @media(prefers-reduced-motion:reduce) { * { scroll-behavior:auto!important } }
+    :root[data-theme="light"] #stage {background:#eff3f7;border-color:#ccd5e0}
+    :root[data-theme="light"] #stage::after {display:none}
+    :root[data-theme="light"] .land {fill:#dce5ee;stroke:#9cabbc;stroke-opacity:.8}
+    :root[data-theme="light"] .land.highlight {fill:#b9cfdf!important;stroke:#bb352e!important}
+    :root[data-theme="light"] .pin text {fill:#344559;stroke:#eff3f7}
+    :root[data-theme="light"] .intro p,:root[data-theme="light"] .corner,
+    :root[data-theme="light"] #preview .name {color:#526175}
+    :root[data-theme="light"] .count,:root[data-theme="light"] #preview .record {color:#344559}
+    :root[data-theme="light"] .preview-grid small {color:#526175}
+    :root[data-theme="light"] #preview .record b {color:#7543b5}
+    :root[data-theme="light"] .eyebrow,:root[data-theme="light"] .count strong {color:#b62822}
+    :root[data-theme="light"] #preview {background:#eff3f7f5}
+    :root[data-theme="light"] .controls button {background:#fff;color:#344559;border-color:#b6c1ce}
   </style>
 </head>
 <body>
@@ -87,6 +100,12 @@
   let lastTime=0,activeDrag=false,lastSignature='',seq=0;
   let activeSlug=null,clearTimer=null,flyTimer=null;
   const send=(type,payload={})=>parent.postMessage({isStreamlitMessage:true,type,...payload},'*');
+  function applyTheme(theme){
+    if(!theme)return;
+    const root=document.documentElement,dark=theme.base==='dark';
+    root.dataset.theme=dark?'dark':'light';root.style.colorScheme=dark?'dark':'light';
+    root.style.setProperty('--ink',theme.textColor||(dark?'#f3f4f7':'#172536'));
+  }
   const choose=(kind,value)=>{ paused=true;send('streamlit:setComponentValue',{value:{kind,value,id:Date.now()+':'+(++seq)},dataType:'json'}) };
   function announceHeight(){send('streamlit:setFrameHeight',{height})}
   function showTip(event,c){
@@ -174,8 +193,8 @@
     document.querySelector('#preview-races-label').textContent=args.series==='DTM'?'ARCHIVE':'GRANDS PRIX';
     const circuits=args.circuits.filter(c=>args.region==='world'||c.region===args.region);
     document.querySelector('#count').textContent=String(circuits.length).padStart(2,'0');
-    document.querySelector('#headline').innerHTML=args.region==='world'?'RACING.<br>WORLDWIDE.':args.regions[args.region].name.toUpperCase().replace(' & ','<br>& ');
-    document.querySelector('#kicker').textContent=args.region==='world'?'ONE SPORT. EVERY CORNER.':'EXPLORE THE REGION';
+    document.querySelector('#headline').innerHTML=args.series==='DTM'?'DTM<br>CIRCUITS':args.region==='world'?'RACING.<br>WORLDWIDE.':args.regions[args.region].name.toUpperCase().replace(' & ','<br>& ');
+    document.querySelector('#kicker').textContent=args.series==='DTM'?'SELECT A VENUE':args.region==='world'?'ONE SPORT. EVERY CORNER.':'EXPLORE THE REGION';
     document.querySelector('#description').textContent=args.region==='world'?'Follow the racing world. Choose a region or a circuit to explore its story.':args.regions[args.region].title+' Select a red marker to open circuit facts.';
     document.querySelector('#hint').textContent=args.region==='world'?'DRAG TO ROTATE · SELECT A REGION OR A RED MARKER':'SELECT A CIRCUIT MARKER · EXPLORE ITS STORY';
     document.querySelector('#motion').style.display=args.region==='world'?'':'none';
@@ -221,6 +240,7 @@
       const c=args?.circuits.find(c=>c.slug===event.data.slug);if(c)activate(c,true);else if(args)clearPreview();return;
     }
     if(event.source!==parent||event.data?.type!=='streamlit:render')return;
+    applyTheme(event.data.theme);
     const incoming=event.data.args,signature=JSON.stringify(incoming);if(signature===lastSignature)return;
     lastSignature=signature;args=incoming;zoom=1;rotation=[-20,-20];
     try{

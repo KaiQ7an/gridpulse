@@ -1,7 +1,7 @@
 # UI previews
 
-The current interface screenshots were captured from the local running application on **18 October
-2026**, using the browser's default 1280 × 720 viewport and the app's Light/Dark theme controls.
+Home and replay previews were refreshed on **19 October 2026**; the remaining previews were captured
+on 18 October. Captures use the browser's default 1280 × 720 viewport and the app's Light/Dark theme controls.
 They are actual browser captures; the files are stored as PNG without retouching the interface.
 
 | Files (light/dark) | Page and selections |

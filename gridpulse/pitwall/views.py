@@ -243,7 +243,7 @@ def pit_window_view(race: RaceData, tower: pd.DataFrame, lap: int, focus: list[s
         verdict = (f"Stop L{lap + int(best['LapsMore'])} for {best['Compound'].lower()}s. "
                    f"Window L{lap + best['From']}–{lap + best['To']}; stopping next lap costs +{first:.1f} s.")
     evidence = "fitted from this race" if compound in model.deg_measured else "based mainly on typical wear"
-    ui.insight(f"{driver}: {'Under typical-tyre assumptions, ' if model.prior_only else ''}{verdict}")
+    ui.insight(f"{driver} · {'Typical-tyre scenario' if model.prior_only else 'Model estimate'}: {verdict}")
     ui.note(f"{compound.title()} · age {age:.0f} laps · wear {model.deg[compound]:.2f} s/lap ({evidence}) · "
             f"{sum(model.sample_counts.values())} clean laps across the field. "
             "One final stop on fresh tyres; the window is within 1 s of the best plan, not a confidence interval.")
@@ -325,6 +325,7 @@ def strategy_view(race: RaceData, tower: pd.DataFrame, lap: int, focus: list[str
                 small=f"latest {last['Driver']} L{last['Lap']}" if last is not None else ""),
     ])
 
+    ui.note('Compare conditional stop scenarios. Traffic, future safety cars and tyre availability are not simulated.')
     model = fit_tyre_model(race.clean_through(lap), allow_prior=(~tower['Out'] & tower['Compound'].isin(DRY)).any())
     if loss:
         pit_window_view(race, tower, lap, focus, loss, model)

@@ -16,13 +16,13 @@ def driver_codes(value: str) -> list[str]:
     return list(dict.fromkeys(c.strip().upper() for c in value.split(",") if c.strip()))[:6]
 
 
-def select_season(years, *, key: str) -> int:
+def select_season(years, *, key: str, target=None) -> int:
     """Keep the selected season when navigation removes another page's widget state."""
     years = list(years)
     ss = st.session_state
     if key not in ss and ss.get("selected_year") in years:
         ss[key] = ss.selected_year
-    year = st.sidebar.selectbox("Season", years, key=key)
+    year = (st.sidebar if target is None else target).selectbox("Season", years, key=key)
     ss.selected_year = year
     return year
 

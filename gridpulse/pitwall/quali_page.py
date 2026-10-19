@@ -4,7 +4,7 @@ import pandas as pd
 import streamlit as st
 
 from gridpulse import snapshots
-from gridpulse.pitwall import charts, tables, ui
+from gridpulse.pitwall import charts, event_names, tables, ui
 from gridpulse.pitwall.data import FIRST_SEASON, completed_races
 from gridpulse.pitwall.navigation import select_season
 from gridpulse.quali.data import SESSIONS, QualiData, ideal_laps, load_quali
@@ -33,7 +33,7 @@ def render() -> None:
     if races.empty:
         st.info(f"No {year} races have finished yet. Pick an earlier season.")
         st.stop()
-    labels = [f"R{r.RoundNumber} · {r.EventName}" for r in races.itertuples()]
+    labels = [f"R{r.RoundNumber} · {event_names.title(year, r.EventName, getattr(r, 'Location', ''))}" for r in races.itertuples()]
     i = st.sidebar.selectbox("Grand Prix", range(len(races)), index=len(races) - 1, format_func=lambda i: labels[i],
                              key="q_event")
     kind = "Q"
@@ -53,7 +53,7 @@ def render() -> None:
             st.error(f"Couldn't load {SESSIONS[kind]} for this event: {exc}")
             st.stop()
 
-    ui.header(f"{q.year} · Round {q.round_number} · {q.location} · {q.session_name}", q.event_name,
+    ui.header(f"{q.year} · Round {q.round_number} · {q.location} · {q.session_name}", event_names.title(year, q.event_name, q.location),
               f"{q.date:%-d %B %Y} · data: {q.source}")
     ideal = ideal_laps(q.laps)
     results = q.results

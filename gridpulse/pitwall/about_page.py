@@ -2,7 +2,7 @@
 
 import streamlit as st
 
-from gridpulse.branding import NAME, TAGLINE
+from gridpulse.branding import NAME
 from gridpulse.pitwall import ui
 from gridpulse.pitwall.featured import FEATURED
 
@@ -41,7 +41,7 @@ pages: dict = {}
 def render() -> None:
     ui.sidebar_brand("Motorsport data & analysis")
     ui.sidebar_footer(st.session_state.get("racing_series", "Formula 1"))
-    ui.header("Motorsport data & analysis", NAME, TAGLINE)
+    ui.header(NAME, "What can you do here?", "Replay decisions, compare laps and check race results.")
     st.caption("Current coverage: Formula 1 from 2018; DTM classifications and championships from 2023 to 2026.")
     ui.insight("Choose your championship in Racing series at the top left. Formula 1 offers lap-by-lap replay, "
                "telemetry and strategy; DTM brings official championship tables, both weekend races and driver comparisons.")
@@ -57,8 +57,8 @@ def render() -> None:
     cols = st.columns(len(FEATURED), gap="small")
     for col, moment in zip(cols, FEATURED):
         with col, st.container(border=True, key=f"card-featured-{moment.year}-{moment.round}"):
-            st.html(f'<div style="font-weight:700;margin-bottom:4px">{moment.title}</div>'
-                    f'<div class="pl-note" style="margin-bottom:6px">{moment.question}</div>')
+            st.html(f'<div style="font-weight:700;margin-bottom:4px">{moment.question}</div>'
+                    f'<div class="pl-note" style="margin-bottom:6px">{moment.context}</div>')
             if "Race replay" in pages:
                 st.page_link(pages["Race replay"], label="Explore this decision", icon=":material/play_arrow:",
                              query_params=moment.params)
@@ -66,6 +66,9 @@ def render() -> None:
                "The model compares one final stop; it does not optimise complete multi-stop strategies.")
 
     ui.label("How far to trust it")
+    ui.note("Strategy charts compare conditional scenarios, not team instructions. Traffic, future safety cars "
+            "and tyre availability are not simulated. Agreement with a team's actual stop lap does not prove "
+            "that stop was optimal; model ranges are not calibrated overtake probabilities.")
     ui.note("The data is F1's public live-timing archive (through FastF1), or OpenF1 when the archive won't "
             "serve a session. Every Grand Prix from 2021 on, and every sprint since 2023, has been checked "
             "against the official result: the same winner, the same top ten and every finisher the same "

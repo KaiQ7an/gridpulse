@@ -2,7 +2,7 @@
 
 import html
 import os
-from datetime import UTC, datetime
+from datetime import datetime
 
 import pandas as pd
 import plotly.graph_objects as go
@@ -35,7 +35,7 @@ STATE = ("dtm_year", "dtm_view", "dtm_event", "dtm_session", "dtm_drivers", "dtm
 
 @st.cache_data(ttl=1800, show_spinner=False)
 def load(year: int, refresh: bool = False, offline: bool = False) -> tuple[dict, str]:
-    if not offline and (refresh or year == datetime.now(UTC).year):
+    if not offline and refresh:
         try:
             return data.fetch(year), "Official feed"
         except (OSError, ValueError, KeyError, TypeError, AttributeError):
@@ -113,7 +113,7 @@ def render():
         ss.dtm_view = "championship"
     ui.sidebar_brand("DTM · GT racing")
     year = st.sidebar.selectbox("DTM season", data.YEARS, key="dtm_year")
-    dtm_nav.render(VIEWS)
+    dtm_nav.render(VIEWS, target=ss.get("sidebar_navigation_fallback"))
     for k in VIEW_STATE[ss.dtm_view]:
         if k in ss.get("dtm_saved", {}):
             ss.setdefault(k, ss.dtm_saved[k])
@@ -122,21 +122,21 @@ def render():
     if refresh:
         load.clear()
         ss.dtm_refresh_year = year
-    with st.spinner("Loading DTM classifications…"):
+    with ui.loading("Opening DTM results", "Reading the saved season. Refresh data checks the official feed."), \
+            st.spinner("Opening classifications…"):
         season, source = load(year, ss.get("dtm_refresh_year") == year, bool(os.getenv("GRIDPULSE_OFFLINE")))
     ui.sidebar_footer("DTM")
-    if ss.dtm_view == "teams":
-        ui.header(f"DTM · {year} season", "Teams",
-                  "This season’s teams, their cars and the people behind the wheel.")
-    else:
-        ui.header(f"DTM · {year} season", "GT racing, closer.",
-                  "Two races per weekend. Follow the championship, open a classification, compare the drivers.")
+    if ss.dtm_view != "circuits":
+        ui.header(f"DTM · {year} season", VIEWS[ss.dtm_view],
+                  {"championship": "Who leads, and by how many points?",
+                   "weekend": "Both races and qualifying, together in one weekend overview.",
+                   "teams": "This season’s teams, cars and drivers.", "drivers": "Choose a driver to view their season.",
+                   "compare": "Compare results and points across the season."}[ss.dtm_view])
+    if ss.dtm_view == "championship":
         races = data.race_rows(season)
         race_count = sum(s["kind"] == "race" for e in season["events"] for s in e["sessions"])
-        ui.strip([ui.stat("Race weekends", str(len(season["events"]))), ui.stat("Published races", str(race_count)),
-                  ui.stat("Drivers", str(races.driver.nunique())),
-                  ui.stat("Car entries", str(len(team_data.car_entries(season)))),
-                  ui.stat("Manufacturers", str(races.manufacturer.nunique()))])
+        ui.note(f'{len(season["events"])} weekends · {race_count} races · {races.driver.nunique()} drivers · '
+                f'{len(team_data.car_entries(season))} car entries · {races.manufacturer.nunique()} manufacturers')
     stamp = datetime.fromisoformat(season["fetched_at"]).strftime("%d %b %Y, %H:%M UTC")
     st.caption(f"{source} · fetched {stamp}. " +
                ("The official feed marks these standings provisional." if season["provisional"] else "Published standings."))
@@ -160,8 +160,8 @@ def render():
                     f"[DTM standings]({season['standings_url']}?season={year}) · "
                     "[Official race calendar](https://www.dtm.com/en/events)")
         st.write("2023–2026: published practice, qualifying and race classifications; official driver, team and "
-                 "manufacturer standings. Current-season data refreshes every 30 minutes while in use. "
-                 "Historical seasons use saved snapshots; the refresh button checks the official feed.")
+                 "manufacturer standings. Saved snapshots open first, without a network request. "
+                 "Refresh data checks the official feed; refreshed results are cached for 30 minutes.")
         st.write("Points and championship positions come directly from DTM, including qualifying points. "
                  "Qualifying groups stay separate. A qualifying position is not presented as a starting-grid slot. "
                  "The feed does not supply the lap-by-lap telemetry needed for an F1-style replay.")
@@ -205,8 +205,8 @@ def championship(season: dict):
     board = season["standings"][category]
     if len(board) > 1:
         gap = board[0]["points"] - board[1]["points"]
-        ui.insight(f"Published P1: {board[0]['name']} · {board[0]['points']:g} points · "
-                   f"{gap:g} points ahead of {board[1]['name']}.")
+        st.markdown(f"**{board[0]['name']} · {board[0]['points']:g} points** — "
+                    f"{gap:g} ahead of {board[1]['name']} in the published standings.")
     meta = data.entrants(season)
     table = pd.DataFrame([{"Pos": int(r["position"]) if r["position"] else None, "Name": r["name"], "Points": r["points"],
                            **({"Team": meta.get(r["key"], {}).get("team", ""),
@@ -231,23 +231,27 @@ def championship(season: dict):
         else:
             st.caption("Official classification · total points include race and qualifying points.")
         name_label = {"drivers": "Driver", "teams": "Team", "manufacturers": "Manufacturer"}[category]
-        columns = ["Pos", "Name"] + (["Team", "Car model"] if category == "drivers" else [])
-        columns += ["Cars", "Points"] if category == "manufacturers" else ["Race pts", "Quali pts", "Points"]
+        # Identity and total score stay adjacent; vehicle/breakdown fields belong in details.
+        columns = ["Pos", "Name", "Points"] + (["Team"] if category == "drivers" else ["Cars"] if category == "manufacturers" else [])
         styled = table.style.set_properties(subset=["Points"], **{"font-weight": "700"})
         st.dataframe(styled, hide_index=True, width="stretch", row_height=46,
                      height=max(200, min(1050, 46 * len(table) + 48)), column_order=columns,
                      column_config={
-                         "Pos": st.column_config.NumberColumn("Pos", width="small", format="%d"),
-                         "Name": st.column_config.TextColumn(name_label, width="medium"),
-                         "Team": st.column_config.TextColumn("Team", width="large"),
-                         "Car model": st.column_config.TextColumn("Car model", width="large"),
-                         "Manufacturer": None,
+                         "Pos": st.column_config.NumberColumn("Pos", width=55, format="%d", pinned=True),
+                         "Name": st.column_config.TextColumn(name_label, width=220, pinned=True),
+                         "Team": st.column_config.TextColumn("Team", width="medium"),
+                         "Car model": None, "Manufacturer": None,
                          "Cars": st.column_config.NumberColumn("Cars", width="small", format="%d"),
                          "Race pts": st.column_config.NumberColumn("Race", width="small", format="%g"),
                          "Quali pts": st.column_config.NumberColumn("Qualifying", width="small", format="%g",
                              help="Published qualifying points, already included in Total points."),
-                         "Points": st.column_config.NumberColumn("Total points", width="small", format="%g"),
+                         "Points": st.column_config.NumberColumn("Points", width=100, format="%g", pinned=True),
                      })
+        with st.expander("Full classification & points breakdown"):
+            st.dataframe(table, hide_index=True, width="stretch",
+                         column_order=["Pos", "Name", "Points", *[c for c in table if c not in ("Pos", "Name", "Points")]],
+                         column_config={"Name": st.column_config.TextColumn(name_label, pinned=True),
+                                        "Points": st.column_config.NumberColumn("Total points", pinned=True)})
         st.download_button("Download standings", table.to_csv(index=False), f"dtm-{season['year']}-{category}.csv", "text/csv")
     with st.container(border=True, key="dtm-points-panel"):
         st.html('<style>.st-key-dtm-points-panel [data-testid="stMultiSelectTagsContainer"] [data-tag] {'

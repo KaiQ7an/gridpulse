@@ -21,7 +21,7 @@ REGIONS = {
 }
 
 
-def navigate(slug="all", region="world"):
+def navigate(slug="all", region="europe"):
     st.session_state.dtm_circuit = slug
     st.session_state.dtm_region = region
 
@@ -47,7 +47,8 @@ def map_view(facts: list[dict], region: str, selected: str | None = None):
     # Send only the map's public display fields, not entire classifications.
     pins = [{k: c[k] for k in ("slug", "name", "city", "country", "region", "lat", "lon", "length_km", "opened", "preview", "record")}
             for c in facts]
-    event = atlas_map(region, selected, key=key, circuit_data=pins, regions=REGIONS, series="DTM")
+    event = atlas_map(region, selected, key=key, circuit_data=pins, regions=REGIONS, series="DTM",
+                      height=330 if selected else 430)
     if not isinstance(event, dict) or not event.get("id"):
         return
     consumed = st.session_state.get("dtm_atlas_clicks", {})
@@ -55,10 +56,10 @@ def map_view(facts: list[dict], region: str, selected: str | None = None):
         return
     st.session_state.dtm_atlas_clicks = {**consumed, key: event["id"]}
     if event.get("kind") == "region" and event.get("value") in REGIONS:
-        navigate(region=event["value"])
+        st.session_state.dtm_atlas_request = ("all", event["value"])
         st.rerun()
     if event.get("kind") == "circuit" and event.get("value") in {c["slug"] for c in facts}:
-        navigate(event["value"], "europe")
+        st.session_state.dtm_atlas_request = (event["value"], "europe")
         st.rerun()
 
 
@@ -82,22 +83,26 @@ def render(season: dict):
     facts = facts_for(season["year"], season["fetched_at"], season)
     by_slug = {c["slug"]: c for c in facts}
     ss = st.session_state
+    if request := ss.pop("dtm_atlas_request", None):
+        # Components return during rendering, after the selectors exist. Apply their
+        # request on the next run, before instantiating either selector.
+        navigate(*request)
     if ss.get("dtm_circuit") not in ["all", *by_slug]:
         ss.dtm_circuit = "all"
     if ss.get("dtm_region") not in REGIONS:
-        ss.dtm_region = "world"
+        ss.dtm_region = "europe"
     if ss.dtm_circuit != "all":
         ss.dtm_region = "europe"
     st.selectbox("Jump to a circuit", ["all", *by_slug], key="dtm_circuit",
-                 format_func=lambda slug: "World atlas" if slug == "all" else f"{by_slug[slug]['name']} · {by_slug[slug]['country']}")
+                 format_func=lambda slug: "All circuits" if slug == "all" else f"{by_slug[slug]['name']} · {by_slug[slug]['country']}")
     st.pills("Explore regions", list(REGIONS), key="dtm_region", format_func=lambda r: REGIONS[r]["name"],
              on_change=change_region, label_visibility="collapsed")
     if ss.dtm_circuit != "all":
         render_fact(by_slug[ss.dtm_circuit], facts, season)
         return
-    ui.header(f"DTM circuit atlas · {season['year']} · {len(facts)} venues", "A world built for racing.",
-              "Explore the map, hover a circuit and open its story, DTM layout and covered race history.")
-    map_view(facts, ss.dtm_region or "world")
+    ui.header(f"DTM · {season['year']} · {len(facts)} venues", "Circuits",
+              "Germany, Austria and the Netherlands. Select a venue for facts, records and race history.")
+    map_view(facts, ss.dtm_region or "europe")
     query = st.text_input("Find a circuit", key="dtm_circuit_search", placeholder="Search circuit, city or country",
                           icon=":material/search:").strip().casefold()
     visible = [c for c in facts if query in f"{c['name']} {c['city']} {c['country']}".casefold()]
@@ -130,8 +135,7 @@ def render(season: dict):
 
 def render_fact(fact: dict, facts: list[dict], season: dict):
     with st.container(horizontal=True):
-        st.button("World atlas", on_click=navigate, icon=":material/public:")
-        st.button("Europe", on_click=navigate, kwargs={"region": "europe"}, icon=":material/arrow_back:")
+        st.button("All circuits", on_click=navigate, icon=":material/arrow_back:")
     ui.header(f"DTM circuit file · {fact['country']}", fact["city"], fact["name"])
     history = fact["history"]
     ui.strip([ui.stat("DTM listed length", f"{fact['length_km']:.3f} km"), ui.stat("Circuit type", fact["kind"]),

@@ -44,12 +44,11 @@ def section(title: str, detail: str = ''):
 
 def render(pages: dict) -> None:
     styles.inject('home.css')
-    ui.sidebar_brand('Your motorsport workbench')
+    ui.sidebar_brand('Race replay & results')
     ui.sidebar_footer('All series')
-    st.html('''<header class="home-hero"><div class="home-kicker">Your motorsport workbench</div>
-      <h1>Grid<span>Pulse</span></h1><p class="intro">Motorsport, lap by lap.<br>Choose your series. Follow the weekend. Find the story in the data.</p>
-      <svg class="route" viewBox="0 0 420 220" aria-hidden="true"><path class="track" d="M30 150 Q5 85 75 65 L160 65 Q180 65 175 90 L150 130 Q135 155 170 160 L220 165 Q250 170 260 140 L290 50 Q300 20 335 32 L375 54 Q410 70 375 100 L310 162 Q285 190 250 190 L85 190 Q40 190 30 150Z"/>
-      <path class="pulse" d="M30 150 Q5 85 75 65 L160 65 Q180 65 175 90 L150 130 Q135 155 170 160 L220 165 Q250 170 260 140 L290 50 Q300 20 335 32 L375 54 Q410 70 375 100 L310 162 Q285 190 250 190 L85 190 Q40 190 30 150Z"/><circle cx="30" cy="150" r="4"/></svg></header>''')
+    st.html('''<header class="home-hero"><h1>Understand the race.<br>Or just check the result.</h1>
+      <p class="intro">Replay an F1 decision, compare two laps, or catch up on a DTM weekend.
+      Choose a question below to get started.</p></header>''')
     resumes = home_data.resume_targets(st.session_state)
     if resumes:
         section('Pick up where you left off', 'Selections stay in this browser session')
@@ -60,7 +59,7 @@ def render(pages: dict) -> None:
                         f'<div class="home-resume-detail">{esc(target["detail"])}</div>')
                 st.page_link(pages[target['page']], label='Continue ' + target['series'], icon=':material/play_arrow:',
                              query_params=target['params'], width='stretch')
-    section('Choose your series', 'Two championships. Two ways into the race.')
+    section('Choose your series', 'F1 replay and analysis · DTM results and standings')
     year = home_data.years()[0]
     rows = events_for(year)
     series_cards(pages, year, rows)
@@ -103,7 +102,7 @@ def series_cards(pages: dict, year: int, rows: list[dict]):
     dtm_season = dtm.saved(dtm_year)
     photo = car_profile(dtm_year, 'Porsche')['photo']
     details = [
-        ('Formula 1', home_data.F1_PHOTO, 'Lap by lap. Corner by corner.',
+        ('Formula 1', home_data.F1_PHOTO, 'Understand a pit stop or compare a lap.',
          'Replay the race, compare telemetry and explore the pit window.',
          [(len([r for r in rows if r['series'] == 'Formula 1']), f'{year} saved GPs'),
           (len(catalog()), 'Circuit files')],
@@ -132,10 +131,11 @@ def series_cards(pages: dict, year: int, rows: list[dict]):
                 st.page_link(pages[page], label=label, icon=':material/arrow_forward:', query_params=params, width='stretch')
             if series == 'Formula 1':
                 st.html('<div class="home-featured-caption">Featured strategy moments</div>')
-                with st.container(horizontal=True, key='home-strategy-moments'):
+                with st.container(key='home-strategy-moments'):
                     for moment in FEATURED:
-                        st.page_link(pages['Race replay'], label=moment.title, query_params=moment.params,
-                                     help=moment.question, icon=':material/play_arrow:')
+                        st.page_link(pages['Race replay'], label=moment.question, query_params=moment.params,
+                                     help=moment.context, icon=':material/play_arrow:')
+                        st.caption(moment.context)
             st.html(f'<strong>{esc(headline)}</strong><div class="home-series-description">{esc(description)}</div>'
                     '<div class="home-series-meta">' + ''.join(f'<div><b>{n}</b><small>{esc(label)}</small></div>' for n, label in counts) + '</div>')
             for page, label, params in links[1:]:
@@ -147,6 +147,9 @@ def render_weekend(event: dict, pages: dict, show_results: bool):
     st.html(f'<div class="home-event-series">{esc(event["series"])} · R{event["round"]}<span>{esc(event["date"])}</span></div>'
             f'<div class="home-event-title">{esc(event["title"])}</div><div class="home-event-place">{esc(event["place"])}</div>'
             f'<div class="home-event-description">{esc(event["summary"])}</div>')
+    if event.get('venue_note'):
+        st.caption(event['venue_note'])
+        st.link_button('Why Malaysia? · Official announcement', event['venue_source'], icon=':material/open_in_new:')
     if show_results:
         for label, names in home_data.podiums(event):
             st.html(f'<div class="home-podium"><small>{esc(label)} · classified podium</small>' + ''.join(
@@ -191,9 +194,11 @@ def render_map(pages: dict):
     ss = st.session_state
     if 'home_map_requested' in ss:
         ss.home_map_region = ss.pop('home_map_requested')
-    if ss.get('home_map_region') not in regions:
-        ss.home_map_region = 'world'
-    region = st.pills('Map region', list(regions), key='home_map_region', format_func=lambda r: regions[r]['name']) or 'world'
+    default_region = 'europe' if series == 'DTM' else 'world'
+    if ss.get('home_map_last_series') != series or ss.get('home_map_region') not in regions:
+        ss.home_map_region = default_region
+    ss.home_map_last_series = series
+    region = st.pills('Map region', list(regions), key='home_map_region', format_func=lambda r: regions[r]['name']) or default_region
     key = f'home-atlas-{series}-{region}'
     # The map needs venue facts only, never entire DTM race classifications.
     fields = ('slug', 'name', 'city', 'country', 'region', 'lat', 'lon', 'length_km',

@@ -6,6 +6,8 @@ import pandas as pd
 
 from gridpulse import snapshots
 from gridpulse.dtm import data as dtm
+from gridpulse.pitwall import event_names
+from gridpulse.season.atlas import catalog
 
 F1_PHOTO = {
     'url': 'https://images.ctfassets.net/1fvlg6xqnm65/37RkMYDyiaINawxj6ERovv/84fe31514293e2bb57afd7fc92922989/W17_On_Track_Desktop_Wallpaper_2.jpg?w=960&q=80&fm=webp',
@@ -23,12 +25,20 @@ def years() -> list[int]:
 
 def weekends(year: int, today: str) -> list[dict]:
     rows = []
+    venues = {c['key']: c for c in catalog()}
     for event in snapshots.races(year).itertuples():
         date = event.EventDate.date().isoformat()
         if date > today:
             continue
+        meta = snapshots.race_metadata(year, int(event.RoundNumber)) or {}
+        venue = venues.get(meta.get('circuit_key'))
         rows.append({'series': 'Formula 1', 'year': year, 'round': int(event.RoundNumber),
-                     'title': event.EventName, 'place': event.Location, 'date': date,
+                     'title': event_names.title(year, event.EventName, event.Location),
+                     'place': f'{venue["name"]} · {venue["country"]}' if venue else event.Location, 'date': date,
+                     'venue_note': 'Bahrain-named event, hosted at Sepang in 2026.'
+                                   if event_names.in_malaysia(year, event.EventName, event.Location) else '',
+                     'venue_source': event_names.MALAYSIA_SOURCE
+                                     if event_names.in_malaysia(year, event.EventName, event.Location) else '',
                      'key': f'f1-{year}-{event.RoundNumber}', 'page': 'Race replay',
                      'params': {'year': str(year), 'round': str(event.RoundNumber), 'mode': 'replay', 'view': 'Strategy'},
                      'summary': 'Lap replay · telemetry · strategy', 'source': 'Bundled F1 timing snapshot'})

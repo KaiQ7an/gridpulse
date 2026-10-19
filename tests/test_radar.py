@@ -126,8 +126,8 @@ def test_strategy_controls_and_learning_states_render_without_future_stops(monke
     at.selectbox(key='radar_delay').set_value(2).run()
     at.number_input(key='radar_extra').set_value(1.5).run()
     assert not at.exception and at.number_input(key='radar_extra').value == 1.5
-    at.segmented_control(key='view').set_value('Tyres').run()
-    at.segmented_control(key='view').set_value('Strategy').run()
+    at.segmented_control(key='view_primary').set_value('Tyres').run()
+    at.segmented_control(key='view_primary').set_value('Strategy').run()
     assert not at.exception
     assert at.selectbox(key='radar_compound').value == 'MEDIUM'
     assert at.selectbox(key='radar_delay').value == 2

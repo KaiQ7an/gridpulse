@@ -61,7 +61,7 @@ Both series use the same sidebar design, full-name driver selectors and season-s
 - Continue the last F1 replay at its selected lap, drivers, view and spoiler setting, or reopen the last DTM view.
 - Filter recent weekends by series, season and venue. Podiums stay hidden until **Show results** is enabled.
   Pin up to four weekends to a shortlist, retained for the browser session, and load more results on demand.
-- Switch the interactive circuit globe between F1 and DTM; drag, zoom, choose a region and open a circuit file.
+- Explore F1 on a world globe or regional maps; DTM opens directly on Europe. Zoom and select a venue to open its circuit file.
 - The landing page reads saved summaries without fetching a live calendar or building race telemetry.
   Replay has a dedicated `/replay` route; existing `/?year=…&round=…` links open it with their selections intact.
 
@@ -72,7 +72,7 @@ Both series use the same sidebar design, full-name driver selectors and season-s
 - **Replay**: a player bar under the header. Press Play and the whole dashboard advances a lap at a
   time (1×, 2× or 4×), drag the slider, or type a lap number to jump straight to it. A status strip shows the lap,
   leader and track status. Fastest lap, best sectors and weather share a compact two-row strip.
-- **Event timeline**: hover or focus a pit stop, pass, fastest lap, retirement or track-status
+- **Event timeline** (collapsed by default): hover or focus a pit stop, pass, fastest lap, retirement or track-status
   change; click to pause and jump to that lap. Filter by event type; numbered markers open all events on
   crowded laps without a separate dropdown. Spoiler-free mode only sends events through the current replay lap to the browser.
 - **Timing tower**: running order with a green ▲ or red ▼ for places gained or lost on the lap
@@ -251,13 +251,13 @@ Both series use the same sidebar design, full-name driver selectors and season-s
   model reference photos are labelled when they do not show that team’s season livery.
 - **Drivers**: biographical introductions, birthday, nationality, DTM debut, season portrait,
   official profile links, first-points/first-win milestones and race-by-race results. F1's Drivers page has the same profile card.
-- **Circuits**: the selected season’s eight venues on an interactive globe and Europe map, official DTM layout diagrams,
+- **Circuits**: the selected season’s eight venues on a Europe map (with an optional world view), official DTM layout diagrams,
   sourced venue histories, length comparisons and links back to the race weekend. Covered records (fastest race lap,
   most wins and qualifying P1s) use 2023 through the selected season; qualifying groups stay separate from combined P1s.
 - Driver menus show full names on the left and their session/season teams on the right; multi-select tags keep names only.
-- Official data from [dtm.com](https://www.dtm.com/en/results). The current season refreshes
-  every 30 minutes while in use; a refresh button checks any supported year. Bundled official
-  snapshots keep the section usable offline or during an upstream failure. The fetched time
+- Official data from [dtm.com](https://www.dtm.com/en/results). Bundled official snapshots open
+  first without waiting for the network. Refresh data checks any supported year; refreshed data
+  is cached for 30 minutes. Snapshots also keep the section usable during an upstream failure. The fetched time
   and provisional status are shown. This section provides classifications, not telemetry replay.
 - Refresh a checked-in snapshot with `python -m gridpulse.dtm.refresh --year 2026`.
   See [DTM data coverage](docs/dtm-data.md) for adapter boundaries and verification.
@@ -437,7 +437,8 @@ See [the scenario, equations and validation](docs/strategy-radar.md).
 The point-estimate window was backtested on every last green-flag stop of 2024 and 2025
 (625 stops), deciding ten laps ahead, its best lap was within five laps of the team's choice 59 to
 66% of the time and the real stop fell inside its window 51 to 54% of the time, a little better
-than splitting the remaining laps evenly between the two stints (57 to 62%). Run it yourself:
+than splitting the remaining laps evenly between the two stints (57 to 62%). This measures
+agreement with teams' actual choices, not proof that either choice was optimal. Run it yourself:
 
 ```bash
 .venv/bin/python -m gridpulse pitwindow --year 2025

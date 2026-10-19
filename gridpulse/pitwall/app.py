@@ -23,9 +23,11 @@ from gridpulse.pitwall import (
     driver_picker,
     drivers_page,
     dtm_page,
+    event_names,
     home_page,
     onboard_page,
     quali_page,
+    replay_navigation,
     season_page,
     teams_page,
     ui,
@@ -34,6 +36,7 @@ from gridpulse.pitwall import (
 from gridpulse.pitwall.data import FIRST_SEASON, RaceData, completed_races, lap_clock, load_race
 from gridpulse.pitwall.events import fastest_lap_candidates, fastest_sectors, neutralised_banner, situation
 from gridpulse.pitwall.navigation import driver_codes, integer, replay_params, select_season, url
+from gridpulse.pitwall.replay_navigation import VIEWS
 from gridpulse.pitwall.timeline import event_timeline, known_events
 from gridpulse.pitwall.timing import format_lap_time, neutralised_periods, timing_tower
 from gridpulse.pitwall.tower import timing_tower as tower_component
@@ -42,7 +45,6 @@ from gridpulse.session import TimingUnavailable
 from gridpulse.sources.weather import rain_at
 
 SPEEDS = {"1×": 2.0, "2×": 1.0, "4×": 0.5}  # seconds per lap
-VIEWS = ["Strategy", "Tyres", "Gaps", "Positions", "Pit stops", "Pace", "Radio", "Messages"]
 
 
 @st.cache_data(ttl=3600, show_spinner=False)
@@ -89,8 +91,9 @@ def choose_race() -> tuple[int, int, str]:
         # A new visitor can start without a schedule request or timing download.
         ss.race_year = next((y for y in range(this_year, FIRST_SEASON - 1, -1)
                              if not snapshots.races(y).empty), this_year)
-    year = select_season(range(this_year, FIRST_SEASON - 1, -1), key="race_year")
-    if st.sidebar.button("Check latest races", key="refresh_calendar", icon=":material/refresh:",
+    archive = st.sidebar.expander("Season & archive", expanded=False)
+    year = select_season(range(this_year, FIRST_SEASON - 1, -1), key="race_year", target=archive)
+    if archive.button("Check latest races", key="refresh_calendar", icon=":material/refresh:",
                          disabled=snapshots.offline(), help="Fetch the full calendar, including races not saved locally."):
         cached_races.clear()
         ss.live_calendar_years = {*ss.get("live_calendar_years", set()), year}
@@ -108,12 +111,12 @@ def choose_race() -> tuple[int, int, str]:
         st.info(f"No {year} races have finished yet. Pick an earlier season.")
         st.stop()
     rounds = races["RoundNumber"].astype(int).tolist()
-    labels = {int(r.RoundNumber): f"R{r.RoundNumber} · {r.EventName}" for r in races.itertuples()}
+    labels = {int(r.RoundNumber): f"R{r.RoundNumber} · {event_names.title(year, r.EventName, r.Location)}" for r in races.itertuples()}
     if ss.get("race_pick") not in rounds:
         ss.race_pick = rounds[-1]  # the latest race
     round_number = st.sidebar.selectbox("Grand Prix", rounds, format_func=labels.get, key="race_pick")
     if use_saved:
-        st.sidebar.caption("Saved races · ready to replay. Check latest races for the full calendar.")
+        archive.caption("Saved races open without a download. Check latest races for the full calendar.")
     kind = "R"
     if "sprint" in str(races.set_index("RoundNumber").loc[round_number, "EventFormat"]):
         ss.setdefault("race_session", "Race")  # set here, not as a default, since a link may set it too
@@ -328,7 +331,7 @@ def race_view(race: RaceData) -> None:
     periods = neutralised_periods(laps)
     tower = timing_tower(race.laps, lap, race.retired, race.entrants, stops=race.stops)
     status_strip(race, laps, tower, lap)
-    with st.container(border=True, key="card-event-timeline"):
+    with st.expander("Race event timeline", expanded=False):
         events = known_events(race.events, lap, ss.no_spoilers)
         action = event_timeline(events, lap, race.total_laps, ss.no_spoilers, key=f"timeline-{ss.race_key}")
         allowed = {(e["event"], e["lap"]) for e in events}
@@ -368,8 +371,7 @@ def race_view(race: RaceData) -> None:
 
     with right, st.container(border=True, key="card-views"):
         # Only the chosen view is drawn each tick (tabs would redraw all of them).
-        view = st.segmented_control("View", VIEWS, key="view", required=True, label_visibility="collapsed",
-                                    width="stretch", wrap=True)
+        view = replay_navigation.render()
         if view == "Gaps":
             ui.note("Seconds behind the leader at the end of each lap. Flat lines hold the gap, dips are pit "
                     "stops, shaded laps ran under safety car or VSC.")
@@ -442,7 +444,9 @@ def race_page() -> None:
     st.sidebar.toggle("No spoilers", key="no_spoilers",
                       help="Start on lap 1, focus on the starting grid and hide future pit-stop overlays")
     message = "Opening saved race…" if ss.replay_from_snapshot else "Loading race data. New sessions can take up to a minute."
-    with st.spinner(message):
+    event = snapshots.race_metadata(year, round_number, kind) or {}
+    name = event_names.title(year, event.get('event_name', f'Round {round_number}'), event.get('location', ''))
+    with ui.loading(f"Opening {year} {name}", "Preparing timing, tyres and strategy. " + message), st.spinner(message):
         try:
             race = cached_race(year, round_number, kind)
         except TimingUnavailable as exc:
@@ -467,9 +471,11 @@ def race_page() -> None:
     day = race.start_utc if race.start_utc is not None else race.date
     ui.header(
         f"{race.year} · Round {race.round_number} · {race.location}" + (" · Sprint" if sprint else ""),
-        race.event_name + (" Sprint" if sprint else ""),
+        event_names.title(year, race.event_name, race.location) + (" Sprint" if sprint else ""),
         f"{day:%-d %B %Y} · {race.total_laps} laps · data: {race.source} · press Play to replay it lap by lap",
     )
+    if event_names.in_malaysia(year, race.event_name, race.location):
+        st.caption(f"Hosted at Sepang International Circuit, Malaysia · [Official announcement]({event_names.MALAYSIA_SOURCE})")
     if race.coverage is not None and race.coverage < 0.95:
         st.warning(f"{race.source} is missing about {1 - race.coverage:.0%} of this race's laps, so the replay has "
                    "gaps: on those laps cars can look out of order or a lap down.", icon=":material/warning:")
@@ -531,10 +537,10 @@ def main() -> None:
     ss.sidebar_pages = pages
     ss.sidebar_current_page = "replay" if legacy_replay else current.url_path
     ss.sidebar_navigation_rendered = False
-    # Keep a usable menu visible while data loads or if a page stops early.
-    # The normal footer moves it below that page's controls once they are ready.
+    # Navigation stays above the page's filters, including while data loads or fails.
     ss.sidebar_navigation_fallback = st.sidebar.empty()
-    ui.sidebar_navigation(fallback=True)
+    if ss.racing_series != "DTM" or ss.sidebar_current_page != "dtm":
+        ui.sidebar_navigation(fallback=True)
     current.run()
 
 

@@ -6,11 +6,12 @@ so the same markup reads well in Streamlit's light and dark themes.
 
 import html
 import json
+from contextlib import contextmanager
 
 import pandas as pd
 import streamlit as st
 
-from gridpulse.branding import NAME, TAGLINE
+from gridpulse.branding import NAME
 from gridpulse.pitwall import dtm_nav, styles
 from gridpulse.style import COMPOUND_COLORS
 
@@ -38,12 +39,12 @@ def sidebar_brand(tagline: str) -> None:
         with target.container(key="brand-home-link"):
             st.page_link(home, label=NAME, icon="", help="Return to GridPulse home", width="stretch")
             # CSS metadata decorates a native page link, preserving the browser session on navigation.
-            caption = json.dumps(TAGLINE + "\n" + tagline, ensure_ascii=False).replace("<", r"\3c ").replace(r"\n", r"\a ")
+            caption = json.dumps(tagline, ensure_ascii=False).replace("<", r"\3c ")
             st.html('<style>.st-key-brand-home-link a::after{content:' + caption + ';}</style>')
         return
     target.html(
         f'<div class="pl-brand"><div class="mark"></div><div><div class="name">{NAME}</div>'
-        f'<div class="tag">{TAGLINE}</div><div class="context">{html.escape(tagline)}</div></div></div>'
+        f'<div class="tag">{html.escape(tagline)}</div></div></div>'
     )
 
 
@@ -62,13 +63,13 @@ def sidebar_navigation(*, fallback: bool = False) -> None:
         by_path = {p.url_path: p for p in pages if p.url_path != "dtm"}
         pages = [by_path[path] for path in ("", "season", "replay", "qualifying", "onboard", "teams", "drivers", "circuits", "about")]
     slot = st.session_state.get("sidebar_navigation_fallback")
-    if not fallback and slot is not None:
-        slot.empty()
+    if series == "DTM" and current == "dtm":
+        slot = None  # The series' own menu occupies the top slot; Home/About stay below its filters.
     dtm_nav.render_pages(pages, current, "GridPulse" if current == "" else series,
                          caption=current == "" or series != "DTM" or current == "about",
-                         target=slot if fallback else None, suffix="-fallback" if fallback else "")
-    if not fallback:
-        st.session_state.sidebar_navigation_rendered = True
+                         target=slot, suffix="-fallback" if fallback else "",
+                         secondary=current != "" and series == "Formula 1")
+    st.session_state.sidebar_navigation_rendered = True
 
 
 def sidebar_footer(series: str = "Formula 1") -> None:
@@ -97,6 +98,19 @@ def label(text: str) -> None:
 
 def note(text: str) -> None:
     st.html(f'<div class="pl-note">{html.escape(text)}</div>')
+
+
+@contextmanager
+def loading(title: str, detail: str):
+    """A visible main-content state while a page reads its data; always clear on failure too."""
+    slot = st.empty()
+    slot.html(f'<section class="pl-loading" role="status" aria-live="polite" aria-busy="true">'
+              f'<strong>{html.escape(title)}</strong><p>{html.escape(detail)}</p>'
+              '<div class="pl-loading-line"></div><div class="pl-loading-line short"></div></section>')
+    try:
+        yield
+    finally:
+        slot.empty()
 
 
 def header(eyebrow: str, title: str, sub: str = "", title_html: str | None = None) -> None:

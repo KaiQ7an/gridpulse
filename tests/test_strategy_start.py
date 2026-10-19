@@ -38,7 +38,7 @@ def test_early_dry_strategy_and_tyres_render_with_explicit_evidence(lap):
     if lap == 1:
         assert 'Pre-race prior window' in html(at) and '0 clean laps' in html(at)
         assert 'Catch estimates wait' in html(at)
-    at.segmented_control(key='view').set_value('Tyres').run()
+    at.segmented_control(key='view_primary').set_value('Tyres').run()
     assert not at.exception and 'Typical wear reference · not measured' in html(at)
     assert any(chart.key == 'chart_deg_prior' for chart in at.get('plotly_chart'))
 
@@ -52,7 +52,7 @@ def test_wet_start_does_not_invent_a_slick_strategy(monkeypatch):
     at.run()
     assert not at.exception and 'Pre-race prior window' not in html(at)
     assert not any(chart.key == 'chart_window' for chart in at.get('plotly_chart'))
-    at.segmented_control(key='view').set_value('Tyres').run()
+    at.segmented_control(key='view_primary').set_value('Tyres').run()
     assert not any(chart.key == 'chart_deg_prior' for chart in at.get('plotly_chart'))
 
 
@@ -71,7 +71,7 @@ def test_prior_and_early_fit_do_not_read_future_pace(lap):
 def test_home_and_about_share_exact_strategy_links():
     at = AppTest.from_file(str(Path(app.__file__)), default_timeout=60).run()
     for moment in FEATURED:
-        link = next(link for link in at.get('page_link') if link.label == moment.title)
+        link = next(link for link in at.get('page_link') if link.label == moment.question)
         assert parse_qs(link.proto.query_string) == {k: [v] for k, v in moment.params.items()}
     from gridpulse.pitwall.about_page import FEATURED as about_featured
 
@@ -87,7 +87,7 @@ def test_every_featured_link_opens_a_live_window_at_its_lap_and_focus(moment):
     assert not at.exception
     assert at.slider(key='lap').value == moment.lap
     assert at.multiselect(key='focus').value == list(moment.drivers)
-    assert at.segmented_control(key='view').value == 'Strategy'
+    assert at.segmented_control(key='view_primary').value == 'Strategy'
     assert at.selectbox(key='window_driver').value == moment.drivers[0]
     assert at.toggle(key='no_spoilers').value
     assert any(chart.key == 'chart_window' for chart in at.get('plotly_chart'))

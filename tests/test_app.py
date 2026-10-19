@@ -41,7 +41,8 @@ def test_every_view_renders(lap):
     at = replay(year="2026", round="15")
     at.slider(key="lap").set_value(lap).run()
     for view in VIEWS:
-        at.segmented_control(key="view").set_value(view).run()
+        control = at.segmented_control(key="view_primary") if view in ("Gaps", "Strategy", "Tyres", "Positions") else at.selectbox(key="view_more")
+        control.set_value(view).run()
         assert not at.exception, f"{view} on lap {lap}: {at.exception[0].value}"
 
 
@@ -149,7 +150,7 @@ def test_replay_link_restores_lap_drivers_and_view_and_tracks_changes():
     assert not at.exception
     assert at.slider(key="lap").value == 24
     assert at.multiselect(key="focus").value == ["HAM", "ANT"]
-    assert at.segmented_control(key="view").value == "Strategy"
+    assert at.segmented_control(key="view_primary").value == "Strategy"
     at.slider(key="lap").set_value(26).run()
     assert not at.exception
     assert at.query_params["lap"] == "26"
@@ -162,7 +163,7 @@ def test_replay_link_clamps_lap_and_filters_unknown_and_duplicate_drivers():
     assert not at.exception
     assert at.slider(key="lap").value == 62
     assert at.multiselect(key="focus").value == ["HAM", "ANT"]
-    assert at.segmented_control(key="view").value == "Gaps"
+    assert at.segmented_control(key="view_primary").value == "Gaps"
 
 
 def test_spoiler_free_mode_starts_at_lap_one_and_uses_starting_order():
@@ -174,7 +175,7 @@ def test_spoiler_free_mode_starts_at_lap_one_and_uses_starting_order():
     assert at.slider(key="lap").value == 1
     assert at.multiselect(key="focus").value == starting_order(load_race(2026, 17))[:3]
     at.slider(key="lap").set_value(24).run()
-    at.segmented_control(key="view").set_value("Strategy").run()
+    at.segmented_control(key="view_primary").set_value("Strategy").run()
     assert not at.exception
     assert all(t.key != "window_actual" for t in at.toggle)
 
@@ -223,7 +224,7 @@ else:
     assert at.slider(key="lap").value == 23
     assert at.multiselect(key="focus").value == ["HAM", "LEC"]
     assert at.toggle(key="no_spoilers").value
-    assert at.segmented_control(key="view").value == "Tyres"
+    assert at.segmented_control(key="view_primary").value == "Tyres"
     assert not at.session_state["playing"]
 
 

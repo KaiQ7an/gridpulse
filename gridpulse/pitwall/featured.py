@@ -18,17 +18,21 @@ class StrategyMoment:
     source: str = ''
 
     @property
+    def context(self) -> str:
+        return f'{self.title} · Lap {self.lap}'
+
+    @property
     def params(self) -> dict[str, str]:
         return {'year': str(self.year), 'round': str(self.round), 'lap': str(self.lap),
                 'drivers': ','.join(self.drivers), 'view': 'Strategy', 'mode': 'replay'}
 
 
 FEATURED = (
-    StrategyMoment(2025, 14, 18, ('NOR', 'PIA', 'LEC'), 'Hungary 2025 · L18',
-                   'Norris or Piastri: stop now or extend the stint?',
+    StrategyMoment(2025, 14, 18, ('LEC', 'PIA', 'NOR'), 'Hungary 2025',
+                   'Piastri pits. Should Leclerc respond?',
                    'https://www.mclaren.com/racing/formula-1/2025/hungarian-grand-prix/race-report/'),
-    StrategyMoment(2026, 15, 18, ('RUS', 'VER', 'LEC'), 'Baku 2026 · L18',
-                   'Which fresh compound makes the next stop worthwhile?'),
-    StrategyMoment(2025, 4, 23, ('HAM', 'LEC', 'PIA'), 'Bahrain 2025 · L23',
-                   'Where would Hamilton and Leclerc rejoin after a stop?'),
+    StrategyMoment(2026, 15, 18, ('RUS', 'VER', 'LEC'), 'Baku 2026',
+                   'Russell vs Verstappen: which tyre pays back a stop?'),
+    StrategyMoment(2025, 4, 23, ('HAM', 'LEC', 'PIA'), 'Bahrain 2025',
+                   'Would a Ferrari stop put them back in traffic?'),
 )

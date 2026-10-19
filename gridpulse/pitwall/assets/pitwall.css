@@ -9,20 +9,21 @@
 h1, h2, h3 { letter-spacing: -0.01em; }
 
 /* Page header */
+:root { --gp-muted:light-dark(#555e6b,#b9c1cc); --gp-accent:light-dark(#bc211b,#ff817a); }
 .pl-eyebrow { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase;
-  color: #E10600; margin-bottom: 0.15rem; }
+  color: var(--gp-accent); margin-bottom: 0.15rem; }
 .pl-title { font-family: "Titillium Web", sans-serif; font-weight: 700; font-size: 2.5rem; line-height: 1.08;
   margin: 0.1rem 0 0; }
-.pl-sub { opacity: 0.62; font-size: 0.95rem; margin-top: 0.45rem; margin-bottom: 0.6rem; }
+.pl-sub { color:var(--gp-muted); font-size: 0.98rem; margin-top: 0.45rem; margin-bottom: 0.6rem; }
 
 /* Status strip: small labelled values in a row */
 .pl-strip { display: flex; flex-wrap: wrap; gap: 12px; margin: 6px 0 10px; }
 .pl-stat { border: 1px solid rgba(128,128,128,0.22); border-radius: 10px; padding: 11px 16px 12px; min-width: 104px;
   background: rgba(128,128,128,0.04); }
-.pl-stat .k { font-size: 0.66rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.55; }
+.pl-stat .k { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color:var(--gp-muted); }
 .pl-stat .v { font-size: 1.2rem; font-weight: 600; font-variant-numeric: tabular-nums; margin-top: 4px;
   white-space: nowrap; }
-.pl-stat .v small { font-size: 0.78rem; font-weight: 500; opacity: 0.6; margin-left: 4px; }
+.pl-stat .v small { font-size: 0.82rem; font-weight: 500; color:var(--gp-muted); margin-left: 4px; }
 /* Fastest sectors: three small stats (a size down from the main ones), P2 and P3 on hover.
    light-dark() follows Streamlit's theme (it sets color-scheme on the app), not the OS. */
 .pl-stat.sec { position: relative; min-width: 0; padding: 11px 14px 12px; cursor: default; }
@@ -38,7 +39,7 @@ h1, h2, h3 { letter-spacing: -0.01em; }
 .pl-status-main .pl-stat + .pl-stat { border-left: 1px solid rgba(128,128,128,.14); }
 .pl-status-main .v { font-size: 1.05rem; margin-top: 2px; }
 .pl-status-details .pl-stat { flex: 1 1 auto; padding: 6px 12px; }
-.pl-status-details .k { font-size: .58rem; letter-spacing: .08em; }
+.pl-status-details .k { font-size: .66rem; letter-spacing: .05em; }
 .pl-status-details .v { font-size: .84rem; margin-top: 2px; }
 .pl-status-details .v small { font-size: .68rem; }
 .pl-status-details .pl-dot { height: 11px; margin-right: 5px; }
@@ -66,9 +67,13 @@ h1, h2, h3 { letter-spacing: -0.01em; }
 .pl-dot { display: inline-block; width: 4px; height: 14px; border-radius: 2px; margin-right: 7px; vertical-align: -2px; }
 
 /* Section labels inside cards */
-.pl-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.55;
+.pl-label { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color:var(--gp-muted);
   margin: 2px 0 6px; }
-.pl-note { font-size: 0.87rem; opacity: 0.62; margin: 0 0 10px; line-height: 1.5; }
+.pl-note { font-size: 0.94rem; color:var(--gp-muted); margin: 0 0 10px; line-height: 1.5; }
+.pl-loading { border:1px solid rgba(128,128,128,.25);border-radius:10px;padding:24px;min-height:210px; }
+.pl-loading strong { font-size:1.25rem; }.pl-loading p { color:var(--gp-muted);line-height:1.6; }
+.pl-loading-line { height:16px;max-width:650px;background:rgba(128,128,128,.15);border-radius:5px;margin:20px 0; }
+.pl-loading-line.short { max-width:420px; }
 
 /* One-line takeaway under a page header */
 .pl-insight { border-left: 3px solid #E10600; border-radius: 4px 10px 10px 4px; padding: 14px 18px; margin: 8px 0 8px;

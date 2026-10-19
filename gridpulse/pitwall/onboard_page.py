@@ -12,7 +12,7 @@ from gridpulse.onboard.data import (
     load_weekend,
     teammate_of,
 )
-from gridpulse.pitwall import driver_picker, ui
+from gridpulse.pitwall import driver_picker, event_names, ui
 from gridpulse.pitwall.data import FIRST_SEASON, completed_races
 from gridpulse.pitwall.navigation import integer, select_season
 from gridpulse.pitwall.timing import format_lap_time
@@ -107,7 +107,7 @@ def render() -> None:
     if races.empty:
         st.info(f"No {year} races have finished yet. Pick an earlier season.")
         st.stop()
-    labels = [f"R{r.RoundNumber} · {r.EventName}" for r in races.itertuples()]
+    labels = [f"R{r.RoundNumber} · {event_names.title(year, r.EventName, getattr(r, 'Location', ''))}" for r in races.itertuples()]
     requested_round = integer(params.get("round")) if incoming else None
     if requested_round is None and "ob_event" not in ss and ss.get("selected_race", (None,))[0] == year:
         requested_round = ss.selected_race[1]
