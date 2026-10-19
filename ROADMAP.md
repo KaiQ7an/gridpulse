@@ -32,6 +32,10 @@ pace, tyres and strategy as the race unfolds. It is built in layers, each useful
 - [x] Leave out drives through the pit lane on the same tyres (penalties, field sent through under SC)
 - [x] Tyre model and pit window: best lap to stop, the window, and when a fresher tyre catches the car
       ahead; backtested against every last stop of 2024 and 2025 (`gridpulse pitwindow`)
+- [x] Approximate parameter ranges for stop plans, retaining covariance and separating them from
+      the within-one-second stopping window
+- [x] Replay-aware undercut radar: adjacent-car response scenarios, fresh compound/delay/cost
+      controls, evidence labels and ranges with future lap noise (not calibrated overtake odds)
 
 ## 4. `pitwall`: race-day dashboard with replay (done)
 

@@ -27,6 +27,7 @@ LAP_NOISE_SD = 0.3
 MIN_STINT_LAPS = 5  # clean laps in one stint before a compound's wear counts as measured
 MIN_COMPOUND_LAPS = 8  # clean laps before a compound's pace counts as measured
 WINDOW_SECONDS = 1.0  # stopping laps within this of the best count as the window
+MODEL_Z = 1.6448536269514722  # central 90% Gaussian model range, not calibrated race odds
 
 
 @dataclass
@@ -39,6 +40,11 @@ class TyreModel:
     deg_measured: set[str] = field(default_factory=set)  # compounds whose wear was measured
     sample_counts: dict[str, int] = field(default_factory=dict)  # retained clean laps per compound
     prior_only: bool = False  # no observed dry pace; compare plans for one car, not relative driver pace
+    driver_samples: dict[str, int] = field(default_factory=dict)
+    parameter_drivers: tuple[str, ...] = ()
+    covariance: tuple[tuple[float, ...], ...] | None = None
+    noise_sd: float = LAP_NOISE_SD
+    bounded_wear: bool = False
 
     @property
     def field_base(self) -> float:
@@ -50,6 +56,17 @@ class TyreModel:
         Plans are compared over the same laps, so the trend adds the same to each and drops out.
         """
         return self.base.get(driver, self.field_base) + self.offset[compound] + self.deg[compound] * np.asarray(age)
+
+    def contrast_sd(self, weights: np.ndarray, *, future_laps: int = 0) -> float | None:
+        """Uncertainty of a linear contrast, retaining correlations between fitted parameters.
+
+        `future_laps` adds independent lap noise for a race projection. Relative stop-plan
+        curves use parameter uncertainty only. No Gaussian range is claimed after clipping wear.
+        """
+        if self.covariance is None or self.bounded_wear:
+            return None
+        variance = float(weights @ np.asarray(self.covariance) @ weights)
+        return float(np.sqrt(max(0.0, variance) + future_laps * self.noise_sd ** 2))
 
 
 def fit_tyre_model(clean: pd.DataFrame, *, allow_prior: bool = False) -> TyreModel | None:
@@ -63,14 +80,20 @@ def fit_tyre_model(clean: pd.DataFrame, *, allow_prior: bool = False) -> TyreMod
     dry = clean[clean["Compound"].isin(DRY)].dropna(subset=["LapTime", "TyreLife", "LapNumber"])
     if dry.empty:
         return TyreModel(base={}, offset=TYPICAL_OFFSET.copy(), deg=TYPICAL_DEG.copy(),
-                         sample_counts=dict.fromkeys(DRY, 0), prior_only=True) if allow_prior else None
-    theta, drivers = _solve(dry)
+                         sample_counts=dict.fromkeys(DRY, 0), prior_only=True,
+                         covariance=tuple(map(tuple, np.diag([
+                             PRIOR_SD['offset'] ** 2, PRIOR_SD['offset'] ** 2,
+                             *[PRIOR_SD['deg'] ** 2] * 3, PRIOR_SD['trend'] ** 2])))) if allow_prior else None
+    theta, drivers, information_inverse = _solve(dry)
     residual = dry["LapTime"].to_numpy(float) - _design(dry, drivers) @ theta
     spread = max(1.4826 * float(np.median(np.abs(residual - np.median(residual)))), 0.15)
     keep = np.abs(residual) <= 3 * spread  # traffic and mistakes that got past the clean-lap filter
     if keep.sum() >= len(drivers) + 2 and not keep.all():
         dry = dry[keep]
-        theta, drivers = _solve(dry)
+        theta, drivers, information_inverse = _solve(dry)
+
+    residual = dry['LapTime'].to_numpy(float) - _design(dry, drivers) @ theta
+    noise_sd = max(LAP_NOISE_SD, 1.4826 * float(np.median(np.abs(residual - np.median(residual)))))
 
     n = len(drivers)
     offset = {"SOFT": float(theta[n]), "MEDIUM": 0.0, "HARD": float(theta[n + 1])}
@@ -85,6 +108,11 @@ def fit_tyre_model(clean: pd.DataFrame, *, allow_prior: bool = False) -> TyreMod
         measured={c for c in DRY if counts.get(c, 0) >= MIN_COMPOUND_LAPS},
         deg_measured=set(stint_laps.loc[stint_laps["size"] >= MIN_STINT_LAPS, "first"]),
         sample_counts={c: int(counts.get(c, 0)) for c in DRY},
+        driver_samples={d: int(count) for d, count in dry['Driver'].value_counts().items()},
+        parameter_drivers=tuple(drivers),
+        covariance=tuple(map(tuple, information_inverse * noise_sd ** 2)),
+        noise_sd=noise_sd,
+        bounded_wear=any(not 0 <= theta[n + 2 + j] <= 0.4 for j in range(3)),
     )
 
 
@@ -104,7 +132,7 @@ def _design(laps: pd.DataFrame, drivers: list[str]) -> np.ndarray:
     return x
 
 
-def _solve(laps: pd.DataFrame) -> tuple[np.ndarray, list[str]]:
+def _solve(laps: pd.DataFrame) -> tuple[np.ndarray, list[str], np.ndarray]:
     """Least squares with the typical figures as weak priors (extra rows pulling each towards them)."""
     drivers = sorted(laps["Driver"].unique())
     n = len(drivers)
@@ -119,8 +147,29 @@ def _solve(laps: pd.DataFrame) -> tuple[np.ndarray, list[str]]:
         weight = LAP_NOISE_SD / sd
         rows[i, column] = weight
         targets[i] = value * weight
-    theta, *_ = np.linalg.lstsq(np.vstack([x, rows]), np.concatenate([y, targets]), rcond=None)
-    return theta, drivers
+    augmented = np.vstack([x, rows])
+    theta, *_ = np.linalg.lstsq(augmented, np.concatenate([y, targets]), rcond=None)
+    # SVD avoids squaring the condition number when inverting the penalized information.
+    _, singular, right = np.linalg.svd(augmented, full_matrices=False)
+    inverse = (right.T / singular ** 2) @ right
+    return theta, drivers, inverse
+
+
+def lap_coefficients(model: TyreModel, driver: str | None, compound: str, ages) -> np.ndarray:
+    """Coefficients for a sum of laps, in the fit's parameter order, without the shared trend.
+
+    `driver=None` removes common driver pace when comparing that driver's alternative plans.
+    The trend also cancels because both plans span exactly the same race laps.
+    """
+    n = len(model.parameter_drivers)
+    weights = np.zeros(n + 6)
+    ages = np.atleast_1d(ages)
+    if driver is not None:
+        weights[model.parameter_drivers.index(driver)] = len(ages)
+    if compound in ('SOFT', 'HARD'):
+        weights[n + (compound == 'HARD')] = len(ages)
+    weights[n + 2 + DRY.index(compound)] = np.sum(ages)
+    return weights
 
 
 def compounds_allowed(used: set[str]) -> list[str]:
@@ -149,6 +198,13 @@ def pit_window(model: TyreModel, driver: str, compound: str, age: float, laps_le
                          "Total": float(old[k - 1] + loss + fresh[laps_left - k - 1])})
     out = pd.DataFrame(rows)
     out["Lost"] = out["Total"] - out["Total"].min()
+    if model.covariance is not None and not model.bounded_wear:
+        vectors = [lap_coefficients(model, None, compound, age + np.arange(1, r.LapsMore + 1))
+                   + lap_coefficients(model, None, r.Compound, np.arange(1, laps_left - r.LapsMore + 1))
+                   for r in out.itertuples()]
+        reference = vectors[int(out['Total'].idxmin())]
+        half = np.array([MODEL_Z * model.contrast_sd(vector - reference) for vector in vectors])
+        out['LostLow'], out['LostHigh'] = out['Lost'] - half, out['Lost'] + half
     return out
 
 

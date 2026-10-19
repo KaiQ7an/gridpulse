@@ -340,20 +340,33 @@ def tyre_prior_chart() -> go.Figure:
 
 
 def pit_window_chart(window: pd.DataFrame, lap: int, total_laps: int, best, actual: int | None = None,
-                     stay_lost: float | None = None) -> go.Figure:
+                     stay_lost: float | None = None, *, show_ranges: bool = True) -> go.Figure:
     """Time lost against the best plan by the lap a car stops on, one line per compound it could fit."""
     fig = go.Figure()
+    ranges = show_ranges and {'LostLow', 'LostHigh'} <= set(window.columns)
     for compound in [c for c in COMPOUND_ORDER if c in set(window["Compound"])]:
         w = window[window["Compound"] == compound]
+        if ranges:
+            color = COMPOUND_COLORS[compound].lstrip('#')
+            rgb = ','.join(str(int(color[i:i + 2], 16)) for i in (0, 2, 4))
+            for column, fill in (('LostLow', None), ('LostHigh', 'tonexty')):
+                fig.add_trace(go.Scatter(
+                    x=lap + w['LapsMore'], y=w[column], mode='lines', line=dict(width=0),
+                    fill=fill, fillcolor=f'rgba({rgb},0.12)', hoverinfo='skip',
+                    legendgroup=compound, showlegend=False, name=f'{compound.title()} model range',
+                ))
         fig.add_trace(go.Scatter(
             x=lap + w["LapsMore"], y=w["Lost"], mode="lines", name=compound.title(),
+            legendgroup=compound,
             line=dict(color=COMPOUND_COLORS[compound], width=2.5),
-            hovertemplate="Stop at the end of lap %{x}<br>%{y:.1f} s slower than the best plan"
-                          f"<extra>{compound.title()}</extra>",
+            customdata=w[['LostLow', 'LostHigh']].to_numpy() if ranges else None,
+            hovertemplate="Stop at the end of lap %{x}<br>%{y:.1f} s vs selected reference"
+                          + ("<br>90% model range: %{customdata[0]:.1f} to %{customdata[1]:.1f} s" if ranges else '')
+                          + f"<extra>{compound.title()}</extra>",
         ))
     fig.add_vrect(x0=lap + best["From"] - 0.5, x1=lap + best["To"] + 0.5, line_width=0, layer="below",
                   fillcolor=COMPOUND_COLORS.get(best["Compound"], "#888888"), opacity=0.12,
-                  annotation_text="window", annotation_position="top left", annotation_font_size=10)
+                  annotation_text="within 1 s", annotation_position="top left", annotation_font_size=10)
     if stay_lost is not None and stay_lost < 20:
         fig.add_hline(y=stay_lost, line=dict(color=CONTEXT_GREY, width=1.5, dash="dash"),
                       annotation_text="no more stops", annotation_position="top right", annotation_font_size=10)
@@ -366,8 +379,42 @@ def pit_window_chart(window: pd.DataFrame, lap: int, total_laps: int, best, actu
                       legend=dict(orientation="h", yanchor="bottom", y=1.0, x=0))
     plotstyle.apply(fig)
     fig.update_xaxes(title="Stop at the end of lap", range=[lap + 0.5, total_laps + 0.5])
-    fig.update_yaxes(title="Slower than the best plan (s)", range=[-0.3, max(top, 3.0)], zeroline=True,
+    bottom = min(-0.3, max(-5.0, float(window['LostLow'].min()))) if ranges else -0.3
+    fig.update_yaxes(title="Time vs selected reference (s)", range=[bottom, max(top, 3.0)], zeroline=True,
                      zerolinecolor=plotstyle.AXIS)
+    return fig
+
+
+def undercut_radar_chart(pairs: pd.DataFrame, names: dict[str, str]) -> go.Figure:
+    """Current adjacent-car scenarios. Positive means the first stopper would be ahead."""
+    fig = go.Figure()
+    colors = {'Model edge': '#16A34A', 'Uncertain': '#D99A00', 'No edge': '#8C8C8C',
+              'Prior-led': '#6C86B8', 'Learning': '#8C8C8C', 'Range unavailable': '#8C8C8C'}
+    for status, group in pairs.groupby('Status', sort=False):
+        ranged = group.Low.notna().all()
+        custom = [[r.Chaser, r.Ahead, r.Gap, r.Gain, r.Low, r.High,
+                   names.get(r.Chaser, r.Chaser), names.get(r.Ahead, r.Ahead),
+                   r.ChaserSamples, r.AheadSamples] for r in group.itertuples()]
+        fig.add_trace(go.Scatter(
+            x=group.Margin, y=group.Chaser + ' → ' + group.Ahead, mode='markers', name=status,
+            marker=dict(size=12, color=colors[status], symbol='diamond' if status == 'Model edge' else 'circle'),
+            error_x=dict(type='data', symmetric=False, array=group.High - group.Margin,
+                         arrayminus=group.Margin - group.Low, thickness=1.5, width=4),
+            customdata=custom,
+            hovertemplate=('<b>%{customdata[6]} → %{customdata[7]}</b><br>Gap now: %{customdata[2]:.2f} s'
+                           '<br>Scenario gain: %{customdata[3]:.2f} s<br>First stopper ahead: %{x:+.2f} s'
+                           + ('<br>90% model range: %{customdata[4]:+.2f} to %{customdata[5]:+.2f} s' if ranged
+                              else '<br>Model range unavailable')
+                           +
+                           '<br>Clean laps: %{customdata[8]} / %{customdata[9]}<extra>' + status + '</extra>'),
+        ))
+    fig.add_vline(x=0, line=dict(color=plotstyle.AXIS, width=1, dash='dot'))
+    fig.update_layout(height=max(190, min(460, 100 + 32 * len(pairs))), margin=dict(l=10, r=15, t=35, b=10),
+                      legend=dict(orientation='h', yanchor='bottom', y=1.02, x=0), clickmode='event+select')
+    plotstyle.apply(fig)
+    fig.update_xaxes(title='First stopper ahead after the response (s)')
+    fig.update_yaxes(categoryorder='array', categoryarray=(pairs.Chaser + ' → ' + pairs.Ahead).tolist(),
+                     autorange='reversed', showgrid=False)
     return fig
 
 

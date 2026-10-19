@@ -103,7 +103,11 @@ Both series use the same sidebar design, full-name driver selectors and season-s
 - **Strategy**: the typical pit loss, where each car would rejoin if it pitted at the end of this
   lap and how many laps on new tyres it would take to close on the car ahead, a **pit window**
   (the best lap to stop and what stopping earlier or later costs, from a tyre model fitted on the
-  race's laps so far), and every undercut and overcut so far with its outcome.
+  race's laps so far) with approximate model ranges, and every undercut and overcut so far with its outcome.
+  The **Undercut radar** lets you vary fresh tyres, a rival's response delay and extra stop cost for
+  adjacent cars within 3.5 s. Hover a point for its assumptions and evidence; click it to select the
+  chaser's pit window. It uses only the replay's known laps and distinguishes measured edges,
+  uncertain comparisons and prior-led estimates.
 - **Radio**: team radio clips up to the current lap, playable in the page, with a microphone in
   the timing tower when a driver's clip comes in. Prepared transcripts and Chinese translations are read from cache; transcribed radio also appears as
   quotes in the race feed. Run `gridpulse radio --transcribe --translate` locally to prepare missing text;
@@ -417,8 +421,20 @@ Wet tyres remain unsupported. The Tyres view also labels its early typical-wear 
 For every lap a car could stop on and every compound it could fit, it adds up the time to the
 flag; the lowest is the best plan, and laps within a second of it are the window.
 
-It knows tyres and pit loss only, not traffic, undercut threats, safety cars or tyre-life limits,
-so it's a guide rather than an answer. Backtested on every last green-flag stop of 2024 and 2025
+Optional shading propagates the fit's full parameter covariance into approximate central 90%
+model ranges. Each plan is compared with the selected point-estimate reference plan, so that
+reference has zero relative range and alternatives may extend below zero. The within-1-second
+stopping window remains a separate rule; these ranges are not calibrated race-outcome probabilities.
+
+The window optimizes tyres and pit loss, without traffic, rival responses, safety cars or tyre-life
+limits. A separate **Undercut radar** explores a short green-flag response scenario: the chaser
+stops next lap and the car ahead responds one to three laps later, both fitting the chosen fresh
+compound. Equal total pit costs cancel; you can add an extra cost for the first stopper. Its ranges
+also include lap noise. The radar waits for observed driver pace, excludes pit/out-laps and lapped
+cars, and labels limited evidence explicitly. It does not know tyre inventory or predict actual stops.
+See [the scenario, equations and validation](docs/strategy-radar.md).
+
+The point-estimate window was backtested on every last green-flag stop of 2024 and 2025
 (625 stops), deciding ten laps ahead, its best lap was within five laps of the team's choice 59 to
 66% of the time and the real stop fell inside its window 51 to 54% of the time, a little better
 than splitting the remaining laps evenly between the two stints (57 to 62%). Run it yourself:

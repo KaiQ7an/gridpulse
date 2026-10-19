@@ -7,7 +7,7 @@ happened up to that lap.
 import pandas as pd
 import streamlit as st
 
-from gridpulse.pitwall import charts, tables, ui
+from gridpulse.pitwall import charts, radar_view, tables, ui
 from gridpulse.pitwall.data import RaceData
 from gridpulse.pitwall.timing import stint_timeline
 from gridpulse.radio import transcribe, translate
@@ -22,9 +22,11 @@ from gridpulse.undercut.analysis import (
 from gridpulse.undercut.charts import battle_chart, pit_loss_chart
 from gridpulse.undercut.window import (
     DRY,
+    MODEL_Z,
     best_plan,
     compounds_allowed,
     fit_tyre_model,
+    lap_coefficients,
     laps_to_catch,
     pit_window,
     stay_out_time,
@@ -262,8 +264,16 @@ def pit_window_view(race: RaceData, tower: pd.DataFrame, lap: int, focus: list[s
         show_actual = st.toggle("Show when they really stopped", value=False, key="window_actual",
                                disabled=later.empty, help="Their next stop in this race (from the future, in a replay)")
         actual = int(later["Lap"].iloc[0]) if show_actual and not later.empty else None
-    st.plotly_chart(charts.pit_window_chart(window, lap, race.total_laps, best, actual, stay), width="stretch",
+    ranges = st.toggle('Show model ranges', value=True, key='window_ranges',
+                       help='Approximate 90% parameter ranges versus the selected reference plan; '
+                       'not a calibrated real-race probability.')
+    st.plotly_chart(charts.pit_window_chart(window, lap, race.total_laps, best, actual, stay, show_ranges=ranges), width="stretch",
                     key="chart_window")
+    if ranges and 'LostLow' in window:
+        ui.note('Shading: approximate 90% model range versus the selected reference plan. Below zero means '
+                'an alternative could be quicker. The coloured stopping window remains the separate within-1-second rule.')
+    elif model.bounded_wear:
+        ui.note('Model ranges are unavailable: a wear estimate reached its physical bound.')
     with st.expander("Compare stop plans"):
         st.dataframe(pd.DataFrame([{"Plan": row["Plan"], "Tyres": row["Tyres"],
                                     "Cost vs quickest plan": f"+{max(0, row['Total'] - baseline):.1f} s"}
@@ -275,19 +285,27 @@ def pit_window_view(race: RaceData, tower: pd.DataFrame, lap: int, focus: list[s
                 "in a stint, which may take longer than five race laps. No future race laps are used.")
         ui.note("Each clean lap so far is fitted as driver pace + compound offset + wear x tyre age + a trend for "
                 "fuel and track that is the same for everyone. Each plan is one more stop then the new set to the "
-                "flag, with the pit loss above. It knows tyres and pit loss only: not traffic, undercut threats, "
-                "safety cars or tyre-life limits. Backtested on every 2024 and 2025 race (gridpulse pitwindow), its "
+                "flag, with the pit loss above. The window does not optimize traffic, rival stops, "
+                "safety cars or tyre-life limits. The separate radar below explores a short rival-response scenario. "
+                "Backtested on every 2024 and 2025 race (gridpulse pitwindow), its "
                 "best lap is within five laps of the team's choice 59–66% of the time, a little better than "
                 "splitting the remaining laps evenly between the stints.")
         st.dataframe(pd.DataFrame({
             "Compound": [c.title() for c in DRY],
             "Fresh pace vs medium": [f"{model.offset[c]:+.2f} s" for c in DRY],
             "Wear": [f"{model.deg[c]:.3f} s/lap" for c in DRY],
+            "90% model ± (s/lap)": [
+                f'{MODEL_Z * sd:.3f}' if (sd := model.contrast_sd(
+                    lap_coefficients(model, None, c, 1) - lap_coefficients(model, None, c, 0))) is not None else '–'
+                for c in DRY],
             "Pace evidence": ["race fit" if c in model.measured else "typical figures" for c in DRY],
             "Wear evidence": ["race fit" if c in model.deg_measured else "typical figures" for c in DRY],
             "Clean laps": [model.sample_counts.get(c, 0) for c in DRY],
         }), hide_index=True, width="stretch")
         ui.note(f"Fuel and track: {model.trend:+.3f} s a lap, every car.")
+        ui.note('Ranges propagate the full penalized-fit covariance, including parameter correlations. '
+                'Residual noise has a 0.3 s floor. They are conditional Gaussian approximations after '
+                'clean-lap filtering, not validated coverage of race outcomes. No range is shown after wear clipping.')
 
 
 def strategy_view(race: RaceData, tower: pd.DataFrame, lap: int, focus: list[str]) -> None:
@@ -307,8 +325,8 @@ def strategy_view(race: RaceData, tower: pd.DataFrame, lap: int, focus: list[str
                 small=f"latest {last['Driver']} L{last['Lap']}" if last is not None else ""),
     ])
 
+    model = fit_tyre_model(race.clean_through(lap), allow_prior=(~tower['Out'] & tower['Compound'].isin(DRY)).any())
     if loss:
-        model = fit_tyre_model(race.clean_through(lap), allow_prior=(~tower['Out'] & tower['Compound'].isin(DRY)).any())
         pit_window_view(race, tower, lap, focus, loss, model)
         ui.label("If they pit at the end of this lap")
         ui.note(f"Uses a pit loss of {loss:.1f} s ({loss_source}). Under a safety car or VSC a stop costs less, "
@@ -336,6 +354,7 @@ def strategy_view(race: RaceData, tower: pd.DataFrame, lap: int, focus: list[str
                 help="Laps on new tyres until the gap to the car ahead is closed, from the tyre model below")},
         )
 
+    radar_view.render(race, tower, lap, model, focus)
     ui.label(f"Undercuts and overcuts so far · {len(battles)}" if len(battles) else "Undercuts and overcuts so far")
     if battles.empty:
         ui.note("None yet: a battle needs two cars within 3.5 s to pit within six laps of each other.")
