@@ -7,7 +7,7 @@ happened up to that lap.
 import pandas as pd
 import streamlit as st
 
-from gridpulse.pitwall import charts, radar_view, tables, ui
+from gridpulse.pitwall import charts, driver_picker, explain, radar_view, tables, ui
 from gridpulse.pitwall.data import RaceData
 from gridpulse.pitwall.timing import stint_timeline
 from gridpulse.radio import transcribe, translate
@@ -23,12 +23,8 @@ from gridpulse.undercut.charts import battle_chart, pit_loss_chart
 from gridpulse.undercut.window import (
     DRY,
     MODEL_Z,
-    best_plan,
-    compounds_allowed,
-    fit_tyre_model,
     lap_coefficients,
     laps_to_catch,
-    pit_window,
     stay_out_time,
 )
 
@@ -191,12 +187,7 @@ def _tyres(race: RaceData, tower: pd.DataFrame, driver: str, lap: int) -> tuple[
 
 def _plan(race: RaceData, tower: pd.DataFrame, model, lap: int, loss: float, driver: str):
     """The model's quickest plan for `driver` (and the full window), or None if it can't say."""
-    compound, age, used = _tyres(race, tower, driver, lap)
-    laps_left = race.total_laps - lap
-    if model is None or compound not in DRY or pd.isna(age) or laps_left < 2:
-        return None, None
-    window = pit_window(model, driver, compound, age, laps_left, loss, compounds_allowed(used))
-    return best_plan(window), window
+    return explain.plan(race, tower, lap, driver, explain.StrategyContext(loss, '', model))
 
 
 def catch_text(race: RaceData, tower: pd.DataFrame, model, lap: int, loss: float, rejoin) -> str:
@@ -222,7 +213,10 @@ def pit_window_view(race: RaceData, tower: pd.DataFrame, lap: int, focus: list[s
     options = [d for d in focus if d in running] + [d for d in running if d not in focus]
     if not options:
         return
-    driver = st.selectbox("Driver", options, key="window_driver", label_visibility="collapsed")
+    driver = st.selectbox("Driver", options, key="window_driver", format_func=explain.names(race).get,
+                          label_visibility="collapsed")
+    driver_picker.decorate('Driver', options, dict(zip(race.entrants.Driver, race.entrants.Team)),
+                           key='window_driver', selected=driver)
     compound, age, used = _tyres(race, tower, driver, lap)
     best, window = _plan(race, tower, model, lap, loss, driver)
     if best is None:
@@ -308,12 +302,12 @@ def pit_window_view(race: RaceData, tower: pd.DataFrame, lap: int, focus: list[s
                 'clean-lap filtering, not validated coverage of race outcomes. No range is shown after wear clipping.')
 
 
-def strategy_view(race: RaceData, tower: pd.DataFrame, lap: int, focus: list[str]) -> None:
+def strategy_view(race: RaceData, tower: pd.DataFrame, lap: int, focus: list[str], *, context=None) -> None:
     stops = race.stops_through(lap)
     battles = race.battles[race.battles["RivalStopLap"] + 1 <= lap]
     last = stops.iloc[-1] if not stops.empty else None
-    status = race.lap_status.get(lap, "Green")
-    loss, loss_source = pit_loss_now(stops[stops["Lap"] < lap], status, race.pit_loss_ref)
+    context = context or explain.prepare(race, tower, lap)
+    loss, loss_source, model = context.loss, context.source, context.model
     ref = race.pit_loss_ref
     ui.strip([
         ui.stat("Pit loss now", f"{loss:.1f} s" if loss else "–", small=short_source(loss_source) if loss else "",
@@ -326,7 +320,6 @@ def strategy_view(race: RaceData, tower: pd.DataFrame, lap: int, focus: list[str
     ])
 
     ui.note('Compare conditional stop scenarios. Traffic, future safety cars and tyre availability are not simulated.')
-    model = fit_tyre_model(race.clean_through(lap), allow_prior=(~tower['Out'] & tower['Compound'].isin(DRY)).any())
     if loss:
         pit_window_view(race, tower, lap, focus, loss, model)
         ui.label("If they pit at the end of this lap")

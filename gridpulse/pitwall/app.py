@@ -3,6 +3,7 @@
 Run with `gridpulse pitwall` (or `streamlit run gridpulse/pitwall/app.py`).
 """
 
+import html
 import time
 
 import pandas as pd
@@ -24,11 +25,14 @@ from gridpulse.pitwall import (
     drivers_page,
     dtm_page,
     event_names,
+    explain,
     home_page,
+    learn_page,
     onboard_page,
     quali_page,
     replay_navigation,
     season_page,
+    styles,
     teams_page,
     ui,
     views,
@@ -330,6 +334,26 @@ def race_view(race: RaceData) -> None:
     laps = race.laps[race.laps["LapNumber"] <= lap]
     periods = neutralised_periods(laps)
     tower = timing_tower(race.laps, lap, race.retired, race.entrants, stops=race.stops)
+    context = explain.prepare(race, tower, lap) if ss.view == 'Strategy' else None
+    # Answer the visitor's question before the detailed status and two-column workbench.
+    styles.inject('learn.css')
+    summary = explain.situation(race, tower, lap)
+    running = tower.loc[~tower.Out & (tower.LapsDown == 0), 'Driver'].tolist()
+    selected = ss.get('window_driver')
+    if selected not in running:
+        selected = next((d for d in focus if d in running), running[0] if running else None)
+    if context and selected:
+        summary += ' ' + explain.takeaway(race, tower, lap, selected, context)
+    st.html('<div class="race-story"><strong>What is happening?</strong><p>' + html.escape(summary) + '</p>'
+            + ('<small>Traffic, rival reactions, future safety cars and available tyre sets can change the decision.</small>'
+               if context else '')
+            + '<details class="race-help"><summary>Timing &amp; tyre terms</summary>'
+            '<p><b>Gap</b>: seconds behind the leader. <b>Interval</b>: seconds behind the car immediately ahead. '
+            '<b>Stops</b>: completed tyre-change visits. <b>Tyre age</b>: laps on this set.</p>'
+            '<p><b>S / M / H</b>: soft, medium and hard dry-weather tyres, balancing grip and durability. '
+            '<b>SC / VSC</b>: safety car / virtual safety car. Cars on track slow down, '
+            'so a pit stop usually costs less time relative to them.</p>'
+            '<p>Play advances timing and data lap by lap; this replay does not contain race video.</p></details></div>')
     status_strip(race, laps, tower, lap)
     with st.expander("Race event timeline", expanded=False):
         events = known_events(race.events, lap, ss.no_spoilers)
@@ -350,7 +374,7 @@ def race_view(race: RaceData) -> None:
         on_radio = set(race.radio.loc[race.radio["Lap"] == lap, "Driver"])
         banner = neutralised_banner(race.lap_status, lap)
         clicked = tower_component(tower, race.team_colors, lap, move_ms, on_radio, focus, banner,
-                                  places_gained(race, tower, lap), year=race.year)
+                                  places_gained(race, tower, lap), year=race.year, names=explain.names(race))
         if isinstance(clicked, dict) and clicked.get("driver") in set(race.entrants["Driver"]) \
                 and clicked.get("id") != ss.get("tower_click"):
             ss.tower_click = clicked.get("id")
@@ -387,7 +411,7 @@ def race_view(race: RaceData) -> None:
         elif view == "Pit stops":
             views.pits_view(race, lap, focus)
         elif view == "Strategy":
-            views.strategy_view(race, tower, lap, focus)
+            views.strategy_view(race, tower, lap, focus, context=context)
         elif view == "Pace":
             ui.note("Representative laps only: no pit laps, safety cars or yellow flags.")
             if focus:
@@ -458,9 +482,11 @@ def race_page() -> None:
 
     reset_for_new_race((year, round_number, kind), race)
     options = starting_order(race) if ss.no_spoilers else ui.driver_order(race.entrants, race.finish_order)
-    st.sidebar.multiselect("Focus drivers", options, key="focus", max_selections=6,
+    display_names = explain.names(race)
+    st.sidebar.multiselect("Focus drivers", options, key="focus", max_selections=6, format_func=display_names.get,
                            help="Highlighted in the tower and drawn in team colours on the charts")
-    driver_picker.team_colored_picker("Focus drivers", options, race.team_colors, dict(zip(race.entrants["Driver"], race.entrants["Team"])))
+    driver_picker.team_colored_picker("Focus drivers", options, race.team_colors,
+                                     dict(zip(race.entrants["Driver"], race.entrants["Team"])), names=display_names)
     if len(ss.focus) == 2:
         st.sidebar.link_button("Compare these drivers", url("onboard", year=year, round=round_number,
                                                          session=kind, drivers=",".join(ss.focus)),
@@ -493,6 +519,7 @@ def main() -> None:
     dtm_visibility = "visible" if ss.racing_series == "DTM" else "hidden"
     pages = [
         st.Page(home_or_legacy_replay, title="Home", icon=":material/home:", default=True),
+        st.Page(learn_page.render, title="Race guide", icon=":material/school:", url_path="learn", visibility='hidden'),
         st.Page(race_page, title="Race replay", icon=":material/sports_score:", url_path="replay", visibility=f1_visibility),
         st.Page(quali_page.render, title="Qualifying", icon=":material/timer:", url_path="qualifying", visibility=f1_visibility),
         st.Page(onboard_page.render, title="Onboard", icon=":material/speed:", url_path="onboard", visibility=f1_visibility),

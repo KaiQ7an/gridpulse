@@ -11,6 +11,8 @@ adding domain renderers or static style blocks to `ui.py`.
 | `assets/pitwall.css` | Shared page layout, identity badges and presentation of UI primitives and tables | Application classes and scoped widget decoration |
 | `assets/atlas.css` | Circuit cards, record typography and atlas hover/focus feedback | Shared by Formula 1 and DTM |
 | `assets/home.css` | Landing-page layout, series covers and local photo fallbacks | Home's own classes |
+| `learn_page.py` / `assets/learn.css` | Three-step newcomer lesson and replay explanation presentation | Saved race, shared explanations and native controls |
+| `explain.py` | Current-lap situation, shared tyre-model context and same-compound timing comparisons | Race data and strategy functions; no UI state |
 | `assets/teams.css` | DTM team directory cards, brand accents and responsive rows | Application-owned directory markup |
 | `dtm_teams.py` | Compact selected-season team cards and profile/driver links | DTM rows, sourced marks and styles |
 | `driver_picker.py` | Optional team metadata and colour decoration on native selectors | Streamlit selectors rendered by their page |
@@ -25,6 +27,11 @@ verify that delivery path.
 Table renderers receive already prepared rows. They do not fetch data, change replay state or
 calculate championship rules. Replay visibility and statistical decisions stay in the data/view layers.
 Shared number formatting is public (`ui.lap_time`) rather than an imported private table helper.
+
+DTM's primary standings use a semantic HTML table so the live theme applies equally to names and scores.
+The native detailed DataFrame and CSV retain every published field and sorting/export tools. All names
+and team text are escaped before HTML rendering. Guide calculations share the replay's model and stop
+planner; an experiment changes stop timing while holding the driver, fresh compound and pit loss fixed.
 
 ## Native selectors and decoration
 

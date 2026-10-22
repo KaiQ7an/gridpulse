@@ -42,7 +42,7 @@ def _ink_for(hex_color: str) -> str:
     return "#111111" if 0.299 * r + 0.587 * g + 0.114 * b > 150 else "#ffffff"
 
 
-def team_colored_picker(label: str, options: list[str], colors: dict[str, str], teams: dict[str, str]) -> None:
+def team_colored_picker(label: str, options: list[str], colors: dict[str, str], teams: dict[str, str], *, names=None) -> None:
     """Colour a multiselect's chips and options by team (Streamlit can't, so CSS keyed on the DOM).
 
     Chips carry aria-label=<driver>; options carry data-key=<index in options> inside
@@ -51,11 +51,12 @@ def team_colored_picker(label: str, options: list[str], colors: dict[str, str], 
     rules = []
     for i, d in enumerate(options):
         c = colors.get(d, "#999999")
+        chip = css_string((names or {}).get(d, d))
         team = html.escape(teams.get(d, "") or "").replace('"', "")
         rules.append(
-            f'[data-testid="stMultiSelectTagsContainer"] [data-tag][aria-label="{d}"] '
+            f'[data-testid="stMultiSelectTagsContainer"] [data-tag][aria-label={chip}] '
             f"{{ background: {c} !important; color: {_ink_for(c)} !important; }}"
-            f'[data-testid="stMultiSelectTagsContainer"] [data-tag][aria-label="{d}"] button '
+            f'[data-testid="stMultiSelectTagsContainer"] [data-tag][aria-label={chip}] button '
             f"{{ color: {_ink_for(c)} !important; }}"
             f'[role="listbox"][aria-label="{label}"] [role="option"][data-key="{i}"] [data-item-hl]::before '
             f'{{ content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 9px; '

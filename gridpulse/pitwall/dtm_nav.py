@@ -113,6 +113,6 @@ def render_pages(pages: list, current: str, series: str, *, caption: bool = True
         for page in pages[:3] if secondary else pages:
             link(page)
         if secondary:
-            with st.expander("More Formula 1 pages", expanded=current not in ("", "season", "replay")):
+            with st.expander("More Formula 1 pages", expanded=current not in ("", "season", "replay", "learn")):
                 for page in pages[3:]:
                     link(page)

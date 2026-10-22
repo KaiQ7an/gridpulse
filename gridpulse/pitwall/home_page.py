@@ -44,11 +44,17 @@ def section(title: str, detail: str = ''):
 
 def render(pages: dict) -> None:
     styles.inject('home.css')
+    styles.inject('learn.css')
     ui.sidebar_brand('Race replay & results')
     ui.sidebar_footer('All series')
     st.html('''<header class="home-hero"><h1>Understand the race.<br>Or just check the result.</h1>
       <p class="intro">Replay an F1 decision, compare two laps, or catch up on a DTM weekend.
       Choose a question below to get started.</p></header>''')
+    with st.container(border=True, key='home-guide'):
+        st.html('<div class="learn-entry"><h2>New to racing? Start with one decision.</h2>'
+                '<p>Why would the leader stop and give up time? Meet the drivers, try waiting two laps, '
+                'and see the trade-off. About two minutes · no race result revealed.</p></div>')
+        st.page_link(pages['Race guide'], label='Try your first pit-stop decision', icon=':material/play_arrow:')
     resumes = home_data.resume_targets(st.session_state)
     if resumes:
         section('Pick up where you left off', 'Selections stay in this browser session')
@@ -102,14 +108,14 @@ def series_cards(pages: dict, year: int, rows: list[dict]):
     dtm_season = dtm.saved(dtm_year)
     photo = car_profile(dtm_year, 'Porsche')['photo']
     details = [
-        ('Formula 1', home_data.F1_PHOTO, 'Understand a pit stop or compare a lap.',
-         'Replay the race, compare telemetry and explore the pit window.',
+        ('Formula 1', home_data.F1_PHOTO, 'Open-wheel, single-seater racing.',
+         'Choose F1 to understand a pit-stop decision or compare how two drivers complete a lap.',
          [(len([r for r in rows if r['series'] == 'Formula 1']), f'{year} saved GPs'),
           (len(catalog()), 'Circuit files')],
          [('Race replay', 'Open Formula 1', {'mode': 'replay', 'view': 'Strategy'}),
           ('Season', 'Championship', {}), ('Onboard', 'Compare laps', {})]),
-        ('DTM', photo, 'The whole GT racing weekend.',
-         'Follow the title fight, both races, the teams and the people behind them.',
+        ('DTM', photo, 'GT racing with recognisable car brands.',
+         'Choose DTM for race results and the title fight. Each weekend has two separate races, each with its own qualifying.',
          [(len(dtm_season['events']), f'{dtm_year} weekends'),
           (sum(s['kind'] == 'race' for e in dtm_season['events'] for s in e['sessions']), 'Published races')],
          [('DTM', 'Open DTM', {'year': str(dtm_year), 'view': 'championship'}),
@@ -127,6 +133,7 @@ def series_cards(pages: dict, year: int, rows: list[dict]):
                     f'<div class="home-series-caption"><a href="{esc(image["source"])}" target="_blank" rel="noopener noreferrer">'
                     f'Photo: {esc(image["credit"])} ↗</a></div>')
             page, label, params = links[0]
+            st.html(f'<strong>{esc(headline)}</strong><div class="home-series-description">{esc(description)}</div>')
             with st.container(key='home-enter-' + series.replace(' ', '-')):
                 st.page_link(pages[page], label=label, icon=':material/arrow_forward:', query_params=params, width='stretch')
             if series == 'Formula 1':
@@ -136,8 +143,7 @@ def series_cards(pages: dict, year: int, rows: list[dict]):
                         st.page_link(pages['Race replay'], label=moment.question, query_params=moment.params,
                                      help=moment.context, icon=':material/play_arrow:')
                         st.caption(moment.context)
-            st.html(f'<strong>{esc(headline)}</strong><div class="home-series-description">{esc(description)}</div>'
-                    '<div class="home-series-meta">' + ''.join(f'<div><b>{n}</b><small>{esc(label)}</small></div>' for n, label in counts) + '</div>')
+            st.html('<div class="home-series-meta">' + ''.join(f'<div><b>{n}</b><small>{esc(label)}</small></div>' for n, label in counts) + '</div>')
             for page, label, params in links[1:]:
                 st.page_link(pages[page], label=label, icon=':material/north_east:',
                              query_params=params, width='stretch')

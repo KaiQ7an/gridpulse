@@ -13,6 +13,24 @@ from gridpulse.pitwall.ui import TYRE_LETTERS, driver_dot, lap_time, tyre
 FLAG_TAGS = {"Safety car": ("SC", ""), "VSC": ("VSC", ""), "VSC ending": ("VSC", ""), "Red flag": ("RED", " red")}
 
 
+def standings_html(table: pd.DataFrame, category: str, year: int) -> str:
+    """A readable primary score table. Full source fields stay in the native details table."""
+    name_label = {'drivers': 'Driver', 'teams': 'Team', 'manufacturers': 'Manufacturer'}[category]
+    extra = 'Team' if category == 'drivers' else 'Cars' if category == 'manufacturers' else None
+    headings = ['Position', name_label, 'Points'] + ([extra] if extra else [])
+    content = '<div class="scoreboard-scroll" tabindex="0" aria-label="Standings table"><table class="scoreboard">'
+    content += f'<caption>{year} {html.escape(category)} championship · published order</caption><thead><tr>'
+    content += ''.join(f'<th scope="col">{heading}</th>' for heading in headings) + '</tr></thead><tbody>'
+    for row in table.to_dict('records'):
+        pos = '–' if pd.isna(row['Pos']) else str(int(row['Pos']))
+        score = '–' if pd.isna(row['Points']) else f'{row["Points"]:g}'
+        content += f'<tr><td>{pos}</td><th scope="row">{html.escape(str(row["Name"]))}</th><td class="points">{score}</td>'
+        if extra:
+            content += '<td>' + html.escape(str(row[extra])) + '</td>'
+        content += '</tr>'
+    return content + '</tbody></table></div>'
+
+
 def _places(before, after) -> str:
     if pd.isna(before) or pd.isna(after):
         return '<span class="muted">–</span>'

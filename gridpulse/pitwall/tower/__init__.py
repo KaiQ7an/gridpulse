@@ -27,6 +27,7 @@ def timing_tower(
     key: str = "tower",
     *,
     year: int | None = None,
+    names: dict[str, str] | None = None,
 ):
     """`changes`: places each driver gained (+) or lost (-) on this lap, shown as an arrow by the position."""
     changes = changes or {}
@@ -37,6 +38,8 @@ def timing_tower(
             {
                 "pos": int(r.Pos),
                 "driver": r.Driver,
+                "name": (names or {}).get(r.Driver, r.Driver),
+                "compound_name": str(r.Compound).title(),
                 "driver_url": f"/drivers?year={year}&driver={r.Driver}" if year is not None else None,
                 "team_color": team_colors.get(r.Driver, "#999999"),
                 "gap": r.Gap,

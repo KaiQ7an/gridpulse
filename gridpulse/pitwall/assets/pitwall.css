@@ -342,3 +342,15 @@ h1, h2, h3 { letter-spacing: -0.01em; }
 @container(max-width:350px){.identity-badge{gap:12px;padding:12px}.identity-badge-plate{width:96px;height:64px}
  .identity-badge-plate-wide{width:145px}}
 @media(prefers-reduced-motion:reduce){.identity-badge-card,.identity-badge-action{transition:none}}
+.scoreboard-scroll {overflow:auto;max-height:900px;border:1px solid rgba(128,128,128,.22);border-radius:8px}
+.scoreboard {border-collapse:separate;border-spacing:0;width:100%;font-size:.96rem;color:inherit;font-variant-numeric:tabular-nums}
+.scoreboard caption {position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.scoreboard th,.scoreboard td {text-align:left;padding:13px 14px;border-bottom:1px solid rgba(128,128,128,.15)}
+.scoreboard thead th {font-size:.8rem;font-weight:600;background:light-dark(#f1f3f5,#20252e);position:sticky;top:0;z-index:1}
+.scoreboard tbody th {font-weight:600;color:inherit;min-width:170px}
+.scoreboard .points {font-size:1.08rem;font-weight:750;white-space:nowrap}
+.scoreboard tr>:first-child {width:60px;color:var(--gp-muted)}
+.scoreboard tr>:nth-child(3) {text-align:right;width:105px}
+.scoreboard tbody tr:hover {background:rgba(128,128,128,.08)}
+.scoreboard tbody tr>:last-child:not(.points) {color:var(--gp-muted);font-size:.88rem}
+@media(max-width:600px){.scoreboard th,.scoreboard td{padding:11px 8px}.scoreboard tbody th{min-width:120px}.scoreboard tr>:first-child{width:36px}.scoreboard tr>:nth-child(3){width:70px}.scoreboard tr>:nth-child(4){max-width:120px;overflow-wrap:anywhere}}

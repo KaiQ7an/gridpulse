@@ -1,0 +1,10 @@
+.learn-entry {border-left:3px solid var(--gp-accent);padding:4px 0 4px 16px}
+.learn-entry h2 {font-size:1.2rem;margin:0 0 5px;letter-spacing:-.02em}
+.learn-entry p {margin:0;color:var(--gp-muted);line-height:1.55}
+.st-key-home-guide a {padding:11px 15px;border:1px solid var(--gp-accent);border-radius:7px;font-weight:650}
+.st-key-home-guide a:hover {background:rgba(225,6,0,.08)}
+.race-story {border-left:3px solid var(--gp-accent);padding:10px 14px;background:rgba(128,128,128,.05);border-radius:0 7px 7px 0;line-height:1.55}
+.race-story strong {display:block;margin-bottom:4px}.race-story p{margin:4px 0;font-size:.94rem}
+.race-story small {color:var(--gp-muted);font-size:.82rem}
+.race-help {margin-top:6px;font-size:.85rem}.race-help summary{cursor:pointer;font-weight:600;color:var(--gp-accent)}
+.race-help summary:focus-visible{outline:2px solid currentColor;outline-offset:3px}

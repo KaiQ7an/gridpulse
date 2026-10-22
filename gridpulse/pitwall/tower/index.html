@@ -18,7 +18,7 @@
   /* Every row is its own grid, so columns must not size to their content or
      rows would disagree. minmax(0, …) and fixed tracks keep them identical. */
   .head, .row { display: grid; align-items: center; column-gap: 10px; height: 38px; padding: 0 8px 0 0;
-    grid-template-columns: 3px 26px 22px 52px minmax(0, 1fr) minmax(0, 1fr) 76px 56px 30px; }
+    grid-template-columns: 3px 26px 22px minmax(130px, 1.8fr) minmax(60px, 1fr) minmax(60px, 1fr) 76px 56px 36px; }
   .head > *, .row > * { white-space: nowrap; overflow: hidden; }
   .head { height: 32px; color: var(--muted); font-size: 10px; font-weight: 600; letter-spacing: .12em;
     text-transform: uppercase; border-bottom: 1px solid var(--rule); }
@@ -39,7 +39,8 @@
   .chg.down { color: var(--accent); }
   .chg.fresh { animation: chgin 500ms ease-out; }
   @keyframes chgin { from { opacity: 0; transform: translateY(var(--from, 0)); } }
-  .drv { font-weight: 700; letter-spacing: .03em; display: flex; align-items: center; gap: 4px; }
+  .drv { font-weight: 650; display: flex; align-items: center; gap: 4px; }
+  .code {overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   a.drv { color: inherit; text-decoration: none; }
   a.drv:hover { text-decoration: underline; }
   .mic { width: 12px; height: 12px; flex: none; color: var(--accent); opacity: 0; transition: opacity 250ms; }
@@ -81,19 +82,14 @@
   .banner.red .bar::before { background: repeating-linear-gradient(-45deg, rgba(255,255,255,.75) 0 5px, transparent 5px 10px); }
 
   /* A narrow card (a laptop screen next to the charts): the last lap goes, so gaps keep every digit */
-  @media (max-width: 500px) {
-    .head, .row { grid-template-columns: 3px 26px 22px 50px minmax(0, 1fr) minmax(0, 1fr) 56px 30px; column-gap: 8px; }
-    .lastcol { display: none; }
+  @media (max-width: 700px) {
+    .head, .row { grid-template-columns: 3px 24px minmax(100px, 1fr) 62px 52px 30px; column-gap: 7px; }
+    .lastcol, .intcol, .chgcol { display: none; }
+    .head {letter-spacing:0;font-size:10px}
   }
-  @media (max-width: 400px) {
-    .head, .row { grid-template-columns: 3px 26px 18px 46px minmax(0, 1fr) minmax(0, 1fr) 50px 28px; column-gap: 6px; }
-    .lastcol { display: none; }
-  }
-  @media (max-width: 320px) {
-    html, body { font-size: 12.5px; }
-    .head, .row { grid-template-columns: 3px 26px 16px 44px minmax(0, 1fr) 48px 28px; column-gap: 5px; }
-    .head { letter-spacing: .06em; }
-    .intcol { display: none; }
+  @media (max-width: 340px) {
+    html, body {font-size:13px}
+    .head, .row {grid-template-columns:3px 20px minmax(80px,1fr) 56px 48px 27px;column-gap:5px}
   }
 </style>
 </head>
@@ -101,8 +97,8 @@
 <div class="banner" id="banner"><div class="bar"><span class="light"></span><span class="text"></span>
   <span class="laps"></span></div></div>
 <div class="tower">
-  <div class="head"><span></span><span class="num">Pos</span><span></span><span>Driver</span><span class="num">Gap</span>
-    <span class="num intcol">Int</span><span class="num lastcol">Last lap</span><span>Tyre</span><span class="num">Stp</span></div>
+  <div class="head"><span></span><span class="num" title="Position">Pos</span><span class="chgcol"></span><span>Driver</span><span class="num" title="Seconds behind the leader">Gap</span>
+    <span class="num intcol" title="Seconds behind the car immediately ahead">Interval</span><span class="num lastcol">Last lap</span><span title="Type and laps on this set">Tyre</span><span class="num">Stops</span></div>
   <div class="rows" id="rows"></div>
 </div>
 <script>
@@ -118,7 +114,7 @@ const lastChange = new Map();  // driver -> places gained on the lap shown befor
 
 // ▲ green for places gained on this lap, ▼ red for places lost (with the count when more than one).
 function setChange(el, change, before, driver) {
-  el.className = "chg" + (change > 0 ? " up" : change < 0 ? " down" : "");
+  el.className = "chg chgcol" + (change > 0 ? " up" : change < 0 ? " down" : "");
   el.textContent = change > 0 ? "▲" + (change > 1 ? change : "") : change < 0 ? "▼" + (change < -1 ? -change : "") : "";
   if (change !== 0 && change !== before) {
     el.style.setProperty("--from", change > 0 ? "4px" : "-4px");
@@ -134,7 +130,7 @@ function applyTheme(theme) {
   const root = document.documentElement.style;
   const dark = theme.base === "dark";
   root.setProperty("--ink", theme.textColor);
-  root.setProperty("--muted", dark ? "rgba(231,233,238,0.55)" : "rgba(21,23,28,0.55)");
+  root.setProperty("--muted", dark ? "#B9C1CC" : "#555E6B");
   root.setProperty("--close", dark ? "#22C55E" : "#16A34A");
   root.setProperty("--accent", theme.primaryColor || "#E10600");
   root.setProperty("--focus", dark ? "rgba(255,42,31,0.10)" : "rgba(225,6,0,0.06)");
@@ -167,7 +163,7 @@ function setNumber(el, shown, driver, text, seconds, ms, animate) {
 function makeRow(driver) {
   const el = document.createElement("div");
   el.className = "row";
-  el.innerHTML = `<span class="bar"></span><span class="pos num"></span><span class="chg"></span>
+  el.innerHTML = `<span class="bar"></span><span class="pos num"></span><span class="chg chgcol"></span>
     <a class="drv" target="_top"><span class="code"></span><svg class="mic" viewBox="0 0 24 24" aria-label="team radio"
       fill="currentColor"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6
       6.93V21h2v-3.07A7 7 0 0 0 19 11h-2z"/></svg></a>
@@ -195,9 +191,11 @@ function render(args) {
     el.classList.toggle("focus", focus.has(r.driver));
     el.querySelector(".bar").style.background = r.team_color;
     const driverLink = el.querySelector(".drv");
+    el.querySelector('.code').textContent = r.name || r.driver;
+    driverLink.title = `${r.name || r.driver} (${r.driver})`;
     if (r.driver_url) {
       driverLink.href = r.driver_url;
-      driverLink.setAttribute("aria-label", `${r.driver}: open driver season`);
+      driverLink.setAttribute("aria-label", `${r.name || r.driver}: open driver season`);
       driverLink.onclick = (event) => {
         event.preventDefault();
         send("streamlit:setComponentValue", {value:{driver:r.driver,id:Date.now()},dataType:"json"});
@@ -213,6 +211,7 @@ function render(args) {
     el.querySelector(".mic").classList.toggle("on", !!r.radio);
 
     const tyre = el.querySelector(".tyre");
+    tyre.title = r.pit ? 'In the pits: changing tyres or servicing the car' : `${r.compound_name} tyres · ${r.tyre_age} laps on this set`;
     if (r.pit) {
       tyre.innerHTML = '<span class="pit">PIT</span>';
     } else {

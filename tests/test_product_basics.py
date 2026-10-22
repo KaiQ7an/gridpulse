@@ -40,16 +40,20 @@ def test_current_dtm_season_opens_saved_data_and_only_refresh_reaches_the_networ
     dtm_page.load.clear()
 
 
-def test_standings_keep_name_and_score_adjacent_and_pin_them(monkeypatch):
+def test_standings_keep_name_and_score_adjacent_with_accessible_html_and_full_details(monkeypatch):
     monkeypatch.setenv('GRIDPULSE_OFFLINE', '1')
     at = AppTest.from_string('from gridpulse.pitwall.dtm_page import render\nrender()', default_timeout=60)
     at.query_params.update(year='2026', view='championship')
     at.run()
     assert not at.exception
     board = at.dataframe[0]
-    assert list(board.proto.column_order) == ['Pos', 'Name', 'Points', 'Team']
+    # The primary table inherits the live theme; native pinned cells dimmed its key fields.
+    markup = ''.join(h.proto.body for h in at.get('html'))
+    assert '<th scope="col">Driver</th><th scope="col">Points</th>' in markup
+    assert '<th scope="row">Thomas Preining</th><td class="points">225</td>' in markup
+    assert list(board.proto.column_order)[:3] == ['Pos', 'Name', 'Points']
     settings = json.loads(board.proto.columns)
-    assert all(settings[c]['pinned'] for c in ['Pos', 'Name', 'Points'])
+    assert all(settings[c]['pinned'] for c in ['Name', 'Points'])
     assert board.value.iloc[0]['Name'] == 'Thomas Preining' and board.value.iloc[0]['Points'] == 225
     assert any(e.label == 'Full classification & points breakdown' for e in at.expander)
 

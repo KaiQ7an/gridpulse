@@ -34,6 +34,8 @@ sourced championship tables, weekend summaries and driver/team/circuit explorati
 
 **Try it immediately:** [open the home page](https://gridpulse-racing.streamlit.app/), choose Formula 1 or DTM,
 or jump into a recent weekend. Formula 1's **Strategy** and **Tyres** tools sit inside the replay.
+New to racing? The [two-minute race guide](https://gridpulse-racing.streamlit.app/learn) introduces the drivers,
+lets you compare a next-lap stop with waiting two more laps, and explains the model's time difference and limits.
 Home summaries and the first replay use bundled snapshots, without an online schedule or timing download. **Check latest races**
 loads the full calendar when you want a newer session. An idle Community Cloud app may still
 need to wake up; no fixed startup-time guarantee is implied.
@@ -54,6 +56,9 @@ Both series use the same sidebar design, full-name driver selectors and season-s
 
 **Home** (`/`)
 
+- A skippable **Race guide** (`/learn`) starts with the people and situation at Hungary 2025 lap 18.
+  One timing choice changes at a time; feedback uses the same tyre model as the workbench, fitted only
+  through that lap. It reveals no eventual result and preserves an existing replay's saved selections.
 - Equally sized Formula 1 and DTM entries with attributed team photography and direct feature links.
   Local car silhouettes remain visible if an external photo cannot load.
 - Featured strategy moments open Hungary 2025 L18, Baku 2026 L18 or Bahrain 2025 L23 with
@@ -72,6 +77,9 @@ Both series use the same sidebar design, full-name driver selectors and season-s
 - **Replay**: a player bar under the header. Press Play and the whole dashboard advances a lap at a
   time (1×, 2× or 4×), drag the slider, or type a lap number to jump straight to it. A status strip shows the lap,
   leader and track status. Fastest lap, best sectors and weather share a compact two-row strip.
+- A plain-language situation and conditional strategy summary appear above the workbench. Timing/tyre
+  definitions open beside that summary; driver selectors and the animated timing tower display full names.
+  Compact timing columns drop away on narrow cards to preserve readable names and leader gaps.
 - **Event timeline** (collapsed by default): hover or focus a pit stop, pass, fastest lap, retirement or track-status
   change; click to pause and jump to that lap. Filter by event type; numbered markers open all events on
   crowded laps without a separate dropdown. Spoiler-free mode only sends events through the current replay lap to the browser.
@@ -289,6 +297,8 @@ data into `cache/` (gitignored); the first download can take up to a minute.
 
 With the virtual environment activated (`source .venv/bin/activate`) the shorter `gridpulse pitwall`
 works too.
+
+For a MAMP PRO local hostname and HTTPS entry, see the [local reverse-proxy setup](docs/local-mamp.md).
 
 ### macOS with Homebrew
 
