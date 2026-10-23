@@ -120,6 +120,7 @@ def test_strategy_controls_and_learning_states_render_without_future_stops(monke
     monkeypatch.setenv('GRIDPULSE_OFFLINE', '1')
     at = AppTest.from_file(str(Path(app.__file__)), default_timeout=60)
     at.query_params.update(year='2025', round='4', lap='23', view='Strategy', mode='replay')
+    at.session_state.radar_preferences = {'extra': 0}  # JSON parses a browser's 0.0 as an integer.
     at.run()
     assert not at.exception and any(c.key == 'chart_undercut_radar' for c in at.get('plotly_chart'))
     at.selectbox(key='radar_compound').set_value('MEDIUM').run()

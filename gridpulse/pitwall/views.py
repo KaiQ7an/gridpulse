@@ -4,6 +4,8 @@ Each takes the loaded race and the lap being shown, and draws only what
 happened up to that lap.
 """
 
+import html
+
 import pandas as pd
 import streamlit as st
 
@@ -33,7 +35,7 @@ def tyres_view(race: RaceData, laps: pd.DataFrame, tower: pd.DataFrame, lap: int
     ui.label("Stints")
     ui.note("Tyre stints in the current running order.")
     st.plotly_chart(
-        charts.strategy_chart(stint_timeline(laps), tower["Driver"].tolist(), race.total_laps),
+        charts.readable(charts.strategy_chart(stint_timeline(laps), tower["Driver"].tolist(), race.total_laps), race.full_names),
         width="stretch",
         key="chart_stints",
     )
@@ -51,7 +53,7 @@ def tyres_view(race: RaceData, laps: pd.DataFrame, tower: pd.DataFrame, lap: int
             ui.note("No measured dry-tyre stint yet. The typical slick-tyre reference does not model wet tyres.")
     else:
         ui.note("Fuel-corrected seconds lost per lap of tyre age, focus drivers.")
-        st.plotly_chart(charts.degradation_chart(deg), width="stretch", key="chart_deg")
+        st.plotly_chart(charts.readable(charts.degradation_chart(deg), race.full_names), width="stretch", key="chart_deg")
 
 
 def radio_view(race: RaceData, lap: int, focus: list[str]) -> None:
@@ -78,7 +80,7 @@ def radio_view(race: RaceData, lap: int, focus: list[str]) -> None:
         new = ' <span class="pl-pill" style="background:rgba(225,6,0,.14);color:#E10600">this lap</span>' \
             if clip.Lap == lap else ""
         st.html(f'<div style="margin-top:8px">{ui.driver_dot(race.team_colors.get(clip.Driver, "#999"))}'
-                f"<b>{clip.Driver}</b> <span style='opacity:.6'>· lap {clip.Lap}</span>{new}</div>")
+                f"<b>{html.escape(explain.name(race, clip.Driver))}</b> <span style='opacity:.6'>· lap {clip.Lap}</span>{new}</div>")
         st.audio(clip.Url, format="audio/mpeg")
         if texts.get(clip.Url):
             ui.quote(texts[clip.Url], translate.cached(clip.Url) if chinese else None)
@@ -220,7 +222,7 @@ def pit_window_view(race: RaceData, tower: pd.DataFrame, lap: int, focus: list[s
     compound, age, used = _tyres(race, tower, driver, lap)
     best, window = _plan(race, tower, model, lap, loss, driver)
     if best is None:
-        ui.note(f"{driver} is on {str(compound).title()} tyres; the model covers slicks with laps still to run.")
+        ui.note(f"{explain.name(race, driver)} is on {str(compound).title()} tyres; the model covers slicks with laps still to run.")
         return
 
     if model.prior_only:
@@ -237,7 +239,7 @@ def pit_window_view(race: RaceData, tower: pd.DataFrame, lap: int, focus: list[s
         verdict = (f"Stop L{lap + int(best['LapsMore'])} for {best['Compound'].lower()}s. "
                    f"Window L{lap + best['From']}–{lap + best['To']}; stopping next lap costs +{first:.1f} s.")
     evidence = "fitted from this race" if compound in model.deg_measured else "based mainly on typical wear"
-    ui.insight(f"{driver} · {'Typical-tyre scenario' if model.prior_only else 'Model estimate'}: {verdict}")
+    ui.insight(f"{explain.name(race, driver)} · {'Typical-tyre scenario' if model.prior_only else 'Model estimate'}: {verdict}")
     ui.note(f"{compound.title()} · age {age:.0f} laps · wear {model.deg[compound]:.2f} s/lap ({evidence}) · "
             f"{sum(model.sample_counts.values())} clean laps across the field. "
             "One final stop on fresh tyres; the window is within 1 s of the best plan, not a confidence interval.")
@@ -252,15 +254,16 @@ def pit_window_view(race: RaceData, tower: pd.DataFrame, lap: int, focus: list[s
         comparison.append({"Plan": "Stay out to the flag", "Tyres": compound.title(),
                            "Total": stay_out_time(model, driver, compound, age, laps_left)})
     baseline = min(window["Total"].min(), *(row["Total"] for row in comparison))
-    actual = None
-    if not st.session_state.get("no_spoilers", False):
-        later = race.stops[(race.stops["Driver"] == driver) & (race.stops["Lap"] > lap)]
-        show_actual = st.toggle("Show when they really stopped", value=False, key="window_actual",
-                               disabled=later.empty, help="Their next stop in this race (from the future, in a replay)")
-        actual = int(later["Lap"].iloc[0]) if show_actual and not later.empty else None
-    ranges = st.toggle('Show model ranges', value=True, key='window_ranges',
-                       help='Approximate 90% parameter ranges versus the selected reference plan; '
-                       'not a calibrated real-race probability.')
+    with st.expander("Chart options · model ranges & actual stops"):
+        actual = None
+        if not st.session_state.get("no_spoilers", False):
+            later = race.stops[(race.stops["Driver"] == driver) & (race.stops["Lap"] > lap)]
+            show_actual = st.toggle("Show when they really stopped", value=False, key="window_actual",
+                                   disabled=later.empty, help="Their next stop in this race (from the future, in a replay)")
+            actual = int(later["Lap"].iloc[0]) if show_actual and not later.empty else None
+        ranges = st.toggle('Show model ranges', value=True, key='window_ranges',
+                           help='Approximate 90% parameter ranges versus the selected reference plan; '
+                           'not a calibrated real-race probability.')
     st.plotly_chart(charts.pit_window_chart(window, lap, race.total_laps, best, actual, stay, show_ranges=ranges), width="stretch",
                     key="chart_window")
     if ranges and 'LostLow' in window:
@@ -316,7 +319,7 @@ def strategy_view(race: RaceData, tower: pd.DataFrame, lap: int, focus: list[str
                 small=f"VSC {ref['vsc']:.1f} · SC {ref['sc']:.1f}" if ref and "vsc" in ref and "sc" in ref else "",
                 tip="Typical pit loss at this circuit (MultiViewer): green flag, under VSC and under safety car"),
         ui.stat("Stops", str(len(stops)),
-                small=f"latest {last['Driver']} L{last['Lap']}" if last is not None else ""),
+                small=f"latest {explain.name(race, last['Driver'])} L{last['Lap']}" if last is not None else ""),
     ])
 
     ui.note('Compare conditional stop scenarios. Traffic, future safety cars and tyre availability are not simulated.')
@@ -334,12 +337,12 @@ def strategy_view(race: RaceData, tower: pd.DataFrame, lap: int, focus: list[str
         st.dataframe(
             pd.DataFrame(
                 {
-                    "Driver": proj["Driver"],
+                    "Driver": proj["Driver"].map(explain.names(race)),
                     "Now": "P" + proj["Now"].astype(str),
                     "Rejoins": "P" + proj["Rejoin"].astype(str),
-                    "Behind": [f"{c} by {g:.1f} s" if c else "–" for c, g in zip(proj["CarAhead"], proj["GapAhead"])],
+                    "Behind": [f"{explain.name(race, c)} by {g:.1f} s" if c else "–" for c, g in zip(proj["CarAhead"], proj["GapAhead"])],
                     "Catches them": [catch_text(race, tower, model, lap, loss, r) for r in proj.itertuples()],
-                    "Ahead of": [f"{c} by {g:.1f} s" if c else "–" for c, g in zip(proj["CarBehind"], proj["GapBehind"])],
+                    "Ahead of": [f"{explain.name(race, c)} by {g:.1f} s" if c else "–" for c, g in zip(proj["CarBehind"], proj["GapBehind"])],
                 }
             ),
             hide_index=True,
@@ -348,21 +351,22 @@ def strategy_view(race: RaceData, tower: pd.DataFrame, lap: int, focus: list[str
                 help="Laps on new tyres until the gap to the car ahead is closed, from the tyre model below")},
         )
 
-    radar_view.render(race, tower, lap, model, focus)
-    ui.label(f"Undercuts and overcuts so far · {len(battles)}" if len(battles) else "Undercuts and overcuts so far")
-    if battles.empty:
-        ui.note("None yet: a battle needs two cars within 3.5 s to pit within six laps of each other.")
-    else:
-        labels = [f"Lap {b.Lap} · {b.FirstStop} vs {b.Rival} · {b.Verdict}" for b in battles.itertuples()]
-        i = st.selectbox("Battle", range(len(battles)), index=len(battles) - 1, format_func=lambda i: labels[i],
-                         label_visibility="collapsed")
-        battle = battles.iloc[i]
-        ui.note(
-            f"{battle.FirstStop} pitted on lap {battle.Lap} from {abs(battle.GapBefore):.2f} s "
-            f"{'behind' if battle.GapBefore > 0 else 'ahead of'} {battle.Rival}; {battle.Rival} answered on lap "
-            f"{battle.RivalStopLap}. Afterwards {battle.FirstStop} was {abs(battle.GapAfter):.2f} s "
-            f"{'behind' if battle.GapAfter > 0 else 'ahead'}."
-        )
-        gap = pair_gap(race.laps, battle.FirstStop, battle.Rival)
-        st.plotly_chart(battle_chart(gap, battle, race.total_laps, through_lap=lap),
-                        width="stretch", key="chart_battle")
+    with st.expander("Advanced strategy · undercut radar & past battles"):
+        radar_view.render(race, tower, lap, model, focus)
+        ui.label(f"Undercuts and overcuts so far · {len(battles)}" if len(battles) else "Undercuts and overcuts so far")
+        if battles.empty:
+            ui.note("None yet: a battle needs two cars within 3.5 s to pit within six laps of each other.")
+        else:
+            labels = [f"Lap {b.Lap} · {explain.name(race, b.FirstStop)} vs {explain.name(race, b.Rival)} · {b.Verdict}" for b in battles.itertuples()]
+            i = st.selectbox("Battle", range(len(battles)), index=len(battles) - 1, format_func=lambda i: labels[i],
+                             label_visibility="collapsed")
+            battle = battles.iloc[i]
+            ui.note(
+                f"{explain.name(race, battle.FirstStop)} pitted on lap {battle.Lap} from {abs(battle.GapBefore):.2f} s "
+                f"{'behind' if battle.GapBefore > 0 else 'ahead of'} {explain.name(race, battle.Rival)}; {explain.name(race, battle.Rival)} answered on lap "
+                f"{battle.RivalStopLap}. Afterwards {explain.name(race, battle.FirstStop)} was {abs(battle.GapAfter):.2f} s "
+                f"{'behind' if battle.GapAfter > 0 else 'ahead'}."
+            )
+            gap = pair_gap(race.laps, battle.FirstStop, battle.Rival)
+            st.plotly_chart(charts.readable(battle_chart(gap, battle, race.total_laps, through_lap=lap), race.full_names),
+                            width="stretch", key="chart_battle")

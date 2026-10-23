@@ -1,5 +1,7 @@
 """A small, skippable lesson: recognise the people, change one decision, explain the trade-off."""
 
+import html
+
 import streamlit as st
 
 from gridpulse.pitwall import about_page, explain, styles, ui
@@ -100,6 +102,7 @@ def experiment(race, tower, lap, driver):
         st.info('That stop is outside the model’s available window.')
         return
     st.session_state.learn_result = {'wait': choice, 'delta': result['delta']}
+    stop_comparison(race, tower, lap, driver, compound, choice, result['delta'])
     if choice == 1:
         st.markdown(f'**Your baseline: stop on lap {lap + 1}.**')
         st.write('Now select “wait two more laps” to see how the estimate changes. The race itself stays paused at lap 18.')
@@ -116,3 +119,28 @@ def experiment(race, tower, lap, driver):
                  'The model balances those costs; waiting is not always better.')
     st.caption('One further stop, then that set to the finish. Clear track assumed; no rival response, '
                'future safety car or tyre-stock check. These are scenarios, not the actual result.')
+
+
+def stop_comparison(race, tower, lap, driver, compound, wait, delta):
+    """An accessible tyre-use schematic, not a prediction of car positions."""
+    current = tower[tower.Driver == driver].iloc[0]
+    end = race.total_laps
+    rows = []
+    for k, title in ((1, 'Stop next lap'), (3, 'Wait two more laps')):
+        stop = lap + k
+        old_width = 100 * k / (end - lap)
+        active = ' selected' if wait == k else ''
+        finish_age = end - stop
+        rows.append(f'<div class="lesson-plan{active}"><div class="lesson-plan-heading">'
+                    f'<strong>{title} · lap {stop}</strong><span>{"Your choice" if wait == k else "Compare"}</span></div>'
+                    f'<div class="lesson-tyres" aria-hidden="true"><span class="old" style="width:{old_width:.2f}%"></span>'
+                    '<span class="stop"></span><span class="fresh"></span></div>'
+                    f'<p>Current tyres: {float(current.TyreAge) + k:.0f} laps old at the stop. '
+                    f'Fresh {html.escape(compound.lower())} tyres: {finish_age} racing laps after the stop.</p></div>')
+    comparison = (f'{abs(delta):.1f} seconds {"less" if delta < 0 else "more"} modelled time' if wait == 3
+                  else 'Baseline selected · try the other timing')
+    st.html('<section class="lesson-visual" aria-label="Compare the two tyre plans">'
+            f'<div class="lesson-axis"><span>Now · lap {lap}</span><span>Finish · lap {end}</span></div>'
+            + ''.join(rows) + f'<div class="lesson-feedback" role="status">{html.escape(comparison)}</div>'
+            '<small>Grey: current set · green: replacement set · vertical line: pit stop. '
+            'Bar lengths show racing laps, not speed or track position.</small></section>')

@@ -8,7 +8,7 @@ import streamlit as st
 from gridpulse import snapshots
 from gridpulse.dtm import data as dtm
 from gridpulse.dtm.cars import profile as car_profile
-from gridpulse.pitwall import dtm_circuits, home_data, styles, ui
+from gridpulse.pitwall import browser_memory, dtm_circuits, home_data, styles, ui
 from gridpulse.pitwall.atlas_map import atlas_map
 from gridpulse.pitwall.featured import FEATURED
 from gridpulse.season.atlas import REGIONS, catalog
@@ -57,7 +57,7 @@ def render(pages: dict) -> None:
         st.page_link(pages['Race guide'], label='Try your first pit-stop decision', icon=':material/play_arrow:')
     resumes = home_data.resume_targets(st.session_state)
     if resumes:
-        section('Pick up where you left off', 'Selections stay in this browser session')
+        section('Pick up where you left off', 'Selections saved on this browser')
         for col, target in zip(st.columns(len(resumes), gap='medium'), resumes):
             with col, st.container(border=True, key='home-resume-' + target['series'].replace(' ', '-')):
                 st.html(f'<div class="home-event-series">{esc(target["series"])}</div>'
@@ -98,6 +98,7 @@ def render(pages: dict) -> None:
             st.session_state.home_recent_limit = limit + 6
             st.rerun()
     render_map(pages)
+    browser_memory.settings()
     st.html('<footer class="home-foot"><span>GridPulse · Motorsport, lap by lap.<br>Independent project. Not affiliated with a championship or team.</span>'
             '<span>F1: FastF1 / OpenF1 · DTM: official classifications<br>'
             '<a href="https://github.com/KaiQ7an/gridpulse/blob/main/docs/data-validation.md" target="_blank" rel="noopener noreferrer">Data coverage & validation ↗</a></span></footer>')
@@ -166,7 +167,7 @@ def render_weekend(event: dict, pages: dict, show_results: bool):
     st.button('Pinned' if saved else 'Pin weekend', icon=':material/bookmark:' if saved else ':material/bookmark_add:',
               key='home-pin-' + event['key'], on_click=pin, args=(event['key'],), width='stretch',
               disabled=not saved and len(st.session_state.get('home_pins', [])) >= 4,
-              help='Keep up to four weekends in your shortlist for this browser session.')
+              help='Keep up to four weekends in your shortlist on this browser.')
     st.caption(event['source'])
 
 
@@ -174,7 +175,7 @@ def render_shortlist(pages: dict):
     saved = st.session_state.get('home_pins', [])
     if not saved:
         return
-    section('Your shortlist', 'Pinned weekends · this session')
+    section('Your shortlist', 'Pinned weekends · this browser')
     years = {int(key.split('-')[1]) for key in saved}
     lookup = {r['key']: r for year in years for r in events_for(year)}
     for col, key in zip(st.columns(min(len(saved), 4), gap='medium'), saved):

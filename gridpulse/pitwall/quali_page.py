@@ -4,6 +4,7 @@ import pandas as pd
 import streamlit as st
 
 from gridpulse import snapshots
+from gridpulse.drivers.profiles import profile as driver_profile
 from gridpulse.pitwall import charts, event_names, tables, ui
 from gridpulse.pitwall.data import FIRST_SEASON, completed_races
 from gridpulse.pitwall.navigation import select_season
@@ -58,13 +59,14 @@ def render() -> None:
     ideal = ideal_laps(q.laps)
     results = q.results
     strip(q, ideal)
+    names = {d: driver_profile('f1', d).get('name') or d for d in results.Driver.dropna()}
 
     left, right = st.columns([7, 6], gap="large")
     with left, st.container(border=True, key="card-quali"):
         ui.label("Classification")
         ui.note("Fastest time of each part in purple. The ideal lap adds up each driver's best three sectors; "
                 "the small figure is the time they left on the table.")
-        tables.quali_table(results, ideal, q.team_colors)
+        tables.quali_table(results, ideal, q.team_colors, names=names)
 
     order = results["Driver"].dropna().tolist()
     with right, st.container(border=True, key="card-sectors"):
@@ -74,7 +76,7 @@ def render() -> None:
         ui.note("Each driver's best sector against the fastest of the session.")
         shown = order if everyone else order[:10]
         dark = getattr(getattr(st.context, "theme", None), "type", "dark") != "light"
-        st.plotly_chart(charts.sector_gaps_chart(ideal, shown, dark), width="stretch", key="chart_sectors",
+        st.plotly_chart(charts.readable(charts.sector_gaps_chart(ideal, shown, dark), names), width="stretch", key="chart_sectors",
                         config={"displayModeBar": False})
 
     with st.container(border=True, key="card-evolution"):
@@ -82,7 +84,7 @@ def render() -> None:
         ui.note("Every valid push lap by when it was set: the track gets quicker as it rubbers in, and the "
                 "fastest laps come at the end of each part. The top three in team colours; deleted laps "
                 "are left out.")
-        st.plotly_chart(charts.quali_evolution_chart(q.laps, q.team_colors, order[:3]), width="stretch",
+        st.plotly_chart(charts.readable(charts.quali_evolution_chart(q.laps, q.team_colors, order[:3]), names), width="stretch",
                         key="chart_evolution")
     ui.note("To compare two drivers' laps corner by corner, open the Onboard page.")
 

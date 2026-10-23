@@ -26,7 +26,7 @@ def render() -> str:
     primary, more = st.columns([3.3, 1.5], gap='small', vertical_alignment='bottom')
     primary.segmented_control('Main replay views', PRIMARY, key='view_primary', on_change=select_primary,
                               format_func=lambda v: 'Order' if v == 'Positions' else v,
-                              label_visibility='collapsed', width='stretch', wrap=False)
+                              label_visibility='collapsed', width='stretch', wrap=True)
     more.selectbox('More replay views', ['More', *SECONDARY], key='view_more', on_change=select_more,
                    label_visibility='collapsed')
     return active

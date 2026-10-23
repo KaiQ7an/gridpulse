@@ -19,6 +19,7 @@ from gridpulse import snapshots
 from gridpulse.branding import NAME
 from gridpulse.pitwall import (
     about_page,
+    browser_memory,
     charts,
     circuits_page,
     driver_picker,
@@ -38,7 +39,7 @@ from gridpulse.pitwall import (
     views,
 )
 from gridpulse.pitwall.data import FIRST_SEASON, RaceData, completed_races, lap_clock, load_race
-from gridpulse.pitwall.events import fastest_lap_candidates, fastest_sectors, neutralised_banner, situation
+from gridpulse.pitwall.events import fastest_lap_candidates, fastest_sectors, neutralised_banner
 from gridpulse.pitwall.navigation import driver_codes, integer, replay_params, select_season, url
 from gridpulse.pitwall.replay_navigation import VIEWS
 from gridpulse.pitwall.timeline import event_timeline, known_events
@@ -140,6 +141,11 @@ def restore_replay() -> None:
         if key not in ss:
             ss[key] = value
     ss.playing = False
+    if not st.query_params and 'race_key' not in ss:
+        ss.pending_replay = replay_params(saved.get('race_year'), saved.get('race_pick'),
+                                          'S' if saved.get('race_session') == 'Sprint' else 'R',
+                                          lap=saved.get('lap'), focus=saved.get('focus', []),
+                                          view=saved.get('view', 'Gaps'), no_spoilers=True)
 
 
 def remember_replay() -> None:
@@ -243,17 +249,17 @@ def status_strip(race: RaceData, laps: pd.DataFrame, tower: pd.DataFrame, lap: i
 
     stats = [
         ui.stat("Lap", f"{lap}", small=f"/ {race.total_laps}"),
-        ui.stat("Leader", "", value_html=ui.driver_dot(race.team_colors.get(leader, "#999")) + leader),
+        ui.stat("Leader", "", value_html=ui.driver_dot(race.team_colors.get(leader, "#999")) + html.escape(explain.name(race, leader))),
         ui.stat("Track", "", value_html=ui.status_pill(status)),
         ui.stat(
             "Fastest lap", "–" if fastest is None else "",
             value_html=None if fastest is None else
-            ui.driver_dot(race.team_colors.get(fastest["Driver"], "#999")) + fastest["Driver"]
+            ui.driver_dot(race.team_colors.get(fastest["Driver"], "#999")) + html.escape(explain.name(race, fastest["Driver"]))
             + f' <span style="color:#A855F7">{format_lap_time(fastest["LapTime"])}</span>',
             small=f"L{int(fastest['LapNumber'])}" if fastest is not None else "",
         ),
     ]
-    details = ui.sector_stats(fastest_sectors(laps, top=3), race.team_colors, include_empty=True)
+    details = ui.sector_stats(fastest_sectors(laps, top=3), race.team_colors, include_empty=True, names=explain.names(race))
     if weather is not None:
         for label, column in (("Track temp", "TrackTemp"), ("Air temp", "AirTemp")):
             value = weather.get(column)
@@ -366,7 +372,8 @@ def race_view(race: RaceData) -> None:
             ss.playing = False
             st.rerun()
 
-    left, right = st.columns([6, 7], gap="large")
+    with st.container(key="replay-workspace"):
+        left, right = st.columns([6, 7], gap="large")
     with left, st.container(border=True, key="card-tower"):
         ui.label("Timing")
         # Rows slide and gaps count over most of the tick, so motion is continuous while playing.
@@ -391,7 +398,17 @@ def race_view(race: RaceData) -> None:
                 st.plotly_chart(charts.circuit_map(race.track), width="stretch", key="chart_circuit",
                                 config={"displayModeBar": False, "staticPlot": True})
             with list_col:
-                ui.sector_list(fastest_sectors(laps, top=2), race.team_colors)
+                ui.sector_list(fastest_sectors(laps, top=2), race.team_colors, names=explain.names(race))
+
+    with left, st.expander('Read the timing tower · names, tyres & gaps'):
+        st.caption('Gap: seconds behind the leader. Interval: seconds behind the next car. '
+                   'Soft / medium / hard are dry tyre types; tyre age counts laps on that set. '
+                   'PIT means the car is in the pit lane. Stops counts completed tyre changes.')
+        shown = tower[['Driver', 'Gap', 'Compound', 'TyreAge', 'Stops']].copy()
+        shown['Driver'] = shown.Driver.map(explain.names(race))
+        shown['Compound'] = shown.Compound.str.title()
+        st.dataframe(shown.rename(columns={'Compound': 'Tyre', 'TyreAge': 'Tyre age (laps)'}),
+                     hide_index=True, width='stretch')
 
     with right, st.container(border=True, key="card-views"):
         # Only the chosen view is drawn each tick (tabs would redraw all of them).
@@ -401,11 +418,11 @@ def race_view(race: RaceData) -> None:
                     "stops, shaded laps ran under safety car or VSC.")
             gaps = race.gaps[race.gaps["LapNumber"] <= lap]
             fig = charts.gap_chart(gaps, focus, race.team_colors, race.total_laps)
-            st.plotly_chart(charts.shade_periods(fig, periods, lap), width="stretch", key="chart_trace")
+            st.plotly_chart(charts.readable(charts.shade_periods(fig, periods, lap), race.full_names), width="stretch", key="chart_trace")
         elif view == "Positions":
             ui.note("Running order at the end of each lap.")
             fig = charts.position_chart(laps, focus, race.team_colors, race.total_laps)
-            st.plotly_chart(charts.shade_periods(fig, periods, lap), width="stretch", key="chart_positions")
+            st.plotly_chart(charts.readable(charts.shade_periods(fig, periods, lap), race.full_names), width="stretch", key="chart_positions")
         elif view == "Tyres":
             views.tyres_view(race, laps, tower, lap, focus)
         elif view == "Pit stops":
@@ -416,7 +433,7 @@ def race_view(race: RaceData) -> None:
             ui.note("Representative laps only: no pit laps, safety cars or yellow flags.")
             if focus:
                 clean = race.clean_through(lap)
-                st.plotly_chart(charts.pace_chart(clean, focus, race.total_laps), width="stretch", key="chart_pace")
+                st.plotly_chart(charts.readable(charts.pace_chart(clean, focus, race.total_laps), race.full_names), width="stretch", key="chart_pace")
         elif view == "Radio":
             views.radio_view(race, lap, focus)
         else:
@@ -425,8 +442,12 @@ def race_view(race: RaceData) -> None:
     with right, st.container(border=True, key="card-feed"):
         ui.label("Race feed")
         feed = with_radio(race.events, race.radio, lap).iloc[::-1]
-        ui.race_feed(situation(tower, lap, race.total_laps), feed, lap)
+        shown_feed = feed.head(9).copy()
+        display_names = explain.names(race)
+        shown_feed['Text'] = shown_feed.Text.map(lambda value: explain.expand_codes(value, display_names))
+        ui.race_feed(explain.situation(race, tower, lap), shown_feed, lap)
     sync_replay_link(race)
+    browser_memory.write()
 
 
 def places_gained(race: RaceData, tower: pd.DataFrame, lap: int) -> dict[str, int]:
@@ -513,6 +534,7 @@ def race_page() -> None:
 def main() -> None:
     st.set_page_config(page_title=f"{NAME} · Motorsport", page_icon="🏁", layout="wide")
     ui.inject_css()
+    browser_memory.read()
     ss = st.session_state
     ss.setdefault("racing_series", "Formula 1")
     f1_visibility = "visible" if ss.racing_series == "Formula 1" else "hidden"
@@ -569,6 +591,8 @@ def main() -> None:
     if ss.racing_series != "DTM" or ss.sidebar_current_page != "dtm":
         ui.sidebar_navigation(fallback=True)
     current.run()
+    if current.url_path != "replay":
+        browser_memory.write()
 
 
 def home_or_legacy_replay() -> None:

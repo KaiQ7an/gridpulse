@@ -24,6 +24,7 @@ from gridpulse.pitwall import (
     styles,
     tables,
     ui,
+    weekend_impact,
     weekend_overview,
 )
 
@@ -269,8 +270,12 @@ def championship(season: dict):
         names = {r["key"]: r["name"] for r in board}
         picker_teams = {d: entry["team"] for d, entry in meta.items()}
         picker = f"dtm_lines_{category}_{season['year']}"
-        selected = st.multiselect("Follow up to six", options, default=options[:4], format_func=names.get,
+        followed_key = f"{category}-{season['year']}"
+        followed = st.session_state.setdefault('dtm_followed', {})
+        default = [d for d in followed.get(followed_key, options[:4]) if d in options]
+        selected = st.multiselect("Follow up to six", options, default=default, format_func=names.get,
                                   max_selections=6, key=picker)
+        followed[followed_key] = selected
         if category == "drivers":
             driver_picker.decorate("Follow up to six", options, picker_teams, key=picker)
         if selected:
@@ -312,6 +317,7 @@ def weekend(season: dict):
     event = events[selected]
     ui.header(f"Round {selected} · {event['country']}", event["name"], f"{event['start']} — {event['end']}")
     opened_session = weekend_overview.render(event, season["year"])
+    weekend_impact.render(season, selected)
     if opened_session:
         ss.dtm_session = opened_session
     if event["length_m"]:

@@ -78,7 +78,7 @@ pace, tyres and strategy as the race unfolds. It is built in layers, each useful
 - [ ] Live mode on top of the same data layer as replay. F1's live-timing feed now needs an
       F1 TV subscription login (FastF1's `SignalRClient`); OpenF1 offers real-time data on a paid plan
 - [ ] Live tyre-degradation estimate and pit-window projection
-- [ ] Optional public deployment on Streamlit Community Cloud
+- [x] Public deployment on Streamlit Community Cloud (https://gridpulse-racing.streamlit.app/)
 
 ## 8. Multi-series: DTM (first release)
 
@@ -88,3 +88,19 @@ pace, tyres and strategy as the race unfolds. It is built in layers, each useful
 - [x] Driver comparisons, shareable selections and saved snapshots for offline use
 - [ ] Lap-by-lap DTM replay, once a reliable public timing source is available
 - [ ] GT World Challenge and other ADAC series adapters
+
+## 9. First visit, return visits and readable analysis
+
+- [x] Skippable three-step newcomer guide using the replay's current-lap tyre model
+- [x] Interactive same-compound stop comparison, tyre-use timelines and plain-language feedback
+- [x] Plain-language race situation and strategy summary before the full workbench
+- [x] Advanced rival scenarios and optional chart overlays behind native disclosures
+- [x] Full driver names in replay charts, feed, radar, timing sectors and Onboard presentation;
+      raw driver IDs retained for model calculations and links
+- [x] Browser-local weekend pins, replay/DTM resume, followed DTM entries and radar preferences;
+      validated allowlist, spoiler-safe restore and a forget/disable control
+- [x] Phone layout: selected analysis before timing tower, touch-readable timing help,
+      primary standings keep names and points together
+- [x] DTM weekend points impact, points-only rank movement and before/after lead comparison;
+      missing allocations suppress incomplete cumulative claims
+- [ ] Broader real-device and screen-reader usability sessions (current checks use responsive browser widths)

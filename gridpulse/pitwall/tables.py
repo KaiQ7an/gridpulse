@@ -107,10 +107,11 @@ def pit_table(stops, colors: dict[str, str], lap: int) -> None:
     st.html(f'<div class="pl-pits-wrap">{head}<div class="pl-pits">{"".join(rows)}</div></div>')
 
 
-def quali_table(results, ideal, colors: dict[str, str]) -> None:
+def quali_table(results, ideal, colors: dict[str, str], names=None) -> None:
     """Qualifying classification: Q1/Q2/Q3 times (fastest of each part in purple), gap to pole, and the
     ideal lap from each driver's best sectors with what was left on the table; dashed lines mark the
     knockouts."""
+    names = names or {}
     best = {q: results[q].min() for q in ("Q1", "Q2", "Q3")}
     pole = results["Q3"].min() if results["Q3"].notna().any() else results[["Q1", "Q2", "Q3"]].min().min()
     ideal = ideal.set_index("Driver") if len(ideal) else ideal
@@ -141,7 +142,7 @@ def quali_table(results, ideal, colors: dict[str, str]) -> None:
         pos = "" if pd.isna(r.Position) else int(r.Position)
         rows.append(
             f'<div class="pl-q{" out" if r.Out else ""}"><span class="pos">{pos}</span>'
-            f'<span>{driver_dot(colors.get(r.Driver, "#999"))}<b>{html.escape(str(r.Driver))}</b></span>'
+            f'<span>{driver_dot(colors.get(r.Driver, "#999"))}<b>{html.escape(names.get(r.Driver, str(r.Driver)))}</b></span>'
             + "".join(cells) + f'<span class="num">{gap}</span><span class="num ideal">{ideal_html}</span></div>'
         )
     st.html(f'<div class="pl-qwrap">{head}{"".join(rows)}</div>')

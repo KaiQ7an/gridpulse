@@ -3,7 +3,7 @@
 import pandas as pd
 import streamlit as st
 
-from gridpulse.pitwall import charts, ui
+from gridpulse.pitwall import charts, explain, ui
 from gridpulse.undercut.radar import undercut_radar
 from gridpulse.undercut.window import DRY
 
@@ -37,7 +37,7 @@ def render(race, tower: pd.DataFrame, lap: int, model, focus: list[str]) -> None
     delay = b.selectbox('Reply after', [1, 2, 3], format_func=lambda n: f'{n} lap' + ('s' if n > 1 else ''),
                         index=[1, 2, 3].index(prefs.get('delay', 1)), key='radar_delay',
                         help='How many laps later the car ahead responds to the first stop.')
-    extra = c.number_input('Extra cost (s)', min_value=0.0, max_value=5.0, value=prefs.get('extra', 0.0), step=0.1,
+    extra = c.number_input('Extra cost (s)', min_value=0.0, max_value=5.0, value=float(prefs.get('extra', 0.0)), step=0.1,
                            key='radar_extra', help='Extra stop or warm-up cost for the first stopper relative to the rival. '
                            'Equal total pit costs cancel; they are not deducted twice.')
     current = race.laps[race.laps.LapNumber == lap]
@@ -62,12 +62,12 @@ def render(race, tower: pd.DataFrame, lap: int, model, focus: list[str]) -> None
         return
     if (shown.Status == 'Model edge').any():
         edge = shown[shown.Status == 'Model edge'].iloc[0]
-        ui.insight(f'{edge.Chaser} → {edge.Ahead}: {edge.Margin:+.2f} s after the response in this scenario. '
+        ui.insight(f'{explain.name(race, edge.Chaser)} → {explain.name(race, edge.Ahead)}: {edge.Margin:+.2f} s after the response in this scenario. '
                    'The model range is above break-even; traffic and actual stop performance can change the outcome.')
     else:
         ui.note('No clear measured edge in these battles. Blue/grey dots use priors, are still learning or lack a range; '
                 'amber ranges cross break-even.')
-    st.plotly_chart(charts.undercut_radar_chart(shown, race.full_names), width='stretch', key='chart_undercut_radar',
+    st.plotly_chart(charts.readable(charts.undercut_radar_chart(shown, race.full_names), race.full_names), width='stretch', key='chart_undercut_radar',
                     on_select=lambda: inspect_chaser(set(tower.loc[~tower.Out & (tower.LapsDown == 0), 'Driver'])),
                     selection_mode='points')
     ui.note(f'Showing {len(shown)} of {len(pairs)} eligible battles. '
@@ -75,5 +75,6 @@ def render(race, tower: pd.DataFrame, lap: int, model, focus: list[str]) -> None
             'Ranges include model parameter uncertainty and lap noise, not a calibrated chance of overtaking.')
     with st.expander('Radar details'):
         detail = pairs[['Chaser', 'Ahead', 'Gap', 'Margin', 'Low', 'High', 'Status', 'ChaserSamples', 'AheadSamples']]
+        detail = detail.assign(Chaser=detail.Chaser.map(explain.names(race)), Ahead=detail.Ahead.map(explain.names(race)))
         st.dataframe(detail.rename(columns={'Margin': 'Ahead after response (s)', 'Low': 'Model low (s)',
                                             'High': 'Model high (s)'}), hide_index=True, width='stretch')

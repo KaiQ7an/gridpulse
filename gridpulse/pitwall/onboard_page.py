@@ -1,5 +1,7 @@
 """Onboard page of the pit wall: fastest or explicitly chosen telemetry laps."""
 
+import html
+
 import pandas as pd
 import streamlit as st
 
@@ -12,7 +14,7 @@ from gridpulse.onboard.data import (
     load_weekend,
     teammate_of,
 )
-from gridpulse.pitwall import driver_picker, event_names, ui
+from gridpulse.pitwall import charts, driver_picker, event_names, explain, ui
 from gridpulse.pitwall.data import FIRST_SEASON, completed_races
 from gridpulse.pitwall.navigation import integer, select_season
 from gridpulse.pitwall.timing import format_lap_time
@@ -184,7 +186,10 @@ def render() -> None:
     if a == b and data.ref.lap_number == data.other.lap_number:
         st.info("Both selections resolve to the same lap. Choose a different comparison lap.")
         st.stop()
-    a, b = data.labels
+    display_names = {row.Driver: (row.FullName if pd.notna(row.get('FullName')) and row.FullName
+                                  else driver_profile('f1', row.Driver).get('name') or row.Driver)
+                     for _, row in drivers.iterrows()}
+    a, b = (explain.expand_codes(label, display_names) for label in data.labels)
 
     aligned = align(data.ref.telemetry, data.other.telemetry)
     sectors = minisectors(aligned)
@@ -196,8 +201,8 @@ def render() -> None:
         f"{year} · Round {round_number} · {data.session_name}",
         f"{a} vs {b}",
         f"{data.name} · {'selected laps' if mode == 'Choose laps' else 'fastest laps'} · data: {data.source}",
-        title_html=f'<span style="color:{ref_color}">{a}</span> <span style="opacity:.45">vs</span> '
-        f'<span style="color:{other_color}">{b}</span>',
+        title_html=f'<span style="color:{ref_color}">{html.escape(a)}</span> <span style="opacity:.45">vs</span> '
+        f'<span style="color:{other_color}">{html.escape(b)}</span>',
     )
     won = int((sectors["Faster"] == "ref").sum())
     sector_stats = [
@@ -239,13 +244,13 @@ def render() -> None:
         if data.dashes[1] == "dash":
             ui.note(f"Shared team colour: {a} is the solid line; {b} is dashed. "
                     f"The gap is above zero for {a}, below for {b}.")
-        st.plotly_chart(telemetry_figure(data, aligned, marks, ranges.get(zoom)), width="stretch", key="ob_tel")
+        st.plotly_chart(charts.readable(telemetry_figure(data, aligned, marks, ranges.get(zoom)), display_names), width="stretch", key="ob_tel")
 
     left, right = st.columns([6, 5], gap="large")
     with left, st.container(border=True, key="card-map"):
         ui.label("Who was faster where")
         ui.note("The lap split into 25 equal mini-sectors, each in the colour of the quicker driver.")
-        st.plotly_chart(track_map(data, sectors), width="stretch", key="ob_map")
+        st.plotly_chart(charts.readable(track_map(data, sectors), display_names), width="stretch", key="ob_map")
     with right, st.container(border=True, key="card-corners"):
         ui.label("Corner by corner")
         ui.note("Time gained through each corner; hover for minimum speeds.")

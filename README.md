@@ -52,6 +52,14 @@ need to wake up; no fixed startup-time guarantee is implied.
 
 ## Features
 
+First visit? [Try the two-minute guide](https://gridpulse-racing.streamlit.app/learn):
+meet the drivers, change a stop timing and compare two tyre-use timelines. The feedback
+uses the same current-lap model as the replay, with its assumptions shown alongside it.
+Pinned weekends, the last replay, followed DTM entries and radar preferences can be remembered
+on this browser without an account. Home’s **Saved on this browser** panel can forget them and
+disable memory; explicit links take priority and returning replays keep results hidden.
+
+
 Both series use the same sidebar design, full-name driver selectors and season-specific teams.
 
 **Home** (`/`)

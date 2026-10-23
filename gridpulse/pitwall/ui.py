@@ -200,8 +200,9 @@ def driver_order(entrants, finish_order: list[str]) -> list[str]:
     return sorted(team_of, key=lambda d: (order.index(team_of[d]) if team_of[d] in order else 99, rank.get(d, 99)))
 
 
-def sector_stats(rankings: list[list[tuple[str, float, int]]], colors: dict[str, str], *, include_empty=False) -> list[str]:
+def sector_stats(rankings: list[list[tuple[str, float, int]]], colors: dict[str, str], *, include_empty=False, names=None) -> list[str]:
     """Fastest S1/S2/S3 so far as three small stats (a size down from the main ones); hover shows P2 and P3."""
+    names = names or {}
     out = []
     for n, ranking in enumerate(rankings, start=1):
         if not ranking:
@@ -210,14 +211,14 @@ def sector_stats(rankings: list[list[tuple[str, float, int]]], colors: dict[str,
             continue
         driver, secs, lap = ranking[0]
         rows = "".join(
-            f'<div class="r"><span class="n">P{i}</span><span>{driver_dot(colors.get(d, "#999"))}{html.escape(d)}</span>'
+            f'<div class="r"><span class="n">P{i}</span><span>{driver_dot(colors.get(d, "#999"))}{html.escape(names.get(d, d))}</span>'
             f'<span>{t:.3f}</span><span class="d">+{t - secs:.3f}</span></div>'
             for i, (d, t, _) in enumerate(ranking[1:], start=2)
         )
         pop = f'<div class="pl-pop"><div class="pl-label">Sector {n}</div>{rows}</div>' if rows else ""
         out.append(
             f'<div class="pl-stat sec" tabindex="0"><div class="k">Best S{n}</div><div class="v">'
-            f'{driver_dot(colors.get(driver, "#999"))}{html.escape(driver)} <span style="color:#A855F7">{secs:.3f}</span>'
+            f'{driver_dot(colors.get(driver, "#999"))}{html.escape(names.get(driver, driver))} <span style="color:#A855F7">{secs:.3f}</span>'
             f"<small>L{lap}</small></div>{pop}</div>"
         )
     return out
@@ -251,18 +252,19 @@ def notifications(notes: list[dict]) -> None:
             st.html(card)
 
 
-def sector_list(rankings, colors: dict[str, str]) -> None:
+def sector_list(rankings, colors: dict[str, str], names=None) -> None:
     """Fastest S1/S2/S3 so far, with the gap to the next quickest driver."""
+    names = names or {}
     rows = []
     for n, ranking in enumerate(rankings, start=1):
         if not ranking:
             continue
         d, t, lap = ranking[0]
         c = colors.get(d, "#999")
-        nxt = f" · +{ranking[1][1] - t:.3f} to {html.escape(ranking[1][0])}" if len(ranking) > 1 else ""
+        nxt = f" · +{ranking[1][1] - t:.3f} to {html.escape(names.get(ranking[1][0], ranking[1][0]))}" if len(ranking) > 1 else ""
         rows.append(
             f'<div class="pl-secrow"><div class="num" style="background:{c}">{n}</div>'
-            f'<div><div class="who">{html.escape(d)}<span class="t">{t:.3f}</span></div>'
+            f'<div><div class="who">{html.escape(names.get(d, d))}<span class="t">{t:.3f}</span></div>'
             f'<div class="meta">Sector {n} · lap {lap}{nxt}</div></div></div>'
         )
     st.html('<div class="pl-seclist">' + "".join(rows) + "</div>")

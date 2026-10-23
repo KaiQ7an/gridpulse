@@ -8,3 +8,16 @@
 .race-story small {color:var(--gp-muted);font-size:.82rem}
 .race-help {margin-top:6px;font-size:.85rem}.race-help summary{cursor:pointer;font-weight:600;color:var(--gp-accent)}
 .race-help summary:focus-visible{outline:2px solid currentColor;outline-offset:3px}
+
+.lesson-visual{border:1px solid rgba(128,128,128,.3);border-radius:12px;padding:18px;margin:12px 0}
+.lesson-axis,.lesson-plan-heading{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.lesson-axis{color:var(--gp-muted);font-size:.85rem;margin-bottom:12px}
+.lesson-plan{padding:14px;border:2px solid transparent;border-radius:9px;margin:6px 0;background:rgba(128,128,128,.06)}
+.lesson-plan.selected{border-color:light-dark(#21734b,#65dba0)}
+.lesson-plan-heading span{font-size:.82rem;color:var(--gp-muted)}
+.lesson-tyres{display:flex;height:18px;margin:12px 0;border-radius:4px;overflow:hidden}
+.lesson-tyres .old{background:#85919d;min-width:8px}.lesson-tyres .stop{width:4px;background:light-dark(#172029,#fff)}
+.lesson-tyres .fresh{background:light-dark(#31865c,#65c796);flex:1}
+.lesson-plan p{margin:0;font-size:.92rem}.lesson-feedback{font-size:1.15rem;font-weight:650;padding:10px 0}
+.lesson-visual small{color:var(--gp-muted);line-height:1.6}
+@media(max-width:600px){.lesson-visual{padding:12px}.lesson-plan{padding:10px}}

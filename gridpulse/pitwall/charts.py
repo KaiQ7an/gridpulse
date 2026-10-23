@@ -4,6 +4,8 @@ Focus drivers are drawn in their team colour (the second driver of a team
 dashed); everyone else stays a thin grey line for context.
 """
 
+import html
+
 import numpy as np
 import pandas as pd
 import plotly.express as px
@@ -656,4 +658,46 @@ def circuit_stops_chart(years: pd.DataFrame) -> go.Figure:
     plotstyle.apply(fig)
     fig.update_xaxes(title="Finishers")
     fig.update_yaxes(title=None, type="category", autorange="reversed")
+    return fig
+
+
+def readable(fig: go.Figure, names: dict[str, str]) -> go.Figure:
+    """Expand presentation labels only; model IDs, categories and callback customdata stay stable."""
+    from gridpulse.pitwall.explain import expand_codes
+
+    labels = {key: html.escape(str(value)) for key, value in names.items() if isinstance(value, str)}
+    def text(value):
+        return expand_codes(value, labels) if isinstance(value, str) else value
+
+    for trace in fig.data:
+        trace.name = text(trace.name)
+        if hasattr(trace, 'hovertemplate') and isinstance(trace.hovertemplate, str):
+            trace.hovertemplate = text(trace.hovertemplate)
+        if (trace.type != 'heatmap' and getattr(trace, 'y', None) is not None
+                and isinstance(getattr(trace, 'hovertemplate', None), str) and '%{y}' in trace.hovertemplate
+                and any(text(v) != v for v in trace.y if isinstance(v, str))):
+            # Append readable hover identity; keep every pre-existing callback field in place.
+            custom = list(trace.customdata) if trace.customdata is not None else [[] for _ in trace.y]
+            rows = [list(v) if isinstance(v, (list, tuple, np.ndarray)) else [v] for v in custom]
+            if len(rows) == len(trace.y) and rows and len({len(row) for row in rows}) == 1:
+                column = len(rows[0])
+                trace.customdata = [row + [text(v)] for row, v in zip(rows, trace.y)]
+                trace.hovertemplate = trace.hovertemplate.replace('%{y}', f'%{{customdata[{column}]}}')
+        if hasattr(trace, 'text') and trace.text is not None:
+            trace.text = text(trace.text) if isinstance(trace.text, str) else [text(t) for t in trace.text]
+    for annotation in fig.layout.annotations:
+        annotation.text = text(annotation.text)
+        # Keep full end labels inside the plot, rather than reserving half a phone screen.
+        if annotation.xanchor == 'left' and annotation.xshift == 6:
+            annotation.xanchor, annotation.xshift = 'right', -5
+    for axis in fig.select_yaxes():
+        key = axis.plotly_name.replace('axis', '')
+        values = list(axis.categoryarray) if axis.categoryarray is not None else []
+        if not values:
+            for trace in fig.data:
+                if getattr(trace, 'yaxis', None) in (None, key) and getattr(trace, 'y', None) is not None:
+                    values.extend(v for v in trace.y if isinstance(v, str))
+            values = list(dict.fromkeys(values))
+        if any(text(v) != v for v in values):
+            axis.update(tickmode='array', tickvals=values, ticktext=[text(v) for v in values], automargin=True)
     return fig

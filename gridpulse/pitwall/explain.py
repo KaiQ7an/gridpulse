@@ -4,6 +4,7 @@ The guide and the workbench share the same tyre fit and one-final-stop scenarios
 No lesson uses a later result to decide what a visitor should do now.
 """
 
+import re
 from dataclasses import dataclass
 
 import pandas as pd
@@ -90,3 +91,9 @@ def takeaway(race: RaceData, tower: pd.DataFrame, lap: int, driver: str, context
             f'{first.Lost:.1f} seconds slower than that model plan. '
             + ('Typical tyre wear is used until measured dry laps are available. ' if context.model.prior_only else '')
             + 'This is a simplified scenario, not a prediction of who wins.')
+
+
+def expand_codes(text: str, labels: dict[str, str]) -> str:
+    """Replace standalone timing codes for display, without changing stored events."""
+    pattern = r'\b(' + '|'.join(re.escape(k) for k in labels) + r')\b'
+    return re.sub(pattern, lambda match: labels[match.group()], text) if labels else text

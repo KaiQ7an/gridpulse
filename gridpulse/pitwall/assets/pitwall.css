@@ -354,3 +354,35 @@ h1, h2, h3 { letter-spacing: -0.01em; }
 .scoreboard tbody tr:hover {background:rgba(128,128,128,.08)}
 .scoreboard tbody tr>:last-child:not(.points) {color:var(--gp-muted);font-size:.88rem}
 @media(max-width:600px){.scoreboard th,.scoreboard td{padding:11px 8px}.scoreboard tbody th{min-width:120px}.scoreboard tr>:first-child{width:36px}.scoreboard tr>:nth-child(3){width:70px}.scoreboard tr>:nth-child(4){max-width:120px;overflow-wrap:anywhere}}
+
+/* Small screens prioritise the question, identity and points. Additional columns
+   stay available inside the full classification rather than moving the page. */
+@media(max-width:640px){
+  [data-testid="stMainBlockContainer"]{padding-left:1rem;padding-right:1rem;padding-top:3.2rem}
+  .pl-title{font-size:1.85rem}.pl-sub{font-size:.95rem;line-height:1.5}
+  .scoreboard tr>:nth-child(4){display:none}
+  .scoreboard-scroll{max-width:100%}.scoreboard tbody th{min-width:0;overflow-wrap:anywhere}
+  .scoreboard tr>:first-child{width:32px}.scoreboard tr>:nth-child(3){width:68px}
+  .pl-stat .v{white-space:normal;overflow-wrap:anywhere}
+  .pl-ev{grid-template-columns:36px 64px minmax(0,1fr);gap:6px}
+  .pl-ev .txt{overflow-wrap:anywhere}
+}
+a:focus-visible,summary:focus-visible{outline:2px solid light-dark(#1468b8,#7abfff);outline-offset:3px}
+@media(pointer:coarse){button,[role="button"],summary{min-height:44px} .scoreboard th,.scoreboard td{padding-top:14px;padding-bottom:14px}}
+
+.pl-status-main .v,.pl-status-details .v{white-space:normal;line-height:1.45;overflow-wrap:anywhere}
+.pl-secrow .who{display:flex;flex-wrap:wrap;gap:5px;align-items:baseline}
+.pl-secrow .meta{overflow-wrap:anywhere}
+@media(max-width:640px){button,[role="radio"],summary{min-height:44px}.pl-qwrap{overflow-x:auto}.pl-q{min-width:720px}}
+
+.impact-scroll{max-width:100%;overflow:auto;border:1px solid rgba(128,128,128,.24);border-radius:8px}
+.impact-table{width:100%;border-collapse:collapse;font-size:.95rem;font-variant-numeric:tabular-nums}
+.impact-table caption{font-size:.8rem;text-align:left;padding:10px;color:var(--gp-muted)}
+.impact-table th,.impact-table td{padding:11px 12px;border-top:1px solid rgba(128,128,128,.18);text-align:left}
+.impact-table tr>:not(:first-child){text-align:right;white-space:nowrap}.impact-table tbody th{font-weight:600}
+@media(max-width:640px){
+ .impact-table th,.impact-table td{padding:11px 8px}.impact-table th:first-child{overflow-wrap:anywhere}
+ /* The native columns remain intact on desktop; at phone width the chosen analysis
+    precedes the tall timing tower. Scope this framework layout hook to our workspace. */
+ .st-key-replay-workspace [data-testid="stColumn"]:has(.st-key-card-views){order:-1}
+}

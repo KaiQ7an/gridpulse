@@ -83,7 +83,7 @@ def test_same_driver_chosen_laps_survive_picker_changes_and_shareable_link(monke
     at.run()
     assert not at.exception and at.selectbox(key="ob_b").value == "VER"
     text = "".join(h.proto.body for h in at.get("html"))
-    assert "VER · L10" in text and "VER · L12" in text
+    assert "Max Verstappen · L10" in text and "Max Verstappen · L12" in text
     at.selectbox(key="ob_other_lap").set_value(11).run()
     assert not at.exception and at.query_params["lap_b"] == "11"
     at.run()
